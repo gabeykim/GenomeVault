@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-027 committed-pack test (f6d6ae0). PR #2 rebased on main 7798c1d, waiting for G2
+current_task: B-028 combo-question tests (cb4a705). PR #2 rebased on main 3f96ffd, waiting for G2
 branch: agent/B-privacy-router
-last_commit: f6d6ae0
+last_commit: cb4a705
 last_seen:
   plan_version: "1.2.1"   # v1.3 is pending in PR #6 (read: D-025..D-029, msg 20261108-1501)
   decisions: D-024
-  logs: {A: 13, B: 27, C: 20, D: 10}
+  logs: {A: 14, B: 28, C: 21, D: 11}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -30,10 +30,13 @@ handled_messages:
   - 20261108-1500-from-A-allergy-keys.md
   - 20261108-1500-from-D-i4-confirmed.md
   - 20261108-1510-from-C-sync-and-order.md
+  - 20261108-1516-from-C-order-handled.md
+  - 20261108-1518-from-D-pack-confirmed.md
 blocked_on: none (D-027: the human recorded the pack, so the to-human 1418 key request clears once PR #6 merges)
 notes: >
-  B-027: new tests/B/test_committed_pack.py checks the D-027 pack in mocks/cloud_cache/: it matches partition v5
-  key-for-key, passes I7 wording, and sync_pack fills the KB with 0 personal fields. It skips until PR #6 merges.
-  Checked against PR #6's pack: 3 passed. make test exit 0, 627 passed, 4 skipped. Read A-013: no effect on B.
+  B-028: new tests/B/test_combo_questions.py (5 tests) for A-014 combination products: only universe ingredients
+  count as named, and ezetimibe, clavulanate and the strengths never leave the device (I3). Offline gives no_data,
+  and amox-clav with AL-001 stays local_only (I4). No router change was needed. make test exit 0, 632 passed, 4 skipped.
+  Read A-014, C-021, D-011 and D 1518: no change needed from B.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
 next: G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm test_committed_pack runs instead of skipping

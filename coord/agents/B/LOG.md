@@ -353,3 +353,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 627 passed, 4 skipped (the 3 new tests skip without the pack). With the PR #6 pack: 3 passed.
 - **Inbox:** nothing new. Read A-013 (capture: only the label's first drug line counts): no effect on B.
 - **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm the 3 tests run, not skip.
+
+### B-028 · 2026-11-08 15:45 · commit `cb4a705` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** New `tests/B/test_combo_questions.py` (5 tests). These cover questions that name a combination product, the way A-014 now reads one ("ezetimibe-simvastatin 10-40 mg", "amox-clav"). The tests use a stand-in for A's `to_ingredients` until PR #5 merges. They check that: (1) only universe ingredients count as named, so the combo question asks `clopidogrel|simvastatin` and nothing about ezetimibe; (2) online, no outbound text has "ezetimibe", "10-40" or the question, and 0 personal fields are sent; (3) offline, the answer is `no_data` with nothing sent; (4) amox-clav with the AL-001 allergy flag stays `local_only` with 0 bytes; (5) "clavulanate" never leaves the device. No router code changed: all 5 pass on the current router.
+- **Why:** A-014 makes `to_ingredients` return ingredients outside the bucket universe (ezetimibe, clavulanate). These tests pin that such names and the label strengths never reach the cloud (I3), and that a flag for another drug never makes the question `known` (I4).
+- **Class:** Advances
+- **Plan:** advances I3, I4, F4, M5
+- **Contract impact:** none
+- **Affects:** none. A: nothing to do. When PR #5 merges, the real `to_ingredients` gives the same ingredient sets as the stand-in.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 632 passed, 4 skipped. `check_ownership.py --range origin/main..HEAD` → ownership ok.
+- **Inbox:** D 1518 (pack confirmed, gate 20/0/0). Handled, nothing to do. Read A-014, C-021, D-011: no change needed from B.
+- **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm test_committed_pack runs, not skips.
