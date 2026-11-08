@@ -34,9 +34,10 @@ def test_status_reports_all_modules_real():
 
 def test_app_has_no_stand_ins():
     import app
-    for name in ("_MockLedger", "_mock_ledger", "_mock_to_ingredients", "_resolve", "LEDGER_IS_MOCK", "_note"):
+    for name in ("_MockLedger", "_mock_ledger", "_mock_to_ingredients", "_resolve", "_note"):
         assert not hasattr(app, name), name
     assert app.route.__module__ == "core.router" and app.ledger_feed.__module__ == "core.ledger"
+    assert app.LEDGER_IS_MOCK is False
 
 
 def test_profile_comes_from_device():

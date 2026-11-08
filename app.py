@@ -50,6 +50,7 @@ DISCLAIMER = "Demo, not medical advice. All patient data is synthetic."
 MODES: dict[str, str] = {name: "real" for name in (
     "graph.load_profile", "rules.check", "normalize.to_ingredients", "capture.from_image",
     "router.route", "merge.personalize", "ledger.feed", "cloud.status")}   # /api/status shape
+LEDGER_IS_MOCK = False   # kept for B's tests/B/test_app_path*.py, which check it; always False now
 
 EXTRAS: dict[str, bool] = {}
 
