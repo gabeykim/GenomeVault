@@ -2,11 +2,11 @@ agent: C
 state: working            # working | blocked | waiting-review | done | not-started
 current_task: none (C-005 pushed; PR #3 updated)
 branch: agent/C-app-ui
-last_commit: bb0c4fb
+last_commit: e569a88
 last_seen:
   plan_version: "1.1"
-  decisions: D-012
-  logs: {A: 1, B: 7, C: 7, D: 4}
+  decisions: D-013
+  logs: {A: 1, B: 8, C: 8, D: 4}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -16,6 +16,7 @@ handled_messages:
   - 20261108-1323-from-D-re-ui-look.md
   - 20261108-1410-from-B-router-ready.md
   - 20261108-1430-from-B-kb-ready.md
+  - 20261108-1355-from-B-offline-status.md
 blocked_on: none
 waiting_on: >
   A: no_data marker shape. I: ruling on proposal 20261108-1323-C-capture-and-status-contracts.md.

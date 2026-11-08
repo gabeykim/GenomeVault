@@ -92,3 +92,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** none
 - **Tests:** C alone → exit 0 (51 passed, 1 skipped). A+B+C+D merged → `make test` exit 0, 358 passed (A 4, B 272, C 48, D 30), `check_network.sh` ok, `make eval` exit 0 (simulated backend). With a fake key set, C tests still pass offline. In the merged app, Q18 sends buckets b01 (1248 B) and b05 (959 B) with 0 personal fields, and the UI ledger shows both.
 - **Next:** queue item 7 (demo toggle + offline badge); suggestion chips use D's exact demo texts (Q18 already does)
+
+### C-008 · 2026-11-08 13:55 · commit `e569a88` · PLAN v1.1
+
+- **Change:** (1) Ask offers D's demo questions Q18, Q19, Q07 and Q15 as chips, using the exact texts from `eval/queries.json`. They stay after asking and get a ↻ mark, so re-asking shows the KB hit. (2) Each bucket or cover row in the ledger opens to the 8 exact texts that left (`ledger.outbound(seq)`), and the user's own question is marked "yours" by matching `generalize.generalize(flag)`. Only the device can do that. (3) "N facts learned on this device", from `kb.stats()['fresh']`. New endpoint `GET /api/ledger/{seq}/outbound` → `{seq, texts, mine, available}`; `/api/ledger` adds `learned`; `/api/status` adds `extras`. Added `tests/C/test_demo_beats.py` (7 tests).
+- **Why:** User-requested polish of S4/S6 ahead of G2/G3, and D's request to use exact eval texts.
+- **Class:** Refines
+- **Plan:** advances M10, F5, F6, S4, S6
+- **Refinements:** B's non-contract extras (`ledger.outbound`, `kb.stats`, `generalize.generalize`) load optionally. A missing attribute hides the feature, and a broken module still raises.
+- **Contract impact:** none
+- **Affects:** D: chips match Q18/Q19/Q07/Q15 exactly (a test compares them with `eval/queries.json` when present) → none. B: please keep the extras' names → none.
+- **Demo impact:** S4 (open the ledger row: 8 questions, "yours" marked), S6 (re-ask Q18 → kb_hit 0 B, "Answered on device", learned counter)
+- **Tests:** C alone → `make test` exit 0 (55 passed, 3 skipped). origin/main + A + B + C + D merged → exit 0, 409 passed, 0 skipped, including the full S4 → S6 test (bucket of 8, nothing personal in the texts, ≥8 facts learned, repeat ask is kb_hit 0 B). Checked by hand in the merged app with a placeholder cache.
+- **Next:** queue item 7 (offline badge + "Wi-Fi off" toggle using B's `cloud.status`/`set_offline`, DEMO fallback), then 5 (`phone/`)
