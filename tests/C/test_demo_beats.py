@@ -98,3 +98,16 @@ def test_s4_then_s6_end_to_end(filled_cache):
     assert again["sent_to_cloud"] is False
     new = client.get(f"/api/ledger?since={since}").json()["entries"]
     assert new and all(e["kind"] == "kb_hit" and e["bytes_out"] == 0 for e in new)
+
+
+def test_cover_rows_never_mark_yours(monkeypatch):
+    from datetime import datetime, timezone
+    from core.contracts import Flag, LedgerEntry
+    row = LedgerEntry(seq=7, ts=datetime.now(timezone.utc), bucket_id="b14", kind="cover", bytes_out=900)
+    monkeypatch.setattr(app_module, "ledger_feed", lambda since=0: [row] if row.seq > since else [])
+    monkeypatch.setattr(app_module, "ledger_outbound", lambda seq: ["T-mine", "T-other"])
+    monkeypatch.setattr(app_module, "generalize_flag", lambda f: [type("T", (), {"text": "T-mine"})()])
+    assert client.get("/api/ledger/7/outbound").json()["mine"] == []           # cover: never "yours"
+    row2 = row.model_copy(update={"kind": "bucket"})
+    monkeypatch.setattr(app_module, "ledger_feed", lambda since=0: [row2] if row2.seq > since else [])
+    assert client.get("/api/ledger/7/outbound").json()["mine"] == [0]          # a real question group: yes

@@ -85,7 +85,9 @@ function formatDate(iso) {
 function flagTitle(key) {
   const drugs = [], context = [], conditions = [];
   for (const part of key.split("|")) {
-    if (part.includes(":")) {
+    if (part.startsWith("allergy:")) {
+      context.push(`${humanize(part.slice(8))} allergy`);
+    } else if (part.includes(":")) {
       const [gene, pheno] = part.split(":");
       context.push(`${gene} ${humanize(pheno)}`);
     } else if (/[<>]/.test(part)) {
@@ -93,7 +95,7 @@ function flagTitle(key) {
       const cond = part.replace(/^[a-z0-9]+/, (t) => LAB_NAMES[t] || t).replace(/\s*([<>]=?)\s*/, " $1 ");
       (part.startsWith("dose") ? conditions : context).push(cond);
     } else {
-      drugs.push(cap(part));
+      drugs.push(cap(humanize(part)));
     }
   }
   const title = [...drugs, ...context].join(" × ");
@@ -237,7 +239,7 @@ function renderProfile(p) {
   }));
 
   const meds = plist(p.meds.map((m) =>
-    el("li", {}, el("span", { class: "k" }, cap(m.ingredient)),
+    el("li", {}, el("span", { class: "k" }, cap(humanize(m.ingredient))),
       el("span", { class: "v" }, m.dose_mg != null ? `${m.dose_mg} mg` : ""))));
 
   const byTest = new Map();
@@ -326,6 +328,16 @@ function noteList(notes) {
   return el("ul", { class: "notes" }, noteItems(notes));
 }
 
+// A's no_data marker (rules.no_data_keys): the exact pairs the local tables don't cover, e.g.
+// "pantoprazole with clopidogrel" (I4: no inference from omeprazole). Names the pairs, never "no interaction".
+function noDataPairs(data) {
+  const typed = new Set(data.drugs.map((d) => d.ingredient));
+  const others = [...new Set((data.no_data || []).flatMap((k) => k.split("|").filter((p) => !typed.has(p))))];
+  if (!others.length) return "";
+  const drug = humanize(data.drugs[0].ingredient);
+  return `${drug} with ${others.map(humanize).join(", ")}`;
+}
+
 async function onCheck(ev) {
   ev.preventDefault();
   const input = $("check-input"), button = ev.target.querySelector("button");
@@ -338,9 +350,10 @@ async function onCheck(ev) {
     if (!data.drugs.length) {
       out.replaceChildren(el("p", { class: "note" }, `Couldn't recognize "${text}" as a medication. Try the generic name.`));
     } else if (!data.flags.length) {
-      const names = data.drugs.map((d) => d.ingredient).join(", ");
+      const names = data.drugs.map((d) => humanize(d.ingredient)).join(", ");
+      const pairs = noDataPairs(data);
       out.replaceChildren(el("p", { class: "note" },
-        el("strong", {}, `No local data for ${names}. `),
+        el("strong", {}, pairs ? `No local entry for ${pairs}. ` : `No local data for ${names}. `),
         "A missing entry does not mean there is no interaction. Ask your pharmacist before taking it."));
     } else {
       out.replaceChildren(el("ol", { class: "index check-result" }, data.flags.map(flagRow)));
@@ -536,7 +549,7 @@ function renderActions() {
 let lastCapture = 0;
 
 function captureItem(c) {
-  const names = c.drugs.map((d) => cap(d.ingredient) + (d.dose_mg ? ` ${d.dose_mg} mg` : "")).join(", ");
+  const names = c.drugs.map((d) => cap(humanize(d.ingredient)) + (d.dose_mg ? ` ${d.dose_mg} mg` : "")).join(", ");
   const worst = c.flags.some((f) => f.severity === "high") ? "high" : c.flags.length ? "medium" : "none";
   const ids = [...new Set(c.flags.map((f) => f.id))];
   const how = { photo: "Photo", sample: "Sample label", typed: "Typed" }[c.source] || "Phone";
@@ -604,7 +617,7 @@ function ledgerEntry(e) {
   const li = el("li", { class: `entry k-${e.kind}`,
     title: [time, e.bucket_id, `personal fields ${e.personal_fields_sent}`].filter(Boolean).join(" · ") },
     el("span", { class: "seq" }, pad2(e.seq)),
-    el("span", { class: "desc" }, LEDGER_KINDS[e.kind] || e.kind, toggle),
+    el("span", { class: "desc" }, e.pack ? "Knowledge pack · same for every user" : (LEDGER_KINDS[e.kind] || e.kind), toggle),
     el("span", { class: "bytes" }, formatBytes(e.bytes_out)));
   toggle?.addEventListener("click", () => showOutbound(e, li, toggle));
   return li;
@@ -647,6 +660,42 @@ async function pollLedger() {
   }
 }
 
+// ---------- knowledge pack sync (D-027, S6) ----------
+
+let syncPoll = null;
+
+function applySync(s) {
+  if (!s?.available) return;
+  $("sync").hidden = false;
+  const btn = $("sync-btn"), msg = $("sync-msg");
+  btn.disabled = s.running || cloudState?.online === false;
+  btn.querySelector("span").textContent = s.running ? "Syncing…" : s.result ? "Sync again" : "Sync knowledge pack";
+  if (s.running) msg.textContent = "Downloading the same groups every user gets, in shuffled order.";
+  else if (s.result?.error) msg.textContent = `Sync stopped (${s.result.error}). Try again when online.`;
+  else if (s.result?.offline) msg.textContent = "Went offline during the sync; what arrived is kept.";
+  else if (s.result) {
+    const r = s.result;
+    msg.textContent = `Synced: ${r.sent} groups sent, ${r.skipped} already here, ${r.facts} facts stored. Same for every user.`;
+  } else if (cloudState?.online === false) msg.textContent = "Connect to sync. Stored answers keep working offline.";
+}
+
+async function refreshSync() {
+  try {
+    const s = await api("/api/sync");
+    applySync(s);
+    if (!s.running && syncPoll) { clearInterval(syncPoll); syncPoll = null; pollLedger(); }
+  } catch { /* next tick */ }
+}
+
+async function startSync() {
+  try {
+    applySync(await api("/api/sync", {}));
+  } catch (err) {
+    $("sync-msg").textContent = err.message.includes("409") ? "Can't sync right now (offline or already syncing)." : err.message;
+  }
+  if (!syncPoll) syncPoll = setInterval(refreshSync, 700);
+}
+
 // ---------- online / offline (F8, S6) ----------
 
 const ASK_LEDE = {
@@ -669,6 +718,8 @@ function applyCloud(c) {
   $("net-state").textContent = offline ? "Offline" : "Online";
   document.body.classList.toggle("offline", offline);
   $("ask-lede").textContent = offline ? ASK_LEDE.offline : ASK_LEDE.online;
+  const syncBtn = $("sync-btn");
+  if (syncBtn && !$("sync").hidden && syncBtn.querySelector("span").textContent !== "Syncing…") syncBtn.disabled = offline;
 }
 
 async function toggleOffline() {
@@ -754,6 +805,7 @@ function boot() {
   watchScroll();
   initTabs();
   $("net").addEventListener("click", toggleOffline);
+  $("sync-btn").addEventListener("click", startSync);
   renderActions();
   $("check-form").addEventListener("submit", onCheck);
   $("ask-form").addEventListener("submit", onAsk);
@@ -771,6 +823,7 @@ function boot() {
     setInterval(pollLedger, 1500);
     pollCaptures();
     setInterval(pollCaptures, 2000);
+    refreshSync();
   });
 }
 

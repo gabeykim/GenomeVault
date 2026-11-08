@@ -126,3 +126,9 @@ section, .screen { animation: rise .7s var(--ease-out) both; }
 .line-btn { border-color: var(--blue); color: var(--paper); background: var(--blue); }
 .line-btn:active { background: var(--melon); border-color: var(--melon); color: var(--paper); }
 .foot { border-top-color: var(--line); }
+
+/* D-029 confirm step */
+.confirm-q { margin: 14px 0 10px; font-size: 16px; }
+.confirm-actions { display: flex; align-items: center; gap: 16px; }
+.confirm-actions .line-btn { margin: 0; }
+.link-btn { border: 0; background: none; color: var(--blue); font-size: 15px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 10px 0; }

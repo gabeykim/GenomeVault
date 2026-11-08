@@ -70,10 +70,14 @@ def _human(s: str) -> str:
 
 
 def _key_parts(key: str) -> tuple[list[str], list[str], list[str]]:
-    """Split an exact key into (drugs, genes, lab/dose conditions)."""
+    """Split an exact key into (drugs, genes, lab/dose/allergy conditions).
+    Allergy keys (A-011) look like `allergy:penicillin|amoxicillin`; the allergen goes to conditions as
+    `allergy:<allergen>`, never to genes."""
     drugs, genes, conds = [], [], []
     for part in key.split("|"):
-        if ":" in part:
+        if part.startswith("allergy:"):
+            conds.append(part)
+        elif ":" in part:
             genes.append(part.split(":", 1)[0])
         elif re.search(r"[<>]", part):
             conds.append(part)
@@ -98,7 +102,7 @@ def describe(flag: Flag, profile: Profile) -> str:
     bits = []
     for d in drugs:
         dose = doses.get(d)
-        bits.append(f"{d} {dose:g} mg" if dose is not None else d)
+        bits.append(f"{_human(d)} {dose:g} mg" if dose is not None else _human(d))
     for g in genes:
         gt = profile.genotypes.get(g)
         ph = profile.phenotypes.get(g)
@@ -107,6 +111,9 @@ def describe(flag: Flag, profile: Profile) -> str:
         elif ph:
             bits.append(f"your {g} result ({_human(ph)})")
     for c in conds:
+        if c.startswith("allergy:"):
+            bits.append(f"your {_human(c.split(':', 1)[1])} allergy on record")
+            continue
         test = re.split(r"[<>]", c, maxsplit=1)[0]
         if test == "dose":
             continue  # already expressed by the drug dose

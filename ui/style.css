@@ -630,3 +630,9 @@ body.offline .strand { opacity: .45; transition: opacity .6s var(--ease); }
 .info-mark { border-color: var(--mute); color: var(--mute); }
 .stale { border-color: var(--mute); color: var(--mute); }
 .suggestion.asked .qtext::before { color: var(--melon); }
+
+/* ---------- knowledge pack sync (D-027) ---------- */
+.sync { display: grid; gap: 6px; margin: -4px 0 16px; }
+.sync .line-btn { justify-self: start; font-size: 12px; padding: 7px 12px; }
+.sync .line-btn:disabled { opacity: .45; cursor: default; }
+.sync .line-btn:disabled::before { transform: translateY(101%); }

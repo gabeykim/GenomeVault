@@ -20,7 +20,7 @@ import time
 from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Literal, Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
@@ -111,10 +111,12 @@ kb_stats = _optional("kb", "stats")
 generalize_flag = _optional("generalize", "generalize")
 expected_notes_all = _optional("rules", "expected_notes_all")   # A, D-021: informational, never a Flag
 expected_notes = _optional("rules", "expected_notes")
+no_data_keys = _optional("rules", "no_data_keys")                # A queue 8: pairs with no local entry (I4)
 cloud_set_offline = _optional("cloud", "set_offline")            # B: "Wi-Fi off" for S6, no network
 start_cover = _optional("router", "start_cover")                 # B: P6.6 cover traffic (G3)
 stop_cover = _optional("router", "stop_cover")
 cover_running = _optional("router", "cover_running")
+sync_pack = _optional("router", "sync_pack")                     # B, D-027: whole knowledge pack, same for everyone
 COVER = os.environ.get("GV_COVER", "1") != "0"                   # GV_COVER=0 turns it off for local dev
 
 
@@ -229,8 +231,9 @@ def _check(drugs: list[Drug]) -> dict:
     """Flags and notes for some drugs against the profile, all on device (F3)."""
     p = load_profile()
     notes = [n for d in drugs for n in (expected_notes(d, p) if expected_notes else [])]
+    no_data = sorted({k for d in drugs for k in (no_data_keys(d, p) if no_data_keys else [])})
     return {"drugs": [d.model_dump() for d in drugs], "flags": [f.model_dump() for f in _flags_for(drugs, p)],
-            "notes": _notes(notes)}
+            "notes": _notes(notes), "no_data": no_data}
 
 
 @app.post("/api/check")
@@ -277,7 +280,7 @@ def ledger(since: int = 0) -> dict:
     """Live outbound ledger (F5). The UI polls with the last seq it has."""
     everything = ledger_feed(0)
     return {
-        "entries": [e.model_dump(mode="json") for e in everything if e.seq > since],
+        "entries": [{**e.model_dump(mode="json"), "pack": e.seq in _pack_seqs} for e in everything if e.seq > since],
         "totals": {
             "count": len(everything),
             "bytes_out": sum(e.bytes_out for e in everything),
@@ -296,7 +299,10 @@ def ledger_outbound_texts(seq: int) -> dict:
     which of them came from this user's own flags, something only the device can know."""
     texts = ledger_outbound(seq) if ledger_outbound else []
     mine: list[int] = []
-    if texts and generalize_flag:
+    entry = next((e for e in ledger_feed(seq - 1) if e.seq == seq), None)
+    # Only a real question group can hold "yours". Cover traffic and the knowledge pack are drawn the
+    # same for everyone, so a matching topic there is coincidence, not something the user asked.
+    if texts and generalize_flag and entry is not None and entry.kind == "bucket" and seq not in _pack_seqs:
         p = load_profile()
         real = set()
         for f in _flags_for(p.meds, p):
@@ -380,6 +386,57 @@ def summary_page() -> str:
             f"{sections}<p class='note'>{esc(s['note'])}</p></main></body></html>")
 
 
+# --- knowledge pack (D-027): the whole fixed partition, the same for every user -------------------
+
+_sync: dict = {"running": False, "result": None, "finished": None}
+_pack_seqs: set[int] = set()
+_sync_lock = threading.Lock()
+
+
+def _last_seq() -> int:
+    entries = ledger_feed(0)
+    return entries[-1].seq if entries else 0
+
+
+def _run_sync() -> None:
+    """Runs B's sync_pack() off the request thread (instant in demo mode, ~3 minutes live). Cover traffic
+    pauses meanwhile, so every row sent in this window is the pack and can be labeled as such."""
+    paused = bool(_cover_on() and stop_cover)
+    if paused:
+        stop_cover()
+    before = _last_seq()
+    try:
+        result = sync_pack()
+    except Exception as e:                       # never leave the button stuck on "Syncing"
+        result = {"error": type(e).__name__}
+    finally:
+        _pack_seqs.update(e.seq for e in ledger_feed(before) if e.kind in ("cover", "bucket", "blocked"))
+        if paused and start_cover:
+            start_cover()
+    _sync.update(running=False, result=result, finished=datetime.now(timezone.utc).isoformat())
+
+
+@app.post("/api/sync")
+def start_sync() -> dict:
+    """Start a knowledge-pack sync. Nothing about the user chooses what is sent (I5): every user downloads
+    the same groups, in shuffled order, each through the leakage check."""
+    if sync_pack is None:
+        raise HTTPException(409, "knowledge pack arrives with B's router")
+    if not _cloud()["online"]:
+        raise HTTPException(409, "offline: connect to sync the knowledge pack")
+    with _sync_lock:
+        if _sync["running"]:
+            raise HTTPException(409, "already syncing")
+        _sync.update(running=True, result=None, finished=None)
+    threading.Thread(target=_run_sync, name="gv-sync", daemon=True).start()
+    return sync_status()
+
+
+@app.get("/api/sync")
+def sync_status() -> dict:
+    return {"available": sync_pack is not None, **_sync}
+
+
 # --- phone (F2, S2, S6): label photo in, reminders out; nothing leaves the local network --------
 
 # The phone reaches the laptop over the local network, and this app holds the whole profile. So any
@@ -459,11 +516,23 @@ async def capture(request: Request) -> dict:
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, "photo too large")
     drugs = from_image(data, mime) if mime.startswith("image/") and data else []
+    # D-029: only report what was read. The user confirms or edits it on the phone before rules run.
+    return {"read": bool(drugs), "drugs": [d.model_dump() for d in drugs]}
+
+
+class ConfirmIn(BaseModel):
+    drugs: list[Drug] = Field(min_length=1, max_length=5)
+    source: Literal["photo", "sample"] = "photo"
+
+
+@app.post("/api/capture/confirm")
+def capture_confirm(body: ConfirmIn) -> dict:
+    """The user confirmed the drug read from a label: run the local check and show it on the laptop."""
+    drugs = [Drug(ingredient=d.ingredient.strip().lower()[:60], dose_mg=d.dose_mg) for d in body.drugs]
     result = _check(drugs)
     _note("local_only")
-    if drugs:
-        _record_capture(request.headers.get("x-gv-source", "photo")[:12], result)
-    return {"read": bool(drugs), **result}
+    _record_capture(body.source, result)
+    return result
 
 
 @app.get("/api/captures")

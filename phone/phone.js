@@ -43,10 +43,11 @@ const LAB_NAMES = { egfr: "eGFR", alt: "ALT", ck: "CK", ldl: "LDL" };
 function flagTitle(key) {
   const drugs = [], context = [];
   for (const part of key.split("|")) {
-    if (part.includes(":")) { const [g, p] = part.split(":"); context.push(`${g} ${p.replace(/_/g, " ")}`); }
+    if (part.startsWith("allergy:")) context.push(`${part.slice(8).replace(/_/g, " ")} allergy`);
+    else if (part.includes(":")) { const [g, p] = part.split(":"); context.push(`${g} ${p.replace(/_/g, " ")}`); }
     else if (/[<>]/.test(part)) {
       if (!part.startsWith("dose")) context.push(part.replace(/^[a-z0-9]+/, (t) => LAB_NAMES[t] || t).replace(/([<>]=?)/, " $1 "));
-    } else drugs.push(cap(part));
+    } else drugs.push(cap(part.replace(/_/g, " ")));
   }
   return [...drugs, ...context].join(" × ");
 }
@@ -98,7 +99,7 @@ function renderResult(data, preview) {
     $("type-input").focus();
     return;
   }
-  const names = data.drugs.map((d) => cap(d.ingredient) + (d.dose_mg ? ` ${d.dose_mg} mg` : "")).join(", ");
+  const names = data.drugs.map((d) => cap(d.ingredient.replace(/_/g, " ")) + (d.dose_mg ? ` ${d.dose_mg} mg` : "")).join(", ");
   const nodes = [
     el("div", { class: "read" },
       preview ? el("img", { src: preview, alt: "" }) : el("span", {}),
@@ -110,7 +111,12 @@ function renderResult(data, preview) {
         el("span", { class: "sev" }, cap(f.severity))))));
     nodes.push(el("p", { class: "note" }, "Raise these with your pharmacist before taking it."));
   } else {
-    nodes.push(el("p", { class: "note" }, el("strong", {}, "No flags in the local tables. "),
+    const typed = new Set(data.drugs.map((d) => d.ingredient));
+    const others = [...new Set((data.no_data || []).flatMap((k) => k.split("|").filter((p) => !typed.has(p))))];
+    const lead = others.length
+      ? `No local entry for ${data.drugs[0].ingredient.replace(/_/g, " ")} with ${others.map((o) => o.replace(/_/g, " ")).join(", ")}. `
+      : "No flags in the local tables. ";
+    nodes.push(el("p", { class: "note" }, el("strong", {}, lead),
       "A missing entry does not mean there is no interaction. Ask your pharmacist."));
   }
   for (const n of data.notes || []) {
@@ -121,13 +127,46 @@ function renderResult(data, preview) {
   out.replaceChildren(...nodes);
 }
 
+// D-029: show what was read and let the user confirm or edit it before any rule runs.
+const drugLabel = (d) => cap(d.ingredient.replace(/_/g, " ")) + (d.dose_mg ? ` ${d.dose_mg} mg` : "");
+
+function renderConfirm(drugs, source, preview) {
+  const yes = el("button", { type: "button", class: "line-btn confirm-yes" }, "Yes, check it");
+  const edit = el("button", { type: "button", class: "link-btn" }, "Edit");
+  yes.addEventListener("click", async () => {
+    yes.disabled = true;
+    try {
+      renderResult(await api("/api/capture/confirm", { json: { drugs, source } }), preview);
+    } catch (err) {
+      if (err instanceof Unpaired) { show("pair"); return; }
+      $("result").replaceChildren(el("p", { class: "note" }, `Check failed: ${err.message}`));
+    } finally {
+      refreshSent();
+    }
+  });
+  edit.addEventListener("click", () => {
+    const input = $("type-input");
+    input.value = drugs.map(drugLabel).join(", ");
+    input.focus();
+    input.select();
+    $("result").replaceChildren(el("p", { class: "note mute" }, "Fix the name, then tap Check."));
+  });
+  $("result").replaceChildren(
+    el("div", { class: "read" },
+      preview ? el("img", { src: preview, alt: "" }) : el("span", {}),
+      el("div", {}, el("span", { class: "small mute" }, "Read on the laptop"), el("strong", {}, drugs.map(drugLabel).join(", ")))),
+    el("p", { class: "confirm-q" }, "Is that right?"),
+    el("div", { class: "confirm-actions" }, yes, edit));
+}
+
 async function sendImage(blob, source, preview) {
   $("result").replaceChildren(el("p", { class: "note mute" }, "Reading on the laptop…"));
   try {
     const data = await api("/api/capture", {
       body: blob, headers: { "Content-Type": blob.type || "application/octet-stream", "X-GV-Source": source },
     });
-    renderResult(data, preview);
+    if (!data.read) renderResult({ drugs: [] }, preview);
+    else renderConfirm(data.drugs, source, preview);
   } catch (err) {
     if (err instanceof Unpaired) { show("pair"); return; }
     $("result").replaceChildren(el("p", { class: "note" }, `Couldn't send the photo: ${err.message}`));

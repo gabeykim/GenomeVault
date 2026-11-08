@@ -55,10 +55,11 @@ def _lab_names(flag: Flag, profile: Profile) -> list[str]:
 
 
 def _dose(profile: Profile, drug: str) -> str:
+    name = _human(drug)                      # penicillin_v -> "penicillin v"
     for m in profile.meds:
         if m.ingredient == drug:
-            return f"{drug} {m.dose_mg:g} mg" if m.dose_mg is not None else drug
-    return drug
+            return f"{name} {m.dose_mg:g} mg" if m.dose_mg is not None else name
+    return name
 
 
 def _gene_phrase(profile: Profile, gene: str) -> str:
@@ -88,7 +89,8 @@ def question_for(flag: Flag, profile: Profile) -> str:
         q = (f"My recent labs show {' and '.join(trends) if trends else 'a change'}. "
              f"Does that matter for {meds[0] if meds else 'my medicines'}?")
     elif flag.engine == "allergy":
-        allergy = profile.allergies[0] if profile.allergies else "an allergy"
+        named = [c.split(":", 1)[1] for c in conds if c.startswith("allergy:")]
+        allergy = _human(named[0]) if named else (profile.allergies[0] if profile.allergies else "an allergy")
         q = f"I'm allergic to {allergy}. Does {meds[0] if meds else 'this medicine'} relate to that allergy?"
     else:
         q = f"Should we review {' and '.join(meds) if meds else flag.key} together?"

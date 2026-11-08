@@ -68,21 +68,28 @@ def test_laptop_needs_no_pairing():
 
 # ---------- capture ----------
 
-def test_capture_reads_a_label_and_flags_it(monkeypatch):
+def test_capture_only_reads_then_confirm_runs_rules(monkeypatch):  # D-029
     monkeypatch.setattr(app_module, "from_image",
                         lambda data, mime: [Drug(ingredient="clopidogrel", dose_mg=75)] if data else [])
-    r = local.post("/api/capture", content=b"\x89PNGfake", headers={"Content-Type": "image/png", "X-GV-Source": "sample"})
-    d = r.json()
-    assert d["read"] is True and d["drugs"][0]["ingredient"] == "clopidogrel"
-    assert {"X1", "X2"} <= {f["id"] for f in d["flags"]}
+    d = local.post("/api/capture", content=b"\x89PNGfake", headers={"Content-Type": "image/png"}).json()
+    assert d == {"read": True, "drugs": [{"ingredient": "clopidogrel", "dose_mg": 75.0}]}   # no rules yet
+    assert local.get("/api/captures").json()["captures"] == []                               # nothing shown yet
+    c = local.post("/api/capture/confirm", json={"drugs": d["drugs"], "source": "sample"}).json()
+    assert {"X1", "X2"} <= {f["id"] for f in c["flags"]}
     caps = local.get("/api/captures").json()["captures"]
     assert caps[-1]["source"] == "sample" and caps[-1]["drugs"][0]["ingredient"] == "clopidogrel"
+
+
+def test_confirm_validates_input():
+    assert local.post("/api/capture/confirm", json={"drugs": []}).status_code == 422
+    assert local.post("/api/capture/confirm", json={"drugs": [{"ingredient": "x"}], "source": "email"}).status_code == 422
+    assert remote.post("/api/capture/confirm", json={"drugs": [{"ingredient": "x"}]}).status_code == 401
 
 
 def test_unreadable_photo_is_honest_and_not_recorded(monkeypatch):
     monkeypatch.setattr(app_module, "from_image", lambda data, mime: [])
     d = local.post("/api/capture", content=b"\xff\xd8\xffjpeg", headers={"Content-Type": "image/jpeg"}).json()
-    assert d == {"read": False, "drugs": [], "flags": [], "notes": []}
+    assert d == {"read": False, "drugs": []}
     assert local.get("/api/captures").json()["captures"] == []
 
 
@@ -120,7 +127,8 @@ def test_sample_labels_read_with_a_real_reader(sample, ingredient, flag_ids):
     d = local.post("/api/capture", content=(PHONE / "samples" / sample).read_bytes(),
                    headers={"Content-Type": "image/png"}).json()
     assert d["drugs"][0]["ingredient"] == ingredient
-    assert flag_ids <= {f["id"] for f in d["flags"]}
+    c = local.post("/api/capture/confirm", json={"drugs": d["drugs"], "source": "sample"}).json()
+    assert flag_ids <= {f["id"] for f in c["flags"]}
 
 
 # ---------- the page itself ----------
