@@ -195,20 +195,26 @@ def _send_bucket(bucket_id: str, profile: Profile, kind: str = "bucket") -> tupl
 
 def route(question: str, flags: list[Flag]) -> Answer:
     today = date.today()
-    wanted: list[str] = []
-    for f in flags:
-        if f.needs_cloud and generalize(f):
-            wanted.append(f.key)
     me = _profile()
     asked, named = _subject_keys(question, flags, me)
+
+    # P6.1 / I4: a flag answers the question only when it covers it: it shares a drug the question
+    # names, or the question names no drug at all (the flags are then the caller's context).
+    def covers(f: Flag) -> bool:
+        return not named or bool(_key_drugs(f.key) & set(named))
+
+    # Only a covering flag's key is looked up: a question about simvastatin must not fetch (or, before
+    # a pack sync, send) the clopidogrel buckets, nor answer with their text (I4).
+    wanted: list[str] = []
+    for f in flags:
+        if f.needs_cloud and covers(f) and generalize(f):
+            wanted.append(f.key)
     flag_keys = {f.key for f in flags}
     asked = [k for k in asked if k not in flag_keys]
     for k in asked:
         if k not in wanted:
             wanted.append(k)
-    # P6.1 / I4: local flags answer the question only when one covers it: it shares a drug the question
-    # names, or the question names no drug at all (the flags are then the caller's context).
-    flag_covers = any(not named or (_key_drugs(f.key) & set(named)) for f in flags)
+    flag_covers = any(covers(f) for f in flags)
     # A flag that asks the cloud, or an asked key the partition can answer, left unanswered keeps the
     # answer at no_data (I4). Asked keys outside the partition are never sent and do not hold it back.
     open_keys = [k for k in wanted if k not in asked or bucket_for(k) is not None]

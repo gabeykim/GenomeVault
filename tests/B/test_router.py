@@ -209,3 +209,25 @@ def test_brand_question_gets_the_exact_pair_fact_online(cache_all):
     assert a.state == "known" and a.sent_to_cloud
     assert [f.key for f in a.facts] == ["clopidogrel|pantoprazole"]
     assert all(e.personal_fields_sent == 0 for e in ledger.feed(0))
+
+
+# A cloud flag for another drug is neither fetched nor quoted (I4) ------------------------------------
+
+def test_unrelated_cloud_flag_is_not_sent_or_quoted():
+    # Alex's X1 (clopidogrel) is in context, but the question is about simvastatin: X3 answers it
+    # locally, nothing leaves, and no clopidogrel text appears in the answer.
+    a = router.route("Is simvastatin affected by my genes?", [X1, X3])
+    assert a.state == "known" and a.text == router.LOCAL_TEXT and a.facts == []
+    assert not a.sent_to_cloud and [e.kind for e in ledger.feed(0)] == ["local_only"]
+
+
+def test_unrelated_cloud_flag_already_in_kb_is_not_quoted():
+    router.route("clopidogrel?", [X1])                          # X1's answer is now in the KB
+    ledger.reset()
+    a = router.route("Can I take zolpidem?", [X1])
+    assert a.state == "no_data" and a.facts == [] and not a.sent_to_cloud
+
+
+def test_question_naming_no_drug_still_uses_every_flag():
+    a = router.route("Anything I should ask my pharmacist about?", [X1, X3])
+    assert a.state == "known" and [f.key for f in a.facts] == [X1.key]
