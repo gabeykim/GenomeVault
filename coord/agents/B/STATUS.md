@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-020 tests/B ignores untracked Finder duplicate test files; PR #2 updated (425f764), CI green, ready for G2
+current_task: none open. Queue 1–9 and the stretch (knowledge-pack sync, 3db7087) are done; PR #2 rebased on main (7d1100c), waiting for G2
 branch: agent/B-privacy-router
-last_commit: 425f764
+last_commit: 7d1100c
 last_seen:
   plan_version: "1.2.1"
   decisions: D-024
-  logs: {A: 8, B: 20, C: 16, D: 9}
+  logs: {A: 9, B: 20, C: 17, D: 9}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -29,8 +29,9 @@ handled_messages:
   - 20261108-1444-from-A-universe-names.md
 blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019; to-human 1418; cache must be v5)
 notes: >
-  Rebased on main (only coord commits since B-019, no conflicts). No new inbox, DECISIONS or LOG entries.
-  tests/B/conftest.py now skips the untracked Finder copies ("test_* 2.py" etc.), which had added 439
-  duplicate tests locally; make test exit 0, 619 passed (matches CI). The copies themselves are left on disk
-  untouched. Queue 1–9 done; PR #2 CI green and waiting on the G2 merge. No messages needed (affects nobody).
-next: G2 merge of PR #2, then freeze v5; record the demo cache once the key is available; otherwise stretch (knowledge-pack sync)
+  Rebased on main (coord commits only), force-pushed; make test exit 0, 619 passed. Read A-009 (PharmCAT
+  path, default ingest unchanged) and C-017 (dark theme): neither affects B. No new inbox, DECISIONS or
+  proposals. D's STATUS still shows the G4 I4 failure on router.route; B-018/B-019 already fixed it
+  (to-D 1445 merged check). D has not read those entries yet (last_seen B:16), so no new message.
+  Stretch was already shipped in B-0xx (3db7087); the old "next: stretch" was stale.
+next: G2 merge of PR #2, then freeze bucket v5; record the demo cache once the key is available; otherwise take requests from A/C/D
