@@ -25,10 +25,8 @@
         </svg>
         <span>GenomeVault</span>
       </a>
-      <span class="bar-meta">Private health agent<br><span class="mute">Lenovo × AGI House, 2026</span></span>
-      <span class="bar-meta"><span class="blink"></span>On device<br><span class="mute pill-demo" id="demo-badge" hidden>Demo mode</span></span>
+      <span class="bar-meta"><span class="blink"></span>On device <span class="mute" id="demo-badge" hidden>· Demo mode</span></span>
       <span class="bar-stat"><span class="mute">Sent to cloud</span><strong class="ticker" id="total-bytes"><span class="tick">0 B</span></strong></span>
-      <span class="bar-stat"><span class="mute">Personal fields sent</span><strong class="ticker" id="total-personal"><span class="tick">0</span></strong></span>
     </div>
 
     <h1 class="wordmark" aria-label="GenomeVault">
@@ -39,93 +37,70 @@
 
     <div class="strand" id="strand" aria-hidden="true"><div class="strand-track" id="strand-track"></div></div>
 
-    <p class="disclaimer" role="note">
-      <strong>Demo, not medical advice.</strong>
-      All data is synthetic. GenomeVault prepares you for a conversation with your pharmacist or doctor; it never tells you to start or stop a medication.
-    </p>
+    <p class="disclaimer" role="note"><strong>Demo, not medical advice.</strong> Synthetic data only.</p>
   </header>
 
   <main class="grid">
-    <div class="col-main">
-      <section class="sec" id="sec-profile">
-        <div class="rule"></div>
-        <header class="sec-head">
-          <span class="num">01</span>
-          <h2>Health profile</h2>
-          <span class="tag"><span class="sq"></span>Stays on this device</span>
-        </header>
-        <div class="profile" id="profile"><p class="mute">Loading profile…</p></div>
-      </section>
+    <section class="sec col-main" id="sec-main">
+      <div class="rule"></div>
+      <nav class="tabs" role="tablist" aria-label="Sections">
+        <button class="tab" role="tab" id="tab-meds" aria-controls="panel-meds" aria-selected="true" data-tab="meds"><span class="num">01</span>Medications</button>
+        <button class="tab" role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" data-tab="ask"><span class="num">02</span>Ask</button>
+        <button class="tab" role="tab" id="tab-actions" aria-controls="panel-actions" aria-selected="false" data-tab="actions"><span class="num">03</span>Actions</button>
+        <button class="tab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-tab="data"><span class="num">04</span>My data</button>
+      </nav>
 
-      <section class="sec" id="sec-check">
-        <div class="rule"></div>
-        <header class="sec-head">
-          <span class="num">02</span>
-          <h2>Medication check</h2>
-          <span class="tag" id="flags-meta">Checked locally · 0 bytes sent</span>
-        </header>
+      <div class="panel active" role="tabpanel" id="panel-meds" aria-labelledby="tab-meds">
         <p class="lede" id="flags-summary">Checking your medications…</p>
         <ol class="index" id="flags"></ol>
-
         <form class="line-form" id="check-form" autocomplete="off">
           <label for="check-input" class="sr-only">Check another medication</label>
-          <input id="check-input" type="text" placeholder="Check another medication, e.g. ibuprofen" maxlength="200">
+          <input id="check-input" type="text" placeholder="Check another medication" maxlength="200">
           <button type="submit"><span>Check</span></button>
         </form>
         <div id="check-result"></div>
-      </section>
+      </div>
 
-      <section class="sec" id="sec-ask">
-        <div class="rule"></div>
-        <header class="sec-head">
-          <span class="num">03</span>
-          <h2>Ask</h2>
-          <span class="tag">Only general questions leave, in decoy groups of 8</span>
-        </header>
+      <div class="panel" role="tabpanel" id="panel-ask" aria-labelledby="tab-ask" hidden>
+        <p class="lede">Only general questions leave this device, hidden in a group of 8.</p>
         <div class="chat" id="chat" aria-live="polite"></div>
         <!-- Demo questions: exact texts from D's eval/queries.json so the eval measures what is shown. -->
-        <ol class="chips" id="chips" aria-label="Demo questions">
-          <li><button type="button" class="suggestion" data-qid="Q18" data-q="What should I bring up with my cardiologist?"><span class="qid">Q18</span><span class="qtext">What should I bring up with my cardiologist?</span><span class="qbeat">Decoy group</span></button></li>
-          <li><button type="button" class="suggestion" data-qid="Q19" data-q="Which of my new prescriptions should I ask my pharmacist about first?"><span class="qid">Q19</span><span class="qtext">Which of my new prescriptions should I ask my pharmacist about first?</span><span class="qbeat">Learns</span></button></li>
-          <li><button type="button" class="suggestion" data-qid="Q07" data-q="Could pantoprazole work instead of omeprazole with my clopidogrel?"><span class="qid">Q07</span><span class="qtext">Could pantoprazole work instead of omeprazole with my clopidogrel?</span><span class="qbeat">No guessing</span></button></li>
-          <li><button type="button" class="suggestion" data-qid="Q15" data-q="Can I take ibuprofen for a headache?"><span class="qid">Q15</span><span class="qtext">Can I take ibuprofen for a headache?</span><span class="qbeat">Offline</span></button></li>
+        <ol class="chips" id="chips" aria-label="Suggested questions">
+          <li><button type="button" class="suggestion" data-qid="Q18" data-q="What should I bring up with my cardiologist?" title="Demo: decoy group (S4)"><span class="qtext">What should I bring up with my cardiologist?</span></button></li>
+          <li><button type="button" class="suggestion" data-qid="Q19" data-q="Which of my new prescriptions should I ask my pharmacist about first?" title="Demo: learns (S6)"><span class="qtext">Which of my new prescriptions should I ask my pharmacist about first?</span></button></li>
+          <li><button type="button" class="suggestion" data-qid="Q07" data-q="Could pantoprazole work instead of omeprazole with my clopidogrel?" title="Demo: no guessing between drugs (S6)"><span class="qtext">Could pantoprazole work instead of omeprazole with my clopidogrel?</span></button></li>
+          <li><button type="button" class="suggestion" data-qid="Q15" data-q="Can I take ibuprofen for a headache?" title="Demo: offline (S6)"><span class="qtext">Can I take ibuprofen for a headache?</span></button></li>
         </ol>
         <form class="line-form" id="ask-form" autocomplete="off">
           <label for="ask-input" class="sr-only">Ask a question</label>
           <input id="ask-input" type="text" placeholder="Ask about your medications" maxlength="500">
           <button type="submit"><span>Ask</span></button>
         </form>
-      </section>
+      </div>
 
-      <section class="sec" id="sec-actions">
-        <div class="rule"></div>
-        <header class="sec-head">
-          <span class="num">05</span>
-          <h2>Actions</h2>
-          <span class="tag">Prepared here. Nothing is sent for you.</span>
-        </header>
+      <div class="panel" role="tabpanel" id="panel-actions" aria-labelledby="tab-actions" hidden>
+        <p class="lede">Prepared here for you to send, print or save. Nothing is sent for you.</p>
         <ol class="index" id="actions"></ol>
-      </section>
-    </div>
+      </div>
+
+      <div class="panel" role="tabpanel" id="panel-data" aria-labelledby="tab-data" hidden>
+        <p class="lede"><span class="sq"></span>Stays on this device</p>
+        <div class="profile" id="profile"><p class="mute">Loading profile…</p></div>
+      </div>
+    </section>
 
     <aside class="col-ledger">
       <section class="sec ledger-sec" id="sec-ledger">
         <div class="rule"></div>
         <header class="sec-head">
-          <span class="num">04</span>
           <h2>Outbound ledger</h2>
           <span class="tag"><span class="blink"></span>Live</span>
         </header>
-        <p class="mute small">Every byte that leaves this device, as it happens.</p>
         <div class="totals">
-          <div><span class="mute">Events</span><strong class="ticker" id="ledger-count"><span class="tick">0</span></strong></div>
           <div><span class="mute">Bytes out</span><strong class="ticker" id="ledger-bytes"><span class="tick">0 B</span></strong></div>
           <div><span class="mute">Personal fields</span><strong class="ticker" id="ledger-personal"><span class="tick">0</span></strong></div>
         </div>
-        <p class="learned" id="learned" hidden>
-          <strong class="ticker" id="learned-n"><span class="tick">0</span></strong>
-          <span>facts learned on this device. Each one is a question that never has to leave again.</span>
-        </p>
+        <p class="learned" id="learned" hidden><strong class="ticker" id="learned-n"><span class="tick">0</span></strong><span>facts learned on this device</span></p>
         <ol class="ledger" id="ledger">
           <li class="ledger-empty">Nothing has left this device.</li>
         </ol>
@@ -133,10 +108,7 @@
     </aside>
   </main>
 
-  <footer class="foot">
-    <span>GenomeVault</span>
-    <span id="modules" class="mute"></span>
-  </footer>
+  <footer class="foot"><span id="modules" class="mute" hidden></span></footer>
 
   <script src="/ui/app.js"></script>
 </body>

@@ -113,18 +113,6 @@ function setTicker(node, text) {
   prev.addEventListener("animationend", () => prev.remove(), { once: true });
 }
 
-// 5×5 mirrored pixel glyph from an exact key: a tiny fingerprint per fact.
-function glyph(key) {
-  const bits = hash(key);
-  const g = el("span", { class: "glyph", "aria-hidden": "true" });
-  for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 5; c++) {
-      const col = c < 3 ? c : 4 - c;
-      g.append(el("i", { class: (bits >> (r * 3 + col)) & 1 ? "on" : "" }));
-    }
-  }
-  return g;
-}
 
 function sevBar(sev) {
   const n = SEV_LEVEL[sev] || 1;
@@ -273,18 +261,14 @@ function renderProfile(p) {
 
 function flagRow(f, i) {
   const detailId = `d-${f.id}-${i}-${Math.random().toString(36).slice(2, 7)}`;
-  const btn = el("button", { class: "row-btn", type: "button", "aria-expanded": "false", "aria-controls": detailId },
+  const btn = el("button", { class: "row-btn", type: "button", "aria-expanded": "false", "aria-controls": detailId,
+    title: `${ENGINES[f.engine] || f.engine} · ${f.key}` },
     el("span", { class: "r-id" }, f.id),
-    glyph(f.key),
     el("span", { class: "r-title" }, flagTitle(f.key)),
-    el("span", { class: "r-engine" }, ENGINES[f.engine] || f.engine),
     el("span", { class: "r-sev" }, cap(f.severity), sevBar(f.severity)));
   const detail = el("div", { class: "row-detail", id: detailId },
     el("div", {}, el("div", { class: "detail-inner" }, el("div", {},
-      f.evidence.length ? el("ul", { class: "evidence" }, f.evidence.map((e) => el("li", {}, e))) : null,
-      el("div", { class: "detail-meta" },
-        el("code", {}, f.key),
-        f.needs_cloud ? el("span", {}, "More context available through a private question") : el("span", {}, "Answered fully on device"))))));
+      f.evidence.length ? el("ul", { class: "evidence" }, f.evidence.map((e) => el("li", {}, e))) : null))));
   const li = el("li", { class: "row", style: `--i:${i}` }, btn, detail);
   btn.addEventListener("click", () => {
     const open = li.classList.toggle("open");
@@ -296,7 +280,7 @@ function flagRow(f, i) {
 function renderFlags(data) {
   const n = data.flags.length;
   $("flags-summary").textContent = n
-    ? `${n} thing${n === 1 ? "" : "s"} to raise with your pharmacist or doctor, found across ${data.checked.length} medications.`
+    ? `${n} thing${n === 1 ? "" : "s"} to raise with your pharmacist. Checked on this device, nothing sent.`
     : "No flags from the local tables. A missing entry is not the same as no interaction; ask your pharmacist.";
   $("flags").replaceChildren(...data.flags.map(flagRow));
 }
@@ -462,10 +446,8 @@ function actionRow(a, i) {
   const detailId = `d-${a.id}`;
   const body = el("div", {});
   const btn = el("button", { class: "row-btn", type: "button", "aria-expanded": "false", "aria-controls": detailId },
-    el("span", { class: "r-id" }, a.id),
-    glyph(a.key),
+    el("span", { class: "r-id" }, pad2(i + 1)),
     el("span", { class: "r-title" }, a.title),
-    el("span", { class: "r-engine" }, a.kind),
     el("span", { class: "r-sev" }, "Open"));
   const li = el("li", { class: "row action", style: `--i:${i}` }, btn,
     el("div", { class: "row-detail", id: detailId }, el("div", {}, el("div", { class: "detail-inner" }, body))));
@@ -531,16 +513,11 @@ function ledgerEntry(e) {
     el("span", { class: "cells-row", "aria-hidden": "true" },
       Array.from({ length: 8 }, (_, i) => el("i", { style: `--i:${i}` }))),
     el("span", { class: "cells-label" }, "See the 8 questions")) : null;
-  const li = el("li", { class: `entry k-${e.kind}` },
+  const li = el("li", { class: `entry k-${e.kind}`,
+    title: [time, e.bucket_id, `personal fields ${e.personal_fields_sent}`].filter(Boolean).join(" · ") },
     el("span", { class: "seq" }, pad2(e.seq)),
-    el("span", { class: "desc" },
-      el("span", { class: "kind" }, humanize(e.kind)),
-      LEDGER_KINDS[e.kind] || e.kind,
-      toggle),
-    el("span", { class: "bytes" }, formatBytes(e.bytes_out)),
-    el("span", { class: "sub" },
-      el("span", {}, [time, e.bucket_id].filter(Boolean).join(" · ")),
-      el("span", {}, `personal fields ${e.personal_fields_sent}`)));
+    el("span", { class: "desc" }, LEDGER_KINDS[e.kind] || e.kind, toggle),
+    el("span", { class: "bytes" }, formatBytes(e.bytes_out)));
   toggle?.addEventListener("click", () => showOutbound(e, li, toggle));
   return li;
 }
@@ -563,11 +540,9 @@ async function pollLedger() {
     }
     firstPoll = false;
     const t = data.totals;
-    setTicker($("ledger-count"), String(t.count));
     setTicker($("ledger-bytes"), formatBytes(t.bytes_out));
     setTicker($("total-bytes"), formatBytes(t.bytes_out));
     setTicker($("ledger-personal"), String(t.personal_fields_sent));
-    setTicker($("total-personal"), String(t.personal_fields_sent));
     const learned = $("learned");
     if (data.learned) {
       learned.hidden = false;
@@ -580,14 +555,56 @@ async function pollLedger() {
   }
 }
 
+// ---------- tabs: one thing on screen at a time ----------
+
+const TABS = ["meds", "ask", "actions", "data"];
+
+function selectTab(name, { focus = false, push = true } = {}) {
+  if (!TABS.includes(name)) name = "meds";
+  for (const t of TABS) {
+    const on = t === name;
+    const tab = $(`tab-${t}`), panel = $(`panel-${t}`);
+    tab.setAttribute("aria-selected", String(on));
+    tab.tabIndex = on ? 0 : -1;
+    panel.hidden = !on;
+    panel.classList.toggle("active", on);
+    if (on && focus) tab.focus();
+  }
+  if (push) {
+    try { history.replaceState(null, "", name === "meds" ? location.pathname + location.search : `#${name}`); } catch { /* file or sandbox */ }
+  }
+}
+
+function initTabs() {
+  const nav = document.querySelector(".tabs");
+  nav.addEventListener("click", (ev) => {
+    const t = ev.target.closest(".tab");
+    if (t) selectTab(t.dataset.tab);
+  });
+  nav.addEventListener("keydown", (ev) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(ev.key)) return;
+    const cur = TABS.indexOf(document.querySelector('.tab[aria-selected="true"]').dataset.tab);
+    const next = ev.key === "Home" ? 0 : ev.key === "End" ? TABS.length - 1
+      : (cur + (ev.key === "ArrowRight" ? 1 : -1) + TABS.length) % TABS.length;
+    ev.preventDefault();
+    selectTab(TABS[next], { focus: true });
+  });
+  addEventListener("hashchange", () => selectTab(location.hash.slice(1), { push: false }));
+  selectTab(location.hash.slice(1), { push: false });
+}
+
 // ---------- boot ----------
 
 async function loadData() {
   try {
     const status = await api("/api/status");
     $("demo-badge").hidden = !status.demo;
-    const mocks = Object.entries(status.modules).filter(([, m]) => m === "mock").map(([n]) => n);
-    $("modules").textContent = mocks.length ? `Running on mocks: ${mocks.join(", ")}` : "All modules live";
+    // Which modules are still mocks: for the team, shown only with ?debug.
+    if (new URLSearchParams(location.search).has("debug")) {
+      const mocks = Object.entries(status.modules).filter(([, m]) => m === "mock").map(([n]) => n);
+      $("modules").textContent = mocks.length ? `Running on mocks: ${mocks.join(", ")}` : "All modules live";
+      $("modules").hidden = false;
+    }
   } catch { /* non-critical */ }
 
   try {
@@ -606,6 +623,7 @@ function boot() {
   buildWordmark();
   buildStrand();
   watchScroll();
+  initTabs();
   renderActions();
   $("check-form").addEventListener("submit", onCheck);
   $("ask-form").addEventListener("submit", onAsk);

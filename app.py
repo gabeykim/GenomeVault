@@ -161,10 +161,10 @@ def profile() -> Profile:
 
 @app.get("/api/flags")
 def flags() -> dict:
-    """Flags for the current medication list, all computed on device."""
+    """Flags for the current medication list, all computed on device. Not a ledger event: the page
+    loads this on every visit, and nothing leaves (keeps the ledger to things the user did)."""
     p = load_profile()
     result = _flags_for(p.meds, p)
-    _note("local_only")
     return {"checked": [d.ingredient for d in p.meds], "flags": [f.model_dump() for f in result]}
 
 
