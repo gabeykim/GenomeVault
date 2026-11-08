@@ -159,3 +159,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` → 267 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok. Not tested against a live Ollama in this cycle.
 - **Inbox:** D 1500 (Q08: keep `key_state`, the EX-001 note counts as backing) → closes my open question, no change. B 1502 (allergy keys OK; keep the `allergy:` prefix) → noted, no change.
 - **Next:** check the VLM against a live `qwen2.5vl:7b` once PR #6 is on main, and record a couple of synthetic label photos for S2. Otherwise: PR #5 review at G2, requests from B/C/D.
+
+### A-013 · 2026-11-08 15:12 · commit `9e94292` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** New `capture.label_drugs(text)`. Label text from the embedded and tesseract sources now goes through it instead of straight into `normalize.to_ingredients`. The text is cut into lines and sentences, and only the first piece that names a drug counts. If that piece has no strength, the strength comes from a later piece naming exactly the same ingredients ("PLAVIX" … "clopidogrel 75 mg"), or from the next line when name and strength were split ("LISINOPRIL-HCTZ" / "20-12.5 MG"). New `tests/A/test_capture_label_warnings.py` (12 tests). PR #5 updated.
+- **Why:** Real labels name drugs the user is not taking in their warnings ("Do not take aspirin or other NSAIDs such as ibuprofen (Advil)"; OTC Drug Facts: "ask a doctor if you take aspirin … or a blood thinner such as warfarin"). Before this, a Plavix label with that warning gave clopidogrel + aspirin + ibuprofen, so one photo fired X5 for a drug the user never took. Typed input was never affected; the VLM path returns fields, not text, so it wasn't either.
+- **Class:** Refines (inside M3, no interface change)
+- **Plan:** advances F2, M3, S2; keeps I4 (a photo never adds a drug that isn't the labelled product)
+- **Refinements:** a label photo is one product: the first line/sentence that names a drug decides, and a combination pill stays whole because both names are on that line. Sentences split on `. ; ! ?` followed by a space, so "12.5" stays whole. `from_text` (typed) still keeps every name.
+- **Contract impact:** none. `capture.from_image(data, mime) -> list[Drug]` unchanged, still never raises.
+- **Affects:** C: none. Both phone samples still read as clopidogrel 75 and ibuprofen 200 (checked). A real label photo through tesseract no longer shows warning drugs as flags (message sent). D: optional eval case "label with a warning naming ibuprofen → no X5" (message sent). B, I: none.
+- **Demo impact:** S2 safer with a real photographed label: no spurious X5 from the warning sticker. The scripted S2 with bundled PNGs is unchanged.
+- **Tests:** `make test` → 279 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok.
+- **Inbox:** nothing new since A-012. Read B-024 (cloud thinking fix): no effect on A.
+- **Next:** live test of the VLM path against `qwen2.5vl:7b` once PR #6 is on main. This needs Ollama, which the headless loop can't reach, so it may need the human. Otherwise: PR #5 review at G2, requests from B/C/D.
