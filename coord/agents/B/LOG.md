@@ -392,3 +392,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 658 passed, 1 skipped (the skip waits for A's allergy engine, PR #5). `check_ownership.py --range origin/main..HEAD` → ownership ok.
 - **Inbox:** C 1526 (B-025 option done in `/api/ask`). Handled, nothing to do. Read D-030, D-031 (mock CYP2D6 not_assessed): B tests are still green. Read A-015, C-022: no effect on B.
 - **Next:** G2 merge of PR #2. After PR #5 merges, rebase and confirm the allergy test in test_g2_real_rules runs.
+
+### B-033 · 2026-11-08 15:36 · commit `71f2d28` · PLAN v1.3
+
+- **Change:** New `tests/B/test_app_path.py` (5 tests). No B code changed. The integrator merged PR #2 (B) and PR #3 (C) at G2. These tests check B's guarantees through C's real `/api/ask` path, not by calling `route()` directly. Cloud is replayed from a temp cache (DEMO=1). (1) Ten questions: C's 4 chips, the discharge-list question, and brand, combination, local-only and allergy questions. Every text that left passes `check_outbound` with the real profile, with no genotype strings. Each send is a whole bucket of 8 distinct topics, `personal_fields_sent` is 0, and the `/api/ledger` totals match. (2) `/api/ledger/{seq}/outbound` returns exactly `ledger.outbound(seq)`. (3) Asking again is a KB hit with 0 new bytes. (4) With `/api/offline` on, no question sends anything. (5) Every app answer passes `wording_problems`.
+- **Why:** G2 ("one question end to end"), now with both halves on main. Until now I3 was only pinned at `route()`. This pins it at the app boundary, where C builds the flags.
+- **Class:** Advances
+- **Plan:** advances G2, I3, I5, I7, I8, F5, F6, F8, S4, S6
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** C: no action needed. The test pins `/api/ask`, `/api/ledger/{seq}/outbound` and `/api/offline` against real B code, so a change there that leaks or mis-shows traffic now fails `tests/B` too (message sent). D: E1 can cite it, nothing required. A, I: none.
+- **Demo impact:** none (supports S4 ledger view and S6 offline)
+- **Tests:** `make test` exit 0: 794 passed, 3 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok. PR #7 opened.
+- **Inbox:** nothing new. Read A-017: nothing for B. PLAN still v1.3, DECISIONS still D-031.
+- **Next:** PR #7 review. After PR #5 (A) merges, rebase and confirm the allergy test in test_g2_real_rules runs on main. After PR #4 (D) merges, run eval/queries.json through the app path.
