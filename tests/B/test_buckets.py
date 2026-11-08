@@ -18,21 +18,22 @@ ALEX_KEYS = [
 
 
 def test_file_is_valid_and_versioned():
-    for v in ("v1", "v2", "v3"):
+    for v in ("v1", "v2", "v3", "v4"):
         raw = json.loads((BUCKET_DIR / f"{v}.json").read_text())
         assert raw["version"] == v and raw["k"] == 8
         assert all(len(b.keys) == 8 and b.version == v for b in load_buckets(v))
 
 
-def test_current_version_is_v3():
-    assert CURRENT_VERSION == "v3"
-    assert {b.version for b in load_buckets()} == {"v3"}
+def test_current_version_is_v4():
+    assert CURRENT_VERSION == "v4"
+    assert {b.version for b in load_buckets()} == {"v4"}
 
 
 def test_old_versions_still_load_unchanged():
     # Old versions are frozen (I5): v1 keeps 12 buckets / 96 keys, v2 keeps 14 / 112.
     assert len(load_buckets("v1")) == 12 and len(universe("v1")) == 96
     assert len(load_buckets("v2")) == 14 and len(universe("v2")) == 112
+    assert len(load_buckets("v3")) == 17 and len(universe("v3")) == 136
 
 
 # Every exact key A's rule tables can emit (rules.all_keys() on PR #1 @ 6e484af, A-003).
@@ -52,7 +53,30 @@ def test_v3_keeps_v2_and_covers_every_rule_key():
     assert set(universe("v2")) <= v3
     assert len(v3) == 136 and len(load_buckets("v3")) == 17
     for k in A_RULE_KEYS:
+        assert bucket_for(k, "v3") is not None, k
+
+
+def test_v4_has_no_not_assessed_gene_and_keeps_rule_keys():
+    # D-021: CYP2D6 is never a real query, so a CYP2D6 member is a known decoy and lowers effective k (I5).
+    v4 = universe("v4")
+    assert len(v4) == 136 and len(load_buckets("v4")) == 17
+    assert not [k for k in v4 if k.startswith("CYP2D6:")]
+    for k in A_RULE_KEYS + ALEX_KEYS:
         assert bucket_for(k) is not None, k
+
+
+def test_v4_changes_only_gene_buckets():
+    v3, v4 = load_buckets("v3"), load_buckets("v4")
+    assert [b.id for b in v3] == [b.id for b in v4]
+    for a, b in zip(v3, v4):
+        if kind_of(a.keys[0]) != "gene_drug":
+            assert a.keys == b.keys, a.id
+
+
+def test_no_pantoprazole_gene_key_beside_omeprazole():
+    # S6 no-extrapolation: the omeprazole gene send must not pre-fill a pantoprazole gene answer.
+    om = bucket_for("CYP2C19:poor_metabolizer|omeprazole")
+    assert not [k for k in om.keys if k.endswith("|pantoprazole")]
 
 
 def test_rule_keys_match_real_rules_when_present():

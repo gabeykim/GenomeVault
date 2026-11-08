@@ -131,6 +131,8 @@ def partition(keys: list[str], prior: dict[str, int], clusters: dict[str, set[st
         fk = sorted((k for k in keys if kind_of(k) == fam), key=lambda k: (-p[k], k))
         n = len(fk) // K
         assert n * K == len(fk), (fam, len(fk))
+        if n == 0:  # family not being rebuilt (build_v4 regroups only gene keys)
+            continue
         # snake-draft start: spreads common keys across buckets
         buckets = [[] for _ in range(n)]
         for i, k in enumerate(fk):
