@@ -66,3 +66,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S4 (cloud answers in demo come from the cache), I8 (demo makes no network calls; tested).
 - **Tests:** `make test` → exit 0, 259 passed; `check_network.sh` → ok
 - **Next:** queue 6 `router.route` (P6 steps 1–5, 7, 8) for G2 (16:00).
+
+### B-006 · 2026-11-08 14:10 · commit `aca7eb9` · PLAN v1.1
+
+- **Change:** Added `core/router.py`: `route(question, flags) -> Answer` (contract signature unchanged), plus `tests/B/test_router.py` (10 tests). PR #2 updated.
+- **Why:** BRIEF B queue item 6, Gate G2 (one question end to end with live ledger).
+- **Class:** Advances
+- **Plan:** advances F4, F5, M5, P6.1–5, P6.7, P6.8, I3, I4, I5, G2; refines P6.1, P6.2
+- **Refinements:** (1) Keys asked = keys of flags with `needs_cloud=True` (allergy flags never; they generalize to nothing), plus drug–drug pair keys for known drugs the user names in the question (parsed on device; the question text itself never leaves). (2) No such key → one `local_only` entry, `Answer(state="known", text=router.LOCAL_TEXT, facts=[])`. (3) Each key's whole fixed bucket is sent once per route call (shared buckets are not re-sent); all 8 answers go to the KB once `kb.py` lands (queue 7; until then step 2 always misses). (4) Leakage check runs on all 8 Topic texts with the bucket's own drug names allowed; any hit → one `blocked` entry, 0 bytes, nothing sent. (5) `CloudUnavailable` (offline, no key) → no ledger entry (nothing left), and the key is `no_data` (queue 9 refines). (6) Key outside the universe → never sent, `no_data`. (7) `state="known"` if any asked key has a Fact, else `no_data` with `router.NO_DATA_TEXT` ("a missing entry does not mean no interaction"). `Answer.text` = asked facts' texts joined by blank lines; `Answer.facts` = only the asked keys' facts, so C's `check_output` passes. (8) Profile for the leakage check: `core.graph.load_profile` once A merges, else `interfaces.load_profile`.
+- **Contract impact:** none
+- **Affects:** C: real `router.route` now exists on PR #2; the router writes every ledger entry (`local_only`, `kb_hit`, `bucket`, `blocked`) → none (C-004 already handles it). I: `mocks/cloud_cache/` is still empty, so in DEMO=1 every cloud question returns `no_data` with `sent_to_cloud=True` (the bucket is logged as sent) → please populate it (see B-005). D: E1/E2 can drive `router.route` and read `ledger.feed`/`ledger.outbound` → none.
+- **Demo impact:** S4 works end to end once the cloud cache exists; S3 gets a real `local_only` ledger row.
+- **Tests:** `make test` → exit 0, 269 passed; `check_network.sh` → ok; `check_ownership.py` → ok
+- **Next:** queue 7 `kb.py` (exact-key store with tier + expiry, `kb.get`/`kb.put`; router already calls them), then queue 9 offline.
