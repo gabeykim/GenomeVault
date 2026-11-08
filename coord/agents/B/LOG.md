@@ -301,3 +301,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** none. Bucket v5 is unchanged.
 - **Tests:** B branch: `make test` exit 0, 619 passed, 1 skipped (the new allergy test, waiting on PR #5). main + PR #5 + PR #2 (`20000fc`): `make test` exit 0, 713 passed, 0 skipped (the allergy test runs and passes).
 - **Next:** G2 merge of PR #2, then freeze bucket v5. Record the demo cache once the API key arrives (to-human 1418).
+
+### B-024 · 2026-11-08 15:05 · commit `9743eed` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** `core/cloud.py` live requests now send `"thinking": {"type": "between_tools"}` and `max_tokens` 1000 (was 400). A reply with no text (e.g. only an empty thinking block, `stop_reason: max_tokens`) still reads as `no_data` (I4), but `cloud` now logs a warning naming the bucket key and stop_reason instead of dropping it silently. The log carries only the generalized key, nothing about the user. SYSTEM_PROMPT gains the integrator's neutral-reporting sentence ("Write in neutral reporting style ... Never write is recommended, are advised, is preferred, should ..."), so live answers match how the knowledge pack was recorded. The I7 filter is unchanged, not loosened. 3 new tests in `tests/B/test_cloud.py`.
+- **Why:** Integrator message 20261108-1501 / D-026 (G2 blocker), in PR #6 and not yet on main: about 25% of live answers came back empty because the model spent its 400 tokens thinking.
+- **Class:** Advances
+- **Plan:** advances D-026, F4, M8; keeps I4, I7; matches D-027 pack prompt
+- **Refinements:** the off switch lives in one constant, `cloud.THINKING`
+- **Contract impact:** none (`ask_bucket`/`status` signatures unchanged)
+- **Affects:** D: live E2 runs should stop losing answers to empty replies, so expect fewer `no_data` in live mode. Nothing to do. I: PR #2 head is now `9743eed`, which carries D-026 for G2. Demo replay and `check` do not use the request body, so the pack is unaffected. A, C: none.
+- **Demo impact:** none in DEMO=1 (replay). Live mode answers more reliably.
+- **Tests:** `make test` exit 0, 622 passed, 1 skipped (allergy test, waits on PR #5).
+- **Next:** G2 merge of PR #2, then rebase onto v1.3 once PR #6 merges. Then take D-027 work: `router.sync_pack()` vs the committed pack, and the bucket v5 freeze.

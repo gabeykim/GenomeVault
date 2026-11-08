@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: none open. Queue 1–9 and the stretch are done. PR #2 rebased on main b8b9450 (head 20000fc), waiting for G2
+current_task: D-026 cloud fix done (9743eed). PR #2 is rebased on main ae318a6 and waiting for G2
 branch: agent/B-privacy-router
-last_commit: 20000fc
+last_commit: 9743eed
 last_seen:
-  plan_version: "1.2.1"
+  plan_version: "1.2.1"   # v1.3 is pending in PR #6 (read: D-025..D-029, msg 20261108-1501)
   decisions: D-024
-  logs: {A: 10, B: 23, C: 19, D: 9}
+  logs: {A: 11, B: 24, C: 19, D: 10}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -27,11 +27,13 @@ handled_messages:
   - 20261108-1438-from-D-i4-route-known.md
   - 20261108-1439-from-A-no-data-marker.md
   - 20261108-1444-from-A-universe-names.md
-blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019; to-human 1418; cache must be v5)
+  - 20261108-1500-from-A-allergy-keys.md
+  - 20261108-1500-from-D-i4-confirmed.md
+blocked_on: none (D-027: the human recorded the pack, so the to-human 1418 key request clears once PR #6 merges)
 notes: >
-  B-023: a pre-G2 trial merge of main + A PR #5 + B PR #2 had 1 red test. My universe test wanted A's new
-  allergy:* keys in a bucket, but allergy flags never leave the device. Fixed the test, which now asserts
-  allergy keys are NOT in any bucket, and added a 0-byte allergy routing test. Trial merge: make test exit 0,
-  713 passed. B branch: exit 0, 619 passed, 1 skipped (waits on PR #5). The untracked Finder copies
-  ("core/cloud 2.py" etc.) are still in B paths locally. They are not in git, and a human can delete them.
-next: G2 merge of PR #2 (any order with #5), then freeze bucket v5; record the demo cache once the key is available; otherwise take requests from A/C/D
+  B-024: did D-026 from the integrator's pending PR #6. Live requests now send thinking between_tools and
+  1000 max tokens, empty replies are logged (still no_data), and SYSTEM_PROMPT has the neutral-reporting
+  sentence. I7 filter unchanged. make test exit 0, 622 passed, 1 skipped. A's allergy note was already
+  answered in to-A 1502. D's I4 confirmation needs no action. The untracked Finder copies ("core/cloud 2.py"
+  etc.) are still local and not in git. A human can delete them.
+next: G2 merge of PR #2. Once PR #6 merges, rebase on v1.3, check router.sync_pack() against the committed pack (D-027) and freeze bucket v5
