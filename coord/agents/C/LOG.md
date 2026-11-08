@@ -196,3 +196,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S2 (capture on phone, appears on the laptop), S6 (reminders on the phone)
 - **Tests:** C alone → `make test` exit 0 (94 passed, 7 skipped). origin/main + A + B + C + D merged → exit 0, 743 passed; both samples read with A's reader (clopidogrel → X1, X2; ibuprofen → X5 ×4). Real `serve_https.sh` run on the LAN IP: `/phone` 200, unpaired `/api/profile` 401, pair 200, capture reads ibuprofen with 4 flags, a paired phone gets 403 for `/api/phone`, and the laptop sees the capture. Checked by hand at phone and desktop sizes, no console errors.
 - **Next:** drop the stand-ins (D-014); rehearsal with D's script after the merge
+
+### C-016 · 2026-11-08 14:45 · commit `73466b5` · PLAN v1.2.1
+
+- **Change:** New accent palette on bone paper. Midnight black `#0a1020` is the main accent (text, rules, wordmark, hover fills). Electric blue `#1f4bff` is the secondary accent: data in motion (strand packets, ledger blocks, the user's own question in the 8-question view, cover-on, learned count) and interaction (active tab, Online switch, focus rings). Cantaloupe `#ffa177` is the third accent: medium severity and no-data fills, text selection, the asked marker, and a few intro blocks, with `#9c4614` for cantaloupe text on bone. Red and green stay as status colors. The laptop UI, phone page and printable `/summary` share the tokens.
+- **Why:** Human owner's palette choice.
+- **Class:** Refines
+- **Plan:** advances M10
+- **Refinements:** palette tokens `--ink`, `--blue`, `--melon`, `--melon-text`. All text pairs meet WCAG AA: midnight on bone 14.5, blue on bone 4.6, light blue on midnight 7.0, deep cantaloupe on bone 4.9, midnight on cantaloupe 9.6.
+- **Contract impact:** none
+- **Affects:** D: slides and screenshots should use the new palette (midnight, electric blue, cantaloupe on bone) → retake screenshots
+- **Demo impact:** visual only (S1 intro lanes now carry a few blue and cantaloupe blocks)
+- **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Checked in the merged preview at desktop and phone sizes, no console errors.
+- **Next:** drop the stand-ins (D-014); show A's no_data marker when PR #5 lands; rehearsal after G2
