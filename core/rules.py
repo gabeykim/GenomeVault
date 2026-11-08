@@ -22,7 +22,7 @@ import functools
 import json
 import operator
 import pathlib
-from typing import Optional
+from typing import Literal, Optional
 
 from .contracts import Drug, Flag, Lab, Profile, pair_key
 
@@ -249,6 +249,31 @@ def expected_notes_all(profile: Profile) -> list[dict]:
         for n in expected_notes(med, profile):
             seen.setdefault(n["key"], n)
     return sorted(seen.values(), key=lambda n: n["id"])
+
+
+def key_state(key: str) -> Literal["known", "none_listed", "no_data"]:
+    """PLAN P6 answer state of one exact key in the local curated tables (I4, queue 8).
+
+    `known`: the key has a curated entry (a rule, an expanded class rule, or an expected combination).
+    `none_listed` would need a curated "listed as no interaction" entry; no such table is authored
+    yet, so it is never returned today. Everything else is `no_data`: no rule, no flag, and no
+    inference from a similar drug (e.g. `clopidogrel|pantoprazole` stays `no_data` although
+    `clopidogrel|omeprazole` is known). Genes in NOT_ASSESSED are always `no_data`."""
+    key = key.strip()
+    if key.split(":", 1)[0] in NOT_ASSESSED:
+        return "no_data"
+    if key in all_keys() or key in expected_keys():
+        return "known"
+    return "no_data"
+
+
+def no_data_keys(drug: Drug, profile: Profile) -> list[str]:
+    """Drug-drug pair keys between `drug` and each other med in the profile that the local tables do
+    not cover (state `no_data`). `check()` returns no flag for these; this is the marker the router
+    and UI can use to say "no entry", never "no interaction" (I4, I7). Sorted, one per key."""
+    ing = drug.ingredient.strip().lower()
+    keys = {pair_key(ing, other) for other in _others(Drug(ingredient=ing), profile)}
+    return sorted(k for k in keys if key_state(k) == "no_data")
 
 
 def check_all(profile: Profile) -> list[Flag]:
