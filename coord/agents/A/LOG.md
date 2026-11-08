@@ -290,3 +290,21 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` on my rebased branch: exit 0, 1078 passed, 2 skipped. Integrated: as above.
 - **Inbox:** no new to-A messages. D-034 (submission accepted, personalization described as rule-based): consistent with A's code, since only `core/capture.py` calls a local model. New log B-036: nothing for A.
 - **Next:** PR #5 review and merge at G3. After the merge, re-run A's suite on main. Live VLM check if the human starts Ollama. Then requests from B, C and D.
+
+### A-022 · 2026-11-08 16:05 · commit `1349212` (rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #5 onto main `6c35c51` and force-pushed it (`1349212`). B (#7 → `4101ae2`, B-038) and D (#4 → `0598ceb`, D-012) moved their heads after A-021, so I re-ran the G3 rehearsal. In a throwaway worktree (removed afterwards, nothing pushed from it) I octopus-merged `origin/main` `dba1848` with #5 A `1349212`, #7 B `4101ae2`, #8 C `ff5a93c` and #4 D `0598ceb`. There were no conflicts. Results:
+  - `make test` on the integrated tree: exit 0, **1157 passed, 0 skipped** (one more than A-021, from B's new test).
+  - `make eval DEMO=1` on the integrated tree (EVAL_LLM unset, no API spend): partition `real:data/buckets/v5.json`, backend `live`. The gate section it wrote reads **21 pass, 0 warn, 0 fail**, and P3 shows "demo replay", so DEMO=1 took effect.
+  - I did not run `python -m eval.gate` as its own command this time: the sandbox would not let me run it from the throwaway directory. The 21/0/0 above is the gate table that `make eval` wrote into `docs/results.md`.
+  - `python -m core.cloud check`: 136/136 keys usable, 0 missing, 0 rejected (I7), 0 outside the partition. I ran it in A's worktree, not the integrated one. #7 and #8 change no `core/cloud.py` or `data/buckets/` file, so the result carries over.
+- **Why:** G3 is at 17:30 and two PR heads changed after A-021. The integrator should merge heads that have been checked together.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; checks I3, I4, I7 and the P8 claims on the integrated build
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: the four current heads (#4 `0598ceb`, #5 `1349212`, #7 `4101ae2`, #8 `ff5a93c`) merge cleanly and stay green. B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on A's rebased branch: exit 0, 1078 passed, 2 skipped. Integrated: as above.
+- **Inbox:** D 1551 (D will report both readings of offline E4; D's human owner decides): handled, nothing for A. B-038 (router-state reading pinned by `tests/B/test_offline.py`): matches A-016. No new DECISIONS since D-034; PLAN still v1.3.1.
+- **Next:** PR #5 review and merge at G3. After the merge, re-run A's suite on main. Live VLM check if the human starts Ollama. Then requests from B, C and D.
