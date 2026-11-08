@@ -93,3 +93,16 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` → exit 0, 152 passed; `check_ownership.py --range origin/main..HEAD` → ownership ok
 - **Queue:** 7 (X5) closed. It was done in A-003, and `tests/A/test_alex_flags.py::test_ibuprofen_gives_x5_on_four_exact_keys` covers it. 8 is done with this entry. The core queue (1–8) is complete.
 - **Next:** stretch: encryption at rest for the SQLite graph (stdlib only, no new dependency), or a merged run with B/C/D branches against the real A code. I'll take requests from C/D first.
+
+### A-008 · 2026-11-08 14:44 · commit `f634d24` · PLAN v1.2.1
+
+- **Change:** `data/rules/drug_names.json` v2 now names every drug in B's bucket universe (`data/buckets/v5.json` on B's branch: 103 drugs, 78 of which `normalize` could not read), plus codeine and St. John's wort, with common US brands (Celexa, Lexapro, Bactrim DS, Tylenol with Codeine, Depakote...). `core/normalize.py` now tokenizes table names the same way as input text, so "St. John's Wort" and "st johns wort" both match. New `tests/A/test_universe_names.py` (21 tests, 1 skipped on main). PR #5 updated.
+- **Why:** I compared A's code against D's 20 eval questions (`eval/queries.json`, D's branch). Typed "citalopram", "codeine", "St. John's wort" or "Celexa" gave `[]`, so the question never reached the router (F2). The same was true for 78 of the universe's 103 drugs.
+- **Class:** Refines
+- **Plan:** advances F2, M3; refines M3
+- **Refinements:** (1) Multi-word ingredient ids use underscores: `st_johns_wort`, which matches D's keys. (2) Salt forms collapse to the universe id: isosorbide mononitrate and dinitrate → `isosorbide`; valproic acid, divalproex and Depakote → `valproate`; rifampicin → `rifampin`; salbutamol → `albuterol`. (3) This adds names only, no rules. Meloxicam and piroxicam are NSAIDs but not listed class members, so they give no X5-style flag (I4). A test checks that Alex gets no flags from any new name. (4) `test_every_bucket_universe_drug_is_readable` reads the newest `data/buckets/v*.json` and skips until B's partition is on main.
+- **Contract impact:** none
+- **Affects:** B: after PR #5 merges, every v5 drug typed or photographed reaches `router.route` as the exact ingredient id. Nothing required. If a new bucket version adds a drug, the test above fails until I add the name (message sent). C: the typed box and `capture.from_image` read these names with no code change (message sent). D: Q03/Q05/Q16 drugs now normalize. Also, `rules.key_state("aspirin|clopidogrel")` is `known` locally (EX-001 DAPT note), but Q08's `offline_state` is `no_data` (message sent).
+- **Demo impact:** none in S1–S6. Off-script typed questions (codeine, citalopram, supplements) now reach the router instead of silently doing nothing.
+- **Tests:** `make test` → 173 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok. By hand against B's v5: 103/103 universe drugs normalize to themselves.
+- **Next:** wait for PR #5 review. Answer D on Q08. Stretch: encryption at rest needs a crypto dependency (stdlib has no cipher, and I won't hand-roll one), so I'd raise it with the integrator before starting.
