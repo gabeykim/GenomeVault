@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-014 normalize combination strengths ("10-40 mg" in ingredient order; X3 false negative fixed), done, on PR #5
+current_task: A-015 G3 capture test (Alex's 5 discharge labels + Amoxil, every local path) + warning lines never stand in for the product, done, on PR #5
 branch: agent/A-data-rules
-last_commit: fa0584b
-pr: "#5 (open) agent/A-data-rules -> main: queue 8 key_state/no_data_keys + A-008 universe names + A-009 PharmCAT path + A-010 genotype sweep + A-011 allergy engine + A-012 VLM capture + A-013 label warnings + A-014 combo strengths. Rebased on origin/main, make test green (297 passed, 1 skipped)."
+last_commit: 24c5148
+pr: "#5 (open) agent/A-data-rules -> main: queue 8 key_state/no_data_keys + A-008 universe names + A-009 PharmCAT path + A-010 genotype sweep + A-011 allergy engine + A-012 VLM capture + A-013 label warnings + A-014 combo strengths + A-015 G3 label test. Rebased on origin/main, make test green (353 passed, 1 skipped)."
 last_seen:
   plan_version: "1.2.1"       # v1.3 is in PR #6 (D-025..D-029), not on main yet
   decisions: D-024
-  logs: {A: 14, B: 26, C: 20, D: 10}
+  logs: {A: 15, B: 27, C: 21, D: 11}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -22,16 +22,20 @@ handled_messages:
   - 20261108-1500-from-D-q08-note-counts.md
   - 20261108-1502-from-B-allergy-keys-ok.md
   - 20261108-1510-from-C-allergy-nodata.md
-blocked_on: "encryption-at-rest stretch: waiting on the human to decide on the `cryptography` dependency (to-human 1454)"
+  - 20261108-1516-from-human-skip-encryption.md
+  - 20261108-1518-from-D-optional-cases.md
+blocked_on: none
+dropped:
+  - "Stretch: encryption at rest. Dropped by the human (to-A 1516): no `cryptography` dependency, no graph.py change."
 open_questions:
-  - "To human: add `cryptography` for encryption at rest, or drop the stretch? (to-human 1454)"
   - "To I: A-012 codes against PR #6's `local_llm.generate(images=, format=, model=)` and `VLM_MODEL`. Please tell A if that changes before merge."
+  - "To human: live VLM check on real photos needs Ollama + qwen2.5vl:7b running on this machine (to-human 1523). Optional."
 notes: >
-  A-014: "ezetimibe-simvastatin 10-40 mg" read as simvastatin 10 mg, which hid X3. Names joined by - or /
-  are now one product, and their strengths go to the ingredients in order. A range or a count that doesn't
-  line up gives dose None, which rules treat as "worth asking". drug_names v4 adds amox-clav. Answered C's
-  Amoxil question: that label text gives amoxicillin 500 → AL-001 only. Stage time is D/I's call. Message
-  to D: optional X3 combo eval case.
+  A-015: G3 check done. Six full synthetic labels (Alex's 5 discharge meds + Amoxil) each give exactly the
+  right Drug via PNG, JPEG, faked OCR and a faked VLM, and flag like the typed name (X1–X4, AL-001). Unknown
+  and look-alike names give []. Fixed a false-drug path: an unreadable product line let the warning's drug
+  ("Avoid omeprazole") stand in. Warning sentences (cue before any drug name) no longer count. C was told;
+  no change is needed on C's side.
 next: >
-  Live VLM test against qwen2.5vl:7b after PR #6 merges (may need the human, since Ollama can't be reached
-  from the headless loop). Otherwise: PR #5 review at G2 (all A queue items done), requests from B/C/D.
+  Live VLM run on real label photos once PR #6 merges and the human starts Ollama. Otherwise: PR #5 review
+  at G2, requests from B/C/D.
