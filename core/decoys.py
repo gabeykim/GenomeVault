@@ -11,7 +11,7 @@ from functools import lru_cache
 from .contracts import Bucket
 
 BUCKET_DIR = pathlib.Path(__file__).resolve().parent.parent / "data" / "buckets"
-CURRENT_VERSION = "v1"
+CURRENT_VERSION = "v2"  # v1 stays frozen and loadable; v2 = frequency-balanced regroup + 16 keys
 
 
 def kind_of(key: str) -> str:

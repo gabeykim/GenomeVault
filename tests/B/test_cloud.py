@@ -114,7 +114,7 @@ def test_demo_replays_cache_without_network(monkeypatch, tmp_path):
     facts = cloud.ask_bucket(b, _topics(b))
     # missing or blank keys get no Fact (router → no_data, I4)
     assert {f.key: f.text for f in facts} == {b.keys[0]: "cached one", b.keys[2]: "cached three"}
-    assert all(f.tier == "cloud" and f.source == "cloud-cache:v1" for f in facts)
+    assert all(f.tier == "cloud" and f.source == f"cloud-cache:{b.version}" for f in facts)
 
 
 def test_demo_with_empty_cache_returns_nothing(monkeypatch, tmp_path):
