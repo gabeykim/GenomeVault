@@ -314,3 +314,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** none in DEMO=1 (replay). Live mode answers more reliably.
 - **Tests:** `make test` exit 0, 622 passed, 1 skipped (allergy test, waits on PR #5).
 - **Next:** G2 merge of PR #2, then rebase onto v1.3 once PR #6 merges. Then take D-027 work: `router.sync_pack()` vs the committed pack, and the bucket v5 freeze.
+
+### B-025 · 2026-11-08 15:10 · commit `1cc90f8` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** `router.route()` now looks up a `needs_cloud` flag's key only when that flag covers the question. A flag covers it when it shares a drug the question names, or when the question names no drug at all. This is the rule `flag_covers` already used to decide `known`. Before, every cloud flag passed in went into the lookup whatever the question asked. 3 new tests in `tests/B/test_router.py`.
+- **Why:** I checked PR #6's knowledge pack (D-027) against this branch (pack read from `origin/integrator/v1.3` into a temp dir, DEMO=1). `cloud check` gives 136/136 ok, 0 missing, 0 rejected, 0 unknown. `sync_pack(skip_fresh=False)` sent 17 buckets and stored 140 facts (136 keys + 4 v5 aliases). A second `sync_pack()` skipped all 17. Synced questions are `kb_hit` with 0 bytes and still answer with GV_OFFLINE. But with Alex's real `check_all` flags, "Is simvastatin affected by my genes?" and "Can I take ibuprofen?" both came back `known` using the clopidogrel X1/X2 cloud texts. That breaks I4 (an answer must be backed by facts about what was asked). Without a pack sync, the same questions sent the clopidogrel buckets for no reason.
+- **Class:** Refines
+- **Plan:** advances F4, F6/D-027 (pack check); refines P6.1/P6.2 and I4
+- **Refinements:** P6.1: a question looks up only the flags that cover it (they share a named drug, or the question names no drug). Off-topic flags are neither sent nor quoted.
+- **Contract impact:** none (`route(question, flags) -> Answer` unchanged)
+- **Affects:** C: `/api/ask` passes all med flags. An off-topic question (e.g. ibuprofen, not a med) now gets `no_data`, not clopidogrel text. If you want such a question answered locally, also pass `rules.check(Drug(<named drug>), profile)` flags for the drugs it names. Optional. D: E1/E4 question sets already pass per-question flags, so little should change. Questions with no `drugs` that use `check_all` will no longer pull X1/X2 when their text names another drug. Rerun once. I: the D-027 pack works with PR #2 as-is, so PR #6 + PR #2 merge cleanly from B's side. A: none.
+- **Demo impact:** S4/S5: questions about clopidogrel are unchanged. Off-topic questions stop quoting clopidogrel text. Fewer buckets leave in live/cold mode.
+- **Tests:** `make test` exit 0, 625 passed, 1 skipped (allergy test, waits on PR #5).
+- **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and add a test that runs `sync_pack` against the committed `mocks/cloud_cache/`. v5 stays frozen (D-027).
