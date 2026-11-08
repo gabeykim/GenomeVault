@@ -24,7 +24,7 @@ Checked on a local merge of all four branches in demo mode (D-006). The privacy 
 | App shows all four X5 flags | S6 ibuprofen: the typed check shows only the kidney flag because flags are de-duplicated by id, and all four share id `X5` | C (A's note, A-003) | open |
 | A's real rules on main | S3 and S6 flags come from A's tables, not mocks | Integrator at G1 (14:30) | PR #1 ready |
 
-Rehearsal check: restart `make demo` (the ledger is in memory), ask Q18 then Q19, and confirm Q19 adds a `kb_hit` row with 0 bytes. If it doesn't, the cache isn't loaded: switch to the backup video.
+Rehearsal check: first run `python -m core.cloud check` (offline, B-013). It reports missing, wording-rejected (I7) and out-of-partition keys in the demo cache, and S4/S6 are ready only when it exits 0. Then restart `make demo` (the ledger is in memory), ask Q18 then Q19, and confirm Q19 adds a `kb_hit` row with 0 bytes. If it doesn't, the cache isn't loaded: switch to the backup video.
 
 Backup: record the full run as video by G5 (20:15). Print `/summary` as a handout for judges.
 
