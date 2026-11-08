@@ -1,12 +1,12 @@
 agent: B
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: bucket partition v2 (frequency-balanced, 112 keys) done, PR #2 updated; queue items 1-9 + stretch done
+current_task: bucket partition v3 (covers every key in A's rules.all_keys(), 136 keys / 17 buckets) done, PR #2 updated; queue items 1-9 + stretch done
 branch: agent/B-privacy-router
-last_commit: f545cff
+last_commit: a951d58
 last_seen:
   plan_version: "1.1"
   decisions: D-013
-  logs: {A: 2, B: 11, C: 8, D: 5}
+  logs: {A: 3, B: 12, C: 9, D: 5}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -15,13 +15,13 @@ handled_messages:
   - 20261108-1352-from-A-x5-keys.md
   - 20261108-1355-from-C-using-extras.md
   - 20261108-1357-from-D-bucket-numbers.md
+  - 20261108-1359-from-A-rules-ready.md
 blocked_on: none
 notes: >
-  B-011: data/buckets/v2.json is the default (CURRENT_VERSION="v2"). It has 14 buckets and 112 keys,
-  and the worst-bucket statistical attacker drops from 31% (v1) to 22.9% with D's synthetic priors.
-  v1 is frozen and still loads. It adds the keys for D's Q05/Q12/Q14/Q20. I asked A to confirm the
-  lab-band spellings and D to rerun E1 and add priors for 4 keys. C was told the bucket ids now point
-  at different members. Names C relies on (ledger.outbound, kb.stats, generalize.generalize,
-  cloud.status, cloud.set_offline) stay stable. mocks/cloud_cache/ is still empty (integrator-owned).
-  C's cloud.status() proposal is still unruled.
-next: match A's spellings in v2 if they differ (before G2 freezes v2); switch to real A code after G1; G2 merge fixes
+  B-012: data/buckets/v3.json is the default (CURRENT_VERSION="v3"). It is v2's 112 keys + the 15 keys
+  A's rule tables can emit that v2 lacked (incl. needs_cloud CYP2C19:intermediate_metabolizer|clopidogrel
+  and D's Q17 naproxen keys) + 9 decoys. Worst-bucket statistical attacker is 22.2% (v2: 22.9%). v1/v2 stay frozen.
+  A guard test checks rules.all_keys() against the universe once core/rules.py is on main. I asked D to
+  rerun E1 and add priors for 15 new pair topics; told C the ids are now b01-b17. C's cloud.status()
+  proposal is still unruled. C-009 (tabs UI) needs nothing from B. mocks/cloud_cache/ still empty (integrator-owned).
+next: rebuild v3 if D sends priors before G2 (frozen from G2); switch to real A code after G1 (graph.load_profile); G2 merge fixes
