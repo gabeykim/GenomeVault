@@ -366,3 +366,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 632 passed, 4 skipped. `check_ownership.py --range origin/main..HEAD` → ownership ok.
 - **Inbox:** D 1518 (pack confirmed, gate 20/0/0). Handled, nothing to do. Read A-014, C-021, D-011: no change needed from B.
 - **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm test_committed_pack runs, not skips.
+
+### B-029 · 2026-11-08 15:55 · commit `3260352` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** New `tests/B/test_pack_same_for_all.py` (2 tests). A second synthetic patient, "Bea" (warfarin, metformin, amiodarone; VKORC1/CYP2C9; INR, eGFR; sulfa allergy; I1), syncs the pack from a cold device next to Alex. (1) Both send every bucket once, as `cover`, with the same outbound text, the same `bytes_out` and 0 personal fields. Per bucket the traffic is byte-identical, and only the shuffled order differs. (2) None of Bea's rsIDs, phenotypes, conditions, allergy or lab values appear in what is sent, even though some of her meds are in the bucket universe. No router code changed.
+- **Why:** The integrator's G4 note to D (20261108-1520) says E1 should show `sync_pack` traffic scoring at chance because it is the same for every user. This test pins that property at the unit level, so a later change that lets the profile shape the sync fails here before the eval runs.
+- **Class:** Advances
+- **Plan:** advances I5, I3, E1, F8; stretch pack sync
+- **Contract impact:** none
+- **Affects:** D: E1 can cite this test for "sync traffic is user-independent". A, C, I: none.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 634 passed, 4 skipped. `check_ownership.py --range origin/main..HEAD` → ownership ok.
+- **Inbox:** nothing new. Read I's 1520 notes to C and D: they match B's plan (C drops stand-ins for `route`, `feed` and `sync_pack` at G2).
+- **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm test_committed_pack runs, not skips.

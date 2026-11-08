@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-028 combo-question tests (cb4a705). PR #2 rebased on main 3f96ffd, waiting for G2
+current_task: B-029 pack-sync same-for-all test (3260352). PR #2 rebased on main 1f95e61, waiting for G2
 branch: agent/B-privacy-router
-last_commit: cb4a705
+last_commit: 3260352
 last_seen:
   plan_version: "1.2.1"   # v1.3 is pending in PR #6 (read: D-025..D-029, msg 20261108-1501)
   decisions: D-024
-  logs: {A: 14, B: 28, C: 21, D: 11}
+  logs: {A: 14, B: 29, C: 21, D: 11}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -34,9 +34,9 @@ handled_messages:
   - 20261108-1518-from-D-pack-confirmed.md
 blocked_on: none (D-027: the human recorded the pack, so the to-human 1418 key request clears once PR #6 merges)
 notes: >
-  B-028: new tests/B/test_combo_questions.py (5 tests) for A-014 combination products: only universe ingredients
-  count as named, and ezetimibe, clavulanate and the strengths never leave the device (I3). Offline gives no_data,
-  and amox-clav with AL-001 stays local_only (I4). No router change was needed. make test exit 0, 632 passed, 4 skipped.
-  Read A-014, C-021, D-011 and D 1518: no change needed from B.
+  B-029: new tests/B/test_pack_same_for_all.py (2 tests): Alex and a second synthetic patient send byte-identical
+  sync_pack traffic per bucket (cover, 0 personal fields), and none of the second patient's values leave (I5, I3, E1).
+  No router change. make test exit 0, 634 passed, 4 skipped. Note to D (1555). No new inbox messages.
+  Read I's 1520 notes to C and D: they match B's plan.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
 next: G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm test_committed_pack runs instead of skipping
