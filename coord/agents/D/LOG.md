@@ -94,3 +94,17 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Tests:** `make test` → exit 0 (42 passed, including main's new contract test). All four branches merged with this change on B's v3: `make test` → exit 0 (548 passed).
 - **Results (5 seeds × 1000, synthetic priors):** statistical attacker v1 22.6% ± 2.0, v2 22.1% ± 0.9, v3 20.3% ± 1.5 (v3 ceiling 20.1%); repeat-ask about 12% on all three; joint inference 71% in one session vs 32% with separate sessions + cover (blind guess 25%); v3 genotype revealed by bucket identity 2.4% ± 0.4. Hybrid answers 20/20 on v2 and v3.
 - **Next:** E3 live latency with and without `GV_DELAY_S`; adversarial wording cases for B's I7 filter; G4 run on the integrated build
+
+### D-008 · 2026-11-08 14:26 · commits `4f19077`, `928224d` · PLAN v1.2
+
+- **Change:** (1) `eval/wording.py` + `eval/fixtures/wording_cases.json`: 35 adversarial cloud-answer texts (25 that break I7, 8 neutral, 2 rejected by design) scored against B's `validator.wording_problems`. (2) `eval/latency_cost.py`: a live hybrid arm on the integrated build, with `GV_DELAY_S=0,0` and, opt-in via `EVAL_DELAYS=1`, B's default `0.3,2.0`. (3) `queries.json` q-v5: Q01 and Q09 references reworded to pass the I7 rule; Q03 (CYP2D6) is a local `no_data` answer. D's wording test uses B's rule. (4) `universe_v1.json` v5: CYP2D6 topics get prior 0 (D-021: never a real question, so known-fake decoys); synthetic patients never ask a prior-0 topic; priors for v4's four new gene topics. (5) Demo script and judge Q&A: keep demo mode on stage, plus a latency answer.
+- **Why:** B-013 asked for adversarial wording cases; E3 live latency was queued; B-014 (v4) and A's D-021 note.
+- **Class:** Refines
+- **Plan:** advances P7 E1/E3, I7 red team, P8, M11; follows D-021, B-014
+- **Refinements:** (1) Prior 0 marks a topic no real user can ask. (2) E3's delayed arm is opt-in because it waits through real P6.4 pauses.
+- **Contract impact:** none
+- **Affects:** B: wording gaps, delay cost and v4 results → message sent. I: the I7 filter gaps, FYI (invariant) → message sent. A: none (reply sent).
+- **Demo impact:** stage run stays in demo mode (live delays add about 19 s to a question that sends buckets)
+- **Tests:** `make test` → exit 0 (44 passed, 1 skipped without B's validator). All four branches merged on B's v4: `make test` → exit 0 (636 passed).
+- **Results:** I7 filter on the merged build: 3/25 rejected (only the plain cases), 0/5 reassurance without the word, 0/14 rephrased instructions, 0/4 character tricks, 0/1 non-English; 1/8 false alarms. Live E3: median 1.2 ms vs 18.8 s per question that sends buckets (no delay vs default); 0.02 s vs 168 s for the 20 questions. E1 on v4 (5 seeds × 1000): statistical 19.4% ± 0.8, repeat-ask 12.8%, genotype via bucket 1.8% across 4 split topics; joint 76% one session vs 35% separate + cover (blind 26%).
+- **Next:** G4 run on the integrated build; extend synthetic patients to A's VCF path (A-005); retake slide screenshots after C-010
