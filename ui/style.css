@@ -1,4 +1,5 @@
-/* GenomeVault UI. Monochrome: bone paper, black ink, in every system theme. No external assets (I8). */
+/* GenomeVault UI. Bone paper, black ink, in every system theme, plus three status colors used only on
+   small indicators, always next to a word (never color alone). No external assets (I8). */
 :root {
   --paper: #e1e1de;
   --paper-2: #d7d7d3;
@@ -6,6 +7,10 @@
   --mute: #6b6b67;
   --line: #c3c3be;
   --strand: #a3a39e;
+  /* status: on bone paper (AA for text) / lighter variant for use on ink */
+  --bad: #c22d17;  --bad-on-ink: #ff6b4f;
+  --warn: #95570a; --warn-on-ink: #f2a93b;
+  --good: #23703e; --good-on-ink: #5fd38b;
   --ease: cubic-bezier(.76, 0, .24, 1);
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -412,3 +417,45 @@ body.ready .check-result .row { animation-delay: calc(var(--i, 0) * 80ms); }
   .panel .lede { font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { .panel.active { animation: none; } }
+
+/* ---------- status colors (small indicators only) ---------- */
+.sev-high { --sev: var(--bad); --sev-ink: var(--bad-on-ink); }
+.sev-medium { --sev: var(--warn); --sev-ink: var(--warn-on-ink); }
+.sev-low { --sev: var(--mute); --sev-ink: var(--paper); }
+.row[class*="sev-"] .r-sev { color: var(--sev); font-weight: 500; }
+.row[class*="sev-"] .r-id { color: var(--sev); opacity: 1; }
+.row[class*="sev-"] .row-btn:hover .r-sev, .row[class*="sev-"] .row-btn:focus-visible .r-sev, .row[class*="sev-"].open .r-sev,
+.row[class*="sev-"] .row-btn:hover .r-id, .row[class*="sev-"] .row-btn:focus-visible .r-id, .row[class*="sev-"].open .r-id { color: var(--sev-ink); }
+.row[class*="sev-"] .row-btn::after {
+  content: ""; position: absolute; left: calc(-1 * var(--gutter) / 2); top: 0; bottom: 0; width: 3px; background: var(--sev);
+  transform: scaleY(0); transform-origin: top; transition: transform .45s var(--ease);
+}
+.row[class*="sev-"] .row-btn:hover::after, .row[class*="sev-"].open .row-btn::after { transform: scaleY(1); background: var(--sev-ink); }
+
+.plist .v.hot.bad { color: var(--bad); }
+.plist .v.hot.bad::before { background: var(--bad); }
+.plist .v.hot.good { color: var(--mute); }
+.plist .v.hot.good::before { background: var(--good); border-radius: 50%; }
+.plist .v.hot.bad .trend { color: var(--bad); }
+
+.count.bad { color: var(--bad); }
+.count.warn { color: var(--warn); }
+.count.good { color: var(--good); }
+.lede strong.count { font-weight: 500; }
+
+.blink { background: var(--good); }
+.bar-meta .blink { box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 22%, transparent); }
+
+.ticker.good { color: var(--good); }
+.ticker.bad { color: var(--bad); }
+
+.entry.k-local_only .desc::before, .entry.k-kb_hit .desc::before, .entry.k-blocked .desc::before {
+  content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 7px; vertical-align: 1px; border-radius: 50%;
+}
+.entry.k-local_only .desc::before, .entry.k-kb_hit .desc::before { background: var(--good); }
+.entry.k-blocked .desc::before { background: var(--bad); border-radius: 0; }
+.entry.k-kb_hit .bytes, .entry.k-local_only .bytes { color: var(--good); }
+
+.chip.good { border-color: var(--good); color: var(--good); }
+.chip.warn { border-color: var(--warn); color: var(--warn); background: none; }
+.outq li.mine .oq-tag { color: var(--good-on-ink); }

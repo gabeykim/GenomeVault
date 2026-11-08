@@ -219,9 +219,10 @@ function plist(items) { return el("ul", { class: "plist" }, items); }
 function renderProfile(p) {
   const genes = plist(Object.entries(p.genotypes).map(([gene, gt]) => {
     const pheno = p.phenotypes[gene] || "";
-    const hot = pheno && !/^(normal|reference)/.test(pheno);
+    // Status colors (red / green) always sit next to the words, never instead of them.
+    const notable = pheno && !/^(normal|reference)/.test(pheno);
     return el("li", {}, el("span", { class: "k" }, gene, el("code", {}, gt)),
-      el("span", { class: hot ? "v hot" : "v" }, humanize(pheno)));
+      el("span", { class: notable ? "v hot bad" : "v hot good" }, humanize(pheno)));
   }));
 
   const meds = plist(p.meds.map((m) =>
@@ -236,7 +237,7 @@ function renderProfile(p) {
   const labs = plist([...byTest.entries()].map(([test, rows]) => {
     rows.sort((a, b) => b.date.localeCompare(a.date));
     const [latest, prev] = rows;
-    return el("li", { title: `${latest.unit} · ${formatDate(latest.date)}` },
+    return el("li", { title: `${latest.unit} · ${formatDate(latest.date)}`, "data-lab": test },
       el("span", { class: "k" }, test, latest.stale ? el("span", { class: "stale" }, "stale") : null),
       el("span", { class: "v" }, prev ? el("span", { class: "trend" }, `${prev.value} → `) : null,
         `${latest.value} `, el("span", { class: "small" }, latest.unit)));
@@ -245,7 +246,7 @@ function renderProfile(p) {
   const history = plist([
     ...p.conditions.map((c) => el("li", {}, el("span", { class: "k" }, CONDITIONS[c] || humanize(c)))),
     ...(p.allergies.length
-      ? p.allergies.map((a) => el("li", {}, el("span", { class: "k" }, cap(a)), el("span", { class: "v hot" }, "allergy")))
+      ? p.allergies.map((a) => el("li", {}, el("span", { class: "k" }, cap(a)), el("span", { class: "v hot bad" }, "allergy")))
       : [el("li", {}, el("span", { class: "k mute" }, "No allergies recorded"))]),
   ]);
 
@@ -269,7 +270,7 @@ function flagRow(f, i) {
   const detail = el("div", { class: "row-detail", id: detailId },
     el("div", {}, el("div", { class: "detail-inner" }, el("div", {},
       f.evidence.length ? el("ul", { class: "evidence" }, f.evidence.map((e) => el("li", {}, e))) : null))));
-  const li = el("li", { class: "row", style: `--i:${i}` }, btn, detail);
+  const li = el("li", { class: `row sev-${f.severity}`, style: `--i:${i}` }, btn, detail);
   btn.addEventListener("click", () => {
     const open = li.classList.toggle("open");
     btn.setAttribute("aria-expanded", String(open));
@@ -277,12 +278,26 @@ function flagRow(f, i) {
   return li;
 }
 
+// Labs a flag's evidence points to (e.g. potassium, eGFR behind X4) get the red marker in My data.
+// Only flags decide this: the data has no reference ranges, so no lab is ever marked "good".
+function markFlaggedLabs(flags) {
+  const evidence = flags.flatMap((f) => f.evidence).join(" ");
+  for (const li of document.querySelectorAll("#profile li[data-lab]")) {
+    const test = li.dataset.lab.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    if (new RegExp(`\\b${test}\\b`, "i").test(evidence)) li.querySelector(".v").classList.add("hot", "bad");
+  }
+}
+
 function renderFlags(data) {
   const n = data.flags.length;
-  $("flags-summary").textContent = n
-    ? `${n} thing${n === 1 ? "" : "s"} to raise with your pharmacist. Checked on this device, nothing sent.`
-    : "No flags from the local tables. A missing entry is not the same as no interaction; ask your pharmacist.";
+  const high = data.flags.filter((f) => f.severity === "high").length;
+  $("flags-summary").replaceChildren(...(n
+    ? [el("strong", { class: high ? "count bad" : "count warn" }, `${n} thing${n === 1 ? "" : "s"}`),
+       " to raise with your pharmacist. Checked on this device, nothing sent."]
+    : [el("strong", { class: "count good" }, "No flags"),
+       " from the local tables. A missing entry is not the same as no interaction; ask your pharmacist."]));
   $("flags").replaceChildren(...data.flags.map(flagRow));
+  markFlaggedLabs(data.flags);
 }
 
 async function onCheck(ev) {
@@ -337,8 +352,10 @@ function answerParagraph(text, i) {
 function answerMessage(a) {
   // Facts and their trust tiers (I6) are already written into the merged text.
   const meta = el("div", { class: "msg-meta" },
-    el("span", { class: "chip solid" }, STATES[a.state] || a.state),
-    el("span", { class: "chip" }, a.sent_to_cloud ? "Asked privately · decoy group of 8" : "Answered on device"));
+    el("span", { class: a.state === "no_data" ? "chip warn" : "chip solid" }, STATES[a.state] || a.state),
+    a.sent_to_cloud
+      ? el("span", { class: "chip" }, "Asked privately · decoy group of 8")
+      : el("span", { class: "chip good" }, "Answered on device"));
   return message("Vault", a.text.split(/\n{2,}/).map(answerParagraph), [meta]);
 }
 
@@ -543,6 +560,8 @@ async function pollLedger() {
     setTicker($("ledger-bytes"), formatBytes(t.bytes_out));
     setTicker($("total-bytes"), formatBytes(t.bytes_out));
     setTicker($("ledger-personal"), String(t.personal_fields_sent));
+    $("ledger-personal").classList.toggle("good", t.personal_fields_sent === 0);
+    $("ledger-personal").classList.toggle("bad", t.personal_fields_sent > 0);
     const learned = $("learned");
     if (data.learned) {
       learned.hidden = false;
