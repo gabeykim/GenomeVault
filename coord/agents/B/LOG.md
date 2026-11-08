@@ -248,3 +248,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S6 works whether the pantoprazole question is typed with brand names or ingredient names. Nothing else changes.
 - **Tests:** `make test` exit 0, 1058 passed (3 new in `tests/B/test_router.py`; all 3 fail without the fix). Caught up on D-023/D-024 (no code impact), A-008 and to-B 1444 (no new bucket drugs, no change needed).
 - **Next:** G2 merge of PR #2; demo cache once the API key is available (to-human 1418).
+
+### B-020 · 2026-11-08 15:00 · commit `425f764` · PLAN v1.2.1
+
+- **Change:** `tests/B/conftest.py` sets `collect_ignore_glob = ["* [0-9].py", "* [0-9][0-9].py"]`, so pytest skips the untracked macOS Finder copies ("test_cloud 3.py" etc.) in `tests/B/`.
+- **Why:** Those copies are never committed, but locally pytest collected 439 extra tests from them, so the local count (1058) did not match CI and a stale copy could go red for no real reason. Real B+repo count is 619.
+- **Class:** Refines
+- **Plan:** none directly (test hygiene for B's scope ahead of G2)
+- **Refinements:** B's local test runs ignore Finder duplicate files named "* N.py".
+- **Contract impact:** none
+- **Affects:** none. Other agents' worktrees can have the same Finder copies; this only covers `tests/B/`.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 619 passed. Rebased on main (only coord commits since B-019), PR #2 CI green. No new inbox messages, DECISIONS (D-024) or LOG entries since last cycle.
+- **Next:** G2 merge of PR #2; demo cache once the API key is available (to-human 1418). Queue 1–9 done; stretch (knowledge-pack sync) next if G2 is still pending.

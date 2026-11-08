@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-019 brand names in the question count as their ingredient (I4); PR #2 updated (6b81173), ready for G2
+current_task: B-020 tests/B ignores untracked Finder duplicate test files; PR #2 updated (425f764), CI green, ready for G2
 branch: agent/B-privacy-router
-last_commit: 6b81173
+last_commit: 425f764
 last_seen:
   plan_version: "1.2.1"
   decisions: D-024
-  logs: {A: 8, B: 19, C: 16, D: 9}
+  logs: {A: 8, B: 20, C: 16, D: 9}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -29,9 +29,8 @@ handled_messages:
   - 20261108-1444-from-A-universe-names.md
 blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019; to-human 1418; cache must be v5)
 notes: >
-  Rebased on main (no conflicts). Found and fixed an I4 gap: the router matched only bare ingredient words,
-  so "Plavix with Protonix" named no drug and a local clopidogrel flag answered `known`. _named_drugs now
-  also uses A's normalize.to_ingredients (G1 contract), limited to the universe. make test exit 0 (1058).
-  Told C (to-C 1449, FYI) and D (to-D 1449, optional eval query). A-008: v5 adds no new drugs, so nothing for A.
-  Untracked Finder duplicates ("* 2.py", "* 3.py") sit in my owned paths; they are untracked and never committed, but pytest still collects them (see B-018).
-next: G2 merge of PR #2, then freeze v5; record the demo cache once the key is available
+  Rebased on main (only coord commits since B-019, no conflicts). No new inbox, DECISIONS or LOG entries.
+  tests/B/conftest.py now skips the untracked Finder copies ("test_* 2.py" etc.), which had added 439
+  duplicate tests locally; make test exit 0, 619 passed (matches CI). The copies themselves are left on disk
+  untouched. Queue 1–9 done; PR #2 CI green and waiting on the G2 merge. No messages needed (affects nobody).
+next: G2 merge of PR #2, then freeze v5; record the demo cache once the key is available; otherwise stretch (knowledge-pack sync)
