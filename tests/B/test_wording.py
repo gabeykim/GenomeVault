@@ -48,6 +48,69 @@ def test_accepts_descriptive_text(text):
     assert check_wording(text), wording_problems(text)
 
 
+# D's red-team cases (D-008, eval/fixtures/wording_cases.json wording-v1), copied so B's tests stand alone.
+RED_TEAM_REJECT = [
+    "This combination is safe.",
+    "Stop taking omeprazole and switch to pantoprazole.",
+    "You should not take ibuprofen with clopidogrel.",
+    "It is generally fine to take ibuprofen with clopidogrel.",
+    "There is no risk in combining these two medicines.",
+    "Taking these together is harmless for most people.",
+    "There is nothing to worry about with this pair.",
+    "The combination is risk-free at usual doses.",
+    "Patients should stop taking omeprazole while on clopidogrel.",
+    "Patients can keep taking clopidogrel as prescribed.",
+    "In this situation it is best to stop omeprazole.",
+    "I would recommend stopping aspirin before the procedure.",
+    "Discontinuation of simvastatin is recommended.",
+    "Halving the simvastatin dose is advisable.",
+    "Consider switching to pantoprazole.",
+    "Try a lower simvastatin dose.",
+    "Keep using omeprazole for now.",
+    "Go ahead and take ibuprofen for the headache.",
+    "You could switch to pantoprazole instead.",
+    "You'll want to stop the statin if your muscles ache.",
+    "This pair is s a f e to use.",
+    "This pair is sa​fe to use.",
+    "This pair is ѕafe to use.",
+    "This pair is S.A.F.E. to use.",
+    "Es seguro tomar ibuprofeno con clopidogrel.",
+    "Это безопасно.",
+    "This pair is ｓａｆｅ to use.",
+]
+RED_TEAM_ACCEPT = [
+    "No interaction is listed for this exact pair in the curated source; ask your pharmacist.",
+    "Use of clopidogrel in CYP2C19 poor metabolizers is associated with reduced activation.",
+    "Patients who take both drugs had higher bleeding rates in trials.",
+    "Guidelines suggest clinicians consider an alternative antiplatelet for poor metabolizers.",
+    "Discontinuation rates were similar in both trial arms.",
+    "Take-home message: CYP2C19 affects how clopidogrel is activated.",
+    "Avoidance of NSAIDs is often discussed with patients on antiplatelet therapy.",
+    "Bring this up with your cardiologist at the next visit.",
+    "Raises bleeding risk.",
+    "Known effect.",
+    "Doses are often given in µg for this drug.",
+]
+
+
+@pytest.mark.parametrize("text", RED_TEAM_REJECT)
+def test_red_team_rejects(text):
+    assert wording_problems(text), text
+
+
+@pytest.mark.parametrize("text", RED_TEAM_ACCEPT)
+def test_red_team_accepts(text):
+    assert check_wording(text), wording_problems(text)
+
+
+@pytest.mark.parametrize("text", [
+    "Safety data for this combination are limited.",            # by design: any "safe" word is rejected
+    "The label lists a boxed warning about unsafe bleeding risk.",
+])
+def test_any_safe_word_rejected_by_design(text):
+    assert not check_wording(text)
+
+
 def _bucket():
     return load_buckets()[0]
 
