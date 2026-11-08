@@ -1,12 +1,12 @@
 agent: B
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: bucket partition v5 (one bucket per generalized topic, phenotype variants as aliases; D's I3 finding) done, PR #2 updated
+current_task: I7 wording filter hardened against D's red team (B-016), PR #2 updated
 branch: agent/B-privacy-router
-last_commit: 5f0144a
+last_commit: 85ab929
 last_seen:
   plan_version: "1.2"
   decisions: D-021
-  logs: {A: 4, B: 15, C: 11, D: 7}
+  logs: {A: 5, B: 16, C: 12, D: 8}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -20,12 +20,12 @@ handled_messages:
   - 20261108-1404-from-integrator-status-and-cloud-cache.md
   - 20261108-1415-from-D-v3-results.md
   - 20261108-1417-from-A-lab-bands.md
-blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019); escalated to to-human; cache must now be v5
+  - 20261108-1425-from-A-phenotype-names.md
+  - 20261108-1426-from-D-wording-latency-v4.md
+blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019); escalated to to-human; cache must be v5
 notes: >
-  B-015: v5 is the default partition (17 buckets, 136 member keys + 4 aliases). D found that v3/v4 put
-  phenotype/dose variants of one generalized topic in different buckets, so the bucket that left revealed
-  the genotype (I3). v5 has one member per topic; the variants are `aliases` that resolve to the member's
-  bucket and get its answer. Tests enforce: no topic in two buckets, 8 distinct texts per bucket.
-  b05-b17 are identical to v4. Classed Refines (stricter I3/I5, no contract change). I told the integrator
-  and offered a proposal if they want a ruling. Removed 4 stray untracked " 2" duplicate files again.
-next: merged run with A/C/D branches (check D's splits are empty on v5); switch to real A code after G1; freeze v5 from G2
+  B-016: wording_problems now normalizes text (NFKC, zero-width, look-alikes, spelled-out letters) and
+  rejects reassurance synonyms, non-English, and advice in any form. D's red team: 25/25 caught, 0 false
+  alarms (was 3/25, 1). Classed Refines (stricter I7, no contract change). Kept sequential live delays
+  (P6.4 timing cover) despite D's 8x latency note. A-005 phenotype names match v5 keys; nothing to do.
+next: merged run with A/C/D branches (D's splits empty on v5, eval.wording 25/25); switch to real A code after G1; freeze v5 from G2
