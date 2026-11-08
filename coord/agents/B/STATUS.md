@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-035 G4 dry run of D's PR #4 evals on the live B build (DEMO=1, gate 20/0/0). No code changes. PR #7 rebased (head 0163ba9), waiting for review
+current_task: B-036 app-path tests fail loudly instead of skipping (getattr on LEDGER_IS_MOCK for C PR #8). PR #7 head f3a4abc, waiting for review
 branch: agent/B-privacy-router
-last_commit: 0163ba9
+last_commit: f3a4abc
 last_seen:
   plan_version: "1.3.1"
-  decisions: D-032
-  logs: {A: 18, B: 35, C: 23, D: 11}
+  decisions: D-033
+  logs: {A: 19, B: 36, C: 24, D: 11}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -36,6 +36,7 @@ handled_messages:
   - 20261108-1526-from-C-b025-done.md
   - 20261108-1529-from-A-handoff-pinned.md
   - 20261108-1535-from-integrator-g2-passed.md
+  - 20261108-1543-from-C-stand-ins-gone.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -43,7 +44,7 @@ notes: >
   0 personal fields, offline warm/synced 18/20. Without DEMO=1 the live run is silently offline (D told).
   PR #7 is tests only: B-033 (app-path I3, ledger view, offline) and B-034 (knowledge pack through
   /api/sync: whole partition once, I3 on every pack row, pack label, mine=[], offline answers at 0 bytes,
-  409 while offline). make test exit 0, 799 passed, 3 skipped. Ownership check ok.
+  409 while offline). B-036: app-path tests now assert the real router/ledger/pack instead of skipping. make test exit 0, 801 passed, 3 skipped. Ownership check ok.
   The allergy test in tests/B/test_g2_real_rules.py still skips until PR #5 (A) merges.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
 next: PR #7 review before G3 (17:30). After PR #5 merges, confirm the allergy test runs. After PR #4 (D) merges, re-run DEMO=1 make eval on main

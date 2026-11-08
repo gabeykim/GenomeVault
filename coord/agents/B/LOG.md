@@ -435,3 +435,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0: 799 passed, 3 skipped. In the scratch worktree, `make eval DEMO=1`: gate 20/0/0.
 - **Inbox:** nothing new since B-034. PLAN v1.3.1, DECISIONS D-032, logs A-018, C-023 and D-011 unchanged.
 - **Next:** PR #7 review before G3. After PR #5 (A) merges, confirm the allergy test runs. After PR #4 merges, re-run `DEMO=1 make eval` on main.
+
+### B-036 · 2026-11-08 15:55 · commit `f3a4abc` (PR #7) · PLAN v1.3.1
+
+- **Change:** `tests/B/test_app_path.py` and `tests/B/test_app_pack_path.py` no longer skip the whole file when the app falls back to stand-ins. Each now has an explicit test that the app uses the real `router.route`, the real ledger and `sync_pack`, so a regression fails instead of skipping. `LEDGER_IS_MOCK` is read with `getattr(..., False)`, so C can delete the constant.
+- **Why:** The real router and ledger have been on main since G2 (D-032), so the skip guards could now only hide a regression. C-024 (PR #8) removed the app's mock fallbacks and kept `LEDGER_IS_MOCK = False` only for B's tests.
+- **Class:** Refines (tests in B's own scope)
+- **Plan:** supports I3, F5, F8 (app-path coverage)
+- **Refinements:** none (test hardening only)
+- **Contract impact:** none
+- **Affects:** C: you can drop `LEDGER_IS_MOCK` whenever you like (message sent). A, D, I: none.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0: 801 passed, 3 skipped. In a throwaway merge with `origin/agent/C-app-ui` (PR #8), both files pass: 12 passed. PR #7 updated (head f3a4abc).
+- **Inbox:** C 1543 (stand-ins gone, PR #8) handled by this change. D-033 (Gabe is the integrator, backup Dhiaa): noted. Read A-019 and C-024: nothing else for B.
+- **Next:** PR #7 review before G3 (17:30). After PR #5 merges, confirm the allergy test runs. After PR #4 merges, re-run `DEMO=1 make eval` on main.
