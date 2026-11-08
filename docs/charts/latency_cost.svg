@@ -87,8 +87,8 @@ text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;f
 <text x="56" y="142.0" text-anchor="end">75%</text>
 <line x1="64" x2="736" y1="72.0" y2="72.0" stroke="var(--grid)" stroke-width="1"/>
 <text x="56" y="76.0" text-anchor="end">100%</text>
-<path d="M164.0,336.0V194.8Q164.0,190.8 168.0,190.8H184.0Q188.0,190.8 188.0,194.8V336.0Z" fill="var(--s1)"><title>Local only · Coverage: 55%</title></path>
-<text class="val" x="176.0" y="184.8" text-anchor="middle">55%</text>
+<path d="M164.0,336.0V181.6Q164.0,177.6 168.0,177.6H184.0Q188.0,177.6 188.0,181.6V336.0Z" fill="var(--s1)"><title>Local only · Coverage: 60%</title></path>
+<text class="val" x="176.0" y="171.6" text-anchor="middle">60%</text>
 <text x="176.0" y="354" text-anchor="middle">Local only</text>
 <path d="M388.0,336.0V76.0Q388.0,72.0 392.0,72.0H408.0Q412.0,72.0 412.0,76.0V336.0Z" fill="var(--s1)"><title>Cloud only
 (naive) · Coverage: 100%</title></path>

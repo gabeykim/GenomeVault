@@ -158,7 +158,7 @@ def test_expected_state_follows_loaded_partition(tmp_path):
 def test_priors_cover_every_key_in_bs_v2_and_v3_partitions():   # B-011, B-012
     import json, pathlib
     u = load_universe()
-    for name, n in (("b_v2_keys.json", 112), ("b_v3_keys.json", 136)):
+    for name, n in (("b_v2_keys.json", 112), ("b_v3_keys.json", 136), ("b_v4_keys.json", 136)):
         keys = json.loads((pathlib.Path(__file__).parent / name).read_text())
         assert len(keys) == n and all(generalize_key(k) in u.keys for k in keys), name
 
@@ -192,3 +192,12 @@ def test_phenotype_variants_in_different_buckets_are_reported(tmp_path):   # B-0
     be = SimBackend(part)
     assert be.ask(q01).cloud_calls == 1
     assert part.bucket_for(part.view_key(q01["keys"][0])).id == b_pm   # the PM variant's bucket, not the other
+
+
+
+def test_cyp2d6_topics_are_never_asked():                  # D-021, B-014
+    from eval.synth import make_patients
+    u = load_universe()
+    assert all(v["prior"] == 0 for k, v in u.keys.items() if k.startswith("CYP2D6|"))
+    patients = make_patients(300, 5, u, load_partition(prefer_real=False), n_keys=(1, 3))
+    assert not any(k.startswith("CYP2D6|") for p in patients for k in p.topic_keys)

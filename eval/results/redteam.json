@@ -2,7 +2,7 @@
  "partition": "fixture:eval/fixtures/buckets_v1.json",
  "partition_version": "fixture-v1",
  "partition_stats": {},
- "universe": "eval-fixture-v4",
+ "universe": "eval-fixture-v5",
  "trials": 500,
  "asks": 3,
  "seed": 7,
@@ -17,115 +17,115 @@
    "phenotype_via_bucket": 0.0
   },
   "random_decoys": {
-   "intersection": 0.952,
-   "statistical": 0.974,
-   "domain": 0.978,
-   "med_inferred": 0.98,
+   "intersection": 0.954,
+   "statistical": 0.966,
+   "domain": 0.972,
+   "med_inferred": 0.97,
    "genotype_leaked": 0.0,
    "phenotype_via_bucket": 0.0
   },
   "random_decoys_1ask": {
-   "intersection": 0.13,
-   "statistical": 0.21,
-   "domain": 0.406,
-   "med_inferred": 0.37,
+   "intersection": 0.146,
+   "statistical": 0.258,
+   "domain": 0.422,
+   "med_inferred": 0.426,
    "genotype_leaked": 0.0,
    "phenotype_via_bucket": 0.0
   },
   "fixed_buckets": {
-   "intersection": 0.144,
-   "statistical": 0.166,
-   "domain": 0.328,
-   "med_inferred": 0.386,
+   "intersection": 0.146,
+   "statistical": 0.17,
+   "domain": 0.362,
+   "med_inferred": 0.412,
    "genotype_leaked": 0.0,
    "phenotype_via_bucket": 0.0
   },
   "_baselines": {
    "uniform_1_in_8": 0.125,
-   "domain_majority_guess": 0.312
+   "domain_majority_guess": 0.342
   }
  },
  "joint": {
   "same_session": {
-   "scenario": 0.636,
-   "key_recall": 0.431
+   "scenario": 0.754,
+   "key_recall": 0.529
   },
   "separate_cover_linkable": {
-   "scenario": 0.24,
-   "key_recall": 0.006
+   "scenario": 0.286,
+   "key_recall": 0.002
   },
   "separate_cover_unlinkable": {
-   "scenario": 0.232,
+   "scenario": 0.286,
    "key_recall": 0.0
   },
   "_baselines": {
-   "scenario_majority_guess": 0.233,
+   "scenario_majority_guess": 0.266,
    "n_scenarios": 13
   },
   "alex_q18_scenario_recovered": {
    "same_session": 0.0,
-   "separate_cover_linkable": 1.0,
+   "separate_cover_linkable": 0.95,
    "separate_cover_unlinkable": 1.0
   },
   "alex_note": "Do not quote Alex alone: cardiac_post_stent is the most common scenario in the synthetic priors, so a blind guess already says cardiac. The population numbers vs scenario_majority_guess are the honest measure."
  },
  "bucket_design": {
-  "stat_attacker_ceiling": 0.1635,
+  "stat_attacker_ceiling": 0.1889,
   "uniform_floor": 0.125,
   "buckets": [
    {
     "bucket": "B00",
-    "prior_mass": 0.2083,
-    "top_key_share": 0.138,
+    "prior_mass": 0.2074,
+    "top_key_share": 0.161,
     "dominant_domain": "cardio",
     "dominant_domain_share": 0.375
    },
    {
     "bucket": "B01",
-    "prior_mass": 0.1699,
-    "top_key_share": 0.17,
+    "prior_mass": 0.1741,
+    "top_key_share": 0.191,
     "dominant_domain": "cardio",
     "dominant_domain_share": 0.25
    },
    {
     "bucket": "B02",
-    "prior_mass": 0.1635,
+    "prior_mass": 0.1889,
     "top_key_share": 0.157,
     "dominant_domain": "psych",
     "dominant_domain_share": 0.25
    },
    {
     "bucket": "B03",
-    "prior_mass": 0.1378,
-    "top_key_share": 0.163,
+    "prior_mass": 0.1148,
+    "top_key_share": 0.226,
     "dominant_domain": "cardio",
     "dominant_domain_share": 0.5
    },
    {
     "bucket": "B04",
-    "prior_mass": 0.0833,
+    "prior_mass": 0.0963,
     "top_key_share": 0.192,
     "dominant_domain": "cardio",
     "dominant_domain_share": 0.375
    },
    {
     "bucket": "B05",
-    "prior_mass": 0.1026,
-    "top_key_share": 0.188,
+    "prior_mass": 0.0889,
+    "top_key_share": 0.25,
     "dominant_domain": "neuro",
     "dominant_domain_share": 0.25
    },
    {
     "bucket": "B06",
-    "prior_mass": 0.0801,
-    "top_key_share": 0.16,
+    "prior_mass": 0.0778,
+    "top_key_share": 0.19,
     "dominant_domain": "cardio",
     "dominant_domain_share": 0.375
    },
    {
     "bucket": "B07",
-    "prior_mass": 0.0545,
-    "top_key_share": 0.176,
+    "prior_mass": 0.0519,
+    "top_key_share": 0.214,
     "dominant_domain": "immuno",
     "dominant_domain_share": 0.25
    }

@@ -1,7 +1,7 @@
 {
  "backend": "simulated",
  "cold_answered": 10,
- "warm_answered": 18,
+ "warm_answered": 17,
  "n": 20,
  "cold_by_category": {
   "gene_drug": 2,
@@ -11,7 +11,7 @@
   "open_ended": 3
  },
  "warm_by_category": {
-  "gene_drug": 5,
+  "gene_drug": 4,
   "drug_drug": 4,
   "drug_lab": 4,
   "otc": 2,
@@ -25,7 +25,7 @@
   "open_ended": 3
  },
  "matches_offline_state_cold": 20,
- "synced_answered": 18,
+ "synced_answered": 17,
  "cold_rows": {
   "Q01": {
    "category": "gene_drug",
@@ -163,8 +163,8 @@
   },
   "Q03": {
    "category": "gene_drug",
-   "state": "known",
-   "with_content": true,
+   "state": "no_data",
+   "with_content": false,
    "cloud_calls": 0
   },
   "Q04": {

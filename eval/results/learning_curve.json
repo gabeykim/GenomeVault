@@ -23,9 +23,9 @@
    "q": "Q03",
    "category": "gene_drug",
    "cloud_calls": 0,
-   "kb_hits": 1,
+   "kb_hits": 0,
    "bytes_out": 0,
-   "state": "known",
+   "state": "no_data",
    "cum_local_share": 0.667
   },
   {

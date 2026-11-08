@@ -1,5 +1,5 @@
 {
-  "version": "q-v4",
+  "version": "q-v5",
   "doc": "20 scripted questions for E2-E4 (PLAN P7), written before B's router lands so the eval is honest. Asked by synthetic patient Alex (P5) in this order. Fields: drugs = ingredients checked with rules.check; keys = exact local keys (CONTRACTS.md format) the rules engine / KB should use, spelled as in A's rule tables and B's partition (lab keys carry a band, e.g. lisinopril|egfr<60); topic_keys = generalized outbound keys (no phenotype, lab value or dose) that would be bucketed if the cloud is needed; expected_flags = PLAN P5 flag ids that must fire; expected_state = answer state when every source is available; offline_state = answer state with no network and a cold KB; needs_cloud = whether answering fully needs cloud reasoning (false = rules engine or an authored class rule answers it); in_universe = every topic key is inside D's stand-in partition; evals recompute this against whichever partition is loaded (a key outside it takes the no-data path, never bucketed on the fly, I5); expected_state assumes the keys can be sent; reference = what a good answer covers, used for 1-5 quality scoring. References pass the same I7 wording rule as cloud answers (no word containing the four letters s-a-f-e, no start/stop/change instruction).",
   "queries": [
     {"id": "Q01", "category": "gene_drug", "text": "I was just prescribed clopidogrel 75 mg. Anything I should know?",
@@ -12,8 +12,8 @@
      "reference": "Decreased SLCO1B1 function raises simvastatin blood levels and muscle-toxicity risk, more so above 20 mg; worth asking the prescriber about dose or another statin and reporting muscle pain."},
     {"id": "Q03", "category": "gene_drug", "text": "My doctor mentioned codeine for pain after a procedure. Would my genes affect how it works?",
      "drugs": ["codeine"], "keys": ["CYP2D6:not_assessed|codeine"], "topic_keys": ["CYP2D6|codeine"],
-     "expected_flags": [], "expected_state": "known", "offline_state": "no_data", "needs_cloud": true, "in_universe": true, "beat": null,
-     "reference": "Codeine is activated by CYP2D6, but Alex's CYP2D6 status was not assessed: this kind of genotype test can't call it (D-021), so no rule uses it. The general answer explains why CYP2D6 matters for codeine; for Alex it only says a clinical CYP2D6 test would be needed before relying on it. Dosing questions go to the prescriber."},
+     "expected_flags": [], "expected_state": "no_data", "offline_state": "no_data", "needs_cloud": false, "in_universe": true, "beat": null,
+     "reference": "Codeine is activated by CYP2D6, but Alex's CYP2D6 status was not assessed: this kind of genotype test can't call it (D-021), so no rule uses it. Nothing is sent (B-014 removed CYP2D6 topics from the partition): the answer is 'no data for this combination', noting that a clinical CYP2D6 test would be needed before relying on codeine. Dosing questions go to the prescriber."},
     {"id": "Q04", "category": "gene_drug", "text": "Would my genes matter if I ever needed warfarin?",
      "drugs": ["warfarin"], "keys": ["CYP2C9:normal_metabolizer|warfarin", "VKORC1:normal_sensitivity|warfarin"], "topic_keys": ["CYP2C9|warfarin", "VKORC1|warfarin"],
      "expected_flags": [], "expected_state": "known", "offline_state": "no_data", "needs_cloud": true, "in_universe": true, "beat": null,

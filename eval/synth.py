@@ -35,7 +35,7 @@ def drugs_in(key: str) -> list[str]:
 def scenario_weights(u: Universe, part: Partition, min_keys: int = 1) -> dict[str, float]:
     w = {}
     for s, ks in u.clusters.items():
-        inside = [k for k in ks if part.bucket_for(k)]
+        inside = [k for k in ks if part.bucket_for(k) and u.prior(k) > 0]
         if len(inside) >= min_keys:
             w[s] = sum(u.prior(k) for k in inside)
     return w
@@ -45,7 +45,7 @@ def make_patient(i: int, rng: random.Random, u: Universe, part: Partition, n_key
                  min_scenario_keys: int = 1) -> Patient:
     weights = scenario_weights(u, part, min_scenario_keys)
     scenario = rng.choices(list(weights), weights=list(weights.values()))[0]
-    pool = [k for k in u.clusters[scenario] if part.bucket_for(k)]
+    pool = [k for k in u.clusters[scenario] if part.bucket_for(k) and u.prior(k) > 0]   # prior 0: never asked (D-021)
     lo, hi = (n_keys, n_keys) if isinstance(n_keys, int) else n_keys
     n = min(rng.randint(lo, hi), len(pool))
     keys, pool_w = [], {k: u.prior(k) for k in pool}

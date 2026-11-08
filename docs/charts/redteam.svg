@@ -27,20 +27,20 @@ text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;f
 <text class="val" x="189.0" y="82.0" text-anchor="middle">100%</text>
 <text x="176.0" y="354" text-anchor="middle">Naive</text>
 <text x="176.0" y="368" text-anchor="middle">(full question)</text>
-<path d="M375.0,336.0V103.9Q375.0,99.9 379.0,99.9H395.0Q399.0,99.9 399.0,103.9V336.0Z" fill="var(--s1)"><title>Random decoys
+<path d="M375.0,336.0V103.4Q375.0,99.4 379.0,99.4H395.0Q399.0,99.4 399.0,103.4V336.0Z" fill="var(--s1)"><title>Random decoys
 (fresh each ask) · Repeat-ask attacker: 95%</title></path>
-<text class="val" x="387.0" y="93.9" text-anchor="middle">95%</text>
-<path d="M401.0,336.0V98.4Q401.0,94.4 405.0,94.4H421.0Q425.0,94.4 425.0,98.4V336.0Z" fill="var(--s2)"><title>Random decoys
+<text class="val" x="387.0" y="93.4" text-anchor="middle">95%</text>
+<path d="M401.0,336.0V100.4Q401.0,96.4 405.0,96.4H421.0Q425.0,96.4 425.0,100.4V336.0Z" fill="var(--s2)"><title>Random decoys
 (fresh each ask) · Statistical attacker: 97%</title></path>
-<text class="val" x="413.0" y="88.4" text-anchor="middle">97%</text>
+<text class="val" x="413.0" y="90.4" text-anchor="middle">97%</text>
 <text x="400.0" y="354" text-anchor="middle">Random decoys</text>
 <text x="400.0" y="368" text-anchor="middle">(fresh each ask)</text>
-<path d="M599.0,336.0V304.3Q599.0,300.3 603.0,300.3H619.0Q623.0,300.3 623.0,304.3V336.0Z" fill="var(--s1)"><title>Fixed buckets
-(GenomeVault) · Repeat-ask attacker: 14%</title></path>
-<text class="val" x="611.0" y="294.3" text-anchor="middle">14%</text>
-<path d="M625.0,336.0V298.8Q625.0,294.8 629.0,294.8H645.0Q649.0,294.8 649.0,298.8V336.0Z" fill="var(--s2)"><title>Fixed buckets
+<path d="M599.0,336.0V303.8Q599.0,299.8 603.0,299.8H619.0Q623.0,299.8 623.0,303.8V336.0Z" fill="var(--s1)"><title>Fixed buckets
+(GenomeVault) · Repeat-ask attacker: 15%</title></path>
+<text class="val" x="611.0" y="293.8" text-anchor="middle">15%</text>
+<path d="M625.0,336.0V297.8Q625.0,293.8 629.0,293.8H645.0Q649.0,293.8 649.0,297.8V336.0Z" fill="var(--s2)"><title>Fixed buckets
 (GenomeVault) · Statistical attacker: 17%</title></path>
-<text class="val" x="637.0" y="288.8" text-anchor="middle">17%</text>
+<text class="val" x="637.0" y="287.8" text-anchor="middle">17%</text>
 <text x="624.0" y="354" text-anchor="middle">Fixed buckets</text>
 <text x="624.0" y="368" text-anchor="middle">(GenomeVault)</text>
 <line x1="64" x2="736" y1="305.0" y2="305.0" stroke="var(--ref)" stroke-width="1.5" stroke-dasharray="6 4"><title>1 in 8 (best possible with k = 8): 12%</title></line>
