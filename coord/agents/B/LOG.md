@@ -53,3 +53,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S4 (ledger `personal_fields_sent` stays 0 because leaky sends become `blocked`), S6 (pantoprazole answer cannot borrow omeprazole facts).
 - **Tests:** `make test` → exit 0, 247 passed; `check_ownership.py` → ok; `check_network.sh` → ok
 - **Next:** queue 4 `cloud.py` (DEMO=1 replays `mocks/cloud_cache/`), then queue 6 `router.route` for G2 (16:00).
+
+### B-005 · 2026-11-08 13:50 · commit `54b170c` · PLAN v1.1
+
+- **Change:** Added `core/cloud.py`: `ask_bucket(bucket, topics) -> list[Fact]`, `CloudUnavailable`, `load_cache()`, `record(out_dir)` (also `python -m core.cloud record <dir>`). Added `tests/B/test_cloud.py` (12 tests, network mocked with `httpx.MockTransport`). PR #2 updated.
+- **Why:** BRIEF B queue item 4; the router (queue 6, G2) calls `ask_bucket` after the leakage check passes.
+- **Class:** Refines
+- **Plan:** advances F4, M8, P6.4 (separate sessions, one concept per request), P6.5 (all 8 answers returned), I2, I6, I8; refines M8
+- **Refinements:** (1) Each `ask_bucket` call opens a fresh httpx client and closes it after; each Topic is a single-turn request carrying only the Topic text. `ask_bucket` takes only a Bucket and Topics (no Profile) and refuses topics outside the bucket. (2) Env vars: `GV_CLOUD_MODEL` (default `claude-sonnet-5-5`), `ANTHROPIC_API_KEY`, `GV_CLOUD_URL`, `GV_CLOUD_TTL_DAYS` (default 30), `GV_CLOUD_CACHE`, `DEMO=1`. (3) Cloud facts: `tier="cloud"`, `source="cloud:<model>"` (live) or `"cloud-cache:<version>"` (demo), expire 30 days after fetch (I6). (4) Demo cache format: any `*.json` in `mocks/cloud_cache/`, each `{exact key: answer text}`. A key missing from the cache gets no Fact, which the router turns into `no_data` (I4). (5) No key, network down or HTTP error all raise `CloudUnavailable` (the router falls back; queue 9). (6) The system prompt forbids "safe" and start/stop advice (I7).
+- **Contract impact:** none (cloud.py is internal to B; no contracts.py change)
+- **Affects:** I: `mocks/cloud_cache/` is empty and integrator-owned, so DEMO=1 currently returns no cloud facts (every cloud question becomes `no_data`). Please populate it before G2/G3 with `ANTHROPIC_API_KEY=... python -m core.cloud record mocks/cloud_cache` (writes 12 files, b01..b12), or tell me to hand you the JSON. C, D: none now; demo-mode answers depend on that cache.
+- **Demo impact:** S4 (cloud answers in demo come from the cache), I8 (demo makes no network calls; tested).
+- **Tests:** `make test` → exit 0, 259 passed; `check_network.sh` → ok
+- **Next:** queue 6 `router.route` (P6 steps 1–5, 7, 8) for G2 (16:00).
