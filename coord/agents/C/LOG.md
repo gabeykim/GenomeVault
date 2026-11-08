@@ -274,3 +274,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S4/S6 answers are short on screen (lead + For you + one folded line)
 - **Tests:** C alone → `make test` exit 0 (255 passed, 6 skipped; 7 new structure tests). main + PR #6 (real pack) + A + B + D + C merged → exit 0, 876 passed. On the real pack, Q07 leads with Clopidogrel × Pantoprazole, and the other two facts fold under "Also relevant". Checked by hand in the browser, no console errors.
 - **Next:** drop the stand-ins (D-014); rehearsal with D's script after the merges; optional Amoxil sample label
+
+### C-022 · 2026-11-08 15:26 · commit `80bf651` · PLAN v1.2.1 (v1.3 on PR #6)
+
+- **Change:** (1) **Q15.** `/api/ask` adds the local flags of drugs the question names (via `normalize.to_ingredients`, real normalizer only) to the med-list flags (B-025 option). `merge.relevant_flags(answer, flags, profile)` also describes flags about a drug not on the med list. `_lab_trend` uses the profile's spelling. "Can I take ibuprofen for a headache?" now gives "For you: X5 …" for all four pairs, with 0 B online or offline. (2) **Labels.** `phone/make_samples.py` (stdlib 5×7 pixel font) draws flat, printed, synthetic labels for aspirin 81, clopidogrel 75, omeprazole 20, simvastatin 40, lisinopril 10, amoxicillin 500 (A-014's exact text) and ibuprofen 200, each also embedding `gv:label`. The shared set is `phone/samples/labels.json`. The phone shows 3 labels up front plus "More sample labels". `/phone-assets/labels.html` is a printable sheet, linked from Actions → Use your phone. Tests: Q15 (3), label set (10).
+- **Why:** User request (Q15). B's 15:10 note (B-025). Dhiaa's 15:20 list, item 2. A's 15:18 Amoxil text.
+- **Class:** Advances
+- **Plan:** advances F2, F3 view, M9, M10, S2, S6
+- **Refinements:** a flag about an off-list drug counts as relevant (only a question can bring it in). The label set is one source for both A's tests and C's samples.
+- **Contract impact:** none
+- **Affects:** A: please test `from_image` against `phone/samples/*.png` and `labels.json` → no code change. B: the B-025 option is done → none. D: Q15 answers with X5 now; the Amoxil label is available for the bonus beat.
+- **Demo impact:** S2 (7 sample labels plus a printable sheet), S6 (Q15 consistent with the typed ibuprofen check)
+- **Tests:** C alone → `make test` exit 0 (271 passed, 7 skipped). main + all open PRs merged → exit 0, 961 passed. With A's real reader, the 7 labels read as aspirin 81 (no flag), clopidogrel 75 (X1, X2), omeprazole 20 (X2), simvastatin 40 (X3), lisinopril 10 (X4), ibuprofen 200 (X5), amoxicillin 500 (AL-001). Checked by hand on the phone page and the label sheet.
+- **Next:** G2: after #6, #2 and #3 merge, sync and drop the stand-ins (D-014), then run one question end to end on main. Then rehearsal by G3 (17:30).

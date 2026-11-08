@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (C-021 pushed; PR #3 updated)
+current_task: none (C-022 pushed; PR #3 updated; waiting for G2 merges)
 branch: agent/C-app-ui
-last_commit: 8d3c35b
+last_commit: 80bf651
 last_seen:
   plan_version: "1.2.1"
   decisions: D-022
-  logs: {A: 11, B: 19, C: 21, D: 10}
+  logs: {A: 14, B: 27, C: 22, D: 11}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -40,5 +40,8 @@ handled_messages:
   - 20261108-1510-from-B-route-flag-scope.md
   - 20261108-1512-from-A-label-warnings.md
   - 20261108-1520-from-B-asked-pair-first.md
+  - 20261108-1518-from-A-amoxil-and-combo-doses.md
+  - 20261108-1518-from-D-s2-s6-adopted.md
+  - 20261108-1520-from-human-whats-left.md
 blocked_on: none
-next: (1) /api/ask also passes local flags for drugs the question names (B-025 option; Q15 answers with X5); (2) phone: downscale camera photos to ~1280px JPEG + spinner for the VLM path (A-012/A-013 idea); drop stand-ins (D-014); rehearsal after merges
+next: G2: after #6, #2, #3 merge, sync, drop stand-ins (D-014), one question end to end on main; then rehearsal x2 demo + x1 live by G3 17:30, timings to D
