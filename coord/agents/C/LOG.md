@@ -66,3 +66,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S6 (actions: pharmacist draft, printable summary, reminders to the phone via the calendar file until `phone/` exists)
 - **Tests:** `make test` → exit 0 (48 passed, 1 skipped). origin/main + A + B (with B's real validator and cloud) + C merged locally → `make test` exit 0 (306 passed, 2 skipped), and the merged answer passes B's `check_output`. Checked by hand in the browser (draft, summary, printable page, reminders, calendar file).
 - **Next:** queue item 7, demo mode toggle and offline badge. Queue 5 `phone/` waits on the capture proposal ruling.
+
+### C-006 · 2026-11-08 13:45 · commit `a168a4e` · PLAN v1.1
+
+- **Change:** `merge.personalize` now shows a fact once when the general answer text already states it. The lead gets that fact's tier label: "(AI-summarized, verify.)" for cloud, "(Curated (source).)" for curated. Other facts keep their own paragraph. Added 3 regression tests.
+- **Why:** The integration run (origin/main + A + B + C, with real modules wired by hand: generalize → bucket → check_outbound → cloud demo replay → ledger → check_output → merge) showed the same sentence printed twice when `Answer.text` equals the fact's text.
+- **Class:** Refines
+- **Plan:** advances M9, I6
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** none
+- **Demo impact:** S4 answer reads cleaner
+- **Tests:** `make test` → exit 0 (51 passed, 1 skipped). Integrated A+B+C → exit 0 (309 passed, 2 skipped). The pipeline run's merged answer now shows the fact once.
+- **Next:** queue item 7 (demo toggle + offline badge)
