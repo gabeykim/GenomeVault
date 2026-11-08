@@ -1,0 +1,3 @@
+# Agent A — impact log (append only)
+
+Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...

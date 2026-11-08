@@ -1,0 +1,27 @@
+name: coord-ci
+on: [push, pull_request]
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Ownership and commit format (AGENTS.md §1, §3, §6)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RANGE="origin/${{ github.base_ref }}..HEAD"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            RANGE="${{ github.event.before }}..${{ github.sha }}"
+          else
+            RANGE="origin/main..${{ github.sha }}"
+          fi
+          python scripts/check_ownership.py --range "$RANGE"
+      - name: Network invariant (I2)
+        run: bash scripts/check_network.sh
+      - name: Tests
+        run: pytest -q

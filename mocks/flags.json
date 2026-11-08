@@ -1,0 +1,6 @@
+[
+  {"id": "X1", "key": "CYP2C19:poor_metabolizer|clopidogrel", "severity": "high", "engine": "gene_drug", "evidence": ["CYP2C19 poor metabolizer"], "needs_cloud": true},
+  {"id": "X2", "key": "clopidogrel|omeprazole", "severity": "high", "engine": "drug_drug", "evidence": ["omeprazole inhibits CYP2C19", "CYP2C19 poor metabolizer"], "needs_cloud": true},
+  {"id": "X3", "key": "SLCO1B1:decreased_function|simvastatin|dose>20mg", "severity": "medium", "engine": "gene_drug", "evidence": ["SLCO1B1 decreased function", "simvastatin 40 mg"], "needs_cloud": false},
+  {"id": "X4", "key": "lisinopril|potassium>5.0", "severity": "medium", "engine": "drug_lab", "evidence": ["potassium 5.2", "eGFR 62 -> 48"], "needs_cloud": false}
+]

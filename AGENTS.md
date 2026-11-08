@@ -6,10 +6,10 @@ Every agent reads this file at the start of every cycle. **This file overrides a
 
 | ID | Agent | Branch | Owns (code) | Human owner |
 | --- | --- | --- | --- | --- |
-| A | data-rules | `agent/A-data-rules` | `data/` (except `data/buckets/`), `core/ingest.py`, `core/graph.py`, `core/capture.py`, `core/normalize.py`, `core/rules.py`, `tests/A/` | _name_ |
-| B | privacy-router | `agent/B-privacy-router` | `core/router.py`, `core/generalize.py`, `core/decoys.py`, `core/kb.py`, `core/cloud.py`, `core/ledger.py`, `core/validator.py`, `data/buckets/`, `tests/B/` | _name_ |
-| C | app-ui-actions | `agent/C-app-ui` | `app.py`, `ui/`, `phone/`, `core/merge.py`, `core/actions.py`, `tests/C/` | _name_ |
-| D | eval-redteam | `agent/D-eval` | `eval/`, `docs/`, `slides/`, `tests/D/` | _name_ |
+| A | data-rules | `agent/A-data-rules` | `data/` (except `data/buckets/`), `core/ingest.py`, `core/graph.py`, `core/capture.py`, `core/normalize.py`, `core/rules.py`, `tests/A/` | Gabe |
+| B | privacy-router | `agent/B-privacy-router` | `core/router.py`, `core/generalize.py`, `core/decoys.py`, `core/kb.py`, `core/cloud.py`, `core/ledger.py`, `core/validator.py`, `data/buckets/`, `tests/B/` | Dhiaa |
+| C | app-ui-actions | `agent/C-app-ui` | `app.py`, `ui/`, `phone/`, `core/merge.py`, `core/actions.py`, `tests/C/` | Cristian |
+| D | eval-redteam | `agent/D-eval` | `eval/`, `docs/`, `slides/`, `tests/D/` | Kaitlyn |
 | I | integrator (human) | `main` | `coord/PLAN.md`, `coord/DECISIONS.md`, `coord/CONTRACTS.md`, `core/contracts.py`, `core/interfaces.py`, `core/local_llm.py`, `mocks/`, repo config | _name_ |
 
 ## 2. Sources of truth, in read order
@@ -35,17 +35,20 @@ Every agent reads this file at the start of every cycle. **This file overrides a
 
 - Never edit `PLAN`, `DECISIONS`, `CONTRACTS`, `core/contracts.py`, `core/interfaces.py`, `mocks/`, or another agent's files. CI rejects it.
 - Mark a message handled by listing its filename under `handled_messages` in your own STATUS, not by touching the message.
-- Coordination files go straight to `main` (`git pull --rebase && git push`). Because nobody shares a file, rebases do not conflict. Code only reaches `main` through PRs merged by the integrator.
+- Each agent has two worktrees: a **code worktree** (`../gv-<ID>`, its branch) and a **coordination worktree** (`../gv-<ID>-coord`, a detached, always-fresh copy of `main`). Read and write coordination files only in the coordination worktree; `coord/` inside the code worktree can be stale.
+- Publish coordination files with `bash scripts/coord_push.sh <ID> "<ID>-NNN summary"`. It refuses files you don't own and retries on push races. Because nobody shares a file, rebases do not conflict.
+- Code only reaches `main` through PRs merged by the integrator. Push your branch with `git push --force-with-lease origin HEAD` after rebasing.
+- A new Python dependency is a request to the integrator (they own `requirements.txt`).
 
 ## 4. The cycle (repeat until `coord/FREEZE` exists)
 
-1. **Sync.** `git fetch`; pull `main`; rebase your branch on `main`.
+1. **Sync.** In the code worktree: `git fetch origin && git rebase --autostash origin/main`. (The loop script already refreshed the coordination worktree.)
 2. **Catch up.** Read what changed since your `last_seen` markers: PLAN version, new DECISIONS entries, your inbox, new LOG entries from other agents.
 3. **React.** For each change, ask: does it affect my code, my queue, or my assumptions? Adjust your queue, reply to messages, and note anything you now depend on.
 4. **Pick one task** from your BRIEF queue, sized to 45 minutes or less. If it is blocked, message the blocker, mark it blocked in STATUS, and take the next unblocked task. Never idle-wait.
 5. **Build and test.** `make test` must be green for your scope (against mocks until your dependencies merge, then against real code).
 6. **Commit code** using the convention in §6; push your branch; open or update your PR.
-7. **Report.** Append an impact report to your LOG (§7), rewrite your STATUS (including new `last_seen` markers), send a message to every agent your change affects, and push these coordination files to `main`.
+7. **Report.** In the coordination worktree: append an impact report to your LOG (§7), rewrite your STATUS (including new `last_seen` markers), and add a message for every agent your change affects. Then run `coord_push.sh`.
 8. **Repeat.**
 
 ## 5. Classify every change (the core rule)
@@ -115,6 +118,6 @@ Every 30 minutes, and at every gate:
 
 1. Review `coord/proposals/`: accept, reject, or modify. Record the ruling in `DECISIONS.md` (`D-NNN`), update `PLAN.md`, bump its version, and drop a message in every affected inbox.
 2. Fold `Refinements:` lines from LOGs into PLAN.
-3. Merge green PRs; keep `main` green.
+3. Merge green PRs with **"Create a merge commit"** (not squash) so every commit keeps its agent tag; keep `main` green.
 4. Run `make status` to rebuild `coord/STATUS.md`.
 5. Create `coord/agents/<ID>/STOP` to pause one agent, or `coord/FREEZE` to stop all.

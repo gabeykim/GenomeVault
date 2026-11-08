@@ -1,0 +1,3 @@
+# Agent D — impact log (append only)
+
+Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
