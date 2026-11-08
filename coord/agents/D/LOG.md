@@ -80,3 +80,17 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** S6 ibuprofen beat moved to the medication check; S4/S6 blocked on the demo cache
 - **Tests:** `make test` → exit 0 (38 passed). All four branches merged with this change: `make test` → exit 0 (495 passed). Live E4 on that build: cold 10, warm 10, synced 10, because the empty demo cache leaves nothing to learn.
 - **Next:** rerun E1 on B's v2, add priors for v2's four new keys, update `queries.json` lab keys to A/B's banded spelling
+
+### D-007 · 2026-11-08 14:15 · commits `f69dc14`, `0f7b1e3` (merge of main), `4a68768` · PLAN v1.2
+
+- **Change:** `eval/universe.py` follows B's current partition (`core.decoys.CURRENT_VERSION`, else the highest `data/buckets/vN.json`), indexes B's exact keys so a question sends the bucket of its exact local key, and records topics whose phenotype variants sit in different buckets. E1 measures that split. Priors for v2's 4 and v3's 15 new keys (`src: b-v2`/`b-v3`); phenotype variants inherit their topic's prior. `queries.json` q-v3: banded lab keys (`lisinopril|egfr<60`, `simvastatin|alt>120`, `simvastatin|ck>1000`, `ibuprofen|egfr<60`); D-021: Q03 uses `CYP2D6:not_assessed`, Q08 references expected DAPT; synthetic patients carry CYP2D6 not_assessed. Demo script follows C-009's tabs and starts rehearsal with `python -m core.cloud check` (B-013). Merged main (D-014..D-021) into the branch, no rebase.
+- **Why:** B-011/B-012/B-013, C-009/C-010, PLAN v1.2 (D-021).
+- **Class:** Refines
+- **Plan:** advances P7 E1/E3, P8, M11; follows D-021 (P5)
+- **Refinements:** (1) The eval partition is B's current version, never a hard-coded file. (2) A topic split across buckets is an E1 leak metric (`phenotype_via_bucket`).
+- **Contract impact:** none
+- **Affects:** B: v3 puts phenotype variants of two topics in different buckets → message sent (I3). I: same finding, FYI, since it touches an invariant → message sent. C: none.
+- **Demo impact:** S3/S4/S6 steps now name C's tabs
+- **Tests:** `make test` → exit 0 (42 passed, including main's new contract test). All four branches merged with this change on B's v3: `make test` → exit 0 (548 passed).
+- **Results (5 seeds × 1000, synthetic priors):** statistical attacker v1 22.6% ± 2.0, v2 22.1% ± 0.9, v3 20.3% ± 1.5 (v3 ceiling 20.1%); repeat-ask about 12% on all three; joint inference 71% in one session vs 32% with separate sessions + cover (blind guess 25%); v3 genotype revealed by bucket identity 2.4% ± 0.4. Hybrid answers 20/20 on v2 and v3.
+- **Next:** E3 live latency with and without `GV_DELAY_S`; adversarial wording cases for B's I7 filter; G4 run on the integrated build
