@@ -74,18 +74,33 @@ def drugs(key: str) -> list[str]:
     return parts
 
 
-def main(priors_path: str) -> None:
+def load_priors(priors_path: str, extra_clusters: dict[str, str]) -> tuple[dict[str, int], dict[str, set[str]]]:
+    """D's synthetic topic priors and co-prescription clusters (topic -> cluster names)."""
     fx = json.loads(open(priors_path).read())
     prior = {k: v["prior"] for k, v in fx["keys"].items()}
     clusters: dict[str, set[str]] = {}
     for name, members in fx["clusters"].items():
         for t in members:
             clusters.setdefault(t, set()).add(name)
-    for t, c in EXTRA_CLUSTERS.items():
+    for t, c in extra_clusters.items():
         if c:
             clusters.setdefault(t, set()).add(c)
+    return prior, clusters
 
+
+def main(priors_path: str) -> None:
+    prior, clusters = load_priors(priors_path, EXTRA_CLUSTERS)
     keys = [k for b in load_buckets("v1") for k in b.keys] + NEW_GENE + NEW_LAB
+    out, p = partition(keys, prior, clusters)
+    emit("v2", out, p, (
+        "Fixed partition (I5, D-003). Never regenerate from a query; a new partition is a new version "
+        "file. v2 = v1's 96 keys + 16 new, regrouped by similar synthetic frequency with <= 2 keys per "
+        "co-prescription cluster per bucket (D-006). Built once by data/buckets/build_v2.py from D's "
+        "synthetic priors (eval/fixtures/universe_v1.json @ f88da85)."))
+
+
+def partition(keys: list[str], prior: dict[str, int], clusters: dict[str, set[str]]) -> tuple[list[list[str]], dict]:
+    """Frequency-balanced partition of `keys` into sorted buckets of K under the constraints above."""
     assert len(keys) == len(set(keys))
     p = {k: prior.get(topic(k), DEFAULT_PRIOR) for k in keys}
 
@@ -137,16 +152,18 @@ def main(priors_path: str) -> None:
 
     order = {"gene_drug": 0, "drug_lab": 1, "drug_drug": 2}
     out.sort(key=lambda b: (order[kind_of(b[0])], b))
+    return out, p
+
+
+def emit(version: str, out: list[list[str]], p: dict, note: str) -> None:
     for i, b in enumerate(out, 1):
-        print(f"b{i:02d} {ratio(b):.1%} " + " ".join(f"{topic(k)}({p[k]})" for k in b), file=sys.stderr)
+        r = max(p[k] for k in b) / sum(p[k] for k in b)
+        print(f"b{i:02d} {r:.1%} " + " ".join(f"{topic(k)}({p[k]})" for k in b), file=sys.stderr)
     doc = {
-        "version": "v2",
+        "version": version,
         "k": K,
-        "note": ("Fixed partition (I5, D-003). Never regenerate from a query; a new partition is a new version "
-                 "file. v2 = v1's 96 keys + 16 new, regrouped by similar synthetic frequency with <= 2 keys per "
-                 "co-prescription cluster per bucket (D-006). Built once by data/buckets/build_v2.py from D's "
-                 "synthetic priors (eval/fixtures/universe_v1.json @ f88da85)."),
-        "buckets": [{"id": f"b{i:02d}", "version": "v2", "keys": b} for i, b in enumerate(out, 1)],
+        "note": note,
+        "buckets": [{"id": f"b{i:02d}", "version": version, "keys": b} for i, b in enumerate(out, 1)],
     }
     print(json.dumps(doc, indent=2))
 

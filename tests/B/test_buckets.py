@@ -18,20 +18,51 @@ ALEX_KEYS = [
 
 
 def test_file_is_valid_and_versioned():
-    for v in ("v1", "v2"):
+    for v in ("v1", "v2", "v3"):
         raw = json.loads((BUCKET_DIR / f"{v}.json").read_text())
         assert raw["version"] == v and raw["k"] == 8
         assert all(len(b.keys) == 8 and b.version == v for b in load_buckets(v))
 
 
-def test_current_version_is_v2():
-    assert CURRENT_VERSION == "v2"
-    assert {b.version for b in load_buckets()} == {"v2"}
+def test_current_version_is_v3():
+    assert CURRENT_VERSION == "v3"
+    assert {b.version for b in load_buckets()} == {"v3"}
 
 
-def test_v1_still_loads_unchanged():
-    # Old versions are frozen (I5): v1 keeps its 12 buckets and 96 keys.
+def test_old_versions_still_load_unchanged():
+    # Old versions are frozen (I5): v1 keeps 12 buckets / 96 keys, v2 keeps 14 / 112.
     assert len(load_buckets("v1")) == 12 and len(universe("v1")) == 96
+    assert len(load_buckets("v2")) == 14 and len(universe("v2")) == 112
+
+
+# Every exact key A's rule tables can emit (rules.all_keys() on PR #1 @ 6e484af, A-003).
+A_RULE_KEYS = [
+    "CYP2C19:intermediate_metabolizer|clopidogrel", "CYP2C19:poor_metabolizer|clopidogrel",
+    "SLCO1B1:decreased_function|simvastatin|dose>20mg", "SLCO1B1:poor_function|simvastatin",
+    "aspirin|celecoxib", "aspirin|ibuprofen", "aspirin|naproxen", "celecoxib|clopidogrel",
+    "celecoxib|lisinopril", "celecoxib|prasugrel", "celecoxib|ticagrelor", "clopidogrel|esomeprazole",
+    "clopidogrel|ibuprofen", "clopidogrel|naproxen", "clopidogrel|omeprazole", "ibuprofen|egfr<60",
+    "ibuprofen|lisinopril", "ibuprofen|prasugrel", "ibuprofen|ticagrelor", "lisinopril|naproxen",
+    "lisinopril|potassium>5.0", "naproxen|prasugrel", "naproxen|ticagrelor", "spironolactone|potassium>5.0",
+]
+
+
+def test_v3_keeps_v2_and_covers_every_rule_key():
+    v3 = set(universe("v3"))
+    assert set(universe("v2")) <= v3
+    assert len(v3) == 136 and len(load_buckets("v3")) == 17
+    for k in A_RULE_KEYS:
+        assert bucket_for(k) is not None, k
+
+
+def test_rule_keys_match_real_rules_when_present():
+    # After G1 merges A's rules.py, the universe must still cover everything it can emit.
+    try:
+        from core import rules  # type: ignore
+    except ImportError:
+        return
+    missing = sorted(k for k in rules.all_keys() if bucket_for(k) is None)
+    assert not missing, missing
 
 
 def test_v2_keeps_every_v1_key_and_adds_question_keys():
@@ -48,16 +79,16 @@ def _drug_of(key):
     return parts[1] if kind_of(key) == "gene_drug" else parts[0]
 
 
-def test_v2_no_drug_twice_in_gene_or_lab_bucket():
+def test_no_drug_twice_in_gene_or_lab_bucket():
     # Two warfarin genes in one bucket would reveal "warfarin" (D-006 spirit).
-    for b in load_buckets("v2"):
+    for b in load_buckets("v2") + load_buckets():
         if kind_of(b.keys[0]) != "drug_drug":
             drugs = [_drug_of(k) for k in b.keys]
             assert len(drugs) == len(set(drugs)), b.id
 
 
-def test_v2_drug_at_most_twice_in_pair_bucket():
-    for b in load_buckets("v2"):
+def test_drug_at_most_twice_in_pair_bucket():
+    for b in load_buckets("v2") + load_buckets():
         if kind_of(b.keys[0]) == "drug_drug":
             drugs = [d for k in b.keys for d in k.split("|")]
             assert max(drugs.count(d) for d in drugs) <= 2, b.id
@@ -82,7 +113,7 @@ def test_alex_keys_and_pantoprazole_present():
 
 
 def test_unknown_key_has_no_bucket():
-    assert bucket_for("clopidogrel|esomeprazole") is None
+    assert bucket_for("clopidogrel|st_johns_wort") is None  # D Q16: outside the universe
 
 
 def test_drug_pairs_are_canonical():

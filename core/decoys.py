@@ -11,7 +11,7 @@ from functools import lru_cache
 from .contracts import Bucket
 
 BUCKET_DIR = pathlib.Path(__file__).resolve().parent.parent / "data" / "buckets"
-CURRENT_VERSION = "v2"  # v1 stays frozen and loadable; v2 = frequency-balanced regroup + 16 keys
+CURRENT_VERSION = "v3"  # v1, v2 stay frozen and loadable; v3 = v2 + every key A's rule tables emit + 9 decoys
 
 
 def kind_of(key: str) -> str:
