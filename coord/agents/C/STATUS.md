@@ -17,7 +17,9 @@ handled_messages:
   - 20261108-1410-from-B-router-ready.md
   - 20261108-1430-from-B-kb-ready.md
   - 20261108-1355-from-B-offline-status.md
+  - 20261108-1352-from-A-normalize-ready.md
+  - 20261108-1450-from-B-cover-traffic.md
 blocked_on: none
 waiting_on: >
   A: no_data marker shape. I: ruling on proposal 20261108-1323-C-capture-and-status-contracts.md.
-next: queue item 7 (demo toggle + offline badge), then 5 (phone/) once capture is ruled
+next: queue 7 (offline badge + Wi-Fi-off toggle via cloud.status/set_offline), start router cover traffic at app startup (G3), then 5 (phone/)
