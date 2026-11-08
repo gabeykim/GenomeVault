@@ -257,3 +257,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` on my rebased branch: exit 0, 1078 passed, 2 skipped. On the integrated main+#4+#5+#7+#8: exit 0, 1148 passed. I did not run `make eval` or `core.cloud check` (they needed approval in this session).
 - **Inbox:** to-A 1535 (G2 passed, D-032, v1.3.1): I rebased. to-A 1537 (C-023 recolored PNGs, same text): the A-017 sample tests still pass, and they don't check pixels. New logs: B-033 and C-023, nothing for A.
 - **Next:** PR #5 review and merge at G3. Live VLM check on C's PNGs if the human starts Ollama. Then requests from B, C and D. If B ships a partition v6, re-run the key-coverage check.
+
+### A-020 · 2026-11-08 15:50 · commit `83219b9` (rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #5 onto main (now has D-033) and force-pushed it (`83219b9`). Then I re-ran the G3 merge rehearsal on the newest PR heads, because B (#7 → `0163ba9`) and C (#8 → `ff5a93c`, mock fallbacks dropped in C-024) had both pushed since A-019. In a throwaway worktree I octopus-merged `origin/main` (`eceabe8`) with #4 D (`5112526`), #5 A, #7 B and #8 C. There were no conflicts, and `make test` exited 0 with 1154 passed and 0 skipped. Nothing in A's suite skips any more on the integrated tree. That includes A-018's app real-path tests, which now run on C's app with no stand-ins. I removed the worktree and pushed nothing from it.
+- **Why:** G3 is at 17:30. Two of the four PRs changed after the last rehearsal, so the A-019 result was out of date.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: the four open PRs still merge cleanly together and stay green on their current heads (message sent). B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on my rebased branch: exit 0, 1078 passed, 2 skipped (the 2 skips wait on PR #4 queries.json and C's app path, both fine on the integrated tree). Integrated main + #4/#5/#7/#8: exit 0, 1154 passed, 0 skipped.
+- **Inbox:** to-A 1543 (C-024 ack): I noted that `_named_drugs` no longer checks for a mock normalizer, and A's tests don't rely on that. D-033 (Gabe is integrator, backup Dhiaa): noted, nothing for A. New logs: B-034, B-035 and C-024, nothing for A. B-035 confirms Q03 (`CYP2D6:not_assessed|codeine`) stays no_data offline, as A's rules intend (D-021).
+- **Next:** PR #5 review and merge at G3. Live VLM check on C's PNGs if the human starts Ollama. Then requests from B, C and D. If B ships partition v6, re-run the key-coverage check.
