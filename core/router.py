@@ -1,4 +1,4 @@
-"""Privacy router (F4, M5): decides what leaves the device. Implements PLAN P6 steps 1-5, 7, 8.
+"""Privacy router (F4, M5): decides what leaves the device. Implements PLAN P6 steps 1-8.
 
 `route(question, flags) -> Answer` (contract: router.route).
 
@@ -6,8 +6,15 @@
    (and never allergy flags) ask for general knowledge. If none does, nothing is sent.
 2. KB: an exact-key fact that has not expired answers the key; nothing is sent (`kb_hit`).
 3. Generalize: each remaining key becomes one Topic phrased for all phenotypes / lab bands.
-4. Split: one Topic per request, one session per bucket (cloud.py). Random delays are queue 8.
+4. Split: one Topic per request, one session per bucket, a random pause before every request
+   (cloud.py, `GV_DELAY_S`).
 5. Bucket: the key's fixed bucket of 8 (I5) is sent whole, and all 8 answers are kept.
+6. Cover traffic: `send_cover()` sends one bucket drawn uniformly from the whole fixed partition,
+   chosen without looking at any question, KB or flag (I5). `start_cover()` runs it on a steady,
+   jittered schedule (every `GV_COVER_INTERVAL_S` seconds, default 60, times a random 0.5-1.5) in a
+   daemon thread; the app starts it, `stop_cover()` ends it. Cover sends go through the same
+   leakage check and ledger (kind `cover`), and their 8 answers are stored in the KB like any other.
+   Nothing is sent while offline.
 7. Leakage check (I3) on every outbound text. Any hit blocks the whole bucket: 0 bytes leave.
 8. One ledger entry per decision: `local_only`, `kb_hit`, `bucket` or `blocked`.
 
@@ -24,13 +31,16 @@ a curated "no interaction" entry, which comes from A's curated tables via the KB
 """
 from __future__ import annotations
 
+import os
+import random
 import re
+import threading
 from datetime import date
 from typing import Optional
 
 from . import cloud, kb, ledger
-from .contracts import Answer, Fact, Flag, Profile, Topic, pair_key
-from .decoys import bucket_for, universe
+from .contracts import Answer, Fact, Flag, LedgerEntry, Profile, Topic, pair_key
+from .decoys import bucket_for, load_buckets, universe
 from .generalize import generalize, topic_for_key
 from .validator import _key_drugs, leaks
 
@@ -74,11 +84,9 @@ class _Offline(Exception):
     pass
 
 
-def _send_bucket(bucket_id: str, profile: Profile) -> tuple[list[Fact], bool]:
-    """Send one whole fixed bucket. Returns (facts, sent). Blocked sends return no facts; raises
-    _Offline if the cloud is unreachable (nothing left the device, no ledger entry)."""
-    from .decoys import load_buckets
-
+def _send_bucket(bucket_id: str, profile: Profile, kind: str = "bucket") -> tuple[list[Fact], LedgerEntry]:
+    """Send one whole fixed bucket (`kind` "bucket" or "cover"). Returns (facts, ledger entry). Blocked
+    sends return no facts and a `blocked` entry; raises _Offline if the cloud is unreachable (nothing left, no ledger entry)."""
     bucket = next(b for b in load_buckets() if b.id == bucket_id)
     topics: list[Topic] = [topic_for_key(k) for k in bucket.keys]
     texts = [t.text for t in topics]
@@ -86,14 +94,12 @@ def _send_bucket(bucket_id: str, profile: Profile) -> tuple[list[Fact], bool]:
     for k in bucket.keys:
         allow |= _key_drugs(k)
     if any(leaks(t, profile, allow) for t in texts):
-        ledger.record("blocked", bucket_id=bucket.id)
-        return [], False
+        return [], ledger.record("blocked", bucket_id=bucket.id)
     try:
         facts = cloud.ask_bucket(bucket, topics)
     except cloud.CloudUnavailable as e:
         raise _Offline() from e
-    ledger.record("bucket", bucket_id=bucket.id, texts=texts)
-    return facts, True
+    return facts, ledger.record(kind, bucket_id=bucket.id, texts=texts)
 
 
 def route(question: str, flags: list[Flag]) -> Answer:
@@ -133,11 +139,11 @@ def route(question: str, flags: list[Flag]) -> Answer:
             continue
         done.add(b.id)
         try:
-            facts, ok = _send_bucket(b.id, profile)
+            facts, entry = _send_bucket(b.id, profile)
         except _Offline:
             is_offline = True
             break
-        sent = sent or ok
+        sent = sent or entry.kind != "blocked"
         _kb_put(facts)  # store all 8 answers
         for f in facts:
             if f.key in missing:
@@ -149,3 +155,69 @@ def route(question: str, flags: list[Flag]) -> Answer:
         return Answer(state="no_data", text=text, facts=[], sent_to_cloud=sent)
     text = "\n\n".join(f.text for f in facts)
     return Answer(state="known", text=text, facts=facts, sent_to_cloud=sent)
+
+
+
+# P6.6 cover traffic ---------------------------------------------------------------------------
+
+_cover_rng = random.SystemRandom()
+_cover_thread: Optional[threading.Thread] = None
+_cover_stop = threading.Event()
+DEFAULT_COVER_INTERVAL_S = 60.0
+
+
+def send_cover() -> Optional[LedgerEntry]:
+    """Send one cover bucket, drawn uniformly from the fixed partition (never from a query, I5).
+    Returns its ledger entry (`cover`, or `blocked` if the leakage check stopped it), or None when
+    nothing was attempted (offline, or the cloud is unreachable)."""
+    if cloud.offline():
+        return None
+    b = _cover_rng.choice(load_buckets())
+    try:
+        facts, entry = _send_bucket(b.id, _profile(), kind="cover")
+    except _Offline:
+        return None
+    _kb_put(facts)
+    return entry
+
+
+def cover_interval() -> float:
+    v = float(os.environ.get("GV_COVER_INTERVAL_S", DEFAULT_COVER_INTERVAL_S))
+    if v <= 0:
+        raise ValueError("GV_COVER_INTERVAL_S must be > 0")
+    return v
+
+
+def _cover_loop(interval: float, stop: threading.Event) -> None:
+    while not stop.wait(interval * _cover_rng.uniform(0.5, 1.5)):
+        try:
+            send_cover()
+        except Exception:   # cover traffic must never take the app down; the next tick retries
+            pass
+
+
+def start_cover(interval_s: Optional[float] = None) -> bool:
+    """Start steady cover traffic in a daemon thread. Returns False if it is already running."""
+    global _cover_thread, _cover_stop
+    if cover_running():
+        return False
+    interval = interval_s if interval_s is not None else cover_interval()
+    if interval <= 0:
+        raise ValueError("cover interval must be > 0")
+    _cover_stop = threading.Event()
+    _cover_thread = threading.Thread(target=_cover_loop, args=(interval, _cover_stop),
+                                     name="gv-cover", daemon=True)
+    _cover_thread.start()
+    return True
+
+
+def stop_cover(timeout: float = 5.0) -> None:
+    global _cover_thread
+    _cover_stop.set()
+    if _cover_thread is not None:
+        _cover_thread.join(timeout)
+    _cover_thread = None
+
+
+def cover_running() -> bool:
+    return _cover_thread is not None and _cover_thread.is_alive()

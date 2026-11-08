@@ -6,7 +6,9 @@ writes the ledger entry (P6.8) after.
 
 Sessions (P6.4): every call to `ask_bucket` opens a fresh HTTP client (new connection, no cookies,
 no conversation history) and closes it afterwards, and every Topic is its own single-turn request.
-Nothing links one bucket's requests to another's except timing; randomized delays are queue 8.
+Nothing links one bucket's requests to another's except timing, and timing is randomized: before
+every request `pause()` sleeps a random delay drawn from `delay_range()` (P6.4, queue 8), so the
+requests of two buckets needed by one question do not arrive as one tight burst.
 
 Results are `Fact(tier="cloud")` with a short expiry (I6: "AI-summarized, verify", expires sooner).
 
@@ -18,6 +20,8 @@ Configuration (environment only, never in the repo, AGENTS.md §10):
 - `DEMO=1`           replay `mocks/cloud_cache/` instead of the network (I8)
 - `GV_CLOUD_CACHE`   alternative cache directory (tests, recording)
 - `GV_OFFLINE=1`     force offline mode (F8, E4): nothing is sent, not even demo replay
+- `GV_DELAY_S=lo,hi` random pause before each request, in seconds (default `0.3,2.0` live, `0,0` in
+                     demo mode, where nothing leaves the device and a slow demo helps nobody)
 
 Offline mode (F8, queue 9): `offline()` is True when forced (`GV_OFFLINE=1` or `set_offline(True)`).
 Forced offline wins over `DEMO=1`, so the offline demo beat (S6, ibuprofen X5) runs with demo mode on
@@ -36,7 +40,9 @@ from __future__ import annotations
 import json
 import os
 import pathlib
+import random
 import sys
+import time
 from datetime import date, timedelta
 from typing import Iterable, Optional
 
@@ -52,6 +58,9 @@ API_VERSION = "2023-06-01"
 MAX_TOKENS = 400
 TIMEOUT_S = 30.0
 _transport: Optional[httpx.BaseTransport] = None   # tests inject httpx.MockTransport; None = real network
+LIVE_DELAY_S = (0.3, 2.0)
+_sleep = time.sleep                  # tests inject a recorder
+_rng = random.SystemRandom()         # OS entropy: delays are not reproducible from a seed
 
 SYSTEM_PROMPT = (
     "You are a clinical pharmacology reference. Answer the general question in 2 to 4 plain sentences "
@@ -113,6 +122,27 @@ def ttl_days() -> int:
     return int(os.environ.get("GV_CLOUD_TTL_DAYS", "30"))
 
 
+def delay_range() -> tuple[float, float]:
+    """(lo, hi) seconds of random pause before each request (P6.4). Bad values are an error."""
+    raw = os.environ.get("GV_DELAY_S")
+    if raw is None:
+        return (0.0, 0.0) if demo_mode() else LIVE_DELAY_S
+    lo, hi = (float(x) for x in raw.split(","))
+    if lo < 0 or hi < lo:
+        raise ValueError(f"GV_DELAY_S must be 'lo,hi' with 0 <= lo <= hi, got {raw!r}")
+    return lo, hi
+
+
+def pause() -> float:
+    """Sleep a random delay from `delay_range()`; returns the seconds slept (0 when disabled)."""
+    lo, hi = delay_range()
+    if hi <= 0:
+        return 0.0
+    d = _rng.uniform(lo, hi)
+    _sleep(d)
+    return d
+
+
 def cache_dir() -> pathlib.Path:
     return pathlib.Path(os.environ.get("GV_CLOUD_CACHE", str(DEFAULT_CACHE)))
 
@@ -165,7 +195,12 @@ def ask_bucket(bucket: Bucket, topics: Iterable[Topic]) -> list[Fact]:
     if demo_mode():
         cache = load_cache()
         source = f"cloud-cache:{bucket.version}"
-        return [_fact(t.key, cache[t.key], source) for t in topics if cache.get(t.key, "").strip()]
+        out = []
+        for t in topics:
+            pause()
+            if cache.get(t.key, "").strip():
+                out.append(_fact(t.key, cache[t.key], source))
+        return out
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -176,6 +211,7 @@ def ask_bucket(bucket: Bucket, topics: Iterable[Topic]) -> list[Fact]:
     try:
         with httpx.Client(timeout=TIMEOUT_S, transport=_transport) as client:   # one session per bucket
             for t in topics:
+                pause()
                 text = _ask_live(client, t, api_key)
                 if text.strip():
                     facts.append(_fact(t.key, text, source))
