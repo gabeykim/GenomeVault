@@ -40,3 +40,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S3 ("0 bytes sent" comes from `totals()["bytes_out"]`), S4 (ledger shows the bucket's 8 outbound questions).
 - **Tests:** `make test` → 223 passed; `check_ownership.py` → ok; `check_network.sh` → ok
 - **Next:** queue 3 `validator.py` (leakage check + `check_output`), then queue 4 `cloud.py` and queue 6 `router.route` for G2 (16:00).
+
+### B-004 · 2026-11-08 13:33 · commit `c0f4828` · PLAN v1.1
+
+- **Change:** Added `core/validator.py`: `leaks(text, profile, allow=()) -> list[str]`, `check_outbound(texts, profile, allow=()) -> bool`, `check_output(text, facts) -> bool`, `numbers_in(text)`. Added `tests/B/test_validator.py` (24 tests). PR #2 updated.
+- **Why:** BRIEF B queue item 3. The router (queue 6) runs `check_outbound` on the 8 Topic texts right before every send (P6.7) and records `blocked` on failure; C's `merge.personalize` calls `check_output` on the general answer text (agreed in 20261108-1345-from-B-g2-interfaces.md / C's 1331 reply).
+- **Class:** Refines
+- **Plan:** advances F4, M5, P6.7, I3, I4; refines M5 (leak and output rules)
+- **Refinements:** (1) Outbound text is blocked if it contains any standalone number (digits not glued to a letter: catches doses, lab values, dates, ages, `*2/*2`; gene symbols like CYP2C19 pass), any star allele, or any profile genotype, phenotype (`poor_metabolizer` or `poor metabolizer`), condition or allergy, case-insensitive on word boundaries. (2) `allow` admits terms that are the bucket's own drug ingredients (public content of the fixed bucket, I5); it never waives the number rule. (3) All 96 bucket Topics pass (tested). (4) `check_output`: every number in the text must appear in some fact's text or key; drugs are recognised from the bucket universe plus fact keys; any two drugs in one sentence must both be named by a single fact (key or text). So an omeprazole fact cannot back a pantoprazole claim (S6, I4).
+- **Contract impact:** none (`check_output` signature as agreed with C)
+- **Affects:** C: `core/validator.py` exists on PR #2; merge's lookup will find it once merged → none required. Note: for `no_data` the router's `Answer.text` will not name the drug pair, so it passes `check_output` with `facts=[]`. A, D: none (D may reuse `validator.leaks` in E1 to assert 0 personal fields in transcripts).
+- **Demo impact:** S4 (ledger `personal_fields_sent` stays 0 because leaky sends become `blocked`), S6 (pantoprazole answer cannot borrow omeprazole facts).
+- **Tests:** `make test` → exit 0, 247 passed; `check_ownership.py` → ok; `check_network.sh` → ok
+- **Next:** queue 4 `cloud.py` (DEMO=1 replays `mocks/cloud_cache/`), then queue 6 `router.route` for G2 (16:00).
