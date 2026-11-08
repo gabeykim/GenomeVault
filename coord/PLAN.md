@@ -1,4 +1,4 @@
-# GenomeVault PLAN — v1.2.1
+# GenomeVault PLAN — v1.3.1
 
 Source of truth for the idea. Edited only by the integrator, through accepted proposals (see AGENTS.md §5, §12). Cite these IDs in every commit, report and proposal.
 
@@ -19,7 +19,7 @@ Event fit: Lenovo × AGI House hybrid AI build day (personal context on device, 
 | F3 | Local cross-reference engine: gene–drug, drug–drug, drug–lab, allergy | Must |
 | F4 | Privacy router (P6) | Must |
 | F5 | Ledger of everything that left the device | Must |
-| F6 | Learning knowledge base (stores all cloud answers, decoys included) | Should |
+| F6 | Learning knowledge base (stores all cloud answers, decoys included), plus a knowledge pack: the whole fixed partition recorded once for every user (`mocks/cloud_cache/`), loaded by `router.sync_pack()` (D-027) | Should |
 | F7 | Actions: pharmacist draft, visit summary, reminders to phone | Should |
 | F8 | Offline mode | Should |
 
@@ -80,6 +80,8 @@ Expected therapy, no Flag (informational UI note only): `aspirin|clopidogrel` is
 7. Leakage check on outbound text (I3).
 8. Ledger entry.
 
+Knowledge pack (D-027): the entire fixed partition, asked once with the same generalized questions for every user and human-reviewed, ships as `mocks/cloud_cache/`. `router.sync_pack()` loads it into the KB, so a synced question stops at step 2 and sends nothing. Steps 3–8 remain for keys not yet synced and for the cold-start demo beat (S4).
+
 Answer states: `known` · `none_listed` (exact pair listed as no interaction in a curated source) · `no_data`.
 
 ## P7 Evaluation
@@ -100,14 +102,15 @@ S1 Hook · S2 Capture on phone · S3 Local flags X1–X4, "0 bytes sent" · S4 H
 | G0 | 0:30 | 12:30 | Contracts, interfaces, mocks, protocol on `main` |
 | G1 | 2:30 | 14:30 | A merged; X1–X4 fire from real data |
 | G2 | 4:00 | 16:00 | B + minimal C merged; one question end to end with live ledger |
-| G3 | 6:30 | 18:30 | KB, cover traffic, full UI, phone page merged |
-| G4 | 7:30 | 19:30 | D's evals run on the integrated build; charts in slides |
-| G5 | 8:15 | 20:15 | Freeze: bug fixes only; record backup video |
+| G3 | 5:30 | 17:30 | KB + knowledge pack, full UI, phone page merged (cover traffic if ready) |
+| G4 | 6:15 | 18:15 | D's evals run on the integrated build; charts in slides |
+| G5 | 6:30 | 18:30 | Freeze: bug fixes only; record backup video |
+| Draft | 7:00 | 19:00 | Project draft saved on the AGI House page (finalists are chosen from it); demos at 20:00 |
 
 ## P10 Open questions (integrator resolves)
 
-- Which local model and runtime on the Lenovo hardware (NPU/GPU)?
-- Real event schedule → map gate hours to clock times.
+- Local model: resolved for the demo laptop (D-028, D-029): Ollama, text `qwen3:8b` with thinking off, vision `qwen2.5vl:7b` for label photos. Lenovo NPU runtime still open.
+- Event schedule: resolved (D-025).
 
 ## Changelog
 
@@ -115,3 +118,5 @@ S1 Hook · S2 Capture on phone · S3 Local flags X1–X4, "0 bytes sent" · S4 H
 - v1.1 — P9: added clock times for a 12:00 start (D-011).
 - v1.2 — P5 PGx corrections: CYP2D6 not_assessed (SNP-uncallable); `aspirin|clopidogrel` expected DAPT shown as an informational note, not a Flag; genotypes matched by rsID on GRCh38. CONTRACTS +`capture.from_image` (A) +`cloud.status` (B). `anthropic` added for the eval LLM client. Backup-integrator pass (D-014…D-021).
 - v1.2.1 — G1 passed: A merged (PR #1, merge commit 7af15bf); real `rules.check` fires X1–X4 on Alex's discharge meds and X5 for ibuprofen (D-022).
+- v1.3 — P9 gates compressed to the 19:00 draft deadline (D-025); cloud thinking/max_tokens bug and fix (D-026); knowledge pack over partition v5, v5 frozen (D-027); local text model with thinking off (D-028); local vision model for label photos (D-029).
+- v1.3.1 — G2 passed: B (PR #2, merge 9d04dcc) and C (PR #3, merge be95c0e) merged; real `router.route` + `ledger` + cloud cache replay + FastAPI UI on main (D-032).

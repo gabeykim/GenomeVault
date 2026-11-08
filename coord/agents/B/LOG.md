@@ -274,3 +274,178 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** none
 - **Tests:** `make test` exit 0, 619 passed. `check_ownership.py --range origin/main..HEAD` ok. I2 network grep over tracked files is clean. Locally, `check_network.sh` flags the untracked Finder copies `core/cloud 2.py` and `core/cloud 3.py`. They are not in git, so CI does not see them. I have not deleted them.
 - **Next:** G2 merge of PR #2, then freeze bucket v5. Record the demo cache once the API key arrives (to-human 1418). Until then, take requests from A, C and D.
+
+### B-022 · 2026-11-08 14:59 · commit `30becd4` · PLAN v1.2.1
+
+- **Change:** No code change. Rebased PR #2 on main c51bb43 (only coord commits since 7aad6b0) and force-pushed it (head 30becd4).
+- **Why:** Keep the G2 PR on current main.
+- **Class:** Advances
+- **Plan:** G2 readiness only
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** none. C-018 (palette hexes, D's screenshots) does not touch B. No new inbox messages, DECISIONS (still D-024), proposals for B or PLAN bump (still v1.2.1).
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 619 passed. PR #2 CI green before this push; mergeable.
+- **Next:** G2 merge of PR #2, then freeze bucket v5. Record the demo cache once the API key arrives (to-human 1418; `python -m core.cloud record` then `check`).
+- **Note:** the B-021 header time (15:10) was ahead of the system clock; this entry uses the system clock.
+
+### B-023 · 2026-11-08 15:02 · commit `20000fc` · PLAN v1.2.1
+
+- **Change:** Tests only. I merged main + A's PR #5 (`143fa41`) + B's PR #2 in a scratch worktree before G2, and 1 test failed: `tests/B/test_buckets.py::test_rule_keys_match_real_rules_when_present`. A's new allergy table adds `allergy:<group>|drug` keys to `rules.all_keys()`, and the test required every rule key to sit in a bucket. Allergy flags never go to the cloud (`generalize` returns `[]`, B-002 refinement 6), so these keys belong outside the universe. The test now leaves `allergy:` keys out and also asserts that none of them is in a bucket. New test `test_allergy_flag_never_leaves_the_device` (tests/B/test_g2_real_rules.py) runs Alex's real penicillin allergy against amoxicillin, forces `needs_cloud=True`, and routes the flag. It must come back `local_only` with 0 bytes and 0 personal fields. It skips until PR #5 merges.
+- **Why:** PRs #2 and #5 must merge in either order without turning main red at G2. The router and buckets were already right. Only the test's assumption was wrong.
+- **Class:** Advances
+- **Plan:** advances F3 (allergy), I3, G2
+- **Refinements:** none (B-002 refinement 6 already covers it, and the tests now enforce it)
+- **Contract impact:** none
+- **Affects:** A: PR #5 merges green with PR #2. Keep the `allergy:` prefix on allergy keys, because the tests key off it → nothing to do. I: G2 can merge #2 and #5 in either order → none. C, D: none. C-019 (white accent, visual only) does not touch B.
+- **Demo impact:** none. Bucket v5 is unchanged.
+- **Tests:** B branch: `make test` exit 0, 619 passed, 1 skipped (the new allergy test, waiting on PR #5). main + PR #5 + PR #2 (`20000fc`): `make test` exit 0, 713 passed, 0 skipped (the allergy test runs and passes).
+- **Next:** G2 merge of PR #2, then freeze bucket v5. Record the demo cache once the API key arrives (to-human 1418).
+
+### B-024 · 2026-11-08 15:05 · commit `9743eed` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** `core/cloud.py` live requests now send `"thinking": {"type": "between_tools"}` and `max_tokens` 1000 (was 400). A reply with no text (e.g. only an empty thinking block, `stop_reason: max_tokens`) still reads as `no_data` (I4), but `cloud` now logs a warning naming the bucket key and stop_reason instead of dropping it silently. The log carries only the generalized key, nothing about the user. SYSTEM_PROMPT gains the integrator's neutral-reporting sentence ("Write in neutral reporting style ... Never write is recommended, are advised, is preferred, should ..."), so live answers match how the knowledge pack was recorded. The I7 filter is unchanged, not loosened. 3 new tests in `tests/B/test_cloud.py`.
+- **Why:** Integrator message 20261108-1501 / D-026 (G2 blocker), in PR #6 and not yet on main: about 25% of live answers came back empty because the model spent its 400 tokens thinking.
+- **Class:** Advances
+- **Plan:** advances D-026, F4, M8; keeps I4, I7; matches D-027 pack prompt
+- **Refinements:** the off switch lives in one constant, `cloud.THINKING`
+- **Contract impact:** none (`ask_bucket`/`status` signatures unchanged)
+- **Affects:** D: live E2 runs should stop losing answers to empty replies, so expect fewer `no_data` in live mode. Nothing to do. I: PR #2 head is now `9743eed`, which carries D-026 for G2. Demo replay and `check` do not use the request body, so the pack is unaffected. A, C: none.
+- **Demo impact:** none in DEMO=1 (replay). Live mode answers more reliably.
+- **Tests:** `make test` exit 0, 622 passed, 1 skipped (allergy test, waits on PR #5).
+- **Next:** G2 merge of PR #2, then rebase onto v1.3 once PR #6 merges. Then take D-027 work: `router.sync_pack()` vs the committed pack, and the bucket v5 freeze.
+
+### B-025 · 2026-11-08 15:10 · commit `1cc90f8` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** `router.route()` now looks up a `needs_cloud` flag's key only when that flag covers the question. A flag covers it when it shares a drug the question names, or when the question names no drug at all. This is the rule `flag_covers` already used to decide `known`. Before, every cloud flag passed in went into the lookup whatever the question asked. 3 new tests in `tests/B/test_router.py`.
+- **Why:** I checked PR #6's knowledge pack (D-027) against this branch (pack read from `origin/integrator/v1.3` into a temp dir, DEMO=1). `cloud check` gives 136/136 ok, 0 missing, 0 rejected, 0 unknown. `sync_pack(skip_fresh=False)` sent 17 buckets and stored 140 facts (136 keys + 4 v5 aliases). A second `sync_pack()` skipped all 17. Synced questions are `kb_hit` with 0 bytes and still answer with GV_OFFLINE. But with Alex's real `check_all` flags, "Is simvastatin affected by my genes?" and "Can I take ibuprofen?" both came back `known` using the clopidogrel X1/X2 cloud texts. That breaks I4 (an answer must be backed by facts about what was asked). Without a pack sync, the same questions sent the clopidogrel buckets for no reason.
+- **Class:** Refines
+- **Plan:** advances F4, F6/D-027 (pack check); refines P6.1/P6.2 and I4
+- **Refinements:** P6.1: a question looks up only the flags that cover it (they share a named drug, or the question names no drug). Off-topic flags are neither sent nor quoted.
+- **Contract impact:** none (`route(question, flags) -> Answer` unchanged)
+- **Affects:** C: `/api/ask` passes all med flags. An off-topic question (e.g. ibuprofen, not a med) now gets `no_data`, not clopidogrel text. If you want such a question answered locally, also pass `rules.check(Drug(<named drug>), profile)` flags for the drugs it names. Optional. D: E1/E4 question sets already pass per-question flags, so little should change. Questions with no `drugs` that use `check_all` will no longer pull X1/X2 when their text names another drug. Rerun once. I: the D-027 pack works with PR #2 as-is, so PR #6 + PR #2 merge cleanly from B's side. A: none.
+- **Demo impact:** S4/S5: questions about clopidogrel are unchanged. Off-topic questions stop quoting clopidogrel text. Fewer buckets leave in live/cold mode.
+- **Tests:** `make test` exit 0, 625 passed, 1 skipped (allergy test, waits on PR #5).
+- **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and add a test that runs `sync_pack` against the committed `mocks/cloud_cache/`. v5 stays frozen (D-027).
+
+### B-026 · 2026-11-08 15:20 · commit `170ba35` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** `router.route()` now puts the exact drug-drug pair the question names (`_question_keys`) first in `Answer.facts` and `Answer.text`. The other keys (covering flags, then gene/lab subject keys) follow in the same order as before. Only the order changed: the same keys are looked up and the same buckets are sent. 2 new tests in `tests/B/test_router.py`.
+- **Why:** C's suggestion (20261108-1510). On Q07, "Can I take pantoprazole with clopidogrel instead?", the facts came back as X1 `CYP2C19:poor_metabolizer|clopidogrel` first, then `clopidogrel|omeprazole`, then `clopidogrel|pantoprazole`. So the pair the user asked about was 7th of 9 paragraphs.
+- **Class:** Refines
+- **Plan:** advances F6, S3/S4 (answer readability); refines P6 answer composition
+- **Refinements:** P6: `Answer.facts` order is (1) the pairs the question names, (2) covering flags' keys, (3) the other subject keys. The order never changes what is sent.
+- **Contract impact:** none (`Answer` unchanged)
+- **Affects:** C: when the question names a pair the partition covers, `facts[0]` is that pair. You can lead with it without re-sorting in merge (re-sorting is still harmless). D: none (E-checks look at keys and bytes, not order). A, I: none.
+- **Demo impact:** S4: the Q07 answer starts with pantoprazole + clopidogrel.
+- **Tests:** `make test` exit 0, 627 passed, 1 skipped. The new leading-pair test fails on the old order.
+- **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and add a `sync_pack` test against the committed `mocks/cloud_cache/`.
+
+### B-027 · 2026-11-08 15:35 · commit `f6d6ae0` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** New `tests/B/test_committed_pack.py` (3 tests) for the committed knowledge pack in `mocks/cloud_cache/` (D-027): (1) one file per v5 bucket, each holding exactly that bucket's 8 keys; (2) every recorded answer is non-empty and passes `wording_problems` (I7); (3) `router.sync_pack()` in `DEMO=1` against the real pack sends all 17 buckets as cover, blocks none, and stores 136 facts plus the alias copies, with 0 personal fields. The tests skip while the pack isn't on the branch. `GV_PACK_CHECK=<dir>` points them at another pack.
+- **Why:** The pack is frozen with partition v5 (D-027). If someone changes v5 or re-records part of the pack, this test catches the mismatch before the demo replays half a pack or a reply that breaks I7.
+- **Class:** Advances
+- **Plan:** advances F6, F8, I7, E4; stretch pack sync
+- **Contract impact:** none
+- **Affects:** none. I: once PR #6 merges, these 3 tests stop skipping on main. I checked them against PR #6's pack (copied from `origin/integrator/v1.3` into a temporary folder, deleted afterwards): 3 passed.
+- **Demo impact:** none (S6 sync is protected by a test now)
+- **Tests:** `make test` exit 0, 627 passed, 4 skipped (the 3 new tests skip without the pack). With the PR #6 pack: 3 passed.
+- **Inbox:** nothing new. Read A-013 (capture: only the label's first drug line counts): no effect on B.
+- **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm the 3 tests run, not skip.
+
+### B-028 · 2026-11-08 15:45 · commit `cb4a705` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** New `tests/B/test_combo_questions.py` (5 tests). These cover questions that name a combination product, the way A-014 now reads one ("ezetimibe-simvastatin 10-40 mg", "amox-clav"). The tests use a stand-in for A's `to_ingredients` until PR #5 merges. They check that: (1) only universe ingredients count as named, so the combo question asks `clopidogrel|simvastatin` and nothing about ezetimibe; (2) online, no outbound text has "ezetimibe", "10-40" or the question, and 0 personal fields are sent; (3) offline, the answer is `no_data` with nothing sent; (4) amox-clav with the AL-001 allergy flag stays `local_only` with 0 bytes; (5) "clavulanate" never leaves the device. No router code changed: all 5 pass on the current router.
+- **Why:** A-014 makes `to_ingredients` return ingredients outside the bucket universe (ezetimibe, clavulanate). These tests pin that such names and the label strengths never reach the cloud (I3), and that a flag for another drug never makes the question `known` (I4).
+- **Class:** Advances
+- **Plan:** advances I3, I4, F4, M5
+- **Contract impact:** none
+- **Affects:** none. A: nothing to do. When PR #5 merges, the real `to_ingredients` gives the same ingredient sets as the stand-in.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 632 passed, 4 skipped. `check_ownership.py --range origin/main..HEAD` → ownership ok.
+- **Inbox:** D 1518 (pack confirmed, gate 20/0/0). Handled, nothing to do. Read A-014, C-021, D-011: no change needed from B.
+- **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm test_committed_pack runs, not skips.
+
+### B-029 · 2026-11-08 15:55 · commit `3260352` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** New `tests/B/test_pack_same_for_all.py` (2 tests). A second synthetic patient, "Bea" (warfarin, metformin, amiodarone; VKORC1/CYP2C9; INR, eGFR; sulfa allergy; I1), syncs the pack from a cold device next to Alex. (1) Both send every bucket once, as `cover`, with the same outbound text, the same `bytes_out` and 0 personal fields. Per bucket the traffic is byte-identical, and only the shuffled order differs. (2) None of Bea's rsIDs, phenotypes, conditions, allergy or lab values appear in what is sent, even though some of her meds are in the bucket universe. No router code changed.
+- **Why:** The integrator's G4 note to D (20261108-1520) says E1 should show `sync_pack` traffic scoring at chance because it is the same for every user. This test pins that property at the unit level, so a later change that lets the profile shape the sync fails here before the eval runs.
+- **Class:** Advances
+- **Plan:** advances I5, I3, E1, F8; stretch pack sync
+- **Contract impact:** none
+- **Affects:** D: E1 can cite this test for "sync traffic is user-independent". A, C, I: none.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 634 passed, 4 skipped. `check_ownership.py --range origin/main..HEAD` → ownership ok.
+- **Inbox:** nothing new. Read I's 1520 notes to C and D: they match B's plan (C drops stand-ins for `route`, `feed` and `sync_pack` at G2).
+- **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm test_committed_pack runs, not skips.
+
+### B-030 · 2026-11-08 15:28 · commit `28e5edf` · PLAN v1.3
+
+- **Change:** New `tests/B/test_brand_questions.py` (21 tests) runs against A's real `normalize.to_ingredients`, which is now on main. Five brand-name questions are covered: Advil + Plavix, Prilosec + Plavix, Plavix + Protonix, Zestril + Aleve, Bayer low dose + Plavix. For each one: (1) it maps to the exact ingredient key; (2) online, no brand string and no question text leave the device, with 0 personal fields; (3) the named pair leads `Answer.facts` (B-026); (4) asking again is local, 0 B. "Advil with my Plavix" also sends byte-identical traffic to "ibuprofen with my clopidogrel". No router code changed.
+- **Why:** D listed brand-name cases as optional red-team work (D 1518). With the real normalizer on main, this can be pinned at the unit level.
+- **Class:** Advances
+- **Plan:** advances I3, I4, F4, M5
+- **Contract impact:** none
+- **Affects:** D: the brand-name case is covered in tests/B. E1/E3 can cite it, and nothing is required. A: the test depends on `to_ingredients` brand mapping (Advil, Prilosec, Protonix, Zestril, Aleve, Bayer). FYI only. C, I: none.
+- **Demo impact:** none (supports S6 "Plavix with Protonix")
+- **Tests:** `make test` exit 0, 658 passed, 1 skipped (the skip waits for A's allergy engine, PR #5). `check_ownership.py --range origin/main..HEAD` → ownership ok.
+- **Inbox:** C 1526 (B-025 option done in `/api/ask`). Handled, nothing to do. Read D-030, D-031 (mock CYP2D6 not_assessed): B tests are still green. Read A-015, C-022: no effect on B.
+- **Next:** G2 merge of PR #2. After PR #5 merges, rebase and confirm the allergy test in test_g2_real_rules runs.
+
+### B-033 · 2026-11-08 15:36 · commit `71f2d28` · PLAN v1.3
+
+- **Change:** New `tests/B/test_app_path.py` (5 tests). No B code changed. The integrator merged PR #2 (B) and PR #3 (C) at G2. These tests check B's guarantees through C's real `/api/ask` path, not by calling `route()` directly. Cloud is replayed from a temp cache (DEMO=1). (1) Ten questions: C's 4 chips, the discharge-list question, and brand, combination, local-only and allergy questions. Every text that left passes `check_outbound` with the real profile, with no genotype strings. Each send is a whole bucket of 8 distinct topics, `personal_fields_sent` is 0, and the `/api/ledger` totals match. (2) `/api/ledger/{seq}/outbound` returns exactly `ledger.outbound(seq)`. (3) Asking again is a KB hit with 0 new bytes. (4) With `/api/offline` on, no question sends anything. (5) Every app answer passes `wording_problems`.
+- **Why:** G2 ("one question end to end"), now with both halves on main. Until now I3 was only pinned at `route()`. This pins it at the app boundary, where C builds the flags.
+- **Class:** Advances
+- **Plan:** advances G2, I3, I5, I7, I8, F5, F6, F8, S4, S6
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** C: no action needed. The test pins `/api/ask`, `/api/ledger/{seq}/outbound` and `/api/offline` against real B code, so a change there that leaks or mis-shows traffic now fails `tests/B` too (message sent). D: E1 can cite it, nothing required. A, I: none.
+- **Demo impact:** none (supports S4 ledger view and S6 offline)
+- **Tests:** `make test` exit 0: 794 passed, 3 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok. PR #7 opened.
+- **Inbox:** nothing new. Read A-017: nothing for B. PLAN still v1.3, DECISIONS still D-031.
+- **Next:** PR #7 review. After PR #5 (A) merges, rebase and confirm the allergy test in test_g2_real_rules runs on main. After PR #4 (D) merges, run eval/queries.json through the app path.
+
+### B-034 · 2026-11-08 15:40 · commit `079b32e` (PR #7) · PLAN v1.3.1
+
+- **Change:** New `tests/B/test_app_pack_path.py` (5 tests). No B code changed. This is G3 prep: the knowledge pack (D-027) checked through C's real `POST/GET /api/sync`, not by calling `sync_pack()` directly. Cloud is replayed from a temp cache (DEMO=1). (1) One sync sends every bucket of the partition exactly once, none blocked, and the app records all of those rows in `_pack_seqs` (I5: same for every user). (2) Every pack row in `/api/ledger` is `kind=cover`, `pack=true`, `personal_fields_sent=0`. Its `/outbound` texts are 8 distinct topics that pass `check_outbound` with the real profile (I3), and `mine` is always empty. (3) After a sync, every partition key is in the KB. With `/api/offline` on, the demo questions all answer with `sent_to_cloud=false` and 0 new bytes (F6, F8, S6). (4) A second sync skips every bucket and sends 0 bytes. (5) `/api/sync` while offline returns 409 and nothing leaves.
+- **Why:** The next gate is G3 (17:30, KB + knowledge pack). Until now the pack was only pinned at `sync_pack()`. These tests pin it at the app boundary, where C runs it in a thread and labels the rows.
+- **Class:** Advances
+- **Plan:** advances G3, F5, F6, F8, S4, S6; I3, I5, I8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** C: no action needed. `tests/B` now also fails if `/api/sync`, the `pack` label or `mine` on pack rows drift (message sent). D: E4c can cite this as the app-level counterpart. A, I: none.
+- **Demo impact:** none (supports the S6 "Sync knowledge pack" then Offline beat)
+- **Tests:** `make test` exit 0: 799 passed, 3 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok. PR #7 updated (head 079b32e).
+- **Inbox:** integrator 1535 (G2 passed, D-032, PLAN v1.3.1): rebased, re-read PLAN, nothing changes for B. Read A-018 and C-023: nothing for B. C-023's pack and cover rows are grouped in the UI only. The `/api/ledger` entries and `pack` flag that B's tests use are unchanged.
+- **Next:** PR #7 review before G3. After PR #5 (A) merges, confirm the allergy test runs. After PR #4 (D) merges, run eval/queries.json through the app path.
+
+### B-035 · 2026-11-08 15:43 · commit `0163ba9` (PR #7, rebased, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. This was a G4 dry run: D's `eval/` and `docs/` from `origin/agent/D-eval` (PR #4, head 5112526), laid over my branch (main + PR #7) in a scratch worktree, with `make eval` run there. The scratch worktree is deleted, and nothing was committed to D's paths. Results with `DEMO=1`: **G4 gate 20 pass, 0 warn, 0 fail.** Backend `live`, partition `real:data/buckets/v5.json`. E2 live: 11 cloud calls for 20 questions, of which 4 fall in the first five questions and 0 in the last five. Q19 is a KB hit with 0 B sent. E3 live hybrid: 11 calls, 11,111 bytes (about 1,010 B per bucket, against the 1,440 placeholder), 0 personal fields. E4: cold 11/20, warm 18/20, synced pack 18/20, unbacked_known empty, 20/20 cold answers in the expected state. The 2 that stay no_data offline are expected by design: Q03 (`CYP2D6:not_assessed|codeine`) and Q16 (St. John's wort, outside the universe).
+- **Finding:** Without `DEMO=1` and without an API key, `cloud.status()` reports offline. The "live" run then sends nothing: E2 shows 0 calls, and E4 shows cold, warm and synced all at 11/20. The gate still passes, but the numbers understate the design. The G4 run must use `DEMO=1 make eval` (or a real key).
+- **Why:** This is the BRIEF follow-up: "after PR #4 merges, run eval/queries.json through the app path". It ran early, against the branch, so B-side problems show up before G4 (18:15).
+- **Class:** Advances (verification only)
+- **Plan:** supports G4, E2, E3, E4; I3, I4, I5, I8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** D: run G4 with `DEMO=1`. You can replace `BYTES_PER_BUCKET=1440` with the measured ~1,010 B, or keep the live ledger number (message sent). I: once PR #4 and PR #7 merge, the gate is expected to pass on main as-is. A, C: none.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0: 799 passed, 3 skipped. In the scratch worktree, `make eval DEMO=1`: gate 20/0/0.
+- **Inbox:** nothing new since B-034. PLAN v1.3.1, DECISIONS D-032, logs A-018, C-023 and D-011 unchanged.
+- **Next:** PR #7 review before G3. After PR #5 (A) merges, confirm the allergy test runs. After PR #4 merges, re-run `DEMO=1 make eval` on main.
+
+### B-036 · 2026-11-08 15:55 · commit `f3a4abc` (PR #7) · PLAN v1.3.1
+
+- **Change:** `tests/B/test_app_path.py` and `tests/B/test_app_pack_path.py` no longer skip the whole file when the app falls back to stand-ins. Each now has an explicit test that the app uses the real `router.route`, the real ledger and `sync_pack`, so a regression fails instead of skipping. `LEDGER_IS_MOCK` is read with `getattr(..., False)`, so C can delete the constant.
+- **Why:** The real router and ledger have been on main since G2 (D-032), so the skip guards could now only hide a regression. C-024 (PR #8) removed the app's mock fallbacks and kept `LEDGER_IS_MOCK = False` only for B's tests.
+- **Class:** Refines (tests in B's own scope)
+- **Plan:** supports I3, F5, F8 (app-path coverage)
+- **Refinements:** none (test hardening only)
+- **Contract impact:** none
+- **Affects:** C: you can drop `LEDGER_IS_MOCK` whenever you like (message sent). A, D, I: none.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0: 801 passed, 3 skipped. In a throwaway merge with `origin/agent/C-app-ui` (PR #8), both files pass: 12 passed. PR #7 updated (head f3a4abc).
+- **Inbox:** C 1543 (stand-ins gone, PR #8) handled by this change. D-033 (Gabe is the integrator, backup Dhiaa): noted. Read A-019 and C-024: nothing else for B.
+- **Next:** PR #7 review before G3 (17:30). After PR #5 merges, confirm the allergy test runs. After PR #4 merges, re-run `DEMO=1 make eval` on main.

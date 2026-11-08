@@ -235,3 +235,80 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** visual only
 - **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Both regenerated samples read with A's reader. Checked in the merged preview at desktop and phone sizes, no console errors.
 - **Next:** read A's/B's 14:44–14:49 messages; drop the stand-ins (D-014); A's no_data marker (PR #5); rehearsal after G2
+
+### C-019 · 2026-11-08 15:00 · commit `c72baae` · PLAN v1.2.1
+
+- **Change:** The third accent is white `#FFFFFF` instead of cantaloupe. The palette is midnight `#02070A`, electric blue `#0297DE`, white. White now fills cantaloupe's roles (wordmark bar, active tab, packets, "yours" with midnight text, Offline pill, medium severity, selection, focus). Sample labels use midnight accents and still read with A's reader.
+- **Why:** Human owner's request.
+- **Class:** Refines
+- **Plan:** advances M10
+- **Refinements:** medium severity is white plus its word and 2-of-3 squares, so it stays distinct from high (`#ff4f8b`) and good (`#5fd38b`). Midnight on white is 20:1.
+- **Contract impact:** none
+- **Affects:** D: slides' third accent is white → none beyond screenshots
+- **Demo impact:** visual only
+- **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Checked in the merged preview (laptop and phone), no console errors.
+- **Next:** read A's/B's 14:44–14:49 messages; drop the stand-ins (D-014); A's no_data marker (PR #5); rehearsal after G2
+
+### C-020 · 2026-11-08 15:10 · commit `714e9b0` · PLAN v1.2.1 (v1.3 on PR #6)
+
+- **Change:** (1) **Knowledge-pack sync (D-027).** A "Sync knowledge pack" button in the ledger panel. `POST`/`GET /api/sync` run `router.sync_pack()` in a background thread, and cover traffic pauses during the sync so its rows are exactly the pack. Ledger entries carry `pack: true`, shown as "Knowledge pack · same for every user". The button is disabled while offline. (2) **Confirm before rules (D-029).** `/api/capture` returns only `{read, drugs}`. The phone asks "Is that right?" (Yes, check it / Edit), and `POST /api/capture/confirm {drugs, source}` runs the check and shows it on the laptop. (3) **Allergy keys (A-011).** `allergy:<allergen>|<drug>` is parsed as a condition, never a gene, in merge, actions and both UIs. Underscored ingredients read as words. (4) **No-data pairs (A queue 8).** `/api/check` returns `no_data` from `rules.no_data_keys`, and the UI says "No local entry for pantoprazole with clopidogrel, …". (5) **Fix.** Cover and pack rows never mark a question "yours". Tests: `tests/C/test_pack_and_keys.py` (12), the updated phone tests, and the "yours" test.
+- **Why:** The integrator's v1.3 rulings to C (PR #6, 20261108-1501), and A's PR #5 messages (14:44, 15:00).
+- **Class:** Advances
+- **Plan:** advances D-027, D-029, F2, F3 view, F6, F8, M10, S2, S6
+- **Refinements:** cover pauses during a sync so pack rows can be labeled exactly. Sync is refused offline. "Yours" appears only on real question groups.
+- **Contract impact:** none (`no_data_keys` and `sync_pack` are used optionally)
+- **Affects:** I: D-027 and D-029 are done → none. A: allergy keys and `no_data_keys` are wired → none. B: `sync_pack` runs off the request thread → none. D: S6 Sync is a button in the ledger, and the phone adds one confirm tap → script.
+- **Demo impact:** S2 (confirm tap), S6 (cold → learns → Sync → Wi-Fi off → 0 bytes)
+- **Tests:** C alone → `make test` exit 0 (248 passed, 6 skipped). main + PR #6 (real pack) + A + B + D + C merged → exit 0, 869 passed. Demo order on the real pack: cold Q18 sent 2 groups (2115 B); re-ask was a 0-byte `kb_hit`; the sync sent 15 groups, skipped 2 and stored 122 facts, 0 personal fields; with Wi-Fi off, Q07, Q15 and Q19 were answered with 0 bytes. Typed checks: ibuprofen gives 4×X5, pantoprazole gives 5 no-data pairs, Amoxil gives AL-001. Checked by hand in the browser (sync button, pack rows, phone confirm), no console errors.
+- **Next:** answer layout. Real pack answers are long, and the asked pair can sit 7th of 9 paragraphs (Q07: `clopidogrel|pantoprazole` after the flag-backed clopidogrel background), so show the asked pair first and collapse the rest.
+
+### C-021 · 2026-11-08 15:16 · commit `8d3c35b` · PLAN v1.2.1 (v1.3 on PR #6)
+
+- **Change:** Added `merge.structure(answer, flags, profile) -> list[dict]`, the merged answer as ordered sections: `lead`, `fact` (`key`, `label`, `tier`, `primary`, `paragraphs`), `personal`, `closing`. Facts whose key no local flag covers lead, and router order is kept otherwise. `personalize()` now flattens exactly these sections (same contract, same guard and tier labels). `/api/ask` adds `sections`. The UI leads with the primary fact (pair title, trust label, first paragraph, More), then "For you", then "Also relevant: …" folded, then the closing line.
+- **Why:** On the real pack, Q07's asked pair came 7th of 9 paragraphs (flagged in C-020).
+- **Class:** Refines
+- **Plan:** advances M9, M10, S4, S6; refines M9
+- **Refinements:** merge has no question (contract), so "asked" means "not already covered by a local flag". For Q07 that's `clopidogrel|pantoprazole`. For Q18 (all flag-backed) the order is unchanged.
+- **Contract impact:** none (`structure` is additive and C-owned; `personalize` is unchanged in signature and type)
+- **Affects:** D: the merged text now opens with the asked pair, so check E3 if it scores first paragraphs. B: my answer-order suggestion (C-020 note) is optional now.
+- **Demo impact:** S4/S6 answers are short on screen (lead + For you + one folded line)
+- **Tests:** C alone → `make test` exit 0 (255 passed, 6 skipped; 7 new structure tests). main + PR #6 (real pack) + A + B + D + C merged → exit 0, 876 passed. On the real pack, Q07 leads with Clopidogrel × Pantoprazole, and the other two facts fold under "Also relevant". Checked by hand in the browser, no console errors.
+- **Next:** drop the stand-ins (D-014); rehearsal with D's script after the merges; optional Amoxil sample label
+
+### C-022 · 2026-11-08 15:26 · commit `80bf651` · PLAN v1.2.1 (v1.3 on PR #6)
+
+- **Change:** (1) **Q15.** `/api/ask` adds the local flags of drugs the question names (via `normalize.to_ingredients`, real normalizer only) to the med-list flags (B-025 option). `merge.relevant_flags(answer, flags, profile)` also describes flags about a drug not on the med list. `_lab_trend` uses the profile's spelling. "Can I take ibuprofen for a headache?" now gives "For you: X5 …" for all four pairs, with 0 B online or offline. (2) **Labels.** `phone/make_samples.py` (stdlib 5×7 pixel font) draws flat, printed, synthetic labels for aspirin 81, clopidogrel 75, omeprazole 20, simvastatin 40, lisinopril 10, amoxicillin 500 (A-014's exact text) and ibuprofen 200, each also embedding `gv:label`. The shared set is `phone/samples/labels.json`. The phone shows 3 labels up front plus "More sample labels". `/phone-assets/labels.html` is a printable sheet, linked from Actions → Use your phone. Tests: Q15 (3), label set (10).
+- **Why:** User request (Q15). B's 15:10 note (B-025). Dhiaa's 15:20 list, item 2. A's 15:18 Amoxil text.
+- **Class:** Advances
+- **Plan:** advances F2, F3 view, M9, M10, S2, S6
+- **Refinements:** a flag about an off-list drug counts as relevant (only a question can bring it in). The label set is one source for both A's tests and C's samples.
+- **Contract impact:** none
+- **Affects:** A: please test `from_image` against `phone/samples/*.png` and `labels.json` → no code change. B: the B-025 option is done → none. D: Q15 answers with X5 now; the Amoxil label is available for the bonus beat.
+- **Demo impact:** S2 (7 sample labels plus a printable sheet), S6 (Q15 consistent with the typed ibuprofen check)
+- **Tests:** C alone → `make test` exit 0 (271 passed, 7 skipped). main + all open PRs merged → exit 0, 961 passed. With A's real reader, the 7 labels read as aspirin 81 (no flag), clopidogrel 75 (X1, X2), omeprazole 20 (X2), simvastatin 40 (X3), lisinopril 10 (X4), ibuprofen 200 (X5), amoxicillin 500 (AL-001). Checked by hand on the phone page and the label sheet.
+- **Next:** G2: after #6, #2 and #3 merge, sync and drop the stand-ins (D-014), then run one question end to end on main. Then rehearsal by G3 (17:30).
+
+### C-023 · 2026-11-08 15:37 · commit `e289cdc` (PR #8) · PLAN v1.3.1
+
+- **Change:** Back to the original monochrome palette: bone paper `#e1e1de`, black ink `#0b0b0b`. This covers the laptop UI, phone page, printable label sheet, `/summary`, and the sample label PNGs (regenerated with the same text). Red, amber and green stay only on small status indicators. The screen is simpler too. The header is just the logo and the online switch, and "Sent to cloud" lives in the ledger totals. Tabs drop their numbers. Background decoys (`cover`) and knowledge-pack rows (`pack`) each collapse into one summary row with a count and bytes. The user's own decoy groups still list one by one with "See the 8 questions". Sync copy is one line, and its explanation moved to the button tooltip. On phones, sample labels stack as single rows.
+- **Why:** User request (Cristian): the original look, and a less cluttered screen. With cover traffic on, the ledger grew by a row every 20 s, and the sync added 14 more.
+- **Class:** Refines
+- **Plan:** refines F7, F8 (presentation only); S2, S4, S6 beats unchanged
+- **Refinements:** in the ledger, cover and pack rows are summarized instead of listed. Only bucket rows (the user's) are listed one by one.
+- **Contract impact:** none
+- **Affects:** D: screenshots and slides should use bone/black again, the header no longer shows "Sent to cloud" (it's in the ledger), and decoy and pack rows are grouped → refresh screenshots. A: label PNG pixels changed, but their text and `labels.json` did not → none expected.
+- **Demo impact:** S4 (the ledger shows the user's group plus one "Background decoys" line), S6 ("Knowledge pack · N groups" after Sync), S2 (phone look)
+- **Tests:** C branch with main merged → `make test` exit 0 (789 passed, 3 skipped). Integrated (main + all open PRs) → exit 0, 961 passed. Checked in the browser at 1440 px and 375 px: Q18 lists 1 user group, decoys are grouped, Sync shows "Knowledge pack 14 groups · 14 KB", `/summary` and `/phone` render.
+- **Next:** G2 follow-up (D-032): drop the mock fallbacks for ledger and route and run one question end to end on main; then rehearsal by G3 (17:30).
+
+### C-024 · 2026-11-08 15:42 · commit `4ab163f` (PR #8) · PLAN v1.3.1
+
+- **Change:** `app.py` now imports the real contract functions directly: A's `graph.load_profile`, `rules.check`, `normalize.to_ingredients` and `capture.from_image`; B's `router.route`, `ledger.feed` and `cloud.status`; C's `merge.personalize`. Removed: `_MockLedger` and the app's own ledger writes, the mock normalizer, `_resolve`, `LEDGER_IS_MOCK`, and the `mock` field in `/api/ledger`. B's router is the only ledger writer. `/api/status` keeps its `modules` shape (all `real`). Non-contract helpers stay optional. C's tests now assert there are no stand-ins.
+- **Why:** D-014 (drop the stand-ins after G2) and D-032 (G2 passed).
+- **Class:** Advances
+- **Plan:** advances G2 follow-up, F5, M10
+- **Contract impact:** none (`/api/ledger` loses `mock`, which only C read)
+- **Affects:** none
+- **Demo impact:** none. End to end on main + C, with the real router, ledger and cloud: cold Q18 → `known`, 2 bucket rows (1171 + 944 B), 0 personal fields; the same question again → `kb_hit`, 0 B. The UI with ?debug shows "All modules live", with no console errors.
+- **Tests:** `make test` exit 0 (790 passed, 3 skipped: the skips wait on PR #5 allergy engine and PR #4 queries.json); `check_network.sh` ok.
+- **Next:** rehearsal by G3 (17:30): 2× demo mode + 1× live, timings to D.

@@ -10,7 +10,7 @@ Every agent reads this file at the start of every cycle. **This file overrides a
 | B | privacy-router | `agent/B-privacy-router` | `core/router.py`, `core/generalize.py`, `core/decoys.py`, `core/kb.py`, `core/cloud.py`, `core/ledger.py`, `core/validator.py`, `data/buckets/`, `tests/B/` | Dhiaa |
 | C | app-ui-actions | `agent/C-app-ui` | `app.py`, `ui/`, `phone/`, `core/merge.py`, `core/actions.py`, `tests/C/` | Cristian |
 | D | eval-redteam | `agent/D-eval` | `eval/`, `docs/`, `slides/`, `tests/D/` | Kaitlyn |
-| I | integrator (human) | `main` | `coord/PLAN.md`, `coord/DECISIONS.md`, `coord/CONTRACTS.md`, `core/contracts.py`, `core/interfaces.py`, `core/local_llm.py`, `mocks/`, repo config | Dhiaa (backup: Gabe) |
+| I | integrator (human) | `main` | `coord/PLAN.md`, `coord/DECISIONS.md`, `coord/CONTRACTS.md`, `core/contracts.py`, `core/interfaces.py`, `core/local_llm.py`, `mocks/`, repo config | Gabe (backup: Dhiaa) |
 
 ## 2. Sources of truth, in read order
 

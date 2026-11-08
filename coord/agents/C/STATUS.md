@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (C-018 pushed; PR #3 updated)
+current_task: C-024 pushed (mock fallbacks dropped) on PR #8; next G3 rehearsal
 branch: agent/C-app-ui
-last_commit: b4fc781
+last_commit: ff5a93c
 last_seen:
-  plan_version: "1.2.1"
-  decisions: D-022
-  logs: {A: 6, B: 15, C: 18, D: 8}
+  plan_version: "1.3.1"
+  decisions: D-032
+  logs: {A: 17, B: 30, C: 24, D: 11}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -31,5 +31,24 @@ handled_messages:
   - 20261108-1425-from-A-graph-load-profile.md
   - 20261108-1430-from-A-capture-ready.md
   - 20261108-1431-from-integrator-g1-real-rules.md
+  - 20261108-1444-from-A-universe-names.md
+  - 20261108-1445-from-B-i4-no-data.md
+  - 20261108-1449-from-B-brand-names.md
+  - 20261108-1500-from-A-allergy-flags.md
+  - 20261108-1500-from-D-palette-ack.md
+  - 20261108-1506-from-A-vlm-capture.md
+  - 20261108-1510-from-B-route-flag-scope.md
+  - 20261108-1512-from-A-label-warnings.md
+  - 20261108-1520-from-B-asked-pair-first.md
+  - 20261108-1518-from-A-amoxil-and-combo-doses.md
+  - 20261108-1518-from-D-s2-s6-adopted.md
+  - 20261108-1520-from-human-whats-left.md
+  - 20261108-1501-from-I-plan-v1-3.md
+  - 20261108-1523-from-A-warning-lines.md
+  - 20261108-1534-from-A-label-set-pinned.md
+  - 20261108-1535-from-integrator-g2-passed.md
+  - 20261108-1536-from-B-app-path-pinned.md
+  - 20261108-1537-from-A-app-real-path.md
+  - 20261108-1540-from-B-pack-path-pinned.md
 blocked_on: none
-next: drop stand-ins (D-014); show A's no_data marker when PR #5 lands; rehearsal with D's script after G2
+next: PR #8 review; rehearsal x2 demo + x1 live by G3 17:30, timings to D

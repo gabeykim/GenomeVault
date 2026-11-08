@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#02070A">
+  <title>GenomeVault · Phone</title>
+  <link rel="stylesheet" href="/phone-assets/phone.css">
+</head>
+<body>
+  <header class="top">
+    <span class="logo">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 2 4 7v8c0 7.4 5.1 13.6 12 15 6.9-1.4 12-7.6 12-15V7L16 2Z" fill="currentColor"/>
+        <path d="M12 9c0 4 8 6 8 10s-8 4-8 6M20 9c0 4-8 6-8 10s8 4 8 6" stroke="var(--paper)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      </svg>
+      GenomeVault
+    </span>
+    <span class="sent"><span class="mute">Sent to cloud</span><strong id="sent">0 B</strong></span>
+  </header>
+
+  <!-- Pairing: only when this phone isn't paired yet -->
+  <main class="screen" id="pair-screen" hidden>
+    <div class="rule"></div>
+    <h1>Pair this phone</h1>
+    <p class="lede">On the laptop, open <strong>Actions → Use your phone</strong> and type the code shown there.</p>
+    <form class="line-form" id="pair-form" autocomplete="off">
+      <label for="pair-code" class="sr-only">Pairing code</label>
+      <input id="pair-code" inputmode="text" autocapitalize="characters" maxlength="16" placeholder="Code from the laptop">
+      <button type="submit">Pair</button>
+    </form>
+    <p class="msg" id="pair-msg" role="status"></p>
+  </main>
+
+  <main class="screen" id="main-screen" hidden>
+    <section>
+      <div class="rule"></div>
+      <h1>Scan a label</h1>
+      <p class="lede">Your photo is read on the laptop, not in the cloud, and isn't kept.</p>
+
+      <label class="camera" for="photo">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span>Take a photo of a label</span>
+      </label>
+      <input id="photo" type="file" accept="image/*" capture="environment" class="sr-only">
+
+      <p class="small mute samples-label">Or try a sample label</p>
+      <div class="samples">
+        <button type="button" class="sample" data-src="/phone-assets/samples/clopidogrel.png">
+          <span class="sample-rx">Rx</span><strong>CLOPIDOGREL 75 MG</strong><span>Generic for Plavix</span>
+        </button>
+        <button type="button" class="sample" data-src="/phone-assets/samples/ibuprofen.png">
+          <span class="sample-rx">OTC</span><strong>IBUPROFEN 200 MG</strong><span>Pain reliever</span>
+        </button>
+        <button type="button" class="sample" data-src="/phone-assets/samples/amoxicillin.png">
+          <span class="sample-rx">Rx</span><strong>AMOXICILLIN 500 MG</strong><span>Generic for Amoxil</span>
+        </button>
+      </div>
+      <details class="more-samples">
+        <summary>More sample labels</summary>
+        <div class="samples">
+          <button type="button" class="sample" data-src="/phone-assets/samples/aspirin.png">
+            <span class="sample-rx">OTC</span><strong>ASPIRIN 81 MG</strong><span>Low-dose aspirin</span>
+          </button>
+          <button type="button" class="sample" data-src="/phone-assets/samples/omeprazole.png">
+            <span class="sample-rx">Rx</span><strong>OMEPRAZOLE 20 MG</strong><span>Generic for Prilosec</span>
+          </button>
+          <button type="button" class="sample" data-src="/phone-assets/samples/simvastatin.png">
+            <span class="sample-rx">Rx</span><strong>SIMVASTATIN 40 MG</strong><span>Generic for Zocor</span>
+          </button>
+          <button type="button" class="sample" data-src="/phone-assets/samples/lisinopril.png">
+            <span class="sample-rx">Rx</span><strong>LISINOPRIL 10 MG</strong><span>Generic for Zestril</span>
+          </button>
+        </div>
+        <a class="small" href="/phone-assets/labels.html" target="_blank" rel="noopener">Print all labels to photograph</a>
+      </details>
+
+      <form class="line-form" id="type-form" autocomplete="off">
+        <label for="type-input" class="sr-only">Type a medicine name</label>
+        <input id="type-input" placeholder="Or type a medicine name" maxlength="200">
+        <button type="submit">Check</button>
+      </form>
+
+      <div id="result" aria-live="polite"></div>
+    </section>
+
+    <section>
+      <div class="rule"></div>
+      <h1>Reminders</h1>
+      <ol class="rem" id="reminders"><li class="mute">Loading…</li></ol>
+      <a class="line-btn" id="ics" href="/api/actions/reminders.ics" download="genomevault-reminders.ics">Add to my calendar</a>
+      <p class="small mute">Calendar entries only say "GenomeVault: …". Health details stay on the laptop.</p>
+    </section>
+  </main>
+
+  <footer class="foot"><strong>Demo, not medical advice.</strong> Synthetic data only.</footer>
+
+  <script src="/phone-assets/phone.js"></script>
+</body>
+</html>
