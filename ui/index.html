@@ -7,98 +7,116 @@
   <link rel="stylesheet" href="/ui/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M16 2 4 7v8c0 7.4 5.1 13.6 12 15 6.9-1.4 12-7.6 12-15V7L16 2Z" fill="var(--accent)"/>
-        <path d="M12 9c0 4 8 6 8 10s-8 4-8 6M20 9c0 4-8 6-8 10s8 4 8 6" stroke="var(--on-accent)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-      </svg>
-      <div>
-        <h1>GenomeVault</h1>
-        <p class="tagline">Your genome never leaves this device</p>
-      </div>
-    </div>
-    <div class="badges">
-      <span class="pill pill-device"><span class="dot"></span>On device</span>
-      <span class="pill pill-demo" id="demo-badge" hidden>Demo mode</span>
-      <span class="stat"><span class="stat-label">Sent to cloud</span><strong id="total-bytes">0 B</strong></span>
-      <span class="stat"><span class="stat-label">Personal fields sent</span><strong id="total-personal">0</strong></span>
-    </div>
-  </header>
-
-  <div class="disclaimer" role="note">
-    <strong>Demo, not medical advice.</strong>
-    All data is synthetic. GenomeVault helps you prepare for a conversation with your pharmacist or doctor; it never tells you to start or stop a medication.
+  <!-- Intro: sequencing lanes slide apart like vault doors. Click to skip. -->
+  <div class="intro" id="intro" aria-hidden="true">
+    <div class="intro-cols" id="intro-cols"></div>
+    <svg class="intro-mark" viewBox="0 0 32 32">
+      <path d="M16 2 4 7v8c0 7.4 5.1 13.6 12 15 6.9-1.4 12-7.6 12-15V7L16 2Z" fill="currentColor"/>
+      <path d="M12 9c0 4 8 6 8 10s-8 4-8 6M20 9c0 4-8 6-8 10s8 4 8 6" stroke="var(--paper)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    </svg>
   </div>
 
-  <main class="layout">
-    <section class="pane pane-main" aria-label="Your health">
-      <article class="card" id="profile-card">
-        <header class="card-head">
-          <h2>Your health profile</h2>
-          <span class="lock">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5 3.5 0 0 1 7 0v2M3.5 7h9v7h-9z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-            Stays on this device
-          </span>
-        </header>
-        <div class="profile-grid" id="profile">
-          <p class="muted">Loading profile…</p>
-        </div>
-      </article>
+  <header class="mast">
+    <div class="bar" id="bar">
+      <a class="logo" href="/" aria-label="GenomeVault">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 2 4 7v8c0 7.4 5.1 13.6 12 15 6.9-1.4 12-7.6 12-15V7L16 2Z" fill="currentColor"/>
+          <path d="M12 9c0 4 8 6 8 10s-8 4-8 6M20 9c0 4-8 6-8 10s8 4 8 6" stroke="var(--paper)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span>GenomeVault</span>
+      </a>
+      <span class="bar-meta">Private health agent<br><span class="mute">Lenovo × AGI House, 2026</span></span>
+      <span class="bar-meta"><span class="blink"></span>On device<br><span class="mute pill-demo" id="demo-badge" hidden>Demo mode</span></span>
+      <span class="bar-stat"><span class="mute">Sent to cloud</span><strong class="ticker" id="total-bytes"><span class="tick">0 B</span></strong></span>
+      <span class="bar-stat"><span class="mute">Personal fields sent</span><strong class="ticker" id="total-personal"><span class="tick">0</span></strong></span>
+    </div>
 
-      <article class="card">
-        <header class="card-head">
+    <h1 class="wordmark" aria-label="GenomeVault">
+      <span class="wm" data-word="GENOME"></span>
+      <span class="wm-rule"></span>
+      <span class="wm" data-word="VAULT"></span>
+    </h1>
+
+    <div class="strand" id="strand" aria-hidden="true"><div class="strand-track" id="strand-track"></div></div>
+
+    <p class="disclaimer" role="note">
+      <strong>Demo, not medical advice.</strong>
+      All data is synthetic. GenomeVault prepares you for a conversation with your pharmacist or doctor; it never tells you to start or stop a medication.
+    </p>
+  </header>
+
+  <main class="grid">
+    <div class="col-main">
+      <section class="sec" id="sec-profile">
+        <div class="rule"></div>
+        <header class="sec-head">
+          <span class="num">01</span>
+          <h2>Health profile</h2>
+          <span class="tag"><span class="sq"></span>Stays on this device</span>
+        </header>
+        <div class="profile" id="profile"><p class="mute">Loading profile…</p></div>
+      </section>
+
+      <section class="sec" id="sec-check">
+        <div class="rule"></div>
+        <header class="sec-head">
+          <span class="num">02</span>
           <h2>Medication check</h2>
-          <span class="chip-local" id="flags-meta">Checked locally · 0 bytes sent</span>
+          <span class="tag" id="flags-meta">Checked locally · 0 bytes sent</span>
         </header>
         <p class="lede" id="flags-summary">Checking your medications…</p>
-        <ol class="flags" id="flags"></ol>
+        <ol class="index" id="flags"></ol>
 
-        <form class="inline-form" id="check-form" autocomplete="off">
+        <form class="line-form" id="check-form" autocomplete="off">
           <label for="check-input" class="sr-only">Check another medication</label>
           <input id="check-input" type="text" placeholder="Check another medication, e.g. ibuprofen" maxlength="200">
-          <button type="submit">Check</button>
+          <button type="submit"><span>Check</span></button>
         </form>
         <div id="check-result"></div>
-      </article>
+      </section>
 
-      <article class="card">
-        <header class="card-head">
+      <section class="sec" id="sec-ask">
+        <div class="rule"></div>
+        <header class="sec-head">
+          <span class="num">03</span>
           <h2>Ask</h2>
-          <span class="muted small">General questions go out only inside decoy groups of 8</span>
+          <span class="tag">Only general questions leave, in decoy groups of 8</span>
         </header>
         <div class="chat" id="chat" aria-live="polite">
-          <button type="button" class="suggestion" data-q="What should I bring up with my cardiologist?">What should I bring up with my cardiologist?</button>
+          <button type="button" class="suggestion" data-q="What should I bring up with my cardiologist?"><span>What should I bring up with my cardiologist?</span></button>
         </div>
-        <form class="inline-form" id="ask-form" autocomplete="off">
+        <form class="line-form" id="ask-form" autocomplete="off">
           <label for="ask-input" class="sr-only">Ask a question</label>
           <input id="ask-input" type="text" placeholder="Ask about your medications" maxlength="500">
-          <button type="submit">Ask</button>
+          <button type="submit"><span>Ask</span></button>
         </form>
-      </article>
-    </section>
+      </section>
+    </div>
 
-    <aside class="pane pane-ledger" aria-label="Outbound ledger">
-      <article class="card ledger-card">
-        <header class="card-head">
+    <aside class="col-ledger">
+      <section class="sec ledger-sec" id="sec-ledger">
+        <div class="rule"></div>
+        <header class="sec-head">
+          <span class="num">04</span>
           <h2>Outbound ledger</h2>
-          <span class="live"><span class="dot"></span>Live</span>
+          <span class="tag"><span class="blink"></span>Live</span>
         </header>
-        <p class="muted small">Every byte that leaves this device, as it happens.</p>
-        <div class="ledger-totals">
-          <div><span class="stat-label">Events</span><strong id="ledger-count">0</strong></div>
-          <div><span class="stat-label">Bytes out</span><strong id="ledger-bytes">0 B</strong></div>
-          <div><span class="stat-label">Personal fields</span><strong id="ledger-personal" class="ok">0</strong></div>
+        <p class="mute small">Every byte that leaves this device, as it happens.</p>
+        <div class="totals">
+          <div><span class="mute">Events</span><strong class="ticker" id="ledger-count"><span class="tick">0</span></strong></div>
+          <div><span class="mute">Bytes out</span><strong class="ticker" id="ledger-bytes"><span class="tick">0 B</span></strong></div>
+          <div><span class="mute">Personal fields</span><strong class="ticker" id="ledger-personal"><span class="tick">0</span></strong></div>
         </div>
         <ol class="ledger" id="ledger">
           <li class="ledger-empty">Nothing has left this device.</li>
         </ol>
-      </article>
+      </section>
     </aside>
   </main>
 
   <footer class="foot">
-    <span id="modules" class="muted small"></span>
+    <span>GenomeVault</span>
+    <span id="modules" class="mute"></span>
   </footer>
 
   <script src="/ui/app.js"></script>

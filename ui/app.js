@@ -3,6 +3,7 @@
 "use strict";
 
 const $ = (id) => document.getElementById(id);
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
@@ -28,29 +29,38 @@ async function api(path, body) {
   return res.json();
 }
 
+// Small deterministic PRNG + hash so the patterns look designed, not random each load.
+function hash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function rng(seed) {
+  let s = seed >>> 0;
+  return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+}
+
 // ---------- formatting ----------
 
 const humanize = (s) => s.replace(/_/g, " ");
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const pad2 = (n) => String(n).padStart(2, "0");
 
 const CONDITIONS = {
-  CAD_post_stent: "Coronary artery disease (post-stent)",
+  CAD_post_stent: "Coronary artery disease, post-stent",
   hypertension: "High blood pressure",
   hyperlipidemia: "High cholesterol",
   GERD: "GERD (acid reflux)",
 };
-
 const ENGINES = {
   gene_drug: "Gene–drug", drug_drug: "Drug–drug", drug_lab: "Drug–lab",
   allergy: "Allergy", class_rule: "Drug class rule",
 };
-
 const STATES = {
   known: "Known",
   none_listed: "No interaction listed",
-  no_data: "No data: ask your pharmacist",
+  no_data: "No data, ask your pharmacist",
 };
-
 const LEDGER_KINDS = {
   local_only: "Answered on device",
   kb_hit: "Knowledge base hit",
@@ -58,20 +68,18 @@ const LEDGER_KINDS = {
   cover: "Cover traffic",
   blocked: "Blocked by leakage check",
 };
+const SEV_LEVEL = { high: 3, medium: 2, low: 1 };
 
 function formatBytes(n) {
   if (n < 1024) return `${n} B`;
   return `${(n / 1024).toFixed(n < 10240 ? 1 : 0)} KB`;
 }
-
 function formatDate(iso) {
   const d = new Date(iso + (iso.length === 10 ? "T00:00:00" : ""));
   return d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
 }
 
-// Turn an exact key into a readable title.
 // "CYP2C19:poor_metabolizer|clopidogrel" → "Clopidogrel × CYP2C19 poor metabolizer"
-// "SLCO1B1:decreased_function|simvastatin|dose>20mg" → "Simvastatin × SLCO1B1 decreased function (dose > 20mg)"
 function flagTitle(key) {
   const drugs = [], context = [], conditions = [];
   for (const part of key.split("|")) {
@@ -89,80 +97,213 @@ function flagTitle(key) {
   return conditions.length ? `${title} (${conditions.join(", ")})` : title;
 }
 
+// ---------- motion helpers ----------
+
+// Rolling number: old value slides up and out, new one slides in.
+function setTicker(node, text) {
+  if (node.dataset.v === text) return;
+  node.dataset.v = text;
+  const prev = node.querySelector(".tick:not(.out)");
+  if (prev && prev.textContent === text) return;
+  const next = el("span", { class: REDUCED ? "tick" : "tick in" }, text);
+  node.append(next);
+  if (!prev) return;
+  if (REDUCED) { prev.remove(); return; }
+  prev.classList.add("out");
+  prev.addEventListener("animationend", () => prev.remove(), { once: true });
+}
+
+// 5×5 mirrored pixel glyph from an exact key: a tiny fingerprint per fact.
+function glyph(key) {
+  const bits = hash(key);
+  const g = el("span", { class: "glyph", "aria-hidden": "true" });
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const col = c < 3 ? c : 4 - c;
+      g.append(el("i", { class: (bits >> (r * 3 + col)) & 1 ? "on" : "" }));
+    }
+  }
+  return g;
+}
+
+function sevBar(sev) {
+  const n = SEV_LEVEL[sev] || 1;
+  return el("span", { class: "sev-bar", "aria-hidden": "true" },
+    [0, 1, 2].map((i) => el("i", { class: i < n ? "on" : "" })));
+}
+
+// Text that rises out of a mask.
+const reveal = (text) => el("span", { class: "reveal" }, el("span", {}, text));
+
+// Packets crossing the barcode strand: eight identical blocks, one per question in the bucket.
+function sendPackets(count = 8) {
+  if (REDUCED) return;
+  const strand = $("strand");
+  for (let i = 0; i < count; i++) {
+    const p = el("span", { class: "packet", style: `--d:${i * 70}ms` });
+    p.addEventListener("animationend", () => p.remove(), { once: true });
+    strand.append(p);
+  }
+}
+
+// ---------- intro + page chrome ----------
+
+function buildWordmark() {
+  for (const wm of document.querySelectorAll(".wm")) {
+    [...wm.dataset.word].forEach((ch, i) => wm.append(el("span", { class: "ch", style: `--i:${i + (wm.dataset.word === "VAULT" ? 6 : 0)}` }, ch)));
+  }
+}
+
+function buildStrand() {
+  const track = $("strand-track");
+  const r = rng(hash("CYP2C19*2/*2 SLCO1B1*1/*5"));
+  const target = Math.max(screen.width || 0, 1920);
+  const half = [];
+  let width = 0;
+  while (width < target) {
+    const w = 1 + Math.floor(r() * 4), gap = 2 + Math.floor(r() * 6);
+    half.push([w, gap]);
+    width += w + gap;
+  }
+  for (const set of [half, half]) {
+    for (const [w, gap] of set) track.append(el("i", { style: `width:${w}px;margin-right:${gap}px` }));
+  }
+}
+
+function playIntro(onOpen) {
+  const intro = $("intro");
+  if (REDUCED || !intro) { intro?.remove(); onOpen(); return; }
+  const cols = $("intro-cols");
+  const n = Math.max(6, Math.round(innerWidth / 110));
+  const r = rng(hash("genomevault"));
+  for (let i = 0; i < n; i++) {
+    const col = el("div", { class: "intro-col", style: `--d:${i * 50}ms`, dataset: { dir: i % 2 ? "down" : "up" } });
+    let left = 100;
+    while (left > 0) {
+      const h = Math.min(left, 6 + Math.floor(r() * 26));
+      col.append(el("i", { class: r() < 0.64 ? "b" : "w", style: `height:${h}%` }));
+      left -= h;
+    }
+    cols.append(col);
+  }
+  let opened = false, gone = false;
+  const open = () => {
+    if (opened) return;
+    opened = true;
+    intro.classList.add("open");
+    setTimeout(onOpen, 280);
+    setTimeout(finish, 1100 + n * 50);
+  };
+  const finish = () => { if (!gone) { gone = true; intro.remove(); } };
+  intro.addEventListener("click", () => { open(); finish(); });
+  setTimeout(open, 650);
+}
+
+function revealSections() {
+  const secs = [...document.querySelectorAll(".sec")];
+  if (!("IntersectionObserver" in window)) { secs.forEach((s) => s.classList.add("in")); return; }
+  const io = new IntersectionObserver((entries) => {
+    let k = 0;
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      e.target.style.setProperty("--s", k);
+      e.target.querySelector(".rule").style.transitionDelay = `${k++ * 120}ms`;
+      e.target.classList.add("in");
+      io.unobserve(e.target);
+    }
+  }, { rootMargin: "0px 0px -8% 0px" });
+  secs.forEach((s) => io.observe(s));
+  // Never leave content hidden if the observer misbehaves during a live demo.
+  setTimeout(() => secs.forEach((s) => s.classList.add("in")), 4000);
+}
+
+function watchScroll() {
+  const bar = $("bar");
+  const onScroll = () => bar.classList.toggle("stuck", scrollY > 8);
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+}
+
 // ---------- profile ----------
 
-function renderProfile(p) {
-  const root = $("profile");
-  root.replaceChildren();
+function plist(items) { return el("ul", { class: "plist" }, items); }
 
-  const genes = el("ul", { class: "kv" }, Object.entries(p.genotypes).map(([gene, gt]) => {
+function renderProfile(p) {
+  const genes = plist(Object.entries(p.genotypes).map(([gene, gt]) => {
     const pheno = p.phenotypes[gene] || "";
-    const notable = pheno && !/^(normal|reference)/.test(pheno);
-    return el("li", {}, el("span", { class: "k" }, gene, " ", el("span", { class: "muted" }, gt)),
-      el("span", { class: notable ? "v notable" : "v" }, humanize(pheno)));
+    const hot = pheno && !/^(normal|reference)/.test(pheno);
+    return el("li", {}, el("span", { class: "k" }, gene, el("code", {}, gt)),
+      el("span", { class: hot ? "v hot" : "v" }, humanize(pheno)));
   }));
 
-  const meds = el("ul", { class: "kv" }, p.meds.map((m) =>
+  const meds = plist(p.meds.map((m) =>
     el("li", {}, el("span", { class: "k" }, cap(m.ingredient)),
       el("span", { class: "v" }, m.dose_mg != null ? `${m.dose_mg} mg` : ""))));
 
-  // Labs: latest value per test, with the previous value when there is one.
   const byTest = new Map();
   for (const lab of p.labs) {
     if (!byTest.has(lab.test)) byTest.set(lab.test, []);
     byTest.get(lab.test).push(lab);
   }
-  const labs = el("ul", { class: "kv" }, [...byTest.entries()].map(([test, rows]) => {
+  const labs = plist([...byTest.entries()].map(([test, rows]) => {
     rows.sort((a, b) => b.date.localeCompare(a.date));
     const [latest, prev] = rows;
-    return el("li", {},
+    return el("li", { title: `${latest.unit} · ${formatDate(latest.date)}` },
       el("span", { class: "k" }, test, latest.stale ? el("span", { class: "stale" }, "stale") : null),
-      el("span", { class: "v" },
-        prev ? el("span", { class: "trend" }, `${prev.value} → `) : null,
-        `${latest.value} ${latest.unit}`,
-        el("span", { class: "muted small" }, ` · ${formatDate(latest.date)}`)));
+      el("span", { class: "v" }, prev ? el("span", { class: "trend" }, `${prev.value} → `) : null,
+        `${latest.value} `, el("span", { class: "small" }, latest.unit)));
   }));
 
-  const conditions = el("div", { class: "tags" },
-    p.conditions.map((c) => el("span", { class: "tag" }, CONDITIONS[c] || humanize(c))));
-  const allergies = el("div", { class: "tags" },
-    p.allergies.length ? p.allergies.map((a) => el("span", { class: "tag allergy" }, cap(a)))
-      : el("span", { class: "muted" }, "None recorded"));
+  const history = plist([
+    ...p.conditions.map((c) => el("li", {}, el("span", { class: "k" }, CONDITIONS[c] || humanize(c)))),
+    ...(p.allergies.length
+      ? p.allergies.map((a) => el("li", {}, el("span", { class: "k" }, cap(a)), el("span", { class: "v hot" }, "allergy")))
+      : [el("li", {}, el("span", { class: "k mute" }, "No allergies recorded"))]),
+  ]);
 
-  root.append(
+  $("profile").replaceChildren(
     el("section", {}, el("h3", {}, "Genes"), genes),
     el("section", {}, el("h3", {}, "Medications"), meds),
     el("section", {}, el("h3", {}, "Labs"), labs),
-    el("section", {}, el("h3", {}, "Conditions"), conditions, el("h3", { style: "margin-top:12px" }, "Allergies"), allergies),
+    el("section", {}, el("h3", {}, "Conditions & allergies"), history),
   );
 }
 
 // ---------- flags ----------
 
-function flagItem(f) {
-  return el("li", { class: `flag ${f.severity}` },
-    el("div", { class: "flag-top" },
-      el("span", { class: "flag-id" }, f.id),
-      el("span", { class: "flag-title" }, flagTitle(f.key)),
-      el("span", { class: "sev" }, f.severity)),
-    el("div", { class: "flag-meta" },
-      el("span", {}, ENGINES[f.engine] || f.engine),
-      el("code", {}, f.key),
-      f.needs_cloud ? el("span", {}, "More context available via a private question") : null),
-    f.evidence.length ? el("ul", { class: "evidence" }, f.evidence.map((e) => el("li", {}, e))) : null);
+function flagRow(f, i) {
+  const detailId = `d-${f.id}-${i}-${Math.random().toString(36).slice(2, 7)}`;
+  const btn = el("button", { class: "row-btn", type: "button", "aria-expanded": "false", "aria-controls": detailId },
+    el("span", { class: "r-id" }, f.id),
+    glyph(f.key),
+    el("span", { class: "r-title" }, flagTitle(f.key)),
+    el("span", { class: "r-engine" }, ENGINES[f.engine] || f.engine),
+    el("span", { class: "r-sev" }, cap(f.severity), sevBar(f.severity)));
+  const detail = el("div", { class: "row-detail", id: detailId },
+    el("div", {}, el("div", { class: "detail-inner" }, el("div", {},
+      f.evidence.length ? el("ul", { class: "evidence" }, f.evidence.map((e) => el("li", {}, e))) : null,
+      el("div", { class: "detail-meta" },
+        el("code", {}, f.key),
+        f.needs_cloud ? el("span", {}, "More context available through a private question") : el("span", {}, "Answered fully on device"))))));
+  const li = el("li", { class: "row", style: `--i:${i}` }, btn, detail);
+  btn.addEventListener("click", () => {
+    const open = li.classList.toggle("open");
+    btn.setAttribute("aria-expanded", String(open));
+  });
+  return li;
 }
 
 function renderFlags(data) {
   const n = data.flags.length;
   $("flags-summary").textContent = n
-    ? `${n} thing${n === 1 ? "" : "s"} to raise with your pharmacist or doctor, from ${data.checked.length} medications.`
+    ? `${n} thing${n === 1 ? "" : "s"} to raise with your pharmacist or doctor, found across ${data.checked.length} medications.`
     : "No flags from the local tables. A missing entry is not the same as no interaction; ask your pharmacist.";
-  $("flags").replaceChildren(...data.flags.map(flagItem));
+  $("flags").replaceChildren(...data.flags.map(flagRow));
 }
 
 async function onCheck(ev) {
   ev.preventDefault();
-  const input = $("check-input"), button = ev.submitter || ev.target.querySelector("button");
+  const input = $("check-input"), button = ev.target.querySelector("button");
   const text = input.value.trim();
   if (!text) return;
   button.disabled = true;
@@ -170,18 +311,20 @@ async function onCheck(ev) {
   try {
     const data = await api("/api/check", { text });
     if (!data.drugs.length) {
-      out.replaceChildren(el("div", { class: "note" }, `Couldn't recognize "${text}" as a medication. Try the generic name.`));
+      out.replaceChildren(el("p", { class: "note" }, `Couldn't recognize "${text}" as a medication. Try the generic name.`));
     } else if (!data.flags.length) {
       const names = data.drugs.map((d) => d.ingredient).join(", ");
-      out.replaceChildren(el("div", { class: "note" },
+      out.replaceChildren(el("p", { class: "note" },
         el("strong", {}, `No local data for ${names}. `),
         "A missing entry does not mean there is no interaction. Ask your pharmacist before taking it."));
     } else {
-      out.replaceChildren(el("ol", { class: "flags check-result" }, data.flags.map(flagItem)));
+      out.replaceChildren(el("ol", { class: "index check-result" }, data.flags.map(flagRow)));
+      out.querySelector(".index").style.opacity = 1;
+      out.querySelector(".index").style.transform = "none";
     }
     input.value = "";
   } catch (err) {
-    out.replaceChildren(el("div", { class: "note" }, `Check failed: ${err.message}`));
+    out.replaceChildren(el("p", { class: "note" }, `Check failed: ${err.message}`));
   } finally {
     button.disabled = false;
     pollLedger();
@@ -190,30 +333,34 @@ async function onCheck(ev) {
 
 // ---------- chat ----------
 
-function answerBubble(a) {
-  const meta = el("div", { class: "msg-meta" },
-    el("span", { class: `badge state-${a.state}` }, STATES[a.state] || a.state),
-    a.sent_to_cloud
-      ? el("span", { class: "badge route-cloud" }, "Asked privately · decoy group of 8")
-      : el("span", { class: "badge route-local" }, "Answered on device"));
+function message(who, body, extra = []) {
+  return el("div", { class: `msg ${who === "You" ? "user" : "agent"}` },
+    el("span", { class: "who" }, who),
+    el("div", { class: "msg-body" }, body, ...extra));
+}
+
+function answerMessage(a) {
   const facts = a.facts.length ? el("ul", { class: "facts" }, a.facts.map((f) =>
-    el("li", {}, el("span", { class: `tier ${f.tier}` }, f.label), " · ", f.text))) : null;
-  return el("div", { class: "msg agent" }, el("div", {}, a.text), facts, meta);
+    el("li", {}, el("span", { class: "tier" }, f.label), " · ", f.text))) : null;
+  const meta = el("div", { class: "msg-meta" },
+    el("span", { class: "chip solid" }, STATES[a.state] || a.state),
+    el("span", { class: "chip" }, a.sent_to_cloud ? "Asked privately · decoy group of 8" : "Answered on device"));
+  return message("Vault", reveal(a.text), [facts, meta]);
 }
 
 async function ask(question) {
   const chat = $("chat");
   chat.querySelector(".suggestion")?.remove();
-  chat.append(el("div", { class: "msg user" }, question));
-  const pending = el("div", { class: "msg agent pending" }, "Checking locally first…");
+  chat.append(message("You", reveal(question)));
+  const pending = message("Vault", "Checking locally first");
+  pending.classList.add("pending");
   chat.append(pending);
   const button = $("ask-form").querySelector("button");
   button.disabled = true;
   try {
-    pending.replaceWith(answerBubble(await api("/api/ask", { question })));
+    pending.replaceWith(answerMessage(await api("/api/ask", { question })));
   } catch (err) {
-    pending.textContent = `Couldn't answer: ${err.message}`;
-    pending.classList.remove("pending");
+    pending.replaceWith(message("Vault", `Couldn't answer: ${err.message}`));
   } finally {
     button.disabled = false;
     pollLedger();
@@ -233,15 +380,22 @@ function onAsk(ev) {
 
 let lastSeq = 0;
 let polling = false;
+let firstPoll = true;
 
 function ledgerEntry(e) {
   const time = new Date(e.ts).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  const sub = [`#${e.seq}`, time, e.bucket_id, `personal fields ${e.personal_fields_sent}`].filter(Boolean).join(" · ");
-  return el("li", { class: "entry" },
-    el("span", { class: `kind kind-${e.kind}` }, humanize(e.kind)),
-    el("span", { class: "desc" }, LEDGER_KINDS[e.kind] || e.kind),
+  const leaves = e.kind === "bucket" || e.kind === "cover";
+  return el("li", { class: `entry k-${e.kind}` },
+    el("span", { class: "seq" }, pad2(e.seq)),
+    el("span", { class: "desc" },
+      el("span", { class: "kind" }, humanize(e.kind)),
+      LEDGER_KINDS[e.kind] || e.kind,
+      leaves ? el("span", { class: "cells", title: "8 questions, identical in shape" },
+        Array.from({ length: 8 }, (_, i) => el("i", { style: `--i:${i}` }))) : null),
     el("span", { class: "bytes" }, formatBytes(e.bytes_out)),
-    el("span", { class: "sub" }, sub));
+    el("span", { class: "sub" },
+      el("span", {}, [time, e.bucket_id].filter(Boolean).join(" · ")),
+      el("span", {}, `personal fields ${e.personal_fields_sent}`)));
 }
 
 async function pollLedger() {
@@ -252,17 +406,21 @@ async function pollLedger() {
     const list = $("ledger");
     if (data.entries.length) {
       list.querySelector(".ledger-empty")?.remove();
+      let outbound = 0;
       for (const e of data.entries) {
         list.prepend(ledgerEntry(e));
         lastSeq = Math.max(lastSeq, e.seq);
+        if (e.kind === "bucket" || e.kind === "cover") outbound++;
       }
+      if (outbound && !firstPoll) sendPackets(8);
     }
+    firstPoll = false;
     const t = data.totals;
-    $("ledger-count").textContent = t.count;
-    $("ledger-bytes").textContent = formatBytes(t.bytes_out);
-    $("total-bytes").textContent = formatBytes(t.bytes_out);
-    for (const id of ["ledger-personal", "total-personal"]) $(id).textContent = t.personal_fields_sent;
-    $("ledger-personal").className = t.personal_fields_sent ? "bad" : "ok";
+    setTicker($("ledger-count"), String(t.count));
+    setTicker($("ledger-bytes"), formatBytes(t.bytes_out));
+    setTicker($("total-bytes"), formatBytes(t.bytes_out));
+    setTicker($("ledger-personal"), String(t.personal_fields_sent));
+    setTicker($("total-personal"), String(t.personal_fields_sent));
   } catch {
     // server restarting; try again next tick
   } finally {
@@ -272,14 +430,7 @@ async function pollLedger() {
 
 // ---------- boot ----------
 
-async function boot() {
-  $("check-form").addEventListener("submit", onCheck);
-  $("ask-form").addEventListener("submit", onAsk);
-  $("chat").addEventListener("click", (ev) => {
-    const q = ev.target.closest(".suggestion")?.dataset.q;
-    if (q) ask(q);
-  });
-
+async function loadData() {
   try {
     const status = await api("/api/status");
     $("demo-badge").hidden = !status.demo;
@@ -290,16 +441,34 @@ async function boot() {
   try {
     renderProfile(await api("/api/profile"));
   } catch (err) {
-    $("profile").replaceChildren(el("p", { class: "muted" }, `Couldn't load profile: ${err.message}`));
+    $("profile").replaceChildren(el("p", { class: "mute" }, `Couldn't load profile: ${err.message}`));
   }
   try {
     renderFlags(await api("/api/flags"));
   } catch (err) {
     $("flags-summary").textContent = `Couldn't run the medication check: ${err.message}`;
   }
+}
 
-  pollLedger();
-  setInterval(pollLedger, 1500);
+function boot() {
+  buildWordmark();
+  buildStrand();
+  watchScroll();
+  $("check-form").addEventListener("submit", onCheck);
+  $("ask-form").addEventListener("submit", onAsk);
+  $("chat").addEventListener("click", (ev) => {
+    const q = ev.target.closest(".suggestion")?.dataset.q;
+    if (q) ask(q);
+  });
+
+  const data = loadData();
+  playIntro(async () => {
+    document.body.classList.add("ready");
+    revealSections();
+    await data;
+    pollLedger();
+    setInterval(pollLedger, 1500);
+  });
 }
 
 boot();
