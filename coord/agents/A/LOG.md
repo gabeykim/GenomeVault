@@ -66,3 +66,30 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Demo impact:** S3: same X1–X4, now from the SQLite graph. The genes panel can show the called diplotypes. The old eGFR is marked stale.
 - **Tests:** `make test` → 115 passed (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok
 - **Next:** queue 6 `capture.from_image` (D-020: OCR on label image → normalize, `[]` if unreadable, typed fallback), then 7 and 8 (both may already be covered by X5 and the `no_data` path; I'll check and close them).
+
+### A-006 · 2026-11-08 14:30 · commit `f9db84a` · PLAN v1.2
+
+- **Change:** New `core/capture.py` with `from_image(data: bytes, mime: str) -> list[Drug]`, the CONTRACTS signature from D-020. It reads the label text and passes it to `normalize.to_ingredients`. It returns `[]` for anything unreadable and never raises. It also has `from_text(text)` (the typed fallback, same normalizer) and `demo_png(label_text)`, which builds a small synthetic PNG that carries label text. Text comes from two local sources: (1) embedded label text, meaning a PNG `tEXt`/`zTXt`/`iTXt` chunk with keyword `gv:label` or a JPEG comment segment starting `gv:label`; (2) the `tesseract` program, only if it is on PATH, run as a local subprocess with a 30 s timeout. New `tests/A/test_capture.py` (30 tests). PR #1 updated.
+- **Why:** BRIEF queue 6, D-020 and the integrator's 14:04 message. This unblocks C's `POST /api/capture` (S2).
+- **Class:** Advances
+- **Plan:** advances F2, M3, S2, D-020; refines M3 (OCR sources)
+- **Refinements:** (1) No new Python dependency and no network (I2). OCR is the optional system `tesseract` binary. Without it, only images with embedded label text are readable; a plain photo gives `[]`, and the UI falls back to typing. (2) `GV_OCR` = `auto` (default: embedded, then tesseract) | `embedded` | `tesseract` | `off`. (3) The image type comes from the magic bytes (png, jpeg, webp, tiff, bmp, gif). The stated MIME must start with `image/`, but a PNG sent as `image/jpeg` is still read. Uploads over 15 MB give `[]`. (4) The label text (name, Rx number, pharmacy) never leaves `capture.py` and is not logged. Only the `Drug` list is returned. (5) A label that names a drug twice ("CLOPIDOGREL 75 MG … Generic for PLAVIX") gives one `Drug` (normalize dedupes, first dose wins). A misspelled name gives `[]` (no fuzzy guess, I4).
+- **Contract impact:** none (implements the D-020 signature exactly; extras are module-local)
+- **Affects:** C: `app.py` can call `core.capture.from_image(bytes, content_type)` in place of the interfaces stub once PR #1 merges, and fall back to typed input on `[]`. `capture.demo_png("CLOPIDOGREL 75 MG TABLET")` makes a sample "photo" for the phone page and demo (message sent). I: real photos need `tesseract` installed on the demo laptop (`brew install tesseract`). It is optional, since demo-mode sample photos work without it; your call (message sent). D: none. E4 offline capture can use `demo_png`.
+- **Demo impact:** S2: a sample label photo (embedded text) gives clopidogrel 75 mg with no network. A real camera photo works only if tesseract is installed. S6: `demo_png("IBUPROFEN 200 MG")` → ibuprofen → X5 offline.
+- **Tests:** `make test` → 145 passed (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok
+- **Next:** queue 8, the `no_data` marker for unlisted pairs (rules helper for the router). Queue 7 (X5) was done in A-003; I'll close it after one check.
+
+### A-007 · 2026-11-08 14:39 · commit `7cf591f` · PLAN v1.2.1
+
+- **Change:** Two additive helpers in `core/rules.py`. `key_state(key)` gives the PLAN P6 answer state of one exact key in the local curated tables: `known` if a rule, an expanded class rule or an expected combination covers it, otherwise `no_data`. `no_data_keys(drug, profile)` lists the drug-drug pair keys between `drug` and the profile's other meds that no table covers (sorted, one per key). `rules.check` is unchanged. New `tests/A/test_no_data.py` (7 tests). PR #5 is open (PR #1 was merged at G1).
+- **Why:** BRIEF queue 8: an unlisted pair gives no flags plus a `no_data` marker. It also gives S6 a local check that `clopidogrel|pantoprazole` stays `no_data` while `clopidogrel|omeprazole` is known (I4, no extrapolation).
+- **Class:** Refines
+- **Plan:** advances I4, P6 answer states, S6; refines M4
+- **Refinements:** (1) A key is `known` locally if it is in `rules.all_keys()` (gene_drug, drug_drug, drug_lab, class rules expanded over their listed members) or in `expected_combinations.json`. Anything else is `no_data`. (2) `none_listed` needs a curated "listed as no interaction" table with a source. None is authored, so `key_state` never returns it today. I won't invent such entries without a citable source. (3) Keys on genes in `NOT_ASSESSED` (CYP2D6) are always `no_data` (D-021). (4) The marker covers drug-drug pairs only, not gene or lab keys.
+- **Contract impact:** none (additive, module-local; not in CONTRACTS)
+- **Affects:** B: optional. `router.route` already returns `no_data` for keys outside the bucket universe, so nothing is required. `rules.key_state` / `no_data_keys` let the router or KB tell "no local entry" apart before going to buckets (message sent). C: optional. The UI can show "no entry for this exact pair; ask your pharmacist" for `no_data_keys` (I7 wording) → no message, see B note. D: none.
+- **Demo impact:** S6 no-extrapolation: pantoprazole gives no flag, and `clopidogrel|pantoprazole` is marked `no_data` locally.
+- **Tests:** `make test` → exit 0, 152 passed; `check_ownership.py --range origin/main..HEAD` → ownership ok
+- **Queue:** 7 (X5) closed. It was done in A-003, and `tests/A/test_alex_flags.py::test_ibuprofen_gives_x5_on_four_exact_keys` covers it. 8 is done with this entry. The core queue (1–8) is complete.
+- **Next:** stretch: encryption at rest for the SQLite graph (stdlib only, no new dependency), or a merged run with B/C/D branches against the real A code. I'll take requests from C/D first.

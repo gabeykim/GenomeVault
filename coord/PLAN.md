@@ -1,4 +1,4 @@
-# GenomeVault PLAN — v1.2
+# GenomeVault PLAN — v1.2.1
 
 Source of truth for the idea. Edited only by the integrator, through accepted proposals (see AGENTS.md §5, §12). Cite these IDs in every commit, report and proposal.
 
@@ -114,3 +114,4 @@ S1 Hook · S2 Capture on phone · S3 Local flags X1–X4, "0 bytes sent" · S4 H
 - v1.0 — initial plan.
 - v1.1 — P9: added clock times for a 12:00 start (D-011).
 - v1.2 — P5 PGx corrections: CYP2D6 not_assessed (SNP-uncallable); `aspirin|clopidogrel` expected DAPT shown as an informational note, not a Flag; genotypes matched by rsID on GRCh38. CONTRACTS +`capture.from_image` (A) +`cloud.status` (B). `anthropic` added for the eval LLM client. Backup-integrator pass (D-014…D-021).
+- v1.2.1 — G1 passed: A merged (PR #1, merge commit 7af15bf); real `rules.check` fires X1–X4 on Alex's discharge meds and X5 for ibuprofen (D-022).

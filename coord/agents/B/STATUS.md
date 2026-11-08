@@ -1,12 +1,12 @@
 agent: B
-state: working            # working | blocked | waiting-review | done | not-started
-current_task: bucket partition v4 (CYP2D6 decoys dropped after D-021, I5) done, PR #2 updated; cloud.status (D-020) already done in B-010; queue items 1-9 + stretch done
+state: waiting-review     # working | blocked | waiting-review | done | not-started
+current_task: B-017 G2 end-to-end test on real A code done; PR #2 rebased on main b839348 and ready for G2
 branch: agent/B-privacy-router
-last_commit: 800a75f
+last_commit: b960699
 last_seen:
-  plan_version: "1.2"
-  decisions: D-021
-  logs: {A: 3, B: 14, C: 10, D: 6}
+  plan_version: "1.2.1"
+  decisions: D-022
+  logs: {A: 6, B: 17, C: 14, D: 8}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -18,12 +18,17 @@ handled_messages:
   - 20261108-1359-from-A-rules-ready.md
   - 20261108-1405-from-D-v2-ack.md
   - 20261108-1404-from-integrator-status-and-cloud-cache.md
-blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019); escalated to to-human
+  - 20261108-1415-from-D-v3-results.md
+  - 20261108-1417-from-A-lab-bands.md
+  - 20261108-1425-from-A-phenotype-names.md
+  - 20261108-1426-from-D-wording-latency-v4.md
+  - 20261108-1428-from-C-status-and-switch.md
+  - 20261108-1432-from-C-cover-started.md
+blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019; to-human 1418; cache must be v5); A's no_data helper (A queue 8; A's loop is stopped)
 notes: >
-  B-014: v4 is the default partition (17 buckets, 136 keys). D-021 makes CYP2D6 not_assessed for every user,
-  so v3's 7 CYP2D6 decoys were known fakes (b04 had effective k 4, which breaks I5). v4 swaps them for
-  SNP-callable gene keys. Only b01-b04 change; b05-b17 are identical to v3. The demo cache must be recorded
-  against v4. That needs a real API key, which no agent has, so I escalated it to-human (§9). Replied (b) to the
-  integrator. cloud.status() returns {online, demo, forced_offline} and sends nothing. I removed stray untracked
-  " 2" duplicate files from my code worktree. Main has a stray to-C/"...offline-status 2.md" and I asked the integrator to remove it.
-next: switch to real A code after G1 (graph.load_profile, rules); G2 merge fixes; keep v4 frozen from G2
+  G1 passed (D-022, PLAN v1.2.1). Rebased on main with A merged; make test exit 0 (1048 including the untracked
+  " 2"/" 3" duplicate files, 609 without them). New tests/B/test_g2_real_rules.py runs graph.load_profile ->
+  rules.check_all -> route -> ledger on real code: X1+X2 leave as b03+b14 (8 texts each, I3-clean on the real
+  profile), asking again is a 0-byte kb_hit, X3/X4 are local_only, offline ibuprofen X5 sends nothing.
+  No new inbox messages, proposals or LOG entries affecting B this cycle.
+next: after G2 merge, freeze v5; take A's no_data helper when it lands; stretch: pack sync polish

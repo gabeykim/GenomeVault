@@ -1,0 +1,68 @@
+{
+  "_note": "SYNTHETIC-demo PGx calling table for core/ingest.py (PLAN M1, P5, D-021). Variants are matched by rsID (VCF ID column), never by position; REF/ALT must match or the gene is indeterminate. An rsID absent from the VCF is reference (the synthetic VCF lists only defining positions). Diplotypes or phenotypes not in these tables come out as 'indeterminate', which no rule key uses (I4). Phenotype names follow CPIC terms in snake_case.",
+  "genes": ["CYP2C19", "SLCO1B1", "CYP2D6", "CYP2C9", "VKORC1"],
+  "not_assessed": {
+    "CYP2D6": "gene deletions/duplications (*5, xN) are not callable from SNP data (PLAN P5, D-021)"
+  },
+  "variants": {
+    "rs12248560": {"gene": "CYP2C19", "allele": "*17", "ref": "C", "alt": "T"},
+    "rs4986893":  {"gene": "CYP2C19", "allele": "*3",  "ref": "G", "alt": "A"},
+    "rs4244285":  {"gene": "CYP2C19", "allele": "*2",  "ref": "G", "alt": "A"},
+    "rs1799853":  {"gene": "CYP2C9",  "allele": "*2",  "ref": "C", "alt": "T"},
+    "rs1057910":  {"gene": "CYP2C9",  "allele": "*3",  "ref": "A", "alt": "C"},
+    "rs2306283":  {"gene": "SLCO1B1", "allele": "*1B", "ref": "A", "alt": "G"},
+    "rs4149056":  {"gene": "SLCO1B1", "allele": "*5",  "ref": "T", "alt": "C"},
+    "rs9923231":  {"gene": "VKORC1",  "allele": "-1639A", "ref": "C", "alt": "T"}
+  },
+  "allele_order": {
+    "CYP2C19": ["*1", "*2", "*3", "*17"],
+    "CYP2C9": ["*1", "*2", "*3"],
+    "SLCO1B1": ["*1", "*1B", "*5", "*15"]
+  },
+  "haplotypes": {
+    "SLCO1B1": {"*15": ["*1B", "*5"]}
+  },
+  "genotype_names": {
+    "VKORC1": {"0": "reference", "1": "-1639G/A", "2": "-1639A/A"}
+  },
+  "phenotypes": {
+    "CYP2C19": {
+      "*1/*1": "normal_metabolizer",
+      "*1/*17": "rapid_metabolizer",
+      "*17/*17": "ultrarapid_metabolizer",
+      "*1/*2": "intermediate_metabolizer",
+      "*1/*3": "intermediate_metabolizer",
+      "*2/*17": "intermediate_metabolizer",
+      "*3/*17": "intermediate_metabolizer",
+      "*2/*2": "poor_metabolizer",
+      "*2/*3": "poor_metabolizer",
+      "*3/*3": "poor_metabolizer"
+    },
+    "CYP2C9": {
+      "*1/*1": "normal_metabolizer",
+      "*1/*2": "intermediate_metabolizer",
+      "*1/*3": "intermediate_metabolizer",
+      "*2/*2": "intermediate_metabolizer",
+      "*2/*3": "poor_metabolizer",
+      "*3/*3": "poor_metabolizer"
+    },
+    "SLCO1B1": {
+      "*1/*1": "normal_function",
+      "*1/*1B": "normal_function",
+      "*1B/*1B": "normal_function",
+      "*1/*5": "decreased_function",
+      "*1/*15": "decreased_function",
+      "*1B/*5": "decreased_function",
+      "*1B/*15": "decreased_function",
+      "*1/*15 or *1B/*5": "decreased_function",
+      "*5/*5": "poor_function",
+      "*5/*15": "poor_function",
+      "*15/*15": "poor_function"
+    },
+    "VKORC1": {
+      "reference": "normal_sensitivity",
+      "-1639G/A": "increased_sensitivity",
+      "-1639A/A": "high_sensitivity"
+    }
+  }
+}

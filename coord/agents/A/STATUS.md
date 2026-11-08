@@ -1,13 +1,13 @@
 agent: A
-state: working     # working | blocked | waiting-review | done | not-started
-current_task: queue 6 (capture.from_image, D-020) next; PR #1 ready for G1 merge (queue 1-5)
+state: waiting-review     # working | blocked | waiting-review | done | not-started
+current_task: queue 8 done (PR #5); core queue 1-8 complete; next: stretch
 branch: agent/A-data-rules
-last_commit: bc29bd4
-pr: "#1 (ready) agent/A-data-rules -> main: queue 1-5 (data, normalize, rules X1-X5, D-021, ingest + graph)"
+last_commit: 7cf591f
+pr: "#5 (open) agent/A-data-rules -> main: queue 8 rules.key_state + no_data_keys. #1 merged at G1 (D-022)."
 last_seen:
-  plan_version: "1.2"
-  decisions: D-021
-  logs: {A: 5, B: 14, C: 11, D: 7}
+  plan_version: "1.2.1"
+  decisions: D-022
+  logs: {A: 7, B: 16, C: 14, D: 8}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -17,11 +17,12 @@ handled_messages:
   - 20261108-1408-from-B-rule-keys-covered.md
   - 20261108-1410-from-B-v2-lab-bands.md
   - 20261108-1414-from-C-x5-fixed.md
+  - 20261108-1426-from-D-re-ingest.md
 blocked_on: none
 notes: >
-  A-005: core/ingest.py (VCF by rsID -> diplotype -> CPIC phenotype for the 5 P5 genes, CYP2D6
-  not_assessed, uncallable -> indeterminate) and core/graph.py (SQLite; graph.load_profile() per
-  CONTRACTS; labs > 90 days old stale; GV_TODAY pins the date, GV_GRAPH_DB picks file storage).
-  X1-X4 fire from graph.load_profile(). Read B-014 (v4 buckets; no action for A) and C-011 (X5
-  dedupe fixed). Messages sent to C, D, B (FYI), integrator.
-next: queue 6 (capture.from_image, D-020), then 7 and 8 (check whether X5 and the no_data marker already cover them, then close)
+  A-007: additive rules.key_state(key) (known/no_data; none_listed reserved, needs a curated
+  no-interaction table) and rules.no_data_keys(drug, profile) for unlisted pairs (I4, S6
+  pantoprazole). Queue 7 (X5) closed, covered since A-003. Read D-022 (G1 passed, PLAN v1.2.1),
+  B-015/B-016, C-013/C-014: no action for A. The 14:33 to-human "loop stopped" note came from the
+  loop script; this cycle ran and is green.
+next: stretch (encryption at rest for the graph, stdlib only) or a merged run with B/C/D on real A code

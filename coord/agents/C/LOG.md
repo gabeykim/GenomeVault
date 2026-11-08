@@ -157,3 +157,42 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S3 (DAPT shown as information, not a warning), My data (CYP2D6 neutral once the profile says `not_assessed`)
 - **Tests:** C alone → exit 0 (68 passed, 3 skipped). origin/main + A (`3ce9f6d`) + B + C + D merged → exit 0, 600 passed. In the merged app: EX-001 note shows, `aspirin|clopidogrel` is not flagged, X5 still gives four flags. Checked in the browser, including a not_assessed CYP2D6 render.
 - **Next:** D-020: call `capture.from_image` (`POST /api/capture`, phone page) and `cloud.status` (offline badge + Wi-Fi-off toggle) from `app.py`; drop the local stand-ins now covered by interfaces stubs (D-014)
+
+### C-013 · 2026-11-08 14:28 · commit `0b8e157` · PLAN v1.2
+
+- **Change:** An online/offline switch in the header (BRIEF C queue 7). It shows `cloud.status()` (the D-020 contract, interfaces stub until B merges) and toggles B's `cloud.set_offline(True / None)` via `POST /api/offline {"offline": bool}`, which returns 409 when B's cloud isn't present. `/api/status` and `/api/ledger` now carry `cloud: {online, demo, forced_offline, toggle}`. When offline, the switch reads "Offline", the DNA strand pauses, and the Ask tab says only local checks and stored answers work. Also merged main into the branch (D-014/D-020 stubs, PLAN v1.2), made the CYP2D6 summary test accept "not assessed" (A's 1417 note), and tests now reset the switch. Added `tests/C/test_offline.py` (6 tests).
+- **Why:** BRIEF C queue 7. D-020 asked C to call `cloud.status` from `app.py`.
+- **Class:** Advances
+- **Plan:** advances F8, M10, S6, D-020
+- **Refinements:** "off" passes `None`, not `False`, so control returns to `GV_OFFLINE` and the network. The switch is visible at every width and disabled, with a reason, when B's cloud isn't present.
+- **Contract impact:** none
+- **Affects:** B: app calls `cloud.status` and `cloud.set_offline`; please keep the names → none. D: S6 can flip the header switch instead of turning off real Wi-Fi → update the script if you like.
+- **Demo impact:** S6 (offline beat is one click and visible on screen)
+- **Tests:** C alone → `make test` exit 0 (74 passed, 4 skipped). origin/main + A + B + C + D merged → exit 0, 647 passed, including the S6 test (switch on → ask sends 0 bytes, local check still flags, switch off). Checked by hand in the browser at desktop and phone widths, no console errors.
+- **Next:** start B's cover traffic at app startup (G3), then queue 5 `phone/` + `POST /api/capture` (D-020)
+
+### C-014 · 2026-11-08 14:32 · commit `3feb861` · PLAN v1.2
+
+- **Change:** `app.py` starts B's cover traffic (`router.start_cover()`) when the app starts and stops it on shutdown, using a FastAPI lifespan. It only stops cover it started itself. `GV_COVER=0` disables it. `/api/status` and `/api/ledger` add `cover: bool`. The ledger header reads "Live · cover on", with a hover explanation. Added `tests/C/test_cover.py` (6 tests, including a real-thread test on the integrated build).
+- **Why:** PLAN P6.6. G3 needs cover traffic in the app (B's 20261108-1450 request).
+- **Class:** Advances
+- **Plan:** advances P6.6, F4, M10, S4
+- **Refinements:** the app runs cover for its whole lifetime. B's thread owns the timing and the offline skip. `GV_COVER=0` is the dev off-switch.
+- **Contract impact:** none
+- **Affects:** B: app calls `start_cover`, `stop_cover` and `cover_running`; please keep the names → none. D: cover rows show up during the demo (one every ~30–90 s by default). Set `GV_COVER_INTERVAL_S` to make them livelier, or `GV_COVER=0` for a quiet rehearsal → optional script note.
+- **Demo impact:** S4 (the ledger shows steady cover traffic next to real decoy groups; "cover on" in the header)
+- **Tests:** C alone → `make test` exit 0 (79 passed, 5 skipped). origin/main + A (`f9db84a`) + B (`85ab929`) + C + D (`928224d`) merged → exit 0, 723 passed, **no mocks left in the app**. With `GV_COVER_INTERVAL_S=8` in the merged preview, 3 cover rows (b17, b04, b10, ~3 KB, 0 personal fields) arrived in 20 s.
+- **Next:** queue 5: `phone/` page + `POST /api/capture` (A's real `capture.from_image` is now on PR #1), then drop the stand-ins (D-014)
+
+### C-015 · 2026-11-08 14:41 · commit `bd85112` · PLAN v1.2
+
+- **Change:** Added the phone page (BRIEF C queue 5) at `/phone` (`phone/index.html`, `phone.css`, `phone.js`). It has: take a photo of a label, two synthetic sample labels (`phone/samples/*.png`, built with A's `capture.demo_png`), or type a name. Then it shows flags in red/amber, info notes, and reminders with "Add to my calendar". `POST /api/capture` takes the raw image bytes plus Content-Type (no multipart dependency), calls `capture.from_image` (D-020), and returns `{read, drugs, flags, notes}`. The photo is never stored or sent. `GET /api/captures?since` feeds a live "From your phone" list on the laptop's Medications tab. `/api/check` accepts `via: "phone"`. Pairing: any request that isn't from this machine needs the code from Actions → Use your phone (`POST /api/phone/pair` sets an HttpOnly, SameSite=Strict cookie; lockout after 10 misses; `GET /api/phone` shows the code to the laptop only). `phone/serve_https.sh` serves on the LAN over HTTPS with a 7-day self-signed cert from the system `openssl`, kept in `~/.genomevault/cert`, never in the repo. Added `tests/C/test_phone.py` (17 tests).
+- **Why:** BRIEF C queue 5, S2 and S6 ("actions to phone"). D-020 asked C to call `capture.from_image` from `app.py`.
+- **Class:** Advances
+- **Plan:** advances F2, M10, S2, S6, D-020
+- **Refinements:** (1) Pairing gate: the app is reachable on the LAN only through `serve_https.sh`, and only paired devices get data. (2) No voice input, because browser speech recognition sends audio to a cloud service (contrary to P1). (3) Raw-body upload avoids adding `python-multipart`. (4) An unreadable photo says so honestly and points to typed input.
+- **Contract impact:** none
+- **Affects:** A: app passes raw bytes + Content-Type to `capture.from_image` → none. D: S2 can be phone page → tap the Plavix sample (or a real photo with tesseract) → it shows on the laptop → script note. I: `phone/serve_https.sh` binds 0.0.0.0, pairing-gated → FYI.
+- **Demo impact:** S2 (capture on phone, appears on the laptop), S6 (reminders on the phone)
+- **Tests:** C alone → `make test` exit 0 (94 passed, 7 skipped). origin/main + A + B + C + D merged → exit 0, 743 passed; both samples read with A's reader (clopidogrel → X1, X2; ibuprofen → X5 ×4). Real `serve_https.sh` run on the LAN IP: `/phone` 200, unpaired `/api/profile` 401, pair 200, capture reads ibuprofen with 4 flags, a paired phone gets 403 for `/api/phone`, and the laptop sees the capture. Checked by hand at phone and desktop sizes, no console errors.
+- **Next:** drop the stand-ins (D-014); rehearsal with D's script after the merge
