@@ -327,3 +327,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S4/S5: questions about clopidogrel are unchanged. Off-topic questions stop quoting clopidogrel text. Fewer buckets leave in live/cold mode.
 - **Tests:** `make test` exit 0, 625 passed, 1 skipped (allergy test, waits on PR #5).
 - **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and add a test that runs `sync_pack` against the committed `mocks/cloud_cache/`. v5 stays frozen (D-027).
+
+### B-026 · 2026-11-08 15:20 · commit `170ba35` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** `router.route()` now puts the exact drug-drug pair the question names (`_question_keys`) first in `Answer.facts` and `Answer.text`. The other keys (covering flags, then gene/lab subject keys) follow in the same order as before. Only the order changed: the same keys are looked up and the same buckets are sent. 2 new tests in `tests/B/test_router.py`.
+- **Why:** C's suggestion (20261108-1510). On Q07, "Can I take pantoprazole with clopidogrel instead?", the facts came back as X1 `CYP2C19:poor_metabolizer|clopidogrel` first, then `clopidogrel|omeprazole`, then `clopidogrel|pantoprazole`. So the pair the user asked about was 7th of 9 paragraphs.
+- **Class:** Refines
+- **Plan:** advances F6, S3/S4 (answer readability); refines P6 answer composition
+- **Refinements:** P6: `Answer.facts` order is (1) the pairs the question names, (2) covering flags' keys, (3) the other subject keys. The order never changes what is sent.
+- **Contract impact:** none (`Answer` unchanged)
+- **Affects:** C: when the question names a pair the partition covers, `facts[0]` is that pair. You can lead with it without re-sorting in merge (re-sorting is still harmless). D: none (E-checks look at keys and bytes, not order). A, I: none.
+- **Demo impact:** S4: the Q07 answer starts with pantoprazole + clopidogrel.
+- **Tests:** `make test` exit 0, 627 passed, 1 skipped. The new leading-pair test fails on the old order.
+- **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and add a `sync_pack` test against the committed `mocks/cloud_cache/`.

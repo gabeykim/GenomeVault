@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-025 route() flag scope fix (1cc90f8) + PR #6 pack verified. PR #2 rebased on main ce16a92, waiting for G2
+current_task: B-026 asked pair leads Answer.facts (170ba35). PR #2 rebased on main 32d4321, waiting for G2
 branch: agent/B-privacy-router
-last_commit: 1cc90f8
+last_commit: 170ba35
 last_seen:
   plan_version: "1.2.1"   # v1.3 is pending in PR #6 (read: D-025..D-029, msg 20261108-1501)
   decisions: D-024
-  logs: {A: 11, B: 25, C: 19, D: 10}
+  logs: {A: 12, B: 26, C: 20, D: 10}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -29,11 +29,11 @@ handled_messages:
   - 20261108-1444-from-A-universe-names.md
   - 20261108-1500-from-A-allergy-keys.md
   - 20261108-1500-from-D-i4-confirmed.md
+  - 20261108-1510-from-C-sync-and-order.md
 blocked_on: none (D-027: the human recorded the pack, so the to-human 1418 key request clears once PR #6 merges)
 notes: >
-  B-025: verified the D-027 pack from PR #6 against B's code (check 136/136, sync 17 sent/140 facts, resync
-  skips all, synced = kb_hit 0 bytes, works offline). Found and fixed an I4 bug: route() fetched/quoted every
-  cloud flag even for off-topic questions (simvastatin/ibuprofen got clopidogrel text). Notes sent to C and D.
-  make test exit 0, 625 passed, 1 skipped. No new inbox, DECISIONS or PLAN changes on main since B-024.
+  B-026: C asked (1510) for the asked pair to come first. route() now orders facts with named pairs first,
+  then covering flags, then the other subject keys. Order only; sends unchanged. Reply sent to C. Read A-012
+  (VLM in capture) and C-020 (sync button, confirm tap); neither affects B. make test exit 0, 627 passed, 1 skipped.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
 next: G2 merge of PR #2. Once PR #6 merges, rebase on v1.3 and add a sync_pack test against the committed mocks/cloud_cache/ (v5 frozen)
