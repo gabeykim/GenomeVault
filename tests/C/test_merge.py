@@ -51,6 +51,33 @@ def test_cloud_text_and_facts_are_labeled_verify():  # I6
     assert "AI-summarized, verify: Omeprazole reduces clopidogrel activation." in out
 
 
+def test_fact_already_in_the_answer_is_shown_once():
+    # The router may set Answer.text to the fact's own text (found in the A+B+C integration run).
+    f = fact(text="Omeprazole reduces clopidogrel activation.")
+    a = Answer(state="known", text="Omeprazole reduces clopidogrel activation.", facts=[f], sent_to_cloud=True)
+    out = merge.personalize(a, FLAGS, PROFILE)
+    assert out.count("Omeprazole reduces clopidogrel activation") == 1
+    assert out.startswith("In general: Omeprazole reduces clopidogrel activation. (AI-summarized, verify.)")
+
+
+def test_curated_fact_in_the_answer_keeps_its_source_label():
+    f = fact(text="Omeprazole reduces clopidogrel activation", tier="curated", source="CPIC 2022")
+    a = Answer(state="known", text="Omeprazole reduces clopidogrel activation.", facts=[f])
+    out = merge.personalize(a, FLAGS, PROFILE)
+    assert out.count("Omeprazole reduces clopidogrel activation") == 1
+    assert "(Curated (CPIC 2022).)" in out and "AI-summarized" not in out
+
+
+def test_other_facts_still_get_their_own_paragraph():
+    covered = fact(text="Omeprazole reduces clopidogrel activation.")
+    other = fact(key="CYP2C19:poor_metabolizer|clopidogrel", text="CYP2C19 poor metabolizers activate less clopidogrel.")
+    a = Answer(state="known", text="Omeprazole reduces clopidogrel activation.", facts=[covered, other],
+               sent_to_cloud=True)
+    out = merge.personalize(a, FLAGS, PROFILE)
+    assert "AI-summarized, verify: CYP2C19 poor metabolizers activate less clopidogrel." in out
+    assert out.count("Omeprazole reduces clopidogrel activation") == 1
+
+
 def test_curated_facts_name_their_source():
     a = Answer(state="known", text="", facts=[fact(tier="curated", source="CPIC 2022")])
     assert "Curated (CPIC 2022):" in merge.personalize(a, FLAGS, PROFILE)

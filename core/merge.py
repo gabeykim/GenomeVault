@@ -154,32 +154,49 @@ def _sources(facts: list[Fact]) -> str:
     return ", ".join(names) if names else "the curated tables"
 
 
-def _lead(answer: Answer) -> str:
+def _norm(s: str) -> str:
+    return re.sub(r"\s+", " ", s).strip().rstrip(".").lower()
+
+
+def _tier_label(fact: Fact) -> str:
+    return CLOUD_LABEL if fact.tier == "cloud" else f"Curated ({fact.source})"
+
+
+def _lead(answer: Answer) -> tuple[str, set[int]]:
+    """Opening paragraph, plus the indexes of facts it already states (shown once, not repeated)."""
     if answer.state == "no_data":
         return ("GenomeVault has no data on this, on this device or from a curated source. "
-                "A missing entry does not mean there is no interaction.")
+                "A missing entry does not mean there is no interaction."), set()
     if answer.state == "none_listed":
         return (f"No interaction is listed for this in {_sources(answer.facts)}. "
-                "That only means the source lists none; it is not a guarantee.")
+                "That only means the source lists none; it is not a guarantee."), set()
     text = guard(answer.text.strip())
     if not text:
-        return ""
+        return "", set()
     # Only the cloud-derived text is checked: the personal part below quotes the user's own doses
     # and labs, which come from the profile, never from facts.
     check = _output_check()
     if check is not None and not check(text, answer.facts):
-        return WITHHELD
-    cloud = answer.sent_to_cloud or any(f.tier == "cloud" for f in answer.facts)
-    return f"In general: {text}" + (f" ({CLOUD_LABEL}.)" if cloud else "")
+        return WITHHELD, set()
+    # Facts the general text already states: label them here instead of repeating them (I6 kept).
+    covered = {i for i, f in enumerate(answer.facts) if _norm(guard(f.text)) and _norm(guard(f.text)) in _norm(text)}
+    labels = []
+    if answer.sent_to_cloud or any(f.tier == "cloud" for f in answer.facts):
+        labels.append(CLOUD_LABEL)
+    labels += [_tier_label(answer.facts[i]) for i in sorted(covered) if answer.facts[i].tier == "curated"]
+    labels = list(dict.fromkeys(labels))
+    return f"In general: {text}" + "".join(f" ({l}.)" for l in labels), covered
 
 
 def personalize(answer: Answer, flags: list[Flag], profile: Profile) -> str:
     """Contract: merge.personalize(answer, flags, profile) -> str (coord/CONTRACTS.md)."""
-    paragraphs = [_lead(answer)]
+    lead, covered = _lead(answer)
+    paragraphs = [lead]
 
-    for fact in answer.facts:  # every fact carries its trust tier (I6)
-        label = CLOUD_LABEL if fact.tier == "cloud" else f"Curated ({fact.source})"
-        paragraphs.append(f"{label}: {guard(fact.text)}" if guard(fact.text) else "")
+    for i, fact in enumerate(answer.facts):  # every fact carries its trust tier (I6)
+        text = guard(fact.text)
+        if text and i not in covered:
+            paragraphs.append(f"{_tier_label(fact)}: {text}")
 
     mine = relevant_flags(answer, flags)
     if mine:
