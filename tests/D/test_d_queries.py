@@ -89,3 +89,40 @@ def test_generalize_examples():
     assert generalize_key("SLCO1B1:decreased_function|simvastatin|dose>20mg") == "SLCO1B1|simvastatin"
     assert generalize_key("lisinopril|potassium>5.0") == "lisinopril|potassium"
     assert generalize_key("omeprazole|clopidogrel") == "clopidogrel|omeprazole"
+
+
+def _localize(key: str) -> str:
+    """Turn a generalized fixture key into B's exact-key spelling (phenotype / threshold added)."""
+    parts = key.split("|")
+    if parts[0].isupper():
+        return f"{parts[0]}:poor_metabolizer|" + "|".join(parts[1:])
+    if parts[-1] in ("potassium", "egfr", "alt", "ck", "inr", "sodium"):
+        return "|".join(parts[:-1]) + f"|{parts[-1]}>1.0"
+    return key
+
+
+def test_loads_exact_key_partition_like_b(tmp_path):     # B-001 keys carry phenotype / threshold
+    import json
+    fixture = load_partition(prefer_real=False)
+    raw = {"version": "v1", "buckets": [{"id": b.id, "keys": [_localize(k) for k in b.keys]} for b in fixture.buckets]}
+    f = tmp_path / "v1.json"
+    f.write_text(json.dumps(raw))
+    part = load_partition(path=f)
+    assert part.source.startswith("real") and set(part.keys) == set(fixture.keys)
+    assert part.stats["raw_keys_with_phenotype"] > 0 and part.stats["universe_overlap"] == 1.0
+    assert part.bucket_for("CYP2C19|clopidogrel").id == fixture.bucket_for("CYP2C19|clopidogrel").id
+
+
+def test_falls_back_when_partition_does_not_overlap(tmp_path):
+    import json
+    raw = [{"id": f"x{i}", "keys": [f"drug{i}{j}|other{i}{j}" for j in range(8)]} for i in range(8)]
+    f = tmp_path / "v1.json"
+    f.write_text(json.dumps(raw))
+    part = load_partition(path=f)
+    assert part.source.startswith("fixture") and "fallback_reason" in part.stats
+
+
+def test_generalize_b_spellings():
+    assert generalize_key("HLA-B:5701_positive|abacavir") == "HLA-B|abacavir"
+    assert generalize_key("sotalol|magnesium<1.7") == "sotalol|magnesium"
+    assert generalize_key("ibuprofen|egfr<60") == "ibuprofen|egfr"

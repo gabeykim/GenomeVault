@@ -31,6 +31,17 @@ def write_results(rt: dict, lc: dict, lat: dict, off: dict) -> str:
     L.append("> **Status.** Bucket partition: `" + rt["partition"] + "`. Backend: **" + lc["backend"] + "**. "
              + ("" if live else "Until B's router merges (G2), E2–E4 run on a simulation of PLAN P6 and E1 on a simulated wire; "
                 "counts follow from the design, latency and tokens are modelled. Re-run at G4 on the integrated build.") + "\n")
+    ps = rt.get("partition_stats", {})
+    if ps.get("fallback_reason"):
+        L.append(f"> **Partition fallback.** B's file exists but {ps['fallback_reason']}; using D's stand-in.\n")
+    elif rt["partition"].startswith("real") and ps.get("universe_overlap", 1) < 1:
+        L.append(f"> **Coverage warning.** Only {ps['universe_overlap']:.0%} of D's synthetic-prior keys are in B's partition, and B keys "
+                 "without a prior get the median. Synthetic patients only ask about keys with priors, which inflates the statistical "
+                 "attacker. Extend `eval/fixtures/universe_v1.json` to every partition key before quoting E1 statistical numbers.\n")
+    if ps.get("raw_keys_with_phenotype"):
+        L.append(f"> **Key detail.** {ps['raw_keys_with_phenotype']} of {ps['raw_keys']} partition keys name a phenotype and "
+                 f"{ps['raw_keys_with_threshold_or_dose']} a lab threshold or dose. Evals measure generalized topics; whether those raw "
+                 "keys ever appear in outbound text is B's leakage check (I3).\n")
     L.append("## E1 · Red team: can an attacker who sees all outbound traffic recover the real question?\n")
     L.append("![red team](charts/redteam.svg)\n")
     L.append(f"{rt['trials']} synthetic patients, {rt['asks']} asks each. Real topic guessed:\n")

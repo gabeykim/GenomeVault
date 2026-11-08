@@ -126,7 +126,7 @@ def run_llm(n: int, asks: int, seed: int, part, u) -> dict:
 def run(trials: int = 500, asks: int = 3, seed: int = 7, llm: bool = False, llm_trials: int = 50, write: bool = True) -> dict:
     part, u = load_partition(), load_universe()
     priors = priors_for(part, u)
-    res = {"partition": part.source, "partition_version": part.version, "universe": u.version,
+    res = {"partition": part.source, "partition_version": part.version, "partition_stats": part.stats, "universe": u.version,
            "trials": trials, "asks": asks, "seed": seed, "mode": "simulated transport (P6 model; real capture after G2)",
            "single_topic": run_single_topic(trials, asks, seed, part, u, priors),
            "joint": run_joint(trials, seed, part, u, priors),

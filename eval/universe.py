@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+import os
 import pathlib
 import re
 from dataclasses import dataclass, field
@@ -21,10 +22,10 @@ FIXTURE_BUCKETS = EVAL / "fixtures" / "buckets_v1.json"
 UNIVERSE = EVAL / "fixtures" / "universe_v1.json"
 QUERIES = EVAL / "queries.json"
 
-_PHENO = re.compile(r"^([A-Z0-9-]+):[a-z_]+$")          # CYP2C19:poor_metabolizer
+_PHENO = re.compile(r"^([A-Z0-9-]+):[A-Za-z0-9_]+$")    # CYP2C19:poor_metabolizer, HLA-B:5701_positive
 _LAB_THRESHOLD = re.compile(r"^([a-z_]+)[<>]=?[0-9.]+$")  # potassium>5.0
 _DOSE = re.compile(r"^dose[<>]=?[0-9.]+mg$")             # dose>20mg
-LABS = {"egfr", "potassium", "alt", "ck", "ldl", "inr", "sodium"}
+LABS = {"egfr", "potassium", "alt", "ast", "ck", "ldl", "inr", "sodium", "glucose", "tsh", "magnesium", "platelets"}
 
 
 def generalize_key(local_key: str) -> str:
@@ -76,6 +77,7 @@ class Universe:
 class Partition:
     buckets: list[Bucket]
     source: str                              # "real:data/buckets/v1.json" or "fixture:eval/fixtures/buckets_v1.json"
+    stats: dict = field(default_factory=dict)
     _index: dict[str, Bucket] = field(default_factory=dict, repr=False)
 
     def __post_init__(self):
@@ -115,10 +117,46 @@ def _parse_buckets(raw) -> list[Bucket]:
     return out
 
 
-def load_partition(prefer_real: bool = True) -> Partition:
-    if prefer_real and REAL_BUCKETS.exists():
-        return Partition(_parse_buckets(json.loads(REAL_BUCKETS.read_text())), "real:data/buckets/v1.json")
-    return Partition(_parse_buckets(json.loads(FIXTURE_BUCKETS.read_text())), "fixture:eval/fixtures/buckets_v1.json")
+MIN_OVERLAP = 0.25        # share of D's universe keys the real partition must cover before evals switch to it
+
+
+def generalized_view(buckets: list[Bucket]) -> tuple[list[Bucket], dict]:
+    """B's partition is keyed by exact local keys (phenotype, lab threshold, dose). Evals measure the topic an
+    attacker can recover, so they work on the generalized key of each member. Keys that would collide after
+    generalizing keep their original spelling. Returns the view and stats about personal detail in the raw keys."""
+    gen = [[generalize_key(k) for k in b.keys] for b in buckets]
+    counts: dict[str, int] = {}
+    for g in gen:
+        for k in g:
+            counts[k] = counts.get(k, 0) + 1
+    out = [Bucket(id=b.id, version=b.version, keys=[gk if counts[gk] == 1 else k for k, gk in zip(b.keys, g)])
+           for b, g in zip(buckets, gen)]
+    raw = [k for b in buckets for k in b.keys]
+    stats = {"raw_keys": len(raw),
+             "raw_keys_with_phenotype": sum(bool(_PHENO.match(p)) for k in raw for p in k.split("|")),
+             "raw_keys_with_threshold_or_dose": sum(any(_LAB_THRESHOLD.match(p.lower()) or _DOSE.match(p) for p in k.split("|")) for k in raw),
+             "collisions_kept_raw": sum(1 for c in counts.values() if c > 1)}
+    return out, stats
+
+
+def load_partition(prefer_real: bool = True, path: pathlib.Path | None = None) -> Partition:
+    """B's real partition when it exists and overlaps D's universe enough; otherwise D's stand-in (and say why)."""
+    src = path or (pathlib.Path(os.environ["EVAL_BUCKETS"]) if os.environ.get("EVAL_BUCKETS") else REAL_BUCKETS)
+    if prefer_real and src.exists():
+        view, stats = generalized_view(_parse_buckets(json.loads(src.read_text())))
+        part = Partition(view, f"real:{src.relative_to(ROOT) if src.is_relative_to(ROOT) else src.name}")
+        part.stats = stats
+        u = load_universe()
+        overlap = sum(part.bucket_for(k) is not None for k in u.keys) / len(u.keys)
+        part.stats["universe_overlap"] = round(overlap, 3)
+        if overlap >= MIN_OVERLAP:
+            return part
+        fb = load_partition(prefer_real=False)
+        fb.stats = {"fallback_reason": f"real partition covers only {overlap:.0%} of D's universe keys", **stats}
+        return fb
+    part = Partition(_parse_buckets(json.loads(FIXTURE_BUCKETS.read_text())), "fixture:eval/fixtures/buckets_v1.json")
+    part.stats = {}
+    return part
 
 
 def load_universe() -> Universe:
