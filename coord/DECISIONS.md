@@ -13,3 +13,4 @@ Format: `D-NNN · time · PLAN version · decision · why · affects`
 - **D-009** · G0 · v1.0 · Gabe is integrator; each agent runs independently on its owner's machine. · Parallel machines, one coordinator. · all
 - **D-010** · G0 · v1.0 · setup_worktrees.sh tracks existing remote agent branches. · Prevents a late setup from overwriting agent work. · all
 - **D-011** · G0 · v1.1 · Gate clock times set from a 12:00 start (G0 12:30 · G1 14:30 · G2 16:00 · G3 18:30 · G4 19:30 · G5 20:15). · Maps P9 gate hours to the event schedule. · all
+- **D-012** · G0 · v1.1 · `agent_loop.sh` runs the agent with `< /dev/null`; AGENTS.md §4.5 and CYCLE_PROMPT require running `make test` directly and checking its exit code, never piped through tail/head. · A's first push (`aa196c0`) went out red because `make test | tail` hid the failure; the headless CLI also waited on stdin each cycle. · all
