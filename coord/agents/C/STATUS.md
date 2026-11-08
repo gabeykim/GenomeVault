@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (C-019 pushed; PR #3 updated)
+current_task: none (C-020 pushed; PR #3 updated)
 branch: agent/C-app-ui
-last_commit: c72baae
+last_commit: 714e9b0
 last_seen:
   plan_version: "1.2.1"
   decisions: D-022
-  logs: {A: 6, B: 15, C: 19, D: 8}
+  logs: {A: 11, B: 19, C: 20, D: 10}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -31,5 +31,10 @@ handled_messages:
   - 20261108-1425-from-A-graph-load-profile.md
   - 20261108-1430-from-A-capture-ready.md
   - 20261108-1431-from-integrator-g1-real-rules.md
+  - 20261108-1444-from-A-universe-names.md
+  - 20261108-1445-from-B-i4-no-data.md
+  - 20261108-1449-from-B-brand-names.md
+  - 20261108-1500-from-A-allergy-flags.md
+  - 20261108-1500-from-D-palette-ack.md
 blocked_on: none
-next: drop stand-ins (D-014); show A's no_data marker when PR #5 lands; rehearsal with D's script after G2
+next: answer layout (asked pair first, collapse long pack answers); drop stand-ins (D-014); rehearsal after G2

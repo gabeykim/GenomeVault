@@ -248,3 +248,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** visual only
 - **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Checked in the merged preview (laptop and phone), no console errors.
 - **Next:** read A's/B's 14:44–14:49 messages; drop the stand-ins (D-014); A's no_data marker (PR #5); rehearsal after G2
+
+### C-020 · 2026-11-08 15:10 · commit `714e9b0` · PLAN v1.2.1 (v1.3 on PR #6)
+
+- **Change:** (1) **Knowledge-pack sync (D-027).** A "Sync knowledge pack" button in the ledger panel. `POST`/`GET /api/sync` run `router.sync_pack()` in a background thread, and cover traffic pauses during the sync so its rows are exactly the pack. Ledger entries carry `pack: true`, shown as "Knowledge pack · same for every user". The button is disabled while offline. (2) **Confirm before rules (D-029).** `/api/capture` returns only `{read, drugs}`. The phone asks "Is that right?" (Yes, check it / Edit), and `POST /api/capture/confirm {drugs, source}` runs the check and shows it on the laptop. (3) **Allergy keys (A-011).** `allergy:<allergen>|<drug>` is parsed as a condition, never a gene, in merge, actions and both UIs. Underscored ingredients read as words. (4) **No-data pairs (A queue 8).** `/api/check` returns `no_data` from `rules.no_data_keys`, and the UI says "No local entry for pantoprazole with clopidogrel, …". (5) **Fix.** Cover and pack rows never mark a question "yours". Tests: `tests/C/test_pack_and_keys.py` (12), the updated phone tests, and the "yours" test.
+- **Why:** The integrator's v1.3 rulings to C (PR #6, 20261108-1501), and A's PR #5 messages (14:44, 15:00).
+- **Class:** Advances
+- **Plan:** advances D-027, D-029, F2, F3 view, F6, F8, M10, S2, S6
+- **Refinements:** cover pauses during a sync so pack rows can be labeled exactly. Sync is refused offline. "Yours" appears only on real question groups.
+- **Contract impact:** none (`no_data_keys` and `sync_pack` are used optionally)
+- **Affects:** I: D-027 and D-029 are done → none. A: allergy keys and `no_data_keys` are wired → none. B: `sync_pack` runs off the request thread → none. D: S6 Sync is a button in the ledger, and the phone adds one confirm tap → script.
+- **Demo impact:** S2 (confirm tap), S6 (cold → learns → Sync → Wi-Fi off → 0 bytes)
+- **Tests:** C alone → `make test` exit 0 (248 passed, 6 skipped). main + PR #6 (real pack) + A + B + D + C merged → exit 0, 869 passed. Demo order on the real pack: cold Q18 sent 2 groups (2115 B); re-ask was a 0-byte `kb_hit`; the sync sent 15 groups, skipped 2 and stored 122 facts, 0 personal fields; with Wi-Fi off, Q07, Q15 and Q19 were answered with 0 bytes. Typed checks: ibuprofen gives 4×X5, pantoprazole gives 5 no-data pairs, Amoxil gives AL-001. Checked by hand in the browser (sync button, pack rows, phone confirm), no console errors.
+- **Next:** answer layout. Real pack answers are long, and the asked pair can sit 7th of 9 paragraphs (Q07: `clopidogrel|pantoprazole` after the flag-backed clopidogrel background), so show the asked pair first and collapse the rest.
