@@ -420,3 +420,18 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0: 799 passed, 3 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok. PR #7 updated (head 079b32e).
 - **Inbox:** integrator 1535 (G2 passed, D-032, PLAN v1.3.1): rebased, re-read PLAN, nothing changes for B. Read A-018 and C-023: nothing for B. C-023's pack and cover rows are grouped in the UI only. The `/api/ledger` entries and `pack` flag that B's tests use are unchanged.
 - **Next:** PR #7 review before G3. After PR #5 (A) merges, confirm the allergy test runs. After PR #4 (D) merges, run eval/queries.json through the app path.
+
+### B-035 · 2026-11-08 15:43 · commit `0163ba9` (PR #7, rebased, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. This was a G4 dry run: D's `eval/` and `docs/` from `origin/agent/D-eval` (PR #4, head 5112526), laid over my branch (main + PR #7) in a scratch worktree, with `make eval` run there. The scratch worktree is deleted, and nothing was committed to D's paths. Results with `DEMO=1`: **G4 gate 20 pass, 0 warn, 0 fail.** Backend `live`, partition `real:data/buckets/v5.json`. E2 live: 11 cloud calls for 20 questions, of which 4 fall in the first five questions and 0 in the last five. Q19 is a KB hit with 0 B sent. E3 live hybrid: 11 calls, 11,111 bytes (about 1,010 B per bucket, against the 1,440 placeholder), 0 personal fields. E4: cold 11/20, warm 18/20, synced pack 18/20, unbacked_known empty, 20/20 cold answers in the expected state. The 2 that stay no_data offline are expected by design: Q03 (`CYP2D6:not_assessed|codeine`) and Q16 (St. John's wort, outside the universe).
+- **Finding:** Without `DEMO=1` and without an API key, `cloud.status()` reports offline. The "live" run then sends nothing: E2 shows 0 calls, and E4 shows cold, warm and synced all at 11/20. The gate still passes, but the numbers understate the design. The G4 run must use `DEMO=1 make eval` (or a real key).
+- **Why:** This is the BRIEF follow-up: "after PR #4 merges, run eval/queries.json through the app path". It ran early, against the branch, so B-side problems show up before G4 (18:15).
+- **Class:** Advances (verification only)
+- **Plan:** supports G4, E2, E3, E4; I3, I4, I5, I8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** D: run G4 with `DEMO=1`. You can replace `BYTES_PER_BUCKET=1440` with the measured ~1,010 B, or keep the live ledger number (message sent). I: once PR #4 and PR #7 merge, the gate is expected to pass on main as-is. A, C: none.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0: 799 passed, 3 skipped. In the scratch worktree, `make eval DEMO=1`: gate 20/0/0.
+- **Inbox:** nothing new since B-034. PLAN v1.3.1, DECISIONS D-032, logs A-018, C-023 and D-011 unchanged.
+- **Next:** PR #7 review before G3. After PR #5 (A) merges, confirm the allergy test runs. After PR #4 merges, re-run `DEMO=1 make eval` on main.
