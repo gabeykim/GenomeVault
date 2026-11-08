@@ -60,8 +60,10 @@ def check(rt: dict | None = None, lc: dict | None = None, lat: dict | None = Non
         "PASS" if j["separate_cover_linkable"]["scenario"] <= base + 0.12 else "FAIL",
         f"{j['separate_cover_linkable']['scenario']:.0%} vs blind {base:.0%} (one session {j['same_session']['scenario']:.0%})")
     if lc:
-        add("E2a", "Fewer cloud calls than questions", "PASS" if lc["total_cloud_calls"] < len(lc["rows"]) else "WARN",
-            f"{lc['total_cloud_calls']} calls / {len(lc['rows'])} questions")
+        calls = f"{lc['total_cloud_calls']} calls / {len(lc['rows'])} questions"
+        if live and lc["total_cloud_calls"] >= len(lc["rows"]):
+            calls += " (live: with no recorded demo cache nothing is learned, so repeats go out again, D-019)"
+        add("E2a", "Fewer cloud calls than questions", "PASS" if lc["total_cloud_calls"] < len(lc["rows"]) else "WARN", calls)
         add("E2b", "A related follow-up (Q19) is answered locally", "PASS" if lc["repeat_q19_is_local"] else
             ("WARN" if live else "FAIL"), "yes" if lc["repeat_q19_is_local"] else "no (live: needs the recorded demo cache, D-019)")
     if lat:
