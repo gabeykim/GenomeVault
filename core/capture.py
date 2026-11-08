@@ -22,6 +22,10 @@ Text sources, all on this machine (I2: no network, no new Python dependency):
 `GV_OCR` picks the sources: `auto` (default: 1, then 2, then 3), `embedded`, `vlm`, `tesseract`, or
 `off`. In `auto`, the first source that reads anything decides; later ones don't run.
 
+Label text from sources 1 and 3 goes through `label_drugs`: one label is one product, so drug names in
+its warnings ("do not take aspirin or ibuprofen") are not added. Typed text (`from_text`) keeps every
+name.
+
 The photo goes only to the localhost model (I2). The label text (which can include a name, Rx number
 or pharmacy) never leaves this module: only the `Drug` list is returned, and nothing is logged or
 stored.
@@ -31,6 +35,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
 import shutil
 import struct
 import subprocess
@@ -44,6 +49,7 @@ MAX_BYTES = 15 * 1024 * 1024           # larger uploads are refused as unreadabl
 OCR_TIMEOUT_S = 30
 _PNG_SIG = b"\x89PNG\r\n\x1a\n"
 _TEXT_CAP = 20_000                     # characters of label text passed to normalize
+_SENTENCE_END = re.compile(r"(?<=[.;!?])\s+")   # "12.5" has no space after the dot, so it stays whole
 
 
 _VLM_PROMPT = (
@@ -64,22 +70,52 @@ def from_image(data: bytes, mime: str) -> list[Drug]:
         if mode in ("auto", "embedded"):
             text = embedded_text(data, sniff(data))
             if text or mode == "embedded":
-                return to_ingredients(text[:_TEXT_CAP]) if text else []
+                return label_drugs(text)
         if mode in ("auto", "vlm"):
             drugs = vlm_drugs(data)
             if drugs is not None or mode == "vlm":
                 return drugs or []
         if mode in ("auto", "tesseract"):
-            text = tesseract_text(data)
-            return to_ingredients(text[:_TEXT_CAP]) if text else []
+            return label_drugs(tesseract_text(data))
         return []
     except Exception:                  # a bad upload must never break the phone page
         return []
 
 
 def from_text(text: str) -> list[Drug]:
-    """Typed fallback (F2): the same normalizer the photo path ends in."""
+    """Typed fallback (F2): the same normalizer the photo path ends in. Typed text keeps every name
+    (the user typed what they take); only label text gets the one-product rule of `label_drugs`."""
     return to_ingredients(text or "")
+
+
+def label_drugs(text: str) -> list[Drug]:
+    """Label text -> the drugs of the one product the label is for.
+
+    A label also names drugs the user is *not* taking, in warnings ("Do not take aspirin or other
+    NSAIDs such as ibuprofen"). Reading the whole text would add those, and a Plavix label alone would
+    fire X5. So the text is cut into lines and sentences and only the first piece that names a drug
+    counts (labels print the product before warnings). A combination pill stays whole, because both
+    names sit in that one piece. If that piece has no strength, the strength comes from a later piece
+    naming exactly the same ingredients ("PLAVIX" ... "clopidogrel 75 mg"), or from the very next
+    piece when name and strength were split across lines ("LISINOPRIL-HCTZ" / "20-12.5 MG")."""
+    pieces = [p.strip() for line in (text or "")[:_TEXT_CAP].splitlines()
+              for p in _SENTENCE_END.split(line) if p.strip()]
+    named = [(i, to_ingredients(p)) for i, p in enumerate(pieces)]
+    named = [(i, d) for i, d in named if d]
+    if not named:
+        return []
+    first, drugs = named[0]
+    if any(d.dose_mg is not None for d in drugs):
+        return drugs
+    names = {d.ingredient for d in drugs}
+    for _, later in named[1:]:
+        if {d.ingredient for d in later} == names and any(d.dose_mg is not None for d in later):
+            return later
+    if first + 1 < len(pieces):
+        joined = to_ingredients(f"{pieces[first]} {pieces[first + 1]}")
+        if {d.ingredient for d in joined} == names:
+            return joined
+    return drugs
 
 
 def read_text(data: bytes, mime: str) -> str:
