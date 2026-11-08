@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from core import ledger, router
+from core import kb, ledger, router
 from core.contracts import Flag
 from core.decoys import bucket_for
 from core.interfaces import load_profile
@@ -19,15 +19,17 @@ ALLERGY = Flag(id="A1", key="penicillin|amoxicillin", severity="high", engine="a
 @pytest.fixture(autouse=True)
 def demo_cache(tmp_path, monkeypatch):
     """DEMO=1 replay from a cache that answers every key of X1's bucket."""
-    for v in ("ANTHROPIC_API_KEY", "GV_LEDGER_PATH"):
+    for v in ("ANTHROPIC_API_KEY", "GV_LEDGER_PATH", "GV_KB_PATH"):
         monkeypatch.delenv(v, raising=False)
     b = bucket_for(X1.key)
     (tmp_path / f"{b.id}.json").write_text(json.dumps({k: f"General fact about {k}." for k in b.keys}))
     monkeypatch.setenv("DEMO", "1")
     monkeypatch.setenv("GV_CLOUD_CACHE", str(tmp_path))
     ledger.reset()
+    kb.reset()
     yield
     ledger.reset()
+    kb.reset()
 
 
 def test_local_only_when_no_flag_needs_cloud():

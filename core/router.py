@@ -5,7 +5,6 @@
 1. Local rules: the caller (A's rules) already produced `flags`. Only flags with `needs_cloud`
    (and never allergy flags) ask for general knowledge. If none does, nothing is sent.
 2. KB: an exact-key fact that has not expired answers the key; nothing is sent (`kb_hit`).
-   `core/kb.py` is queue 7; until it exists this step always misses.
 3. Generalize: each remaining key becomes one Topic phrased for all phenotypes / lab bands.
 4. Split: one Topic per request, one session per bucket (cloud.py). Random delays are queue 8.
 5. Bucket: the key's fixed bucket of 8 (I5) is sent whole, and all 8 answers are kept.
@@ -25,16 +24,11 @@ import re
 from datetime import date
 from typing import Optional
 
-from . import cloud, ledger
+from . import cloud, kb, ledger
 from .contracts import Answer, Fact, Flag, Profile, Topic, pair_key
 from .decoys import bucket_for, universe
 from .generalize import generalize, topic_for_key
 from .validator import _key_drugs, leaks
-
-try:  # queue 7; absent until kb.py lands
-    from . import kb as _kb  # type: ignore
-except ImportError:  # pragma: no cover - depends on branch state
-    _kb = None
 
 _WORD_RE = re.compile(r"[a-z][a-z0-9-]*")
 
@@ -63,16 +57,11 @@ def _question_keys(question: str) -> list[str]:
 
 
 def _kb_get(key: str, today: date) -> Optional[Fact]:
-    if _kb is None:
-        return None
-    f = _kb.get(key)
-    return f if f is not None and f.expires >= today else None
+    return kb.get(key, today)
 
 
 def _kb_put(facts: list[Fact]) -> None:
-    if _kb is not None:
-        for f in facts:
-            _kb.put(f)
+    kb.put_many(facts)
 
 
 def _send_bucket(bucket_id: str, profile: Profile) -> tuple[list[Fact], bool]:
