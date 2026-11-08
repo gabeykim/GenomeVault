@@ -12,3 +12,4 @@ Format: `D-NNN · time · PLAN version · decision · why · affects`
 - **D-008** · G0 · v1.0 · Four agents + human integrator, protocol in AGENTS.md. · Parallel autonomous build. · all
 - **D-009** · G0 · v1.0 · Gabe is integrator; each agent runs independently on its owner's machine. · Parallel machines, one coordinator. · all
 - **D-010** · G0 · v1.0 · setup_worktrees.sh tracks existing remote agent branches. · Prevents a late setup from overwriting agent work. · all
+- **D-011** · G0 · v1.1 · Gate clock times set from a 12:00 start (G0 12:30 · G1 14:30 · G2 16:00 · G3 18:30 · G4 19:30 · G5 20:15). · Maps P9 gate hours to the event schedule. · all

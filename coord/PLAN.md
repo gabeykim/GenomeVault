@@ -1,4 +1,4 @@
-# GenomeVault PLAN — v1.0
+# GenomeVault PLAN — v1.1
 
 Source of truth for the idea. Edited only by the integrator, through accepted proposals (see AGENTS.md §5, §12). Cite these IDs in every commit, report and proposal.
 
@@ -92,16 +92,16 @@ Answer states: `known` · `none_listed` (exact pair listed as no interaction in 
 
 S1 Hook · S2 Capture on phone · S3 Local flags X1–X4, "0 bytes sent" · S4 Hybrid question, buckets in ledger · S5 Red-team chart · S6 Learns (KB hit), no-extrapolation (pantoprazole), offline ibuprofen X5, actions to phone · S7 Close with learning curve and vision.
 
-## P9 Gates (hours from start)
+## P9 Gates (hours from start; start 12:00)
 
-| Gate | Time | Must be true |
-| --- | --- | --- |
-| G0 | 0:30 | Contracts, interfaces, mocks, protocol on `main` |
-| G1 | 2:30 | A merged; X1–X4 fire from real data |
-| G2 | 4:00 | B + minimal C merged; one question end to end with live ledger |
-| G3 | 6:30 | KB, cover traffic, full UI, phone page merged |
-| G4 | 7:30 | D's evals run on the integrated build; charts in slides |
-| G5 | 8:15 | Freeze: bug fixes only; record backup video |
+| Gate | Time | Clock time | Must be true |
+| --- | --- | --- | --- |
+| G0 | 0:30 | 12:30 | Contracts, interfaces, mocks, protocol on `main` |
+| G1 | 2:30 | 14:30 | A merged; X1–X4 fire from real data |
+| G2 | 4:00 | 16:00 | B + minimal C merged; one question end to end with live ledger |
+| G3 | 6:30 | 18:30 | KB, cover traffic, full UI, phone page merged |
+| G4 | 7:30 | 19:30 | D's evals run on the integrated build; charts in slides |
+| G5 | 8:15 | 20:15 | Freeze: bug fixes only; record backup video |
 
 ## P10 Open questions (integrator resolves)
 
@@ -111,3 +111,4 @@ S1 Hook · S2 Capture on phone · S3 Local flags X1–X4, "0 bytes sent" · S4 H
 ## Changelog
 
 - v1.0 — initial plan.
+- v1.1 — P9: added clock times for a 12:00 start (D-011).
