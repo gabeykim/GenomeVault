@@ -32,3 +32,7 @@ coord/inbox/to-human/20261108-1433-from-A-loop-stopped.md
 coord/inbox/to-human/20261108-1454-from-A-crypto-dependency.md
 coord/inbox/to-human/20261108-1526-from-C-status-for-dhiaa.md
 coord/proposals/20261108-1323-C-capture-and-status-contracts.md
+coord/inbox/to-human/20261108-1523-from-A-g3-capture-results.md
+coord/inbox/to-integrator/20261108-1530-from-D-submission-draft.md
+coord/inbox/to-integrator/20261108-1542-from-A-g3-rehearsal.md
+coord/inbox/to-human/20261108-1546-from-integrator-needs-gabe-g3-merge.md
