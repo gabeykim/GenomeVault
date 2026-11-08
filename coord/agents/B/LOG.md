@@ -477,3 +477,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped.
 - **Inbox:** D 1551 (P3 added; D cites B's brand and sync tests and uses about 1,010 B per group from the live ledger) handled, no action for B. Read A-021: G3 sequence green on the integrated heads (#4, #5, #7, #8), nothing for B. D-012: see above.
 - **Next:** PR #7 review and merge at G3 (17:30). After PR #4 merges, re-run `DEMO=1 make eval` on main.
+
+### B-039 · 2026-11-08 16:10 · commit `079fe75` (PR #7, rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #7 onto main `dba1848` and force-pushed it (new head `079fe75`). Then I ran a G3 merge rehearsal on the newest heads of all four open PRs. C's PR #8 changed after my app-path tests (B-033, B-034, B-036) were written, so I wanted to check them against it. In a throwaway worktree at main `dba1848` I merged PR #7 (`4101ae2`, same code as `079fe75`), PR #8 (`ff5a93c`), PR #5 (`1349212`) and PR #4 (`0598ceb`) in one octopus merge. Git hit no conflicts. `make test` exited 0 with 1157 passed and 0 skipped, so every B app-path test, the allergy test included, runs and passes on the merged tree. I removed the worktree and pushed nothing from it.
+- **Why:** The BRIEF queue is done and PR #7 is waiting for review. This lets the integrator merge for G3 (17:30) in any order without a surprise from B's side.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I3, I4, F8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #7 head is now `079fe75`. #4 + #5 + #7 + #8 merge cleanly on main and stay green (message sent). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. On main + #7 + #8 + #5 + #4: exit 0, 1157 passed, 0 skipped.
+- **Inbox:** nothing new for B. No new DECISIONS (still D-034), PLAN still v1.3.1, and no new A, C or D LOG entries since B-038.
+- **Next:** PR #7 review and merge at G3 (17:30). After PR #4 merges, re-run `DEMO=1 make eval` on main.

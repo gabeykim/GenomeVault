@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-038 rebased PR #7 (head 4101ae2), make test green; told D what the router returns offline (A-016). Waiting for review
+current_task: B-039 rebased PR #7 (head 079fe75); G3 rehearsal main + #7 + #8 + #5 + #4 is 1157 passed, 0 skipped, exit 0. Waiting for review
 branch: agent/B-privacy-router
-last_commit: 4101ae2
+last_commit: 079fe75
 last_seen:
   plan_version: "1.3.1"
   decisions: D-034
-  logs: {A: 21, B: 38, C: 24, D: 12}
+  logs: {A: 21, B: 39, C: 24, D: 12}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -48,6 +48,7 @@ notes: >
   409 while offline). B-036: app-path tests now assert the real router/ledger/pack instead of skipping. make test exit 0, 801 passed, 3 skipped. Ownership check ok.
   The allergy test in tests/B/test_g2_real_rules.py skips on PR #7 alone. In a throwaway merge with PR #5 it runs and passes
   (B-037: 1090 passed, 2 skipped, exit 0).
+  B-039: octopus merge of main dba1848 + PR #7, #8 (ff5a93c), #5 (1349212), #4 (0598ceb): no conflicts, make test exit 0, 1157 passed, 0 skipped. Integrator told.
   B-038: offline + covering flag + cold KB = no_data (I4), pinned by test_offline_cold_kb_is_no_data_zero_bytes_no_ledger; D told for E4 two-reading report.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
 next: PR #7 review before G3 (17:30). After PR #4 (D) merges, re-run DEMO=1 make eval on main
