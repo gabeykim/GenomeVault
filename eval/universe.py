@@ -179,7 +179,13 @@ def load_partition(prefer_real: bool = True, path: pathlib.Path | None = None) -
     """B's real partition when it exists and overlaps D's universe enough; otherwise D's stand-in (and say why)."""
     src = path or (pathlib.Path(os.environ["EVAL_BUCKETS"]) if os.environ.get("EVAL_BUCKETS") else current_real_buckets())
     if prefer_real and src.exists():
-        view, stats, raw_to_view, splits = generalized_view(_parse_buckets(json.loads(src.read_text())))
+        raw_file = json.loads(src.read_text())
+        view, stats, raw_to_view, splits = generalized_view(_parse_buckets(raw_file))
+        aliases = raw_file.get("aliases", {}) if isinstance(raw_file, dict) else {}
+        for alias, member in aliases.items():                # B-015 v5: a variant is answered by its topic's member
+            if member in raw_to_view:
+                raw_to_view[alias] = raw_to_view[member]
+        stats["aliases"] = len(aliases)
         part = Partition(view, f"real:{src.relative_to(ROOT) if src.is_relative_to(ROOT) else src.name}",
                          stats=stats, raw_to_view=raw_to_view, splits=splits)
         u = load_universe()

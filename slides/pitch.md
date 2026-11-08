@@ -1,7 +1,7 @@
 # GenomeVault pitch outline (2 minutes without a demo slot, 3.5 with)
 
-Numbers are from `docs/results.md`; re-run `make eval` on the integrated build at G4 and update the bracketed figures.
-Current figures come from the simulated build and the stand-in bucket partition.
+Bracketed figures are examples. The current, generated values are in `slides/numbers.md`, which `make eval` rewrites with each
+figure's G4 gate status. Quote only rows marked PASS, and re-run `make eval` on the integrated build before rehearsal.
 
 1. **Problem (20 s).** Whether a drug works for you, or hurts you, depends on your genes, your kidneys and liver, and your other medications. That data is scattered, and it is the most private data you have. Uploading it to a chatbot is a privacy and compliance problem.
 2. **Insight (15 s).** Move the model to the data, not the data to the model. The AI PC holds the genome; the cloud only ever sees general, decoy-protected questions.

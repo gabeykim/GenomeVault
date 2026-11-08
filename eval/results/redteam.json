@@ -2,7 +2,7 @@
  "partition": "fixture:eval/fixtures/buckets_v1.json",
  "partition_version": "fixture-v1",
  "partition_stats": {},
- "universe": "eval-fixture-v5",
+ "universe": "eval-fixture-v6",
  "trials": 500,
  "asks": 3,
  "seed": 7,

@@ -59,3 +59,28 @@ def test_live_backend_dedupes_flags_by_key_not_id():      # A-003: X5 is four fl
 def test_full_pack_sync_answers_most_offline():          # B-010 model
     r = offline.run(write=False, live=False)
     assert r["synced_answered"] >= r["warm_answered"]
+
+
+def test_gate_and_slide_numbers_from_one_run():          # G4
+    from eval import gate, redteam, run_all, wording
+    rt, lc = redteam.run(trials=200, seed=3, write=False), learning_curve.run(write=False)
+    lat, off, wd = latency_cost.run(write=False, live=False), offline.run(write=False, live=False), wording.run(write=False)
+    rows = gate.check(rt, lc, lat, off, wd)
+    assert {r["status"] for r in rows} <= {"PASS", "WARN", "FAIL"}
+    assert not [r for r in rows if r["status"] == "FAIL"], [r for r in rows if r["status"] == "FAIL"]
+    md = run_all.write_numbers(rt, lc, lat, off, wd)
+    assert "| Fixed buckets: repeat-ask attacker |" in md and "(E1c)" in md
+
+
+def test_unbacked_known_answer_fails_the_gate():          # I4: a missing key is no_data, never 'checked, nothing found'
+    from eval import gate, redteam, wording
+    from eval.backends import Result
+    assert Result("Q16", "known").unbacked                       # no flag, no fact
+    assert not Result("Q01", "known", local_flags=1).unbacked
+    assert Result("Q01", "no_data", local_flags=1).effective_state == "known"
+    off = offline.run(write=False, live=False)
+    assert off["unbacked_known"] == []                           # the P6 model never does this
+    off["unbacked_known"] = ["Q16"]
+    rows = gate.check(redteam.run(trials=100, seed=2, write=False), learning_curve.run(write=False),
+                      latency_cost.run(write=False, live=False), off, wording.run(write=False))
+    assert next(r for r in rows if r["id"] == "I4")["status"] == "FAIL"

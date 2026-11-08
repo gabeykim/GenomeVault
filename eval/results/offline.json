@@ -26,125 +26,206 @@
  },
  "matches_offline_state_cold": 20,
  "synced_answered": 17,
+ "unbacked_known": [],
  "cold_rows": {
   "Q01": {
    "category": "gene_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q02": {
    "category": "gene_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q03": {
    "category": "gene_drug",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q04": {
    "category": "gene_drug",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q05": {
    "category": "gene_drug",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q06": {
    "category": "drug_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q07": {
    "category": "drug_drug",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q08": {
    "category": "drug_drug",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q09": {
    "category": "drug_drug",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q10": {
    "category": "drug_drug",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q11": {
    "category": "drug_lab",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q12": {
    "category": "drug_lab",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q13": {
    "category": "drug_lab",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q14": {
    "category": "drug_lab",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q15": {
    "category": "otc",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 4,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q16": {
    "category": "otc",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q17": {
    "category": "otc",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 3,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q18": {
    "category": "open_ended",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 4,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q19": {
    "category": "open_ended",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 2,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q20": {
    "category": "open_ended",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 0,
    "cloud_calls": 0
   }
  },
@@ -152,121 +233,201 @@
   "Q01": {
    "category": "gene_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 1,
    "cloud_calls": 0
   },
   "Q02": {
    "category": "gene_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q03": {
    "category": "gene_drug",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q04": {
    "category": "gene_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 2,
    "cloud_calls": 0
   },
   "Q05": {
    "category": "gene_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 1,
    "cloud_calls": 0
   },
   "Q06": {
    "category": "drug_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 1,
    "cloud_calls": 0
   },
   "Q07": {
    "category": "drug_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 1,
    "cloud_calls": 0
   },
   "Q08": {
    "category": "drug_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 1,
    "cloud_calls": 0
   },
   "Q09": {
    "category": "drug_drug",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q10": {
    "category": "drug_drug",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 1,
    "cloud_calls": 0
   },
   "Q11": {
    "category": "drug_lab",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q12": {
    "category": "drug_lab",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 2,
    "cloud_calls": 0
   },
   "Q13": {
    "category": "drug_lab",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 1,
    "cloud_calls": 0
   },
   "Q14": {
    "category": "drug_lab",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 1,
    "cloud_calls": 0
   },
   "Q15": {
    "category": "otc",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 4,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q16": {
    "category": "otc",
    "state": "no_data",
+   "router_state": "no_data",
    "with_content": false,
+   "unbacked": false,
+   "local_flags": 0,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q17": {
    "category": "otc",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 3,
+   "facts": 0,
    "cloud_calls": 0
   },
   "Q18": {
    "category": "open_ended",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 4,
+   "facts": 4,
    "cloud_calls": 0
   },
   "Q19": {
    "category": "open_ended",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 2,
+   "facts": 2,
    "cloud_calls": 0
   },
   "Q20": {
    "category": "open_ended",
    "state": "known",
+   "router_state": "known",
    "with_content": true,
+   "unbacked": false,
+   "local_flags": 1,
+   "facts": 2,
    "cloud_calls": 0
   }
  }

@@ -32,10 +32,24 @@ class Result:
     tokens: int = 0
     latency_ms: float = 0.0
     personal_fields_sent: int = 0
+    local_flags: int = 0          # flags A's rules produced for this question
+    facts: int = 0                # keyed facts behind the answer (KB or cloud)
 
     @property
     def local(self) -> bool:
         return self.cloud_calls == 0
+
+    @property
+    def unbacked(self) -> bool:
+        """Claims knowledge ('known'/'none_listed') with no flag and no fact behind it: breaks I4 (missing = no_data)."""
+        return self.state in ("known", "none_listed") and self.local_flags == 0 and self.facts == 0
+
+    @property
+    def effective_state(self) -> str:
+        """What the user actually gets: local flags count as content even when the router's own answer is no_data."""
+        if self.local_flags or (self.state in ("known", "none_listed") and self.facts):
+            return "known" if self.state != "none_listed" else "none_listed"
+        return "no_data"
 
 
 def sendable(q: dict, part: Partition) -> list[str]:
@@ -49,8 +63,21 @@ def sendable(q: dict, part: Partition) -> list[str]:
     return out
 
 
+# PLAN P5 flag keys (A-003): a flag answers a question only if its exact key is one of the question's keys
+FLAG_KEYS = {"X1": {"CYP2C19:poor_metabolizer|clopidogrel"}, "X2": {"clopidogrel|omeprazole"},
+             "X3": {"SLCO1B1:decreased_function|simvastatin|dose>20mg"}, "X4": {"lisinopril|potassium>5.0"},
+             "X5": {"aspirin|ibuprofen", "clopidogrel|ibuprofen", "ibuprofen|lisinopril", "ibuprofen|egfr<60"}}
+
+
+def answering_flags(q: dict) -> int:
+    """How many expected local flags answer q itself (key among q['keys']); authored class rules answer their own keys."""
+    keys = set(q["keys"])
+    n = sum(len(FLAG_KEYS.get(f, set()) & keys) for f in q["expected_flags"])
+    return n + (len(keys) if q.get("expected_engines") else 0)
+
+
 def flagged(q: dict) -> bool:
-    return bool(q["expected_flags"]) or bool(q.get("expected_engines"))
+    return answering_flags(q) > 0
 
 
 def expected_state(q: dict, part: Partition) -> str:
@@ -74,6 +101,7 @@ class SimBackend:
     def ask(self, q: dict) -> Result:
         r = Result(q["id"], state="no_data", latency_ms=MS["rules"])
         is_flagged = flagged(q)
+        r.local_flags = answering_flags(q)
         if self.mode == "cloud_only":
             if self.offline:
                 return r
@@ -81,6 +109,7 @@ class SimBackend:
             r.bytes_out, r.latency_ms = 2400, MS["cloud_full"]
             r.personal_fields_sent = PERSONAL_FIELDS_FULL
             r.state = q["expected_state"]
+            r.facts = 1 if r.state != "no_data" else 0
             return r
         if not q["needs_cloud"]:                                 # rules / authored class rule / no-data path: nothing sent
             r.state = q["expected_state"]
@@ -95,6 +124,7 @@ class SimBackend:
         r.latency_ms += MS["kb"] * len(send)
         if not missing:
             r.state = q["expected_state"]
+            r.facts = len(send)
             return r
         if self.mode == "local_only" or self.offline:
             r.state = "known" if is_flagged else "no_data"       # flags still fire from local rules (F8)
@@ -107,6 +137,7 @@ class SimBackend:
         r.tokens = (TOKENS["bucket_in"] + TOKENS["bucket_out"]) * len(buckets)
         r.latency_ms += MS["cloud_bucket"]                       # buckets go out in parallel sessions
         r.state = q["expected_state"]
+        r.facts = len(send)
         return r
 
 
@@ -188,4 +219,5 @@ class LiveBackend:
             self.seq = max(e.seq for e in entries)
         return Result(q["id"], ans.state, cloud_calls=sum(e.kind == "bucket" for e in entries),
                       kb_hits=sum(e.kind == "kb_hit" for e in entries), bytes_out=sum(e.bytes_out for e in entries),
-                      latency_ms=ms, personal_fields_sent=sum(e.personal_fields_sent for e in entries))
+                      latency_ms=ms, personal_fields_sent=sum(e.personal_fields_sent for e in entries),
+                      local_flags=sum(f.key in set(q["keys"]) for f in flags), facts=len(ans.facts))

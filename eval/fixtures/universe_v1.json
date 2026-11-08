@@ -1,6 +1,6 @@
 {
- "version": "eval-fixture-v5",
- "doc": "Stand-in key universe for Agent D's evaluations until B's data/buckets/v1.json merges (G2). Keys are GENERALIZED topic keys (no phenotype, lab value or dose): gene-drug 'GENE|drug', drug pair 'a|b' (sorted, pair_key), drug-lab 'drug|lab'. 'prior' is a SYNTHETIC, illustrative relative query frequency (1 = rare, 10 = very common), hand-set to mimic the shape of real prescribing (statins, antiplatelets, ACE inhibitors and SSRIs common; oncology and transplant rare). It is NOT derived from any real prescription or patient data (I1). 'domain' is the clinical area an attacker would infer from the key. 'src' says where a key came from: d-v1 (D's original 64, the stand-in partition) b-v1 (added to cover B's data/buckets/v1.json) b-v2, b-v3 or b-v4 (B's later additions). 'clusters' are synthetic co-prescription scenarios used by the joint-inference attacker and the synthetic-patient generator. Under D-021 CYP2D6 topics have prior 0: no real user can ask one, so they are known-fake decoys wherever they appear.",
+ "version": "eval-fixture-v6",
+ "doc": "Stand-in key universe for Agent D's evaluations until B's data/buckets/v1.json merges (G2). Keys are GENERALIZED topic keys (no phenotype, lab value or dose): gene-drug 'GENE|drug', drug pair 'a|b' (sorted, pair_key), drug-lab 'drug|lab'. 'prior' is a SYNTHETIC, illustrative relative query frequency (1 = rare, 10 = very common), hand-set to mimic the shape of real prescribing (statins, antiplatelets, ACE inhibitors and SSRIs common; oncology and transplant rare). It is NOT derived from any real prescription or patient data (I1). 'domain' is the clinical area an attacker would infer from the key. 'src' says where a key came from: d-v1 (D's original 64, the stand-in partition) b-v1 (added to cover B's data/buckets/v1.json) b-v2 to b-v5 (B's later additions). 'clusters' are synthetic co-prescription scenarios used by the joint-inference attacker and the synthetic-patient generator. Under D-021 CYP2D6 topics have prior 0: no real user can ask one, so they are known-fake decoys wherever they appear.",
  "keys": {
   "CYP2C19|clopidogrel": {"domain": "cardio", "prior": 9},
   "CYP2C19|citalopram": {"domain": "psych", "prior": 8},
@@ -147,7 +147,11 @@
   "CYP2C19|amitriptyline": {"domain": "psych", "prior": 4, "src": "b-v4"},
   "CYP2C9|meloxicam": {"domain": "pain", "prior": 3, "src": "b-v4"},
   "HLA-A|carbamazepine": {"domain": "neuro", "prior": 2, "src": "b-v4"},
-  "TPMT|mercaptopurine": {"domain": "oncology", "prior": 2, "src": "b-v4"}
+  "TPMT|mercaptopurine": {"domain": "oncology", "prior": 2, "src": "b-v4"},
+  "CYP2C9|piroxicam": {"domain": "pain", "prior": 2, "src": "b-v5"},
+  "DPYD|capecitabine": {"domain": "oncology", "prior": 2, "src": "b-v5"},
+  "TPMT|thioguanine": {"domain": "oncology", "prior": 1, "src": "b-v5"},
+  "UGT1A1|atazanavir": {"domain": "infection", "prior": 2, "src": "b-v5"}
  },
  "clusters": {
   "cardiac_post_stent": ["clopidogrel|ibuprofen", "ibuprofen|lisinopril", "simvastatin|alt", "CYP2C19|clopidogrel", "clopidogrel|omeprazole", "SLCO1B1|simvastatin", "lisinopril|potassium", "aspirin|clopidogrel", "lisinopril|egfr", "simvastatin|ck", "amlodipine|simvastatin", "clopidogrel|pantoprazole", "aspirin|simvastatin", "omeprazole|simvastatin", "aspirin|omeprazole", "clopidogrel|lisinopril", "clopidogrel|simvastatin", "lisinopril|omeprazole", "aspirin|lisinopril", "lisinopril|simvastatin", "clopidogrel|naproxen", "celecoxib|clopidogrel", "naproxen|prasugrel", "ibuprofen|prasugrel", "celecoxib|ticagrelor", "ibuprofen|ticagrelor", "naproxen|ticagrelor", "celecoxib|prasugrel"],
@@ -155,12 +159,12 @@
   "anticoagulation": ["CYP2C9|warfarin", "VKORC1|warfarin", "aspirin|warfarin", "fluconazole|warfarin", "warfarin|inr", "apixaban|egfr", "metronidazole|warfarin", "acetaminophen|warfarin", "apixaban|diltiazem", "enoxaparin|egfr", "naproxen|warfarin", "celecoxib|warfarin", "ibuprofen|warfarin"],
   "depression": ["CYP2C19|citalopram", "CYP2C19|escitalopram", "CYP2C19|sertraline", "CYP2D6|paroxetine", "sertraline|tramadol", "citalopram|ondansetron", "CYP2D6|amitriptyline", "linezolid|sertraline", "escitalopram|sumatriptan", "tramadol|venlafaxine", "fluoxetine|trazodone", "phenelzine|sumatriptan", "CYP2C19|amitriptyline"],
   "bipolar": ["ibuprofen|lithium", "lithium|sodium", "CYP2D6|atomoxetine", "CYP2C19|citalopram", "hydrochlorothiazide|lithium", "methadone|quetiapine", "lithium|egfr"],
-  "chronic_pain": ["CYP2D6|codeine", "CYP2D6|tramadol", "CYP2C9|celecoxib", "CYP2C9|ibuprofen", "aspirin|ibuprofen", "ibuprofen|egfr", "acetaminophen|alt", "gabapentin|egfr", "gabapentin|oxycodone", "naltrexone|oxycodone", "ibuprofen|omeprazole", "ibuprofen|simvastatin", "fluconazole|methadone", "aspirin|naproxen", "lisinopril|naproxen", "aspirin|celecoxib", "celecoxib|lisinopril", "CYP2C9|meloxicam"],
-  "oncology": ["CYP2D6|tamoxifen", "CYP2D6|ondansetron", "DPYD|fluorouracil", "UGT1A1|irinotecan", "G6PD|rasburicase", "NUDT15|mercaptopurine", "bupropion|tamoxifen", "TPMT|mercaptopurine"],
+  "chronic_pain": ["CYP2D6|codeine", "CYP2D6|tramadol", "CYP2C9|celecoxib", "CYP2C9|ibuprofen", "aspirin|ibuprofen", "ibuprofen|egfr", "acetaminophen|alt", "gabapentin|egfr", "gabapentin|oxycodone", "naltrexone|oxycodone", "ibuprofen|omeprazole", "ibuprofen|simvastatin", "fluconazole|methadone", "aspirin|naproxen", "lisinopril|naproxen", "aspirin|celecoxib", "celecoxib|lisinopril", "CYP2C9|meloxicam", "CYP2C9|piroxicam"],
+  "oncology": ["CYP2D6|tamoxifen", "CYP2D6|ondansetron", "DPYD|fluorouracil", "UGT1A1|irinotecan", "G6PD|rasburicase", "NUDT15|mercaptopurine", "bupropion|tamoxifen", "TPMT|mercaptopurine", "DPYD|capecitabine", "TPMT|thioguanine"],
   "transplant": ["CYP3A5|tacrolimus", "TPMT|azathioprine", "allopurinol|azathioprine", "methotrexate|trimethoprim", "CYP2C19|voriconazole", "fluconazole|tacrolimus"],
   "epilepsy": ["HLA-B|carbamazepine", "CYP2C9|phenytoin", "carbamazepine|levonorgestrel", "phenytoin|valproate", "lamotrigine|valproate", "valproate|alt", "HLA-A|carbamazepine"],
   "gout": ["HLA-B|allopurinol", "allopurinol|azathioprine", "allopurinol|egfr", "clarithromycin|colchicine"],
-  "hiv": ["HLA-B|abacavir", "CYP2B6|efavirenz"],
+  "hiv": ["HLA-B|abacavir", "CYP2B6|efavirenz", "UGT1A1|atazanavir"],
   "diabetes_ckd": ["metformin|egfr", "lisinopril|egfr", "SLCO1B1|atorvastatin", "atorvastatin|clarithromycin", "SLCO1B1|rosuvastatin", "glipizide|glucose", "fluconazole|glipizide", "iohexol|metformin", "atorvastatin|alt"],
   "gerd": ["CYP2C19|omeprazole", "CYP2C19|pantoprazole", "clopidogrel|esomeprazole"],
   "ed_angina": ["nitroglycerin|sildenafil", "isosorbide|tadalafil"],

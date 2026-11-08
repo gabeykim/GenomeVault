@@ -19,8 +19,9 @@ def _pass(be, qs: list[dict]) -> dict:
     rows = {}
     for q in qs:
         r = be.ask(q)
-        rows[q["id"]] = {"category": q["category"], "state": r.state, "with_content": r.state in ("known", "none_listed"),
-                         "cloud_calls": r.cloud_calls}
+        rows[q["id"]] = {"category": q["category"], "state": r.effective_state, "router_state": r.state,
+                         "with_content": r.effective_state != "no_data", "unbacked": r.unbacked,
+                         "local_flags": r.local_flags, "facts": r.facts, "cloud_calls": r.cloud_calls}
     return rows
 
 
@@ -66,6 +67,7 @@ def run(write: bool = True, live: bool | None = None) -> dict:
            "cold_by_category": by_cat(cold_rows), "warm_by_category": by_cat(warm_rows), "category_sizes": dict(total),
            "matches_offline_state_cold": sum(cold_rows[q["id"]]["state"] == q["offline_state"] for q in qs),
            "synced_answered": sum(r["with_content"] for r in synced_rows.values()) if synced_rows else None,
+           "unbacked_known": sorted({qid for rows in (cold_rows, warm_rows) for qid, r in rows.items() if r["unbacked"]}),
            "cold_rows": cold_rows, "warm_rows": warm_rows}
     if write:
         RESULTS.mkdir(parents=True, exist_ok=True)

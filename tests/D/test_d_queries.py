@@ -158,7 +158,7 @@ def test_expected_state_follows_loaded_partition(tmp_path):
 def test_priors_cover_every_key_in_bs_v2_and_v3_partitions():   # B-011, B-012
     import json, pathlib
     u = load_universe()
-    for name, n in (("b_v2_keys.json", 112), ("b_v3_keys.json", 136), ("b_v4_keys.json", 136)):
+    for name, n in (("b_v2_keys.json", 112), ("b_v3_keys.json", 136), ("b_v4_keys.json", 136), ("b_v5_keys.json", 136)):
         keys = json.loads((pathlib.Path(__file__).parent / name).read_text())
         assert len(keys) == n and all(generalize_key(k) in u.keys for k in keys), name
 
@@ -201,3 +201,16 @@ def test_cyp2d6_topics_are_never_asked():                  # D-021, B-014
     assert all(v["prior"] == 0 for k, v in u.keys.items() if k.startswith("CYP2D6|"))
     patients = make_patients(300, 5, u, load_partition(prefer_real=False), n_keys=(1, 3))
     assert not any(k.startswith("CYP2D6|") for p in patients for k in p.topic_keys)
+
+
+def test_reads_bs_aliases(tmp_path):                       # B-015 v5: one member per topic, variants as aliases
+    import json
+    fixture = load_partition(prefer_real=False)
+    raw = {"version": "v5", "buckets": [{"id": b.id, "keys": [_localize(k) for k in b.keys]} for b in fixture.buckets],
+           "aliases": {"CYP2C19:intermediate_metabolizer|clopidogrel": "CYP2C19:poor_metabolizer|clopidogrel"}}
+    f = tmp_path / "v5.json"
+    f.write_text(json.dumps(raw))
+    part = load_partition(path=f)
+    assert part.splits == {} and part.stats["aliases"] == 1
+    pm, im = part.view_key("CYP2C19:poor_metabolizer|clopidogrel"), part.view_key("CYP2C19:intermediate_metabolizer|clopidogrel")
+    assert pm == im and part.bucket_for(pm).id == fixture.bucket_for("CYP2C19|clopidogrel").id

@@ -44,7 +44,8 @@ def run_live(delays: str) -> dict:
     return {"backend": be.name, "GV_DELAY_S": delays, "median_latency_ms": round(statistics.median(r.latency_ms for r in rs), 1),
             "median_latency_ms_when_sent": round(statistics.median(r.latency_ms for r in sent), 1) if sent else None,
             "cloud_calls": sum(r.cloud_calls for r in rs), "bytes_out": sum(r.bytes_out for r in rs),
-            "personal_fields_sent": sum(r.personal_fields_sent for r in rs), "wall_s": round(wall, 2)}
+            "personal_fields_sent": sum(r.personal_fields_sent for r in rs), "wall_s": round(wall, 2),
+            "unbacked_known": [r.qid for r in rs if r.unbacked]}
 
 
 def run(write: bool = True, live: bool | None = None, delays: bool | None = None) -> dict:
