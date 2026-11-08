@@ -67,3 +67,16 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Tests:** `make test` → exit 0 (36 passed). Merged locally with `agent/B-privacy-router`: `make test` → exit 0 (331 passed), `make eval` → exit 0 on the live backend (mock rules/graph).
 - **Results on B's v1 (simulated wire, full priors):** fixed buckets 12% repeat-ask, 22% statistical (ceiling 23%); joint 71% in one session vs 29–30% with separate sessions + cover (blind guess 30%). Hybrid can't fully answer Q05 or Q14 because their keys aren't in v1.
 - **Next:** E3 live latency with and without `GV_DELAY_S` delays; model B-009's uniform cover buckets in E1; G4 run on the integrated build
+
+### D-006 · 2026-11-08 14:05 · commit `eddea32` · PLAN v1.1
+
+- **Change:** Ran the merged A+B+C+D app in demo mode and walked the beats. `slides/demo_script.md`: S6 ibuprofen now goes through "Check another medication" (local rules) instead of the Ask box, S6 Q19 names the 0-byte `kb_hit` row to look for, and a "Before rehearsing" table lists what blocks S4/S6 with owners. `eval/backends.py`: `LiveBackend` dedupes flags by exact key, not id, uses `rules.check_all` when present, and adds `sync_pack()`. `eval/offline.py`: E4 adds a full-pack-sync arm.
+- **Why:** Demo walk-through found that every Ask returns `no_data` (empty `mocks/cloud_cache/`), Q19 re-sends b01 + b05 instead of hitting the KB, and the typed ibuprofen check shows one X5 flag instead of four. A-003 flagged the same de-dup bug in D's adapter; B-010 offered `sync_pack()`.
+- **Class:** Refines
+- **Plan:** advances P8 S4/S6, P7 E4, M11; refines P7 E4 (pack-sync arm)
+- **Refinements:** S6's offline ibuprofen beat uses the medication check, not the Ask box.
+- **Contract impact:** none
+- **Affects:** I: S4 and S6 can't be rehearsed until the demo cache is recorded → message sent. C: the app collapses the four X5 flags into one → message sent. A: de-dup fixed on D's side → reply sent. B: v2 rerun queued → reply sent.
+- **Demo impact:** S6 ibuprofen beat moved to the medication check; S4/S6 blocked on the demo cache
+- **Tests:** `make test` → exit 0 (38 passed). All four branches merged with this change: `make test` → exit 0 (495 passed). Live E4 on that build: cold 10, warm 10, synced 10, because the empty demo cache leaves nothing to learn.
+- **Next:** rerun E1 on B's v2, add priors for v2's four new keys, update `queries.json` lab keys to A/B's banded spelling
