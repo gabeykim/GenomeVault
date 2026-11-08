@@ -66,3 +66,68 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S6 (actions: pharmacist draft, printable summary, reminders to the phone via the calendar file until `phone/` exists)
 - **Tests:** `make test` → exit 0 (48 passed, 1 skipped). origin/main + A + B (with B's real validator and cloud) + C merged locally → `make test` exit 0 (306 passed, 2 skipped), and the merged answer passes B's `check_output`. Checked by hand in the browser (draft, summary, printable page, reminders, calendar file).
 - **Next:** queue item 7, demo mode toggle and offline badge. Queue 5 `phone/` waits on the capture proposal ruling.
+
+### C-006 · 2026-11-08 13:45 · commit `a168a4e` · PLAN v1.1
+
+- **Change:** `merge.personalize` now shows a fact once when the general answer text already states it. The lead gets that fact's tier label: "(AI-summarized, verify.)" for cloud, "(Curated (source).)" for curated. Other facts keep their own paragraph. Added 3 regression tests.
+- **Why:** The integration run (origin/main + A + B + C, with real modules wired by hand: generalize → bucket → check_outbound → cloud demo replay → ledger → check_output → merge) showed the same sentence printed twice when `Answer.text` equals the fact's text.
+- **Class:** Refines
+- **Plan:** advances M9, I6
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** none
+- **Demo impact:** S4 answer reads cleaner
+- **Tests:** `make test` → exit 0 (51 passed, 1 skipped). Integrated A+B+C → exit 0 (309 passed, 2 skipped). The pipeline run's merged answer now shows the fact once.
+- **Next:** queue item 7 (demo toggle + offline badge)
+
+### C-007 · 2026-11-08 13:48 · commit `bb0c4fb` · PLAN v1.1
+
+- **Change:** Added `tests/C/conftest.py`. Every C test runs in demo mode with no API key and an empty cloud cache, and gets a fresh ledger and KB.
+- **Why:** With origin/main + A + B (real router and KB) + C + D merged locally, two C tests failed. With no key and no demo mode, B's router correctly writes nothing, because nothing left the device. And without isolation, C tests would make live cloud calls on any machine that has a key set.
+- **Class:** Refines
+- **Plan:** advances M10; I2/I8 hygiene in tests
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** none
+- **Demo impact:** none
+- **Tests:** C alone → exit 0 (51 passed, 1 skipped). A+B+C+D merged → `make test` exit 0, 358 passed (A 4, B 272, C 48, D 30), `check_network.sh` ok, `make eval` exit 0 (simulated backend). With a fake key set, C tests still pass offline. In the merged app, Q18 sends buckets b01 (1248 B) and b05 (959 B) with 0 personal fields, and the UI ledger shows both.
+- **Next:** queue item 7 (demo toggle + offline badge); suggestion chips use D's exact demo texts (Q18 already does)
+
+### C-008 · 2026-11-08 13:55 · commit `e569a88` · PLAN v1.1
+
+- **Change:** (1) Ask offers D's demo questions Q18, Q19, Q07 and Q15 as chips, using the exact texts from `eval/queries.json`. They stay after asking and get a ↻ mark, so re-asking shows the KB hit. (2) Each bucket or cover row in the ledger opens to the 8 exact texts that left (`ledger.outbound(seq)`), and the user's own question is marked "yours" by matching `generalize.generalize(flag)`. Only the device can do that. (3) "N facts learned on this device", from `kb.stats()['fresh']`. New endpoint `GET /api/ledger/{seq}/outbound` → `{seq, texts, mine, available}`; `/api/ledger` adds `learned`; `/api/status` adds `extras`. Added `tests/C/test_demo_beats.py` (7 tests).
+- **Why:** User-requested polish of S4/S6 ahead of G2/G3, and D's request to use exact eval texts.
+- **Class:** Refines
+- **Plan:** advances M10, F5, F6, S4, S6
+- **Refinements:** B's non-contract extras (`ledger.outbound`, `kb.stats`, `generalize.generalize`) load optionally. A missing attribute hides the feature, and a broken module still raises.
+- **Contract impact:** none
+- **Affects:** D: chips match Q18/Q19/Q07/Q15 exactly (a test compares them with `eval/queries.json` when present) → none. B: please keep the extras' names → none.
+- **Demo impact:** S4 (open the ledger row: 8 questions, "yours" marked), S6 (re-ask Q18 → kb_hit 0 B, "Answered on device", learned counter)
+- **Tests:** C alone → `make test` exit 0 (55 passed, 3 skipped). origin/main + A + B + C + D merged → exit 0, 409 passed, 0 skipped, including the full S4 → S6 test (bucket of 8, nothing personal in the texts, ≥8 facts learned, repeat ask is kb_hit 0 B). Checked by hand in the merged app with a placeholder cache.
+- **Next:** queue item 7 (offline badge + "Wi-Fi off" toggle using B's `cloud.status`/`set_offline`, DEMO fallback), then 5 (`phone/`)
+
+### C-009 · 2026-11-08 14:01 · commit `4e2ff03` · PLAN v1.1
+
+- **Change:** Simplified the UI. The left side is now four tabs (Medications, Ask, Actions, My data) with one panel showing at a time, a slide-in, arrow-key navigation, and deep links `#ask`, `#actions` and `#data`. Removed the header meta lines, the duplicate personal-fields counter in the header, the per-row pixel glyphs, the engine column, key codes, Q-number and beat labels on the chips, the ledger event count and per-row sub-lines (now a hover title), and the mocks footer (shown only with `?debug`). The wordmark is smaller. `/api/flags` (page load) no longer adds a mock `local_only` ledger row.
+- **Why:** Human owner said the page felt cluttered, with too much information on screen.
+- **Class:** Refines
+- **Plan:** advances M10, S1, S3, S4, S6; refines M10 (layout)
+- **Refinements:** tabs replace the stacked sections; demo deep links are `#ask`, `#actions`, `#data` (Medications is the default).
+- **Contract impact:** none
+- **Affects:** D: the demo script and screenshots now switch tabs instead of scrolling; `/#ask` opens Ask directly → update S4/S6 steps if they mention scrolling.
+- **Demo impact:** S1 (hero shorter), S3 (Medications tab, default), S4 (Ask tab + ledger), S6 (Actions tab)
+- **Tests:** C alone → exit 0 (55 passed, 3 skipped); A+B+C+D merged → exit 0 (409 passed). Checked by hand at 1440×900 and 375×812: tabs, deep links, ask, ledger, no horizontal scroll.
+- **Next:** queue item 7 (offline badge + Wi-Fi-off toggle), cover traffic at startup (G3), then 5 (`phone/`)
+
+### C-010 · 2026-11-08 14:05 · commit `eb74f22` · PLAN v1.1
+
+- **Change:** Added three status colors, used only on small indicators and always next to their word. Red: high severity, poor or decreased gene function, the allergy, labs named in a flag's evidence, and any personal field sent. Amber: medium severity and `no_data` answers. Green: normal gene results, `local_only`/`kb_hit` ledger rows, the "On device" marker, and 0 personal fields.
+- **Why:** Human owner asked for color on the indicators (poor = red, good = green).
+- **Class:** Refines
+- **Plan:** advances M10, S3, S4
+- **Refinements:** Color never stands alone (each colored item also says "High", "poor metabolizer", and so on). Labs are never green, because there are no reference ranges in the data; only flags make a lab red. Colors meet AA contrast on bone, with lighter variants on ink.
+- **Contract impact:** none
+- **Affects:** D: screenshots now show color → retake for slides
+- **Demo impact:** S3 (severity readable at a glance), S4 (green 0 personal fields)
+- **Tests:** C alone → exit 0 (55 passed, 3 skipped); A+B+C+D merged → exit 0 (409 passed). Checked in the browser, no console errors.
+- **Next:** dedupe flags by key so all four X5 flags show (A's 20261108-1359 request) before G1, then queue 7

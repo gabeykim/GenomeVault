@@ -12,5 +12,7 @@ Human-readable summary of `core/contracts.py` and `core/interfaces.py`. Integrat
 | `ledger.feed` | B | `(since: int) -> list[LedgerEntry]` | G2 |
 | `merge.personalize` | C | `(answer: Answer, flags: list[Flag], profile: Profile) -> str` | G2 |
 | `actions.*` | C | `pharmacist_draft`, `visit_summary`, `reminders` | G3 |
+| `capture.from_image` | A | `(data: bytes, mime: str) -> list[Drug]` | G3 |
+| `cloud.status` | B | `() -> dict` (keys `online: bool`, `demo: bool`) | G3 |
 
 Keys: drug pairs are sorted ingredient names joined by `|` (`clopidogrel|omeprazole`). Gene–drug keys: `GENE:phenotype|drug`. Dose conditions are suffixes (`|dose>20mg`).
