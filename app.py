@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import html
 import importlib
+from contextlib import asynccontextmanager
 import importlib.util
 import os
 import threading
@@ -107,6 +108,10 @@ generalize_flag = _optional("generalize", "generalize")
 expected_notes_all = _optional("rules", "expected_notes_all")   # A, D-021: informational, never a Flag
 expected_notes = _optional("rules", "expected_notes")
 cloud_set_offline = _optional("cloud", "set_offline")            # B: "Wi-Fi off" for S6, no network
+start_cover = _optional("router", "start_cover")                 # B: P6.6 cover traffic (G3)
+stop_cover = _optional("router", "stop_cover")
+cover_running = _optional("router", "cover_running")
+COVER = os.environ.get("GV_COVER", "1") != "0"                   # GV_COVER=0 turns it off for local dev
 
 
 def _note(kind: str, bytes_out: int = 0, bucket_id: Optional[str] = None) -> None:
@@ -154,7 +159,24 @@ def tier_label(fact: Fact) -> str:
 
 # --- API ---------------------------------------------------------------------------------------
 
-app = FastAPI(title="GenomeVault", docs_url=None, redoc_url=None)
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Cover traffic (P6.6) runs for as long as the app runs, so an observer can't tell when the user
+    is actually asking. B's thread owns the schedule (GV_COVER_INTERVAL_S) and sends nothing while
+    offline. Only stop what this app started."""
+    started = bool(COVER and start_cover and start_cover())
+    try:
+        yield
+    finally:
+        if started and stop_cover:
+            stop_cover()
+
+
+def _cover_on() -> bool:
+    return bool(cover_running and cover_running())
+
+
+app = FastAPI(title="GenomeVault", docs_url=None, redoc_url=None, lifespan=lifespan)
 
 
 _asked: deque[str] = deque(maxlen=10)   # recent questions, in memory only, for the visit summary
@@ -179,7 +201,8 @@ def index() -> FileResponse:
 
 @app.get("/api/status")
 def status() -> dict:
-    return {"demo": DEMO, "disclaimer": DISCLAIMER, "modules": MODES, "extras": EXTRAS, "cloud": _cloud()}
+    return {"demo": DEMO, "disclaimer": DISCLAIMER, "modules": MODES, "extras": EXTRAS, "cloud": _cloud(),
+            "cover": _cover_on()}
 
 
 @app.get("/api/profile", response_model=Profile)
@@ -251,6 +274,7 @@ def ledger(since: int = 0) -> dict:
         },
         "learned": kb_stats() if kb_stats else None,   # facts the KB holds (F6, E2)
         "cloud": _cloud(),                               # badge state, polled with the ledger
+        "cover": _cover_on(),                            # cover traffic running (P6.6)
         "mock": LEDGER_IS_MOCK,
     }
 

@@ -588,6 +588,7 @@ async function pollLedger() {
     $("ledger-personal").classList.toggle("good", t.personal_fields_sent === 0);
     $("ledger-personal").classList.toggle("bad", t.personal_fields_sent > 0);
     applyCloud(data.cloud);
+    $("live-cover").hidden = !data.cover;
     const learned = $("learned");
     if (data.learned) {
       learned.hidden = false;
