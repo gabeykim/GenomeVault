@@ -287,3 +287,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S2 (7 sample labels plus a printable sheet), S6 (Q15 consistent with the typed ibuprofen check)
 - **Tests:** C alone → `make test` exit 0 (271 passed, 7 skipped). main + all open PRs merged → exit 0, 961 passed. With A's real reader, the 7 labels read as aspirin 81 (no flag), clopidogrel 75 (X1, X2), omeprazole 20 (X2), simvastatin 40 (X3), lisinopril 10 (X4), ibuprofen 200 (X5), amoxicillin 500 (AL-001). Checked by hand on the phone page and the label sheet.
 - **Next:** G2: after #6, #2 and #3 merge, sync and drop the stand-ins (D-014), then run one question end to end on main. Then rehearsal by G3 (17:30).
+
+### C-023 · 2026-11-08 15:37 · commit `e289cdc` (PR #8) · PLAN v1.3.1
+
+- **Change:** Back to the original monochrome palette: bone paper `#e1e1de`, black ink `#0b0b0b`. This covers the laptop UI, phone page, printable label sheet, `/summary`, and the sample label PNGs (regenerated with the same text). Red, amber and green stay only on small status indicators. The screen is simpler too. The header is just the logo and the online switch, and "Sent to cloud" lives in the ledger totals. Tabs drop their numbers. Background decoys (`cover`) and knowledge-pack rows (`pack`) each collapse into one summary row with a count and bytes. The user's own decoy groups still list one by one with "See the 8 questions". Sync copy is one line, and its explanation moved to the button tooltip. On phones, sample labels stack as single rows.
+- **Why:** User request (Cristian): the original look, and a less cluttered screen. With cover traffic on, the ledger grew by a row every 20 s, and the sync added 14 more.
+- **Class:** Refines
+- **Plan:** refines F7, F8 (presentation only); S2, S4, S6 beats unchanged
+- **Refinements:** in the ledger, cover and pack rows are summarized instead of listed. Only bucket rows (the user's) are listed one by one.
+- **Contract impact:** none
+- **Affects:** D: screenshots and slides should use bone/black again, the header no longer shows "Sent to cloud" (it's in the ledger), and decoy and pack rows are grouped → refresh screenshots. A: label PNG pixels changed, but their text and `labels.json` did not → none expected.
+- **Demo impact:** S4 (the ledger shows the user's group plus one "Background decoys" line), S6 ("Knowledge pack · N groups" after Sync), S2 (phone look)
+- **Tests:** C branch with main merged → `make test` exit 0 (789 passed, 3 skipped). Integrated (main + all open PRs) → exit 0, 961 passed. Checked in the browser at 1440 px and 375 px: Q18 lists 1 user group, decoys are grouped, Sync shows "Knowledge pack 14 groups · 14 KB", `/summary` and `/phone` render.
+- **Next:** G2 follow-up (D-032): drop the mock fallbacks for ledger and route and run one question end to end on main; then rehearsal by G3 (17:30).
