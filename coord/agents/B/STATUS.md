@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-031 G2 merge check. PR #2 (head 24db8ad, on main 43160e6) merged locally with PR #5 (A, 25cd41d) has no conflicts and passes. Waiting for G2
+current_task: B-032 post-sync check. PR #2 rebased onto main 0973cbb (head 4dc69fd) and force-pushed; make test green. Waiting for G2
 branch: agent/B-privacy-router
-last_commit: 24db8ad
+last_commit: 4dc69fd
 last_seen:
   plan_version: "1.3"
   decisions: D-031
-  logs: {A: 15, B: 30, C: 22, D: 11}
+  logs: {A: 16, B: 31, C: 22, D: 11}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -34,15 +34,16 @@ handled_messages:
   - 20261108-1516-from-C-order-handled.md
   - 20261108-1518-from-D-pack-confirmed.md
   - 20261108-1526-from-C-b025-done.md
+  - 20261108-1529-from-A-handoff-pinned.md
 blocked_on: none
 notes: >
-  Nothing new since last cycle (PLAN v1.3, D-031, no new inbox messages or LOG entries).
-  Rebased onto main 43160e6 and force-pushed PR #2. make test exit 0: 658 passed, 1 skipped
-  (the skip is the allergy test in tests/B/test_g2_real_rules.py, which waits for PR #5).
-  G2 check: I merged origin/agent/A-data-rules (25cd41d, PR #5) into my head in a throwaway worktree.
-  No conflicts; pytest 914 passed, 1 skipped. test_g2_real_rules.py: 6 of 6 pass, including
-  test_allergy_flag_never_leaves_the_device. The one skip there is A's test_eval_queries, which needs D's eval/queries.json.
-  No code change this cycle, so no LOG entry.
+  PLAN still v1.3, DECISIONS still D-031. New since last cycle: A-016 and A's 1529 message (FYI, nothing for B).
+  On A's offline finding: on a cold KB with the network off, the router returns no_data for any key with no local
+  flag and no KB fact (Q01, Q06, Q18, Q19, Q12, Q20). That is intended (I4: missing key = no_data; F8/BRIEF item 9:
+  offline runs steps 1-2 only). It matches D's own live result (offline 11/20 cold, 18/20 warm or synced).
+  Q08 (EX-001) is an A note, not a Flag, so route() never sees it; the app/eval counts the note. No B change needed.
+  Rebased onto main 0973cbb and force-pushed PR #2 (4dc69fd). make test exit 0: 658 passed, 1 skipped
+  (the allergy test in tests/B/test_g2_real_rules.py, waiting for PR #5). No code change this cycle, so no LOG entry.
   BRIEF queue items 1-9 and the stretch item are done.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
 next: G2 merge of PR #2 and PR #5 (either order works). After that, rebase and confirm the allergy test runs on main
