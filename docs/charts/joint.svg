@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 400" width="760" height="400" role="img" aria-label="Can simultaneous buckets reveal the condition?">
+<title>Can simultaneous buckets reveal the condition?</title>
+<style>
+svg{--surface:#fcfcfb;--grid:#e6e5e1;--axis:#c3c2b7;--t1:#0b0b0b;--t2:#52514e;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--ref:#52514e}
+@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--grid:#2e2e2c;--axis:#52514e;--t1:#f0efec;--t2:#c3c2b7;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--ref:#c3c2b7}}
+text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:var(--t2);font-size:12px}
+.title{fill:var(--t1);font-size:16px;font-weight:600}.sub{font-size:12px}.val{fill:var(--t1);font-size:10px;letter-spacing:-0.3px}
+</style>
+<rect width="760" height="400" fill="var(--surface)"/>
+<text class="title" x="64" y="28">Can simultaneous buckets reveal the condition?</text>
+<text class="sub" x="64" y="48">Joint-inference attacker, 500 synthetic patients asking about 2-4 related drugs at once</text>
+<line x1="64" x2="736" y1="336.0" y2="336.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="56" y="340.0" text-anchor="end">0%</text>
+<line x1="64" x2="736" y1="274.0" y2="274.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="278.0" text-anchor="end">25%</text>
+<line x1="64" x2="736" y1="212.0" y2="212.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="216.0" text-anchor="end">50%</text>
+<line x1="64" x2="736" y1="150.0" y2="150.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="154.0" text-anchor="end">75%</text>
+<line x1="64" x2="736" y1="88.0" y2="88.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="92.0" text-anchor="end">100%</text>
+<path d="M151.0,336.0V190.2Q151.0,186.2 155.0,186.2H171.0Q175.0,186.2 175.0,190.2V336.0Z" fill="var(--s1)"><title>One session · Condition guessed: 60%</title></path>
+<text class="val" x="163.0" y="180.2" text-anchor="middle">60%</text>
+<path d="M177.0,336.0V232.1Q177.0,228.1 181.0,228.1H197.0Q201.0,228.1 201.0,232.1V336.0Z" fill="var(--s2)"><title>One session · Real topics recovered: 44%</title></path>
+<text class="val" x="189.0" y="222.1" text-anchor="middle">44%</text>
+<text x="176.0" y="354" text-anchor="middle">One session</text>
+<path d="M375.0,336.0V276.0Q375.0,272.0 379.0,272.0H395.0Q399.0,272.0 399.0,276.0V336.0Z" fill="var(--s1)"><title>Separate sessions + cover
+(same device, linkable) · Condition guessed: 26%</title></path>
+<text class="val" x="387.0" y="266.0" text-anchor="middle">26%</text>
+<path d="M401.0,336.0V323.1Q401.0,319.1 405.0,319.1H421.0Q425.0,319.1 425.0,323.1V336.0Z" fill="var(--s2)"><title>Separate sessions + cover
+(same device, linkable) · Real topics recovered: 7%</title></path>
+<text class="val" x="413.0" y="313.1" text-anchor="middle">7%</text>
+<text x="400.0" y="354" text-anchor="middle">Separate sessions + cover</text>
+<text x="400.0" y="368" text-anchor="middle">(same device, linkable)</text>
+<path d="M599.0,336.0V281.0Q599.0,277.0 603.0,277.0H619.0Q623.0,277.0 623.0,281.0V336.0Z" fill="var(--s1)"><title>Separate sessions + cover
+(unlinkable, needs relay) · Condition guessed: 24%</title></path>
+<text class="val" x="611.0" y="271.0" text-anchor="middle">24%</text>
+<path d="M625.0,336.0V333.1Q625.0,329.1 629.0,329.1H645.0Q649.0,329.1 649.0,333.1V336.0Z" fill="var(--s2)"><title>Separate sessions + cover
+(unlinkable, needs relay) · Real topics recovered: 3%</title></path>
+<text class="val" x="637.0" y="323.1" text-anchor="middle">3%</text>
+<text x="624.0" y="354" text-anchor="middle">Separate sessions + cover</text>
+<text x="624.0" y="368" text-anchor="middle">(unlinkable, needs relay)</text>
+<line x1="64" x2="736" y1="287.9" y2="287.9" stroke="var(--ref)" stroke-width="1.5" stroke-dasharray="6 4"><title>guess the most common condition: 19%</title></line>
+<rect x="64" y="61" width="10" height="10" rx="2" fill="var(--s1)"/>
+<text x="80" y="70">Condition guessed</text>
+<rect x="210.4" y="61" width="10" height="10" rx="2" fill="var(--s2)"/>
+<text x="226.4" y="70">Real topics recovered</text>
+<line x1="385.6" x2="403.6" y1="66" y2="66" stroke="var(--ref)" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="409.6" y="70">guess the most common condition</text>
+</svg>
