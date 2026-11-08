@@ -2,10 +2,10 @@ agent: C
 state: working            # working | blocked | waiting-review | done | not-started
 current_task: none (C-022 pushed; PR #3 updated; waiting for G2 merges)
 branch: agent/C-app-ui
-last_commit: 80bf651
+last_commit: a39ba64
 last_seen:
-  plan_version: "1.2.1"
-  decisions: D-022
+  plan_version: "1.3"
+  decisions: D-029
   logs: {A: 14, B: 27, C: 22, D: 11}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
@@ -43,5 +43,7 @@ handled_messages:
   - 20261108-1518-from-A-amoxil-and-combo-doses.md
   - 20261108-1518-from-D-s2-s6-adopted.md
   - 20261108-1520-from-human-whats-left.md
+  - 20261108-1501-from-I-plan-v1-3.md
+  - 20261108-1523-from-A-warning-lines.md
 blocked_on: none
 next: G2: after #6, #2, #3 merge, sync, drop stand-ins (D-014), one question end to end on main; then rehearsal x2 demo + x1 live by G3 17:30, timings to D

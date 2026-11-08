@@ -379,3 +379,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 634 passed, 4 skipped. `check_ownership.py --range origin/main..HEAD` → ownership ok.
 - **Inbox:** nothing new. Read I's 1520 notes to C and D: they match B's plan (C drops stand-ins for `route`, `feed` and `sync_pack` at G2).
 - **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm test_committed_pack runs, not skips.
+
+### B-030 · 2026-11-08 15:28 · commit `28e5edf` · PLAN v1.3
+
+- **Change:** New `tests/B/test_brand_questions.py` (21 tests) runs against A's real `normalize.to_ingredients`, which is now on main. Five brand-name questions are covered: Advil + Plavix, Prilosec + Plavix, Plavix + Protonix, Zestril + Aleve, Bayer low dose + Plavix. For each one: (1) it maps to the exact ingredient key; (2) online, no brand string and no question text leave the device, with 0 personal fields; (3) the named pair leads `Answer.facts` (B-026); (4) asking again is local, 0 B. "Advil with my Plavix" also sends byte-identical traffic to "ibuprofen with my clopidogrel". No router code changed.
+- **Why:** D listed brand-name cases as optional red-team work (D 1518). With the real normalizer on main, this can be pinned at the unit level.
+- **Class:** Advances
+- **Plan:** advances I3, I4, F4, M5
+- **Contract impact:** none
+- **Affects:** D: the brand-name case is covered in tests/B. E1/E3 can cite it, and nothing is required. A: the test depends on `to_ingredients` brand mapping (Advil, Prilosec, Protonix, Zestril, Aleve, Bayer). FYI only. C, I: none.
+- **Demo impact:** none (supports S6 "Plavix with Protonix")
+- **Tests:** `make test` exit 0, 658 passed, 1 skipped (the skip waits for A's allergy engine, PR #5). `check_ownership.py --range origin/main..HEAD` → ownership ok.
+- **Inbox:** C 1526 (B-025 option done in `/api/ask`). Handled, nothing to do. Read D-030, D-031 (mock CYP2D6 not_assessed): B tests are still green. Read A-015, C-022: no effect on B.
+- **Next:** G2 merge of PR #2. After PR #5 merges, rebase and confirm the allergy test in test_g2_real_rules runs.

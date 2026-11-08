@@ -202,3 +202,31 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` → 353 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok.
 - **Inbox:** human 1516 (skip encryption; test capture for G3) handled: stretch dropped, G3 test done. D 1518 (optional cases after G4) noted. Read B-027, C-021, D-011: no effect on A.
 - **Next:** live VLM run on real label photos when the human can start Ollama (after PR #6 merges). Otherwise: PR #5 review at G2, requests from B/C/D.
+
+### A-016 · 2026-11-08 15:29 · commit `25cd41d` · PLAN v1.3
+
+- **Change:** New `tests/A/test_eval_queries.py` (47 tests), the G2 support the integrator asked for (to-A 1522, D-030). No A code changed. (1) All 20 of D's q-v7 questions resolve through A's code with no silent miss. Each of the 13 drugs is an exact `normalize` key, both by its own name and inside the question text. Q14 ("my statin") names only a class and gives no Drug, by design (I4). Every key a question lists is either curated and actually fires for Alex (a flag, or the EX-001 note), or `no_data` on purpose. Each `no_data` pair is marked by `no_data_keys`. The expected X1–X5 and the CR-001/CR-002 class rules (Q17) fire. A frozen copy of q-v7 runs today; the same checks run on `eval/queries.json` once D's branch is on main. (2) The A→B handoff: `rules.check_all` gives plain contract `Flag`s that survive a JSON round trip. `route(question, flags)` returns a valid `Answer` and does not change the flags. Against B's real router (offline, cold KB), nothing is sent. Q02, Q11 and Q15 come back `known` from A's local-only flags (X3, X4, X5). X1 and X2 generalize into buckets in the partition. The router-only tests skip on main until G2.
+- **Why:** This pins the G2 end-to-end path (rules → router) before the merge, so a drug name, key spelling or `needs_cloud` mark that drifts fails in A's tests first.
+- **Verified against B's real router:** I overlaid A's code on `origin/agent/B-privacy-router` (`f2ca312`) in a scratch worktree, which has since been removed: 46 passed, 1 skipped. **Finding for B and D (not A code):** with the real router offline on a cold KB, 10 of D's `offline_state: known` questions come back `no_data`. These are Q01, Q06, Q18 and Q19 (the X1/X2 flags need the cloud and have no KB fact yet), Q12 and Q20 (`lisinopril|egfr<60` is in the partition but can't be fetched), and Q08 (EX-001 is an expected note, not a Flag, so `route` never sees it). Q15 and Q17 come back `known` only when the caller passes the asked drug's flags along with `check_all`, which is what the app does. When only `check_all` is passed they are `no_data`. Messages sent to B and D.
+- **Class:** Advances
+- **Plan:** advances G2, F3, F4, M4, I4
+- **Contract impact:** none
+- **Affects:** B: nothing to do. The test pins A's side of the handoff, and the offline gap is FYI for B and D to settle. D: the offline-state table is in the message. If B's behaviour is the intended one, `offline_state` for those 10 questions may need a note. C, I: none.
+- **Demo impact:** none. S3 and S6 run online, or after a pack sync.
+- **Tests:** `make test` exit 0, 395 passed, 6 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok. `check_network.sh`: network ok.
+- **Inbox:** I 1501 (PLAN v1.3, D-029 VLM call): A-012 already codes against it. Integrator 1522 (D-030, G2 support): both tasks done here, and encryption at rest is already dropped. Read D-025 to D-031, B-028 and B-029: no change needed from A.
+- **Next:** PR #5 review at G2. Live VLM check on real photos if the human starts Ollama. After that, requests from B, C and D.
+
+### A-017 · 2026-11-08 15:34 · commit `1fd3909` · PLAN v1.3
+
+- **Change:** New `tests/A/test_capture_shared_samples.py` (23 tests). No A code changed. It pins `capture.from_image` against C's shared label set (C-022, to-A 1526), the one set Dhiaa asked for. (1) The seven texts from C's `phone/samples/labels.json` (80bf651) are copied in and run on every branch, through the PNG iTXt path and faked OCR. Each gives exactly the right Drug: aspirin 81, clopidogrel 75, omeprazole 20, simvastatin 40, lisinopril 10, amoxicillin 500, ibuprofen 200. Each flags for Alex like the typed med: aspirin none, clopidogrel X1/X2, omeprazole X2, simvastatin X3, lisinopril X4, ibuprofen X5 ×4 (one per med pair), amoxicillin AL-001. The Amoxil label's "allergic to penicillin" line never becomes a product. (2) The real PNGs in `phone/samples/` (C owns them) are tested when the folder exists, which means on main after C's PR. `labels.json` matches A's expected set. Each PNG gives the right Drug and flags from its `gv:label` text. With the iTXt chunk stripped and no engine, it gives `[]` with no guess (I4). With OCR faked to the label text, it gives the right Drug again.
+- **Why:** C asked for it (to-A 1526), and it's Dhiaa's 15:20 item 2 (one shared label set). A drift between C's samples and A's parser now fails in A's tests.
+- **Verified against C's real files:** I checked out `phone/samples/` from `origin/agent/C-app-ui` into the A worktree temporarily: 23 passed. I removed the files before committing, so no C path is in the commit.
+- **Class:** Advances
+- **Plan:** advances F2, F3, M3, S2, I4
+- **Contract impact:** none
+- **Affects:** C: nothing to do. If you change `labels.json` or a PNG, `tests/A` will flag it (message sent). I: 15 of the new tests skip on main until C's PR lands, then they run. B, D: none.
+- **Demo impact:** none (supports S2 photo beat and the S6 Amoxil bonus)
+- **Tests:** `make test` exit 0, 403 passed, 21 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok.
+- **Inbox:** C 1526 (shared label set) handled here. Read B-030, B-031 and C-022: no change needed from A. B-030 relies on A's brand mapping (Advil, Prilosec, Protonix, Zestril, Aleve, Bayer), which is noted and unchanged. No new DECISIONS since D-031, and PLAN is still v1.3.
+- **Next:** PR #5 review at G2. Live VLM check on C's PNGs with the iTXt stripped, if the human starts Ollama. After that, requests from B, C and D.
