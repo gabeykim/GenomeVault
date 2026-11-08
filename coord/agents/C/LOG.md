@@ -222,3 +222,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** visual only (all beats)
 - **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Both new samples read with A's reader (clopidogrel 75, ibuprofen 200). Checked in the merged preview at desktop and phone sizes (laptop, phone, `/summary`), no console errors.
 - **Next:** drop the stand-ins (D-014); A's no_data marker (PR #5); rehearsal after G2
+
+### C-018 · 2026-11-08 14:55 · commit `b4fc781` · PLAN v1.2.1
+
+- **Change:** Palette set to the human owner's hexes: midnight `#02070A` (raised `#0b161d`, lines `#17252e`, muted `#8d9ca6`), electric blue `#0297DE`, cantaloupe `#FC734D`. Text on blue or cantaloupe fills is now midnight (hover rows, Known chip, phone camera button, shield helix). Status red is `#ff4f8b`, green `#5fd38b`. The phone page, `/summary` frame and sample labels (regenerated with `phone/make_samples.py`) match.
+- **Why:** Human owner's exact palette.
+- **Class:** Refines
+- **Plan:** advances M10
+- **Refinements:** AA everywhere. Warm white on midnight 17.4; blue text on midnight 6.3; cantaloupe on midnight 7.4; midnight on blue fill 6.3; midnight on cantaloupe 7.4; red 6.5; green 10.8. Warm white on the new blue (2.8) and cantaloupe (2.3) fails, which is why fills carry midnight text. Red sits 33° of hue from cantaloupe.
+- **Contract impact:** none
+- **Affects:** D: hexes changed again → use `#02070A` / `#0297DE` / `#FC734D` (red `#ff4f8b`, green `#5fd38b`) and retake screenshots
+- **Demo impact:** visual only
+- **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Both regenerated samples read with A's reader. Checked in the merged preview at desktop and phone sizes, no console errors.
+- **Next:** read A's/B's 14:44–14:49 messages; drop the stand-ins (D-014); A's no_data marker (PR #5); rehearsal after G2
