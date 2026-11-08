@@ -79,3 +79,56 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Demo impact:** S2: a sample label photo (embedded text) gives clopidogrel 75 mg with no network. A real camera photo works only if tesseract is installed. S6: `demo_png("IBUPROFEN 200 MG")` → ibuprofen → X5 offline.
 - **Tests:** `make test` → 145 passed (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok
 - **Next:** queue 8, the `no_data` marker for unlisted pairs (rules helper for the router). Queue 7 (X5) was done in A-003; I'll close it after one check.
+
+### A-007 · 2026-11-08 14:39 · commit `7cf591f` · PLAN v1.2.1
+
+- **Change:** Two additive helpers in `core/rules.py`. `key_state(key)` gives the PLAN P6 answer state of one exact key in the local curated tables: `known` if a rule, an expanded class rule or an expected combination covers it, otherwise `no_data`. `no_data_keys(drug, profile)` lists the drug-drug pair keys between `drug` and the profile's other meds that no table covers (sorted, one per key). `rules.check` is unchanged. New `tests/A/test_no_data.py` (7 tests). PR #5 is open (PR #1 was merged at G1).
+- **Why:** BRIEF queue 8: an unlisted pair gives no flags plus a `no_data` marker. It also gives S6 a local check that `clopidogrel|pantoprazole` stays `no_data` while `clopidogrel|omeprazole` is known (I4, no extrapolation).
+- **Class:** Refines
+- **Plan:** advances I4, P6 answer states, S6; refines M4
+- **Refinements:** (1) A key is `known` locally if it is in `rules.all_keys()` (gene_drug, drug_drug, drug_lab, class rules expanded over their listed members) or in `expected_combinations.json`. Anything else is `no_data`. (2) `none_listed` needs a curated "listed as no interaction" table with a source. None is authored, so `key_state` never returns it today. I won't invent such entries without a citable source. (3) Keys on genes in `NOT_ASSESSED` (CYP2D6) are always `no_data` (D-021). (4) The marker covers drug-drug pairs only, not gene or lab keys.
+- **Contract impact:** none (additive, module-local; not in CONTRACTS)
+- **Affects:** B: optional. `router.route` already returns `no_data` for keys outside the bucket universe, so nothing is required. `rules.key_state` / `no_data_keys` let the router or KB tell "no local entry" apart before going to buckets (message sent). C: optional. The UI can show "no entry for this exact pair; ask your pharmacist" for `no_data_keys` (I7 wording) → no message, see B note. D: none.
+- **Demo impact:** S6 no-extrapolation: pantoprazole gives no flag, and `clopidogrel|pantoprazole` is marked `no_data` locally.
+- **Tests:** `make test` → exit 0, 152 passed; `check_ownership.py --range origin/main..HEAD` → ownership ok
+- **Queue:** 7 (X5) closed. It was done in A-003, and `tests/A/test_alex_flags.py::test_ibuprofen_gives_x5_on_four_exact_keys` covers it. 8 is done with this entry. The core queue (1–8) is complete.
+- **Next:** stretch: encryption at rest for the SQLite graph (stdlib only, no new dependency), or a merged run with B/C/D branches against the real A code. I'll take requests from C/D first.
+
+### A-008 · 2026-11-08 14:44 · commit `f634d24` · PLAN v1.2.1
+
+- **Change:** `data/rules/drug_names.json` v2 now names every drug in B's bucket universe (`data/buckets/v5.json` on B's branch: 103 drugs, 78 of which `normalize` could not read), plus codeine and St. John's wort, with common US brands (Celexa, Lexapro, Bactrim DS, Tylenol with Codeine, Depakote...). `core/normalize.py` now tokenizes table names the same way as input text, so "St. John's Wort" and "st johns wort" both match. New `tests/A/test_universe_names.py` (21 tests, 1 skipped on main). PR #5 updated.
+- **Why:** I compared A's code against D's 20 eval questions (`eval/queries.json`, D's branch). Typed "citalopram", "codeine", "St. John's wort" or "Celexa" gave `[]`, so the question never reached the router (F2). The same was true for 78 of the universe's 103 drugs.
+- **Class:** Refines
+- **Plan:** advances F2, M3; refines M3
+- **Refinements:** (1) Multi-word ingredient ids use underscores: `st_johns_wort`, which matches D's keys. (2) Salt forms collapse to the universe id: isosorbide mononitrate and dinitrate → `isosorbide`; valproic acid, divalproex and Depakote → `valproate`; rifampicin → `rifampin`; salbutamol → `albuterol`. (3) This adds names only, no rules. Meloxicam and piroxicam are NSAIDs but not listed class members, so they give no X5-style flag (I4). A test checks that Alex gets no flags from any new name. (4) `test_every_bucket_universe_drug_is_readable` reads the newest `data/buckets/v*.json` and skips until B's partition is on main.
+- **Contract impact:** none
+- **Affects:** B: after PR #5 merges, every v5 drug typed or photographed reaches `router.route` as the exact ingredient id. Nothing required. If a new bucket version adds a drug, the test above fails until I add the name (message sent). C: the typed box and `capture.from_image` read these names with no code change (message sent). D: Q03/Q05/Q16 drugs now normalize. Also, `rules.key_state("aspirin|clopidogrel")` is `known` locally (EX-001 DAPT note), but Q08's `offline_state` is `no_data` (message sent).
+- **Demo impact:** none in S1–S6. Off-script typed questions (codeine, citalopram, supplements) now reach the router instead of silently doing nothing.
+- **Tests:** `make test` → 173 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok. By hand against B's v5: 103/103 universe drugs normalize to themselves.
+- **Next:** wait for PR #5 review. Answer D on Q08. Stretch: encryption at rest needs a crypto dependency (stdlib has no cipher, and I won't hand-roll one), so I'd raise it with the integrator before starting.
+
+### A-009 · 2026-11-08 15:00 · commit `d621bd8` · PLAN v1.2.1
+
+- **Change:** `core/ingest.py` can now also read a PharmCAT phenotype report (`*.phenotype.json`) alongside our own VCF caller. The new functions are `read_pharmcat(report)` and `merge_pharmcat(...)`, plus an optional `ingest(..., pharmcat=None)` argument. It accepts PharmCAT 2.x `geneReports` keyed by source (CPIC first) or directly by gene. Default behavior is unchanged: `graph.load_profile()` still calls `ingest()` with no report. New `tests/A/test_pharmcat.py` (9 tests, synthetic reports only, I1). PR #5 updated, and the branch is rebased on origin/main 64b66cb (last cycle's rebase had not been pushed).
+- **Why:** BRIEF A stretch ("PharmCAT path"). It lets a user who already ran PharmCAT locally bring its calls in. Our own caller stays the default and the cross-check.
+- **Class:** Refines
+- **Plan:** advances M1, F1 (stretch); keeps I2, I4, D-021
+- **Refinements:** (1) A PharmCAT call is used only when there is exactly one diplotype with exactly one phenotype, and that phenotype is already in `data/pgx_alleles.json` for that gene. Several diplotypes, "Likely ...", "Indeterminate", a missing phenotype, or an unknown term all give `indeterminate`, which no rule key uses (I4). (2) If PharmCAT and our VCF caller both give a phenotype and they differ, the gene is `indeterminate`; we don't pick one. A test shows a conflicting CYP2C19 report drops X1 rather than silently clearing it. (3) CYP2D6 is never taken from PharmCAT and stays `not_assessed` (D-021). (4) A gene the report doesn't mention keeps the VCF call. If the VCF couldn't call the gene, a clean PharmCAT call fills it. (5) PharmCAT itself is not run or bundled (it's Java). We read its JSON with stdlib only: no new dependency, no network (I2).
+- **Contract impact:** none. `Profile` and `graph.load_profile` are unchanged. `ingest.ingest` gained an optional keyword argument, and only A's code calls it.
+- **Affects:** none, so no messages. B-017's G2 test on real rules is unaffected because the default ingest is unchanged.
+- **Demo impact:** none (S1–S6 use the VCF path)
+- **Tests:** `make test` → 182 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok.
+- **Next:** wait for PR #5 review at G2. The Q08 question to D is still open. The other stretch item, encryption at rest, needs a crypto dependency, so I'd ask the integrator first. Otherwise: requests from B/C/D.
+
+### A-010 · 2026-11-08 14:54 · commit `3b2e4b1` · PLAN v1.2.1
+
+- **Change:** New `tests/A/test_genotype_sweep.py` (18 tests). It builds a VCF for every 0/1/2-copy combination of each assessed gene's rsIDs (27 for CYP2C19, 9 for CYP2C9 and SLCO1B1, 3 for VKORC1), runs it through `ingest`, then runs `rules.check` on each gene-drug rule's drug at 10 mg and 40 mg. No code change. PR #5 updated, rebased on origin/main 1fb5eee.
+- **Why:** Queue 1–8 is done. The ingest tests checked hand-picked genotypes and the rules tests checked Alex. Nothing checked the two together across all genotypes, so a rule whose phenotype ingest can never emit would never fire and nobody would notice.
+- **Class:** Advances
+- **Plan:** advances F1, F3, M1, M4, I4
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** none, so no messages.
+- **Demo impact:** none
+- **Tests:** `make test` → 200 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok. The sweep found no defects. Every rule phenotype (gene-drug and the drug-drug CYP2C19 context) is reachable from a VCF. Ingest only emits table phenotypes or `indeterminate`. Each gene-drug flag fires exactly for its phenotype and dose band, and never for `indeterminate` (I4).
+- **Next:** wait for PR #5 review at G2. I asked the human whether to request `cryptography` for the encryption-at-rest stretch (to-human 1454). Until they answer, I'm taking requests from B/C/D.

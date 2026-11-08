@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: merged A+B+C+D verification done; PR #2 rebased on main 4fcd641 and ready for G2
+current_task: none open. Queue 1–9 and the stretch are done. PR #2 is rebased on main 7aad6b0 (head 8e98cf1), its title and body are now a G2 review guide (B-021), waiting for G2
 branch: agent/B-privacy-router
-last_commit: 2d77102
+last_commit: 8e98cf1
 last_seen:
-  plan_version: "1.2"
-  decisions: D-021
-  logs: {A: 6, B: 16, C: 14, D: 8}
+  plan_version: "1.2.1"
+  decisions: D-024
+  logs: {A: 10, B: 21, C: 17, D: 9}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -24,14 +24,14 @@ handled_messages:
   - 20261108-1426-from-D-wording-latency-v4.md
   - 20261108-1428-from-C-status-and-switch.md
   - 20261108-1432-from-C-cover-started.md
-blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019); escalated to to-human; cache must be v5
+  - 20261108-1438-from-D-i4-route-known.md
+  - 20261108-1439-from-A-no-data-marker.md
+  - 20261108-1444-from-A-universe-names.md
+blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019; to-human 1418; cache must be v5)
 notes: >
-  Verification cycle, no code change. B 2d77102 + A f9db84a + C 3feb861 + D 928224d merged cleanly (octopus,
-  no conflicts) in a throwaway worktree: make test exit 0, 723 passed. In that merge, B's v5 tests (one bucket
-  per generalized topic, every rules.all_keys() key resolves) and D's test_d_wording pass against A's real rules.
-  I did not run `python -m eval.redteam` / `eval.wording` directly (sandbox needs approval); D should confirm the
-  splits = {} and 25/25 numbers. router._profile already prefers A's core.graph.load_profile, so nothing to switch
-  after G1. C's names (status, set_offline, start_cover, stop_cover, cover_running) are kept.
-  Housekeeping: untracked " 2"/" 3" copies of B files keep reappearing in gv-B (same bytes as tracked files, looks
-  like Desktop/iCloud sync); left alone, never committed; told the integrator.
-next: after G2 merge, freeze v5; take A's no_data helper (A queue 8) in router when it lands; stretch: pack sync polish
+  B-021: rebased on main 7aad6b0 and force-pushed; make test exit 0, 619 passed; ownership ok. Rewrote the
+  PR #2 description, which was stale (it described queue 1 only), as a G2 review guide. Read A-010
+  (genotype sweep, tests only): no B impact. No new inbox messages, DECISIONS (still D-024), proposals for B
+  or PLAN bump. Untracked Finder copies ("core/cloud 2.py" etc.) sit in B paths and make check_network.sh
+  fail, but only locally. They are not in git and CI does not see them. A human can delete them.
+next: G2 merge of PR #2, then freeze bucket v5; record the demo cache once the key is available; otherwise take requests from A/C/D

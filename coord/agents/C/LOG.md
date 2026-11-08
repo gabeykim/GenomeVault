@@ -183,3 +183,55 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S4 (the ledger shows steady cover traffic next to real decoy groups; "cover on" in the header)
 - **Tests:** C alone → `make test` exit 0 (79 passed, 5 skipped). origin/main + A (`f9db84a`) + B (`85ab929`) + C + D (`928224d`) merged → exit 0, 723 passed, **no mocks left in the app**. With `GV_COVER_INTERVAL_S=8` in the merged preview, 3 cover rows (b17, b04, b10, ~3 KB, 0 personal fields) arrived in 20 s.
 - **Next:** queue 5: `phone/` page + `POST /api/capture` (A's real `capture.from_image` is now on PR #1), then drop the stand-ins (D-014)
+
+### C-015 · 2026-11-08 14:41 · commit `bd85112` · PLAN v1.2
+
+- **Change:** Added the phone page (BRIEF C queue 5) at `/phone` (`phone/index.html`, `phone.css`, `phone.js`). It has: take a photo of a label, two synthetic sample labels (`phone/samples/*.png`, built with A's `capture.demo_png`), or type a name. Then it shows flags in red/amber, info notes, and reminders with "Add to my calendar". `POST /api/capture` takes the raw image bytes plus Content-Type (no multipart dependency), calls `capture.from_image` (D-020), and returns `{read, drugs, flags, notes}`. The photo is never stored or sent. `GET /api/captures?since` feeds a live "From your phone" list on the laptop's Medications tab. `/api/check` accepts `via: "phone"`. Pairing: any request that isn't from this machine needs the code from Actions → Use your phone (`POST /api/phone/pair` sets an HttpOnly, SameSite=Strict cookie; lockout after 10 misses; `GET /api/phone` shows the code to the laptop only). `phone/serve_https.sh` serves on the LAN over HTTPS with a 7-day self-signed cert from the system `openssl`, kept in `~/.genomevault/cert`, never in the repo. Added `tests/C/test_phone.py` (17 tests).
+- **Why:** BRIEF C queue 5, S2 and S6 ("actions to phone"). D-020 asked C to call `capture.from_image` from `app.py`.
+- **Class:** Advances
+- **Plan:** advances F2, M10, S2, S6, D-020
+- **Refinements:** (1) Pairing gate: the app is reachable on the LAN only through `serve_https.sh`, and only paired devices get data. (2) No voice input, because browser speech recognition sends audio to a cloud service (contrary to P1). (3) Raw-body upload avoids adding `python-multipart`. (4) An unreadable photo says so honestly and points to typed input.
+- **Contract impact:** none
+- **Affects:** A: app passes raw bytes + Content-Type to `capture.from_image` → none. D: S2 can be phone page → tap the Plavix sample (or a real photo with tesseract) → it shows on the laptop → script note. I: `phone/serve_https.sh` binds 0.0.0.0, pairing-gated → FYI.
+- **Demo impact:** S2 (capture on phone, appears on the laptop), S6 (reminders on the phone)
+- **Tests:** C alone → `make test` exit 0 (94 passed, 7 skipped). origin/main + A + B + C + D merged → exit 0, 743 passed; both samples read with A's reader (clopidogrel → X1, X2; ibuprofen → X5 ×4). Real `serve_https.sh` run on the LAN IP: `/phone` 200, unpaired `/api/profile` 401, pair 200, capture reads ibuprofen with 4 flags, a paired phone gets 403 for `/api/phone`, and the laptop sees the capture. Checked by hand at phone and desktop sizes, no console errors.
+- **Next:** drop the stand-ins (D-014); rehearsal with D's script after the merge
+
+### C-016 · 2026-11-08 14:45 · commit `73466b5` · PLAN v1.2.1
+
+- **Change:** New accent palette on bone paper. Midnight black `#0a1020` is the main accent (text, rules, wordmark, hover fills). Electric blue `#1f4bff` is the secondary accent: data in motion (strand packets, ledger blocks, the user's own question in the 8-question view, cover-on, learned count) and interaction (active tab, Online switch, focus rings). Cantaloupe `#ffa177` is the third accent: medium severity and no-data fills, text selection, the asked marker, and a few intro blocks, with `#9c4614` for cantaloupe text on bone. Red and green stay as status colors. The laptop UI, phone page and printable `/summary` share the tokens.
+- **Why:** Human owner's palette choice.
+- **Class:** Refines
+- **Plan:** advances M10
+- **Refinements:** palette tokens `--ink`, `--blue`, `--melon`, `--melon-text`. All text pairs meet WCAG AA: midnight on bone 14.5, blue on bone 4.6, light blue on midnight 7.0, deep cantaloupe on bone 4.9, midnight on cantaloupe 9.6.
+- **Contract impact:** none
+- **Affects:** D: slides and screenshots should use the new palette (midnight, electric blue, cantaloupe on bone) → retake screenshots
+- **Demo impact:** visual only (S1 intro lanes now carry a few blue and cantaloupe blocks)
+- **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Checked in the merged preview at desktop and phone sizes, no console errors.
+- **Next:** drop the stand-ins (D-014); show A's no_data marker when PR #5 lands; rehearsal after G2
+
+### C-017 · 2026-11-08 14:52 · commit `049d9cb` · PLAN v1.2.1
+
+- **Change:** The whole UI now uses the three-color palette on a dark canvas, replacing C-016's bone background. Midnight `#0a1020` is the canvas (raised `#121b33`), with warm-white `#f2ede4` text. Electric blue `#1f4bff` carries structure and motion: section bars, the shield logo, hover fills, ledger blocks, the Online switch, the Known chip, the camera button. Cantaloupe `#ffa177` is the spark: the wordmark bar, active tab, strand packets, "yours" in the 8-question view, the Offline pill, medium severity, selection and focus. Status red is `#ff5470` (30° of hue from cantaloupe) and green is `#5fd38b`. The printable `/summary` stays a white sheet on the midnight canvas. The sample labels are redrawn as small palette-colored pharmacy labels (`phone/make_samples.py`) with the same embedded `gv:label` text.
+- **Why:** Human owner asked for the entire design in these colors.
+- **Class:** Refines
+- **Plan:** advances M10, S1, S2
+- **Refinements:** a dark theme by design, and the print view stays light. AA contrast on every text pair: text on midnight 16.3, muted 6.5, blue text `#7d97ff` 7.0, white on blue fill 5.1, cantaloupe 9.6, red 6.1, green 10.1.
+- **Contract impact:** none
+- **Affects:** D: slides and screenshots should use the dark theme → retake. A: sample PNGs still use your `gv:label` iTXt format and read correctly with `capture.from_image` → none.
+- **Demo impact:** visual only (all beats)
+- **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Both new samples read with A's reader (clopidogrel 75, ibuprofen 200). Checked in the merged preview at desktop and phone sizes (laptop, phone, `/summary`), no console errors.
+- **Next:** drop the stand-ins (D-014); A's no_data marker (PR #5); rehearsal after G2
+
+### C-018 · 2026-11-08 14:55 · commit `b4fc781` · PLAN v1.2.1
+
+- **Change:** Palette set to the human owner's hexes: midnight `#02070A` (raised `#0b161d`, lines `#17252e`, muted `#8d9ca6`), electric blue `#0297DE`, cantaloupe `#FC734D`. Text on blue or cantaloupe fills is now midnight (hover rows, Known chip, phone camera button, shield helix). Status red is `#ff4f8b`, green `#5fd38b`. The phone page, `/summary` frame and sample labels (regenerated with `phone/make_samples.py`) match.
+- **Why:** Human owner's exact palette.
+- **Class:** Refines
+- **Plan:** advances M10
+- **Refinements:** AA everywhere. Warm white on midnight 17.4; blue text on midnight 6.3; cantaloupe on midnight 7.4; midnight on blue fill 6.3; midnight on cantaloupe 7.4; red 6.5; green 10.8. Warm white on the new blue (2.8) and cantaloupe (2.3) fails, which is why fills carry midnight text. Red sits 33° of hue from cantaloupe.
+- **Contract impact:** none
+- **Affects:** D: hexes changed again → use `#02070A` / `#0297DE` / `#FC734D` (red `#ff4f8b`, green `#5fd38b`) and retake screenshots
+- **Demo impact:** visual only
+- **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Both regenerated samples read with A's reader. Checked in the merged preview at desktop and phone sizes, no console errors.
+- **Next:** read A's/B's 14:44–14:49 messages; drop the stand-ins (D-014); A's no_data marker (PR #5); rehearsal after G2

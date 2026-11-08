@@ -211,3 +211,66 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 512 passed (38 new in `tests/B/test_wording.py`); `check_ownership.py --range origin/main..HEAD` → ownership ok.
 - **Delay cost (D §2, P6.4):** I'm keeping the sequential per-request pauses for now. Sending a bucket's 8 requests at once cuts live latency about 8× but makes the 8 requests land together, which weakens the timing cover. Demo mode is unaffected. I'll ask the integrator if live latency becomes a demo issue.
 - **Next:** merged run with A/C/D branches (D's `splits` empty on v5, wording 25/25); switch to real A code after G1; freeze v5 from G2.
+
+### B-017 · 2026-11-08 14:50 · commit `b960699` · PLAN v1.2.1
+
+- **Change:** New `tests/B/test_g2_real_rules.py` (5 tests; tests only, no code change). It runs the G2 path on A's real code from main (D-022) with no mock profile or flags: `graph.load_profile()` → `rules.check_all()` → `router.route()` → ledger. Only the cloud is replayed (DEMO=1), from a temporary cache that answers every partition key. The tests check five things. (1) The real engine fires X1–X4, and every flag that needs the cloud has a bucket: X1 `CYP2C19:poor_metabolizer|clopidogrel` and X2 `clopidogrel|omeprazole`. (2) One question answers both and sends exactly their two buckets (b03, b14). Each bucket sends 8 distinct texts with `bytes_out > 0` and `personal_fields_sent == 0`, passes `check_outbound` against the real profile, and contains no genotype string. The answer passes `check_output` (I4) and the I7 wording filter. (3) Asking again gives a single `kb_hit` with 0 bytes. (4) X3/X4 on their own are `local_only`. (5) Offline, ibuprofen fires X5 locally and 0 bytes leave (S6, F8).
+- **Why:** G2 needs "one question end to end with live ledger". Until now B's router tests used hand-written flags and the mock profile. These tests show the G2 path works on the real merged engine, so B's side of G2 can be checked on main and not only in a throwaway merge.
+- **Class:** Advances
+- **Plan:** advances G2, P6 (steps 1–5, 7, 8), I3, I4, I5, I7, F8; D-022
+- **Contract impact:** none
+- **Affects:** none, so no messages. A: if a rule change stops X1/X2 needing the cloud, or adds a cloud key with no bucket, these tests fail (the existing guard test already catches the second case). C, D: nothing.
+- **Demo impact:** none. S4's two sends (b03, b14) are now covered by tests on real flags.
+- **Tests:** `make test` exit 0, 1048 passed. That count includes the untracked " 2"/" 3" duplicate test files that Desktop sync keeps recreating; without them it is 609 passed. `check_ownership.py --range origin/main..HEAD` → ownership ok.
+- **Next:** G2 merge of PR #2. A's no_data helper (A queue 8) is not on main and A's loop is stopped, so that item stays blocked. The demo cache still needs an API key (to-human 1418).
+
+### B-018 · 2026-11-08 14:45 · commit `cafebe3` · PLAN v1.2.1
+
+- **Change:** `router.route()` no longer answers `known` ("checked on your device, nothing sent") when no flag covers the question. The question is still read only on the device, and three kinds of exact key now come from it: (1) pairs of named drugs, as before; (2) gene-drug keys in the partition (or its aliases) for a named drug, when the question mentions genes and the gene is assessed in the profile; (3) drug-lab keys in the partition when the question names a lab test (CK, liver/ALT, kidney/eGFR, potassium, INR, ...), for the named drugs, or for the drugs in the caller's flags when the question names none. A gene or lab key is skipped when a flag already covers that gene or lab for that drug. A local flag "covers" the question if it shares a drug the question names, or if the question names no drug. The answer is `known` only when it has facts, or when a flag covers the question and no key that the cloud or the partition could answer is left open. Everything else is `no_data`, with `NO_DATA_TEXT`, or `OFFLINE_TEXT` when offline. 7 new tests in `tests/B/test_router.py`.
+- **Why:** D reported an I4 break (inbox 20261108-1438). With no flag, Q16 St. John's wort, Q03 codeine and Q04/Q05 warfarin/citalopram came back as "checked, nothing found", and Q04/Q05 never reached the cloud. Offline Q13/Q14 (CK/ALT with X3 only) also read as `known`.
+- **Class:** Advances (I4: missing = `no_data`)
+- **Plan:** advances I4, P6.1–P6.3, E4; refines P6.1
+- **Refinements:** P6.1 "local rules answer it" applies only when a flag covers the question (it shares a named drug, or the question names none) and no answerable key is left open. The router reads the question's own subject locally: named pairs, plus gene-drug keys when it says "genes", plus drug-lab keys when it names a lab. Asked keys outside the partition are never sent and do not, on their own, hold back an answer that a covering flag gives (Q17 naproxen class rule stays `known`, online and offline).
+- **Contract impact:** none. `route(question, flags) -> Answer` is unchanged.
+- **Affects:** C: more questions now come back as `no_data`, and the text is the existing `NO_DATA_TEXT`/`OFFLINE_TEXT`. A gene question with no flag (Q04 "would my genes matter if I needed warfarin?") now sends its buckets (b01 + b03) → C: no code change, but the ledger shows those sends. D: I4 check now passes → re-run on the merge. A: none. `rules.no_data_keys` is not needed for this.
+- **Demo impact:** none on the scripted beats. S3 X1–X4 and S6 pantoprazole/offline ibuprofen behave as before. An off-script gene question now goes to the cloud as buckets and is no longer a false "checked locally".
+- **Tests:** `make test` exit 0, 1055 passed (7 new; the count includes the untracked " 2"/" 3" duplicates). Temporary merge of B + origin/D + C + A: `python -m eval.offline` gave matches_offline_state_cold 20/20 and `unbacked_known: []`. `python -m eval.gate` gave I4 PASS (14 pass, 3 warn, 0 fail). The warns are D's fixture partition, the simulated E2, and the I7a skip. With DEMO replay from a cache that answers every bucket, all 20 queries return their `expected_state` online. `check_ownership.py` → ownership ok.
+- **Next:** G2 merge of PR #2. The demo cache still needs the API key (to-human 1418). Stretch: pack sync polish.
+
+### B-019 · 2026-11-08 14:49 · commit `6b81173` · PLAN v1.2.1
+
+- **Change:** `router._named_drugs` now also reads A's `normalize.to_ingredients` (G1 contract), limited to the bucket universe, so a brand name in the question counts as its ingredient. "Is Plavix OK with Protonix?" now asks `clopidogrel|pantoprazole`, and "Advil with my lisinopril" asks `ibuprofen|lisinopril`. If the normalizer raises, the old word match is used alone.
+- **Why:** The router matched only bare ingredient words. A brand-name question named no drug, so the demo pair key was never looked up. With a local clopidogrel flag (e.g. X2) the answer came back `known` ("checked on your device"), which breaks I4. C passes the raw question to `route`, so the fix belongs here.
+- **Class:** Advances
+- **Plan:** advances F4, I4, P6.1
+- **Contract impact:** none (`route` unchanged; uses `normalize.to_ingredients`)
+- **Affects:** C: brand-name questions now route by exact key and may send a bucket. No code change needed. D: you could add a brand-name query (e.g. "Plavix with Protonix") to the E4/I4 set. A: none. Multi-word ids (`st_johns_wort`) are now readable too, but none are in v5.
+- **Demo impact:** S6 works whether the pantoprazole question is typed with brand names or ingredient names. Nothing else changes.
+- **Tests:** `make test` exit 0, 1058 passed (3 new in `tests/B/test_router.py`; all 3 fail without the fix). Caught up on D-023/D-024 (no code impact), A-008 and to-B 1444 (no new bucket drugs, no change needed).
+- **Next:** G2 merge of PR #2; demo cache once the API key is available (to-human 1418).
+
+### B-020 · 2026-11-08 15:00 · commit `425f764` · PLAN v1.2.1
+
+- **Change:** `tests/B/conftest.py` sets `collect_ignore_glob = ["* [0-9].py", "* [0-9][0-9].py"]`, so pytest skips the untracked macOS Finder copies ("test_cloud 3.py" etc.) in `tests/B/`.
+- **Why:** Those copies are never committed, but locally pytest collected 439 extra tests from them, so the local count (1058) did not match CI and a stale copy could go red for no real reason. Real B+repo count is 619.
+- **Class:** Refines
+- **Plan:** none directly (test hygiene for B's scope ahead of G2)
+- **Refinements:** B's local test runs ignore Finder duplicate files named "* N.py".
+- **Contract impact:** none
+- **Affects:** none. Other agents' worktrees can have the same Finder copies; this only covers `tests/B/`.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 619 passed. Rebased on main (only coord commits since B-019), PR #2 CI green. No new inbox messages, DECISIONS (D-024) or LOG entries since last cycle.
+- **Next:** G2 merge of PR #2; demo cache once the API key is available (to-human 1418). Queue 1–9 done; stretch (knowledge-pack sync) next if G2 is still pending.
+
+### B-021 · 2026-11-08 15:10 · commit `8e98cf1` · PLAN v1.2.1
+
+- **Change:** No code change. Rebased PR #2 on main 7aad6b0 and force-pushed it (head 8e98cf1). Rewrote the PR #2 title and body as a G2 review guide. The old body described only queue 1 (v1 buckets, 14 tests). The new one maps every file to its queue item and PLAN IDs, lists the checks, and names the one open item.
+- **Why:** PR #2 is the G2 merge. With a 4640-line diff and a stale description, the integrator could not review it quickly.
+- **Class:** Advances
+- **Plan:** advances G2 readiness (F4, M5, P6, I3, I4, I5, I7, all already in the code)
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I (integrator): PR #2 is ready for G2 review, and the guide is in the PR body. A, C, D: none. A-010 (genotype sweep, tests only) does not affect B.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 619 passed. `check_ownership.py --range origin/main..HEAD` ok. I2 network grep over tracked files is clean. Locally, `check_network.sh` flags the untracked Finder copies `core/cloud 2.py` and `core/cloud 3.py`. They are not in git, so CI does not see them. I have not deleted them.
+- **Next:** G2 merge of PR #2, then freeze bucket v5. Record the demo cache once the API key arrives (to-human 1418). Until then, take requests from A, C and D.
