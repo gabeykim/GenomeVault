@@ -19,28 +19,28 @@ text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;f
 <text x="56" y="154.0" text-anchor="end">75%</text>
 <line x1="64" x2="736" y1="88.0" y2="88.0" stroke="var(--grid)" stroke-width="1"/>
 <text x="56" y="92.0" text-anchor="end">100%</text>
-<path d="M151.0,336.0V153.0Q151.0,149.0 155.0,149.0H171.0Q175.0,149.0 175.0,153.0V336.0Z" fill="var(--s1)"><title>One session · Condition guessed: 75%</title></path>
-<text class="val" x="163.0" y="143.0" text-anchor="middle">75%</text>
-<path d="M177.0,336.0V208.8Q177.0,204.8 181.0,204.8H197.0Q201.0,204.8 201.0,208.8V336.0Z" fill="var(--s2)"><title>One session · Real topics recovered: 53%</title></path>
-<text class="val" x="189.0" y="198.8" text-anchor="middle">53%</text>
+<path d="M151.0,336.0V162.4Q151.0,158.4 155.0,158.4H171.0Q175.0,158.4 175.0,162.4V336.0Z" fill="var(--s1)"><title>One session · Condition guessed: 72%</title></path>
+<text class="val" x="163.0" y="152.4" text-anchor="middle">72%</text>
+<path d="M177.0,336.0V206.6Q177.0,202.6 181.0,202.6H197.0Q201.0,202.6 201.0,206.6V336.0Z" fill="var(--s2)"><title>One session · Real topics recovered: 54%</title></path>
+<text class="val" x="189.0" y="196.6" text-anchor="middle">54%</text>
 <text x="176.0" y="354" text-anchor="middle">One session</text>
-<path d="M375.0,336.0V269.1Q375.0,265.1 379.0,265.1H395.0Q399.0,265.1 399.0,269.1V336.0Z" fill="var(--s1)"><title>Separate sessions + cover
-(same device, linkable) · Condition guessed: 29%</title></path>
-<text class="val" x="387.0" y="259.1" text-anchor="middle">29%</text>
-<path d="M401.0,336.0V336.0Q401.0,335.5 401.5,335.5H424.5Q425.0,335.5 425.0,336.0V336.0Z" fill="var(--s2)"><title>Separate sessions + cover
-(same device, linkable) · Real topics recovered: 0%</title></path>
-<text class="val" x="413.0" y="329.5" text-anchor="middle">0%</text>
+<path d="M375.0,336.0V256.2Q375.0,252.2 379.0,252.2H395.0Q399.0,252.2 399.0,256.2V336.0Z" fill="var(--s1)"><title>Separate sessions + cover
+(same device, linkable) · Condition guessed: 34%</title></path>
+<text class="val" x="387.0" y="246.2" text-anchor="middle">34%</text>
+<path d="M401.0,336.0V323.9Q401.0,319.9 405.0,319.9H421.0Q425.0,319.9 425.0,323.9V336.0Z" fill="var(--s2)"><title>Separate sessions + cover
+(same device, linkable) · Real topics recovered: 6%</title></path>
+<text class="val" x="413.0" y="313.9" text-anchor="middle">6%</text>
 <text x="400.0" y="354" text-anchor="middle">Separate sessions + cover</text>
 <text x="400.0" y="368" text-anchor="middle">(same device, linkable)</text>
-<path d="M599.0,336.0V269.1Q599.0,265.1 603.0,265.1H619.0Q623.0,265.1 623.0,269.1V336.0Z" fill="var(--s1)"><title>Separate sessions + cover
-(unlinkable, needs relay) · Condition guessed: 29%</title></path>
-<text class="val" x="611.0" y="259.1" text-anchor="middle">29%</text>
-<path d="" fill="var(--s2)"><title>Separate sessions + cover
-(unlinkable, needs relay) · Real topics recovered: 0%</title></path>
-<text class="val" x="637.0" y="330.0" text-anchor="middle">0%</text>
+<path d="M599.0,336.0V265.6Q599.0,261.6 603.0,261.6H619.0Q623.0,261.6 623.0,265.6V336.0Z" fill="var(--s1)"><title>Separate sessions + cover
+(unlinkable, needs relay) · Condition guessed: 30%</title></path>
+<text class="val" x="611.0" y="255.6" text-anchor="middle">30%</text>
+<path d="M625.0,336.0V336.0Q625.0,332.0 629.0,332.0H645.0Q649.0,332.0 649.0,336.0V336.0Z" fill="var(--s2)"><title>Separate sessions + cover
+(unlinkable, needs relay) · Real topics recovered: 2%</title></path>
+<text class="val" x="637.0" y="326.0" text-anchor="middle">2%</text>
 <text x="624.0" y="354" text-anchor="middle">Separate sessions + cover</text>
 <text x="624.0" y="368" text-anchor="middle">(unlinkable, needs relay)</text>
-<line x1="64" x2="736" y1="270.0" y2="270.0" stroke="var(--ref)" stroke-width="1.5" stroke-dasharray="6 4"><title>guess the most common condition: 27%</title></line>
+<line x1="64" x2="736" y1="271.8" y2="271.8" stroke="var(--ref)" stroke-width="1.5" stroke-dasharray="6 4"><title>guess the most common condition: 26%</title></line>
 <rect x="64" y="61" width="10" height="10" rx="2" fill="var(--s1)"/>
 <text x="80" y="70">Condition guessed</text>
 <rect x="210.4" y="61" width="10" height="10" rx="2" fill="var(--s2)"/>

@@ -25,6 +25,12 @@ def run(backend=None, write: bool = True) -> dict:
            "local_share": round(local / len(qs), 3),
            "cloud_calls_first5": sum(r["cloud_calls"] for r in first), "cloud_calls_last5": sum(r["cloud_calls"] for r in last),
            "repeat_q19_is_local": next(r for r in rows if r["q"] == "Q19")["cloud_calls"] == 0}
+    if be.name.startswith("live"):
+        try:
+            from core import cloud
+            res["cloud_status"] = cloud.status()            # B-035: without DEMO=1 and a key, live sends nothing
+        except (ImportError, AttributeError):
+            pass
     if write:
         RESULTS.mkdir(parents=True, exist_ok=True)
         CHARTS.mkdir(parents=True, exist_ok=True)

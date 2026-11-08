@@ -1,12 +1,12 @@
 {
- "backend": "simulated",
+ "backend": "live",
  "rows": [
   {
    "q": "Q01",
    "category": "gene_drug",
-   "cloud_calls": 1,
+   "cloud_calls": 2,
    "kb_hits": 0,
-   "bytes_out": 1440,
+   "bytes_out": 2115,
    "state": "known",
    "cum_local_share": 0.0
   },
@@ -31,20 +31,20 @@
   {
    "q": "Q04",
    "category": "gene_drug",
-   "cloud_calls": 2,
-   "kb_hits": 0,
-   "bytes_out": 2880,
+   "cloud_calls": 1,
+   "kb_hits": 1,
+   "bytes_out": 1197,
    "state": "known",
    "cum_local_share": 0.5
   },
   {
    "q": "Q05",
    "category": "gene_drug",
-   "cloud_calls": 0,
-   "kb_hits": 1,
-   "bytes_out": 0,
+   "cloud_calls": 1,
+   "kb_hits": 0,
+   "bytes_out": 1233,
    "state": "known",
-   "cum_local_share": 0.6
+   "cum_local_share": 0.4
   },
   {
    "q": "Q06",
@@ -53,43 +53,43 @@
    "kb_hits": 1,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.667
+   "cum_local_share": 0.5
   },
   {
    "q": "Q07",
    "category": "drug_drug",
    "cloud_calls": 1,
-   "kb_hits": 0,
-   "bytes_out": 1440,
+   "kb_hits": 1,
+   "bytes_out": 962,
    "state": "known",
-   "cum_local_share": 0.571
+   "cum_local_share": 0.429
   },
   {
    "q": "Q08",
    "category": "drug_drug",
-   "cloud_calls": 0,
+   "cloud_calls": 1,
    "kb_hits": 1,
-   "bytes_out": 0,
+   "bytes_out": 940,
    "state": "known",
-   "cum_local_share": 0.625
+   "cum_local_share": 0.375
   },
   {
    "q": "Q09",
    "category": "drug_drug",
-   "cloud_calls": 0,
+   "cloud_calls": 1,
    "kb_hits": 0,
-   "bytes_out": 0,
-   "state": "no_data",
-   "cum_local_share": 0.667
+   "bytes_out": 949,
+   "state": "known",
+   "cum_local_share": 0.333
   },
   {
    "q": "Q10",
    "category": "drug_drug",
    "cloud_calls": 1,
    "kb_hits": 0,
-   "bytes_out": 1440,
+   "bytes_out": 943,
    "state": "known",
-   "cum_local_share": 0.6
+   "cum_local_share": 0.3
   },
   {
    "q": "Q11",
@@ -98,34 +98,34 @@
    "kb_hits": 0,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.636
+   "cum_local_share": 0.364
   },
   {
    "q": "Q12",
    "category": "drug_lab",
-   "cloud_calls": 0,
-   "kb_hits": 2,
-   "bytes_out": 0,
+   "cloud_calls": 1,
+   "kb_hits": 0,
+   "bytes_out": 926,
    "state": "known",
-   "cum_local_share": 0.667
+   "cum_local_share": 0.333
   },
   {
    "q": "Q13",
    "category": "drug_lab",
    "cloud_calls": 1,
    "kb_hits": 0,
-   "bytes_out": 1440,
+   "bytes_out": 931,
    "state": "known",
-   "cum_local_share": 0.615
+   "cum_local_share": 0.308
   },
   {
    "q": "Q14",
    "category": "drug_lab",
-   "cloud_calls": 0,
-   "kb_hits": 1,
-   "bytes_out": 0,
+   "cloud_calls": 1,
+   "kb_hits": 0,
+   "bytes_out": 915,
    "state": "known",
-   "cum_local_share": 0.643
+   "cum_local_share": 0.286
   },
   {
    "q": "Q15",
@@ -134,7 +134,7 @@
    "kb_hits": 0,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.667
+   "cum_local_share": 0.333
   },
   {
    "q": "Q16",
@@ -143,7 +143,7 @@
    "kb_hits": 0,
    "bytes_out": 0,
    "state": "no_data",
-   "cum_local_share": 0.688
+   "cum_local_share": 0.375
   },
   {
    "q": "Q17",
@@ -152,39 +152,44 @@
    "kb_hits": 0,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.706
+   "cum_local_share": 0.412
   },
   {
    "q": "Q18",
    "category": "open_ended",
    "cloud_calls": 0,
-   "kb_hits": 4,
+   "kb_hits": 1,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.722
+   "cum_local_share": 0.444
   },
   {
    "q": "Q19",
    "category": "open_ended",
    "cloud_calls": 0,
-   "kb_hits": 2,
+   "kb_hits": 1,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.737
+   "cum_local_share": 0.474
   },
   {
    "q": "Q20",
    "category": "open_ended",
    "cloud_calls": 0,
-   "kb_hits": 2,
+   "kb_hits": 1,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.75
+   "cum_local_share": 0.5
   }
  ],
- "total_cloud_calls": 6,
- "local_share": 0.75,
- "cloud_calls_first5": 3,
+ "total_cloud_calls": 11,
+ "local_share": 0.5,
+ "cloud_calls_first5": 4,
  "cloud_calls_last5": 0,
- "repeat_q19_is_local": true
+ "repeat_q19_is_local": true,
+ "cloud_status": {
+  "online": true,
+  "demo": true,
+  "forced_offline": false
+ }
 }

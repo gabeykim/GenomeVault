@@ -39,6 +39,12 @@ def check(rt: dict | None = None, lc: dict | None = None, lat: dict | None = Non
     live = bool(lc) and lc.get("backend", "").startswith("live")
     add("P1", "Evals ran on B's real partition", "PASS" if real else "WARN", rt["partition"])
     add("P2", "E2/E4 ran on the integrated build", "PASS" if live else "WARN", lc.get("backend") if lc else "missing")
+    cs = (lc or {}).get("cloud_status")
+    if live and cs is not None:
+        reachable = cs.get("online") or cs.get("demo")
+        add("P3", "The live run could reach the cloud or its demo replay", "PASS" if reachable else "FAIL",
+            "demo replay" if cs.get("demo") else ("online" if cs.get("online") else
+            "offline: nothing was sent, so E2/E4 understate the design. Re-run with DEMO=1 make eval (B-035)"))
     add("E1a", "Naive sending leaks the real question (the attack is real)",
         "PASS" if st["naive"]["intersection"] >= 0.9 else "FAIL", f"{st['naive']['intersection']:.0%}")
     add("E1b", "Random decoys fail once a question repeats",

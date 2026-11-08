@@ -27,9 +27,9 @@ text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;f
 <text class="val" x="400.0" y="100.4" text-anchor="middle">20</text>
 <text x="400.0" y="354" text-anchor="middle">Cloud only</text>
 <text x="400.0" y="368" text-anchor="middle">(naive)</text>
-<path d="M612.0,336.0V271.1Q612.0,267.1 616.0,267.1H632.0Q636.0,267.1 636.0,271.1V336.0Z" fill="var(--s1)"><title>Hybrid
-(GenomeVault) · Cloud calls: 6</title></path>
-<text class="val" x="624.0" y="261.1" text-anchor="middle">6</text>
+<path d="M612.0,336.0V213.7Q612.0,209.7 616.0,209.7H632.0Q636.0,209.7 636.0,213.7V336.0Z" fill="var(--s1)"><title>Hybrid
+(GenomeVault) · Cloud calls: 11</title></path>
+<text class="val" x="624.0" y="203.7" text-anchor="middle">11</text>
 <text x="624.0" y="354" text-anchor="middle">Hybrid</text>
 <text x="624.0" y="368" text-anchor="middle">(GenomeVault)</text>
 </g><g transform="translate(0,400)">
@@ -95,9 +95,9 @@ text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;f
 <text class="val" x="400.0" y="66.0" text-anchor="middle">100%</text>
 <text x="400.0" y="354" text-anchor="middle">Cloud only</text>
 <text x="400.0" y="368" text-anchor="middle">(naive)</text>
-<path d="M612.0,336.0V89.2Q612.0,85.2 616.0,85.2H632.0Q636.0,85.2 636.0,89.2V336.0Z" fill="var(--s1)"><title>Hybrid
-(GenomeVault) · Coverage: 95%</title></path>
-<text class="val" x="624.0" y="79.2" text-anchor="middle">95%</text>
+<path d="M612.0,336.0V76.0Q612.0,72.0 616.0,72.0H632.0Q636.0,72.0 636.0,76.0V336.0Z" fill="var(--s1)"><title>Hybrid
+(GenomeVault) · Coverage: 100%</title></path>
+<text class="val" x="624.0" y="66.0" text-anchor="middle">100%</text>
 <text x="624.0" y="354" text-anchor="middle">Hybrid</text>
 <text x="624.0" y="368" text-anchor="middle">(GenomeVault)</text>
 </g></svg>

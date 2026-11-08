@@ -91,3 +91,16 @@ def test_curated_note_answers_q08_offline():               # A-008: EX-001 is a 
     be = SimBackend(load_partition(), offline=True)
     r = be.ask(qs["Q08"])
     assert r.effective_state == "known" and not r.unbacked and r.cloud_calls == 0
+
+
+def test_gate_fails_when_live_run_could_not_reach_the_cloud():   # B-035
+    from eval import gate, redteam, wording
+    lc = learning_curve.run(write=False)
+    lc["backend"], lc["cloud_status"] = "live", {"online": False, "demo": False}
+    rows = gate.check(redteam.run(trials=100, seed=2, write=False), lc, latency_cost.run(write=False, live=False),
+                      offline.run(write=False, live=False), wording.run(write=False))
+    assert next(r for r in rows if r["id"] == "P3")["status"] == "FAIL"
+    lc["cloud_status"] = {"online": False, "demo": True}
+    rows = gate.check(redteam.run(trials=100, seed=2, write=False), lc, latency_cost.run(write=False, live=False),
+                      offline.run(write=False, live=False), wording.run(write=False))
+    assert next(r for r in rows if r["id"] == "P3")["status"] == "PASS"

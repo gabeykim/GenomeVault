@@ -1,21 +1,27 @@
 {
  "summary": {
-  "PASS": 14,
-  "WARN": 3,
-  "FAIL": 0
+  "PASS": 20,
+  "WARN": 0,
+  "FAIL": 1
  },
  "checks": [
   {
    "id": "P1",
    "claim": "Evals ran on B's real partition",
-   "status": "WARN",
-   "value": "fixture:eval/fixtures/buckets_v1.json"
+   "status": "PASS",
+   "value": "real:data/buckets/v5.json"
   },
   {
    "id": "P2",
    "claim": "E2/E4 ran on the integrated build",
-   "status": "WARN",
-   "value": "simulated"
+   "status": "PASS",
+   "value": "live"
+  },
+  {
+   "id": "P3",
+   "claim": "The live run could reach the cloud or its demo replay",
+   "status": "FAIL",
+   "value": "offline: nothing was sent, so E2/E4 understate the design. Re-run with DEMO=1 make eval (B-035)"
   },
   {
    "id": "E1a",
@@ -27,19 +33,19 @@
    "id": "E1b",
    "claim": "Random decoys fail once a question repeats",
    "status": "PASS",
-   "value": "95%"
+   "value": "99%"
   },
   {
    "id": "E1c",
    "claim": "Fixed buckets hold a repeat-ask attacker near 1 in 8",
    "status": "PASS",
-   "value": "15%"
+   "value": "11%"
   },
   {
    "id": "E1d",
    "claim": "Statistical attacker stays near the design ceiling",
    "status": "PASS",
-   "value": "17% (ceiling 19%)"
+   "value": "22% (ceiling 20%)"
   },
   {
    "id": "I3a",
@@ -57,13 +63,13 @@
    "id": "D-006",
    "claim": "Separate sessions + cover bring condition guessing near a blind guess",
    "status": "PASS",
-   "value": "29% vs blind 27% (one session 75%)"
+   "value": "34% vs blind 26% (one session 72%)"
   },
   {
    "id": "E2a",
    "claim": "Fewer cloud calls than questions",
    "status": "PASS",
-   "value": "6 calls / 20 questions"
+   "value": "0 calls / 20 questions"
   },
   {
    "id": "E2b",
@@ -81,13 +87,25 @@
    "id": "E3b",
    "claim": "Hybrid uses the cloud less than cloud-only",
    "status": "PASS",
-   "value": "6 vs 20"
+   "value": "11 vs 20"
+  },
+  {
+   "id": "E3c",
+   "claim": "Live build sends no personal fields",
+   "status": "PASS",
+   "value": 0
   },
   {
    "id": "E4a",
    "claim": "Offline keeps working (warm >= cold > 0)",
    "status": "PASS",
-   "value": "cold 10/20, warm 17/20"
+   "value": "cold 11/20, warm 11/20"
+  },
+  {
+   "id": "E4c",
+   "claim": "A synced knowledge pack answers offline at least as well as a warm device (D-027)",
+   "status": "PASS",
+   "value": "synced 11/20, warm 11/20, cold 11/20"
   },
   {
    "id": "E4b",
@@ -104,8 +122,14 @@
   {
    "id": "I7a",
    "claim": "The wording filter catches plain 'safe' and start/stop wording",
-   "status": "WARN",
-   "value": "skipped: core.validator.wording_problems not in this build (B-013, PR #2)"
+   "status": "PASS",
+   "value": "3/3"
+  },
+  {
+   "id": "I7b",
+   "claim": "The wording filter catches rephrased attacks",
+   "status": "PASS",
+   "value": "25/25"
   }
  ]
 }
