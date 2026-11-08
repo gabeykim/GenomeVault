@@ -1,12 +1,12 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (D-009 pushed; PR #4 at b76ebc4; G4 runbook ready)
+current_task: none (D-011 pushed; PR #4 at 6c1b9d6; G4 dry run on v1.3: 20 pass, 0 warn, 0 fail)
 branch: agent/D-eval
-last_commit: b76ebc4
+last_commit: 6c1b9d6
 last_seen:
-  plan_version: "1.2.1"
-  decisions: D-022
-  logs: {A: 6, B: 16, C: 14, D: 9}
+  plan_version: "1.2.1 (1.3 pending in PR #6)"
+  decisions: D-024
+  logs: {A: 13, B: 26, C: 21, D: 11}
 handled_messages:
   - 20261108-1320-from-C-ui-look.md
   - 20261108-1323-from-C-boundaries.md
@@ -33,5 +33,21 @@ handled_messages:
   - 20261108-1440-from-B-wording-hardened.md
   - 20261108-1445-from-B-merged-check.md
   - 20261108-1450-from-B-cover-traffic.md
-blocked_on: G4 gate FAIL I4 (B: router.route answers 'known' with nothing behind it); E2b waits on the recorded demo cache (D-019)
-next: re-run the G4 gate when I4 is fixed and the cache is recorded; G4 at 19:30 per docs/G4.md
+  - 20261108-1404-from-integrator-anthropic-status-dapt.md
+  - 20261108-1441-from-C-phone-s2.md
+  - 20261108-1444-from-A-q08-and-names.md
+  - 20261108-1445-from-B-i4-fixed.md
+  - 20261108-1445-from-C-palette.md
+  - 20261108-1449-from-B-brand-names.md
+  - 20261108-1452-from-C-dark-theme.md
+  - 20261108-1455-from-C-final-hexes.md
+  - 20261108-1500-from-A-allergy-engine.md
+  - 20261108-1500-from-C-white-accent.md
+  - 20261108-1505-from-B-live-empty-fix.md
+  - 20261108-1506-from-A-vlm-capture.md
+  - 20261108-1510-from-B-route-flag-scope.md
+  - 20261108-1510-from-C-s6-sync-confirm.md
+  - 20261108-1512-from-A-label-warnings.md
+  - 20261108-1516-from-C-answer-order.md
+blocked_on: none (G4 needs PRs #2-#6 merged on main)
+next: G4 at 18:15 on main per docs/G4.md; optional cases (A allergy, look-alike label, label warnings; B brand names)

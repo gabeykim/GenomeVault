@@ -122,3 +122,30 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Tests:** `make test` → exit 0 (187 passed with A's modules on main). G4 dry run on a fresh merge of all four branches (B's v5, live): `make test` → exit 0 (720 passed); `make eval` → exit 0; `python -m eval.gate` → 17 pass, 1 warn, 1 fail.
 - **Dry-run results:** v5 phenotype splits `{}` (4 aliases); wording filter 25/25 caught, 0/8 false alarms (2 rejected by design); repeat-ask 11%, statistical 22% (ceiling 20%); offline states 20/20 as expected. WARN E2b: the demo cache is unrecorded (`python -m core.cloud check`: 0/136, exit 1). **FAIL I4**: `router.route()` answers `known` ("This was checked on your device… Nothing was sent.") with no flag or fact covering the question for Q03, Q04, Q05, Q16, and for Q13/Q14 where only an unrelated flag (X3) fired.
 - **Next:** re-run the G4 gate when B fixes I4 and the cache is recorded; G4 at 19:30
+
+### D-010 · 2026-11-08 15:00 · commits `24e4911`, `7cac7fd` (merge of main), `bc33463` · PLAN v1.2.1
+
+- **Change:** (1) Re-ran the G4 runbook after B-018/B-019 on a fresh merge of A `3b2e4b1`, B `8e98cf1`, C `b4fc781` and D. I4 now passes. (2) `eval/gate.py`: the E2a warning says why on the live build (no recorded demo cache, so repeats go out again); `docs/G4.md` drops I4 from "expected FAIL". (3) Q08: A's curated note EX-001 answers it on the device, so `offline_state` is `known` (`queries.json` q-v7 `local_notes`); both backends count a covering note as backing. (4) Merged main (D-023, D-024).
+- **Why:** B fixed the I4 issue D reported (B-018, B-019). A asked whether its EX-001 note should count (A-008).
+- **Class:** Refines
+- **Plan:** advances P9 G4, P7 E4; checks I4; follows D-021
+- **Refinements:** A curated expected-combination note covering a question's exact key counts as local content (like a covering flag).
+- **Contract impact:** none
+- **Affects:** A: keep `key_state` as it is → reply sent. B: I4 confirmed → reply sent. C: none (palette noted).
+- **Demo impact:** none (deck: offline figure now 11/20)
+- **Tests:** `make test` → exit 0 (188 passed). Four-branch merge with this change: `make test` → exit 0 (815 passed); `make eval` → exit 0; `python -m eval.gate` → **17 pass, 2 warn, 0 fail** (WARN E2a and E2b: the demo cache is unrecorded, D-019). Offline states 20/20, 11/20 answered cold.
+- **Next:** G4 at 19:30 on main once PRs #2–#4 merge; re-check after the demo cache is recorded
+
+### D-011 · 2026-11-08 15:18 · commit `6c1b9d6` · PLAN v1.3 (PR #6)
+
+- **Change:** G4 prep for PLAN v1.3. (1) `eval/offline.py`: the live synced arm called `sync_pack()` while still offline, so B's sync (correctly) fetched nothing; it now goes back online first. (2) `eval/gate.py`: new check E4c, a synced knowledge pack answers offline at least as well as a warm device (D-027). (3) `docs/G4.md`: v1.3 times (G4 18:15, G5 18:30, draft 19:00, demos 20:00), PRs #2–#6, and the pack replaces the expected warnings. (4) `slides/demo_script.md`: S2 with C's phone pairing and "Yes, check it"; S6 in the integrator's order (Q18 twice, Sync knowledge pack, Offline switch, Q07/Q15/Q19, pantoprazole, ibuprofen, Actions) plus the Amoxil allergy bonus; backup video before the 18:30 freeze. Pitch deck re-themed to C's final palette (white third accent), with live learning and offline figures.
+- **Why:** PR #6 (D-025 gates, D-027 knowledge pack); B-024, B-025; C-019, C-020.
+- **Class:** Refines
+- **Plan:** advances P9 G4, P7 E2/E4, P8 S2/S6; follows D-025, D-027
+- **Refinements:** E4's synced arm is the D-027 "cold vs synced" split; sync traffic is the whole partition, the same for every user, so it is query-independent by construction (E1's attackers learn nothing from it).
+- **Contract impact:** none
+- **Affects:** I: G4 is ready on v1.3 → message sent. B: pack confirmed → reply sent. C: S2/S6 follow C-020; the deck matches C-019 → reply sent. A: optional cases queued → reply sent.
+- **Demo impact:** S2 and S6 steps rewritten to the integrator's order
+- **Tests:** `make test` → exit 0 (188 passed). Dry run on main + PR #6 (`2cc266b`) + A `9e94292` + B `170ba35` + C `714e9b0` + D: `python -m core.cloud check` → exit 0 (136/136 usable); `make test` → exit 0 (916 passed); `make eval` → exit 0; `python -m eval.gate` → **20 pass, 0 warn, 0 fail**.
+- **Live results with the pack:** 11 cloud calls for 20 questions (first five 4, last five 0); Q19 answered on the device; offline 11/20 cold, 18/20 warm, 18/20 synced; 0 personal fields; I4 `unbacked_known` empty.
+- **Next:** G4 at 18:15 on main per `docs/G4.md`; optional extra cases from A (allergy, look-alike label, label warnings) and B (brand names)
