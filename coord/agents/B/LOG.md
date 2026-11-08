@@ -449,3 +449,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0: 801 passed, 3 skipped. In a throwaway merge with `origin/agent/C-app-ui` (PR #8), both files pass: 12 passed. PR #7 updated (head f3a4abc).
 - **Inbox:** C 1543 (stand-ins gone, PR #8) handled by this change. D-033 (Gabe is the integrator, backup Dhiaa): noted. Read A-019 and C-024: nothing else for B.
 - **Next:** PR #7 review before G3 (17:30). After PR #5 merges, confirm the allergy test runs. After PR #4 merges, re-run `DEMO=1 make eval` on main.
+
+### B-037 · 2026-11-08 15:50 · commit `5db1721` (PR #7, rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #7 onto main (`aa30bbf`, D-034) and force-pushed it (new head `5db1721`). Then I checked early that B's allergy test runs against A's allergy engine. In a throwaway worktree I merged PR #7 with `origin/agent/A-data-rules` (PR #5, `d81a2b0`). There were no conflicts, and `make test` exited 0 with 1090 passed and 2 skipped. On PR #7 alone it is 801 passed and 3 skipped. Skip reasons cannot be printed in this sandbox, so this is by elimination. Merging #5 removes exactly one skip, and the only B skip that waits on #5 is `test_g2_real_rules.py`'s allergy test. So that test now runs and passes: amoxicillin stays local_only, 0 bytes, 0 personal fields (I3). I removed the worktree and pushed nothing from it.
+- **Why:** The BRIEF queue is done and PR #7 is waiting for review. This settles one of my post-merge checks before G3 (17:30), not after it.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I3
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #7 head is now `5db1721`, and #7 + #5 merge cleanly and stay green. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. On PR #7 + PR #5: exit 0, 1090 passed, 2 skipped.
+- **Inbox:** nothing new for B. D-034 (submission draft, personalization described as rule-based): noted, B's claims (I3, ledger bytes, offline) are unaffected. A-020 (G3 rehearsal on four PR heads, 1154 green): matches this check.
+- **Next:** PR #7 review and merge at G3. After PR #4 (D) merges, re-run `DEMO=1 make eval` on main.

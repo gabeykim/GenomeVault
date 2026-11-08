@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-036 app-path tests fail loudly instead of skipping (getattr on LEDGER_IS_MOCK for C PR #8). PR #7 head f3a4abc, waiting for review
+current_task: B-037 rebased PR #7 (head 5db1721) and pre-checked the allergy test against PR #5 (green). Waiting for review
 branch: agent/B-privacy-router
-last_commit: f3a4abc
+last_commit: 5db1721
 last_seen:
   plan_version: "1.3.1"
-  decisions: D-033
-  logs: {A: 19, B: 36, C: 24, D: 11}
+  decisions: D-034
+  logs: {A: 20, B: 37, C: 24, D: 11}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -45,6 +45,7 @@ notes: >
   PR #7 is tests only: B-033 (app-path I3, ledger view, offline) and B-034 (knowledge pack through
   /api/sync: whole partition once, I3 on every pack row, pack label, mine=[], offline answers at 0 bytes,
   409 while offline). B-036: app-path tests now assert the real router/ledger/pack instead of skipping. make test exit 0, 801 passed, 3 skipped. Ownership check ok.
-  The allergy test in tests/B/test_g2_real_rules.py still skips until PR #5 (A) merges.
+  The allergy test in tests/B/test_g2_real_rules.py skips on PR #7 alone. In a throwaway merge with PR #5 it runs and passes
+  (B-037: 1090 passed, 2 skipped, exit 0).
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
-next: PR #7 review before G3 (17:30). After PR #5 merges, confirm the allergy test runs. After PR #4 (D) merges, re-run DEMO=1 make eval on main
+next: PR #7 review before G3 (17:30). After PR #4 (D) merges, re-run DEMO=1 make eval on main
