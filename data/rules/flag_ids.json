@@ -1,0 +1,14 @@
+{
+  "version": "rules-v1",
+  "note": "Exact key -> PLAN P5 finding id (X1..X5), so the demo flags carry the ids PLAN, the UI and the evals use. One finding can span several keys (X5). A key not listed here gets the id of the rule that produced it (GD-, DD-, DL-, CR-).",
+  "ids": {
+    "CYP2C19:poor_metabolizer|clopidogrel": "X1",
+    "clopidogrel|omeprazole": "X2",
+    "SLCO1B1:decreased_function|simvastatin|dose>20mg": "X3",
+    "lisinopril|potassium>5.0": "X4",
+    "aspirin|ibuprofen": "X5",
+    "clopidogrel|ibuprofen": "X5",
+    "ibuprofen|lisinopril": "X5",
+    "ibuprofen|egfr<60": "X5"
+  }
+}

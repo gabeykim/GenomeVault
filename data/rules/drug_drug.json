@@ -1,0 +1,18 @@
+{
+  "version": "rules-v1",
+  "note": "Synthetic demo table (I1), deliberately incomplete (I7). Key = sorted ingredients joined by '|' (contracts.pair_key). clopidogrel|pantoprazole is deliberately absent (PLAN P5, S6): no extrapolation from omeprazole (I4).",
+  "rules": [
+    {"id": "DD-001", "key": "clopidogrel|omeprazole", "drugs": ["clopidogrel", "omeprazole"],
+     "severity": "high", "tier": "curated", "needs_cloud": true,
+     "evidence": ["omeprazole inhibits CYP2C19"],
+     "context_gene": {"gene": "CYP2C19", "phenotypes": ["poor_metabolizer", "intermediate_metabolizer"]},
+     "source": "FDA clopidogrel (Plavix) label, warning on CYP2C19 inhibitors: avoid omeprazole or esomeprazole",
+     "text": "Omeprazole blocks CYP2C19, the enzyme that activates clopidogrel, and can lower clopidogrel's effect. The clopidogrel label advises avoiding this combination; worth raising with the pharmacist or cardiologist."},
+    {"id": "DD-002", "key": "clopidogrel|esomeprazole", "drugs": ["clopidogrel", "esomeprazole"],
+     "severity": "high", "tier": "curated", "needs_cloud": true,
+     "evidence": ["esomeprazole inhibits CYP2C19"],
+     "context_gene": {"gene": "CYP2C19", "phenotypes": ["poor_metabolizer", "intermediate_metabolizer"]},
+     "source": "FDA clopidogrel (Plavix) label, warning on CYP2C19 inhibitors: avoid omeprazole or esomeprazole",
+     "text": "Esomeprazole blocks CYP2C19, the enzyme that activates clopidogrel, and can lower clopidogrel's effect. The clopidogrel label advises avoiding this combination; worth raising with the pharmacist or cardiologist."}
+  ]
+}
