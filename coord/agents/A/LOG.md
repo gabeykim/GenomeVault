@@ -230,3 +230,16 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` exit 0, 403 passed, 21 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok.
 - **Inbox:** C 1526 (shared label set) handled here. Read B-030, B-031 and C-022: no change needed from A. B-030 relies on A's brand mapping (Advil, Prilosec, Protonix, Zestril, Aleve, Bayer), which is noted and unchanged. No new DECISIONS since D-031, and PLAN is still v1.3.
 - **Next:** PR #5 review at G2. Live VLM check on C's PNGs with the iTXt stripped, if the human starts Ollama. After that, requests from B, C and D.
+
+### A-018 · 2026-11-08 15:37 · commit `a831312` · PLAN v1.3
+
+- **Change:** New `tests/A/test_app_real_path.py` (9 tests). No A code changed. B's PR #2 and C's PR #3 are on main now, so this is the post-gate switch from mocks to real code (AGENTS.md §11). C's app tests swap A's functions for stand-ins; these don't. They go through C's real FastAPI app with A's real `graph`, `rules`, `normalize` and `capture`, and pin: (1) `/api/status` reports those four modules as `real` and A's extras (`expected_notes_all`, `expected_notes`, `no_data_keys`) as present. (2) `/api/profile` is Alex from `data/` with CYP2D6 `not_assessed` (D-021, D-031). (3) `/api/flags` is exactly X1–X4 on their exact keys, X2 shown once, equal to `rules.check_all(graph.load_profile())`, and no evidence says "safe". (4) The notes are expected-combination keys only and are never also flags. (5) Typing "Advil" gives ibuprofen with X5 on all four keys. (6) "Protonix 40 mg" gives pantoprazole, no flags, and `clopidogrel|pantoprazole` in `no_data` (S6, I4). (7) An unknown name gives nothing, not a guess. (8) `/api/capture/confirm` with simvastatin 40 flags X3, and with 20 it flags nothing. (9) A question naming Advil adds X5 to the flags the app routes (B-025); `route()` is never called.
+- **Why:** This is the first time A's real code runs inside the merged app. If the wiring or A's output drifts from P5, the suite now goes red. Only local endpoints are used, so nothing reaches the cloud (I2).
+- **Class:** Advances
+- **Plan:** advances G2, F2, F3, M4, S2, S6; I4 (no_data, no guess)
+- **Contract impact:** none
+- **Affects:** C: FYI only, nothing to do. If `app.py` stops resolving A's modules or changes `/api/check`, `/api/flags` or `/api/capture/confirm` output, `tests/A` will flag it. B, D, I: none.
+- **Demo impact:** none (pins S2 and S6 on real code)
+- **Tests:** `make test` exit 0, 1078 passed, 2 skipped. After rebasing on main (B and C merged), the 15 phone/samples tests from A-017 run instead of skipping. I did not run `check_ownership.py` or `check_network.sh`: both needed approval in this session. The commit touches only `tests/A/`.
+- **Inbox:** nothing new for A. No new DECISIONS since D-031, PLAN is still v1.3, and there are no new LOG entries from B, C or D since my last cycle. PR #5 is MERGEABLE, and CI was still running at the time of writing.
+- **Next:** PR #5 review. Live VLM check on C's PNGs if the human starts Ollama. After that, requests from B, C and D.

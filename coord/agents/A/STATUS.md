@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-017 shared label set (C-022, to-A 1526): from_image pinned against phone/samples texts + PNGs, done, on PR #5
+current_task: A-018 post-G2 real-path check. C's merged app on A's real modules shows X1-X5, no_data and CYP2D6 as PLAN P5 says. Done, on PR #5.
 branch: agent/A-data-rules
-last_commit: 1fd3909
-pr: "#5 (open) agent/A-data-rules -> main: queue 8 key_state/no_data_keys + A-008 universe names + A-009 PharmCAT path + A-010 genotype sweep + A-011 allergy engine + A-012 VLM capture + A-013 label warnings + A-014 combo strengths + A-015 G3 label test + A-016 eval-query/handoff tests + A-017 shared label set tests. Rebased on origin/main (v1.3), make test green (403 passed, 21 skipped)."
+last_commit: a831312
+pr: "#5 (open) agent/A-data-rules -> main: queue 8 key_state/no_data_keys + A-008 universe names + A-009 PharmCAT path + A-010 genotype sweep + A-011 allergy engine + A-012 VLM capture + A-013 label warnings + A-014 combo strengths + A-015 G3 label test + A-016 eval-query/handoff tests + A-017 shared label set tests + A-018 app real-path tests. Rebased on origin/main (B #2 and C #3 merged, v1.3), make test green (1078 passed, 2 skipped). MERGEABLE, CI running."
 last_seen:
   plan_version: "1.3"
   decisions: D-031
-  logs: {A: 17, B: 31, C: 22, D: 11}
+  logs: {A: 18, B: 32, C: 22, D: 11}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -31,11 +31,11 @@ blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
 open_questions:
-  - "To B/D (FYI, to-integrator 1529): offline + cold KB, B's real router gives no_data for 10 of D's offline_state=known questions (Q01, Q06, Q08, Q12, Q18, Q19, Q20, and Q15/Q17 if caller passes only check_all). Not an A change."
-  - "To human: live VLM check on real photos needs Ollama + qwen2.5vl:7b running on this machine (to-human 1523). Optional."
+  - "To B/D (FYI, to-integrator 1529): when offline with a cold KB, B's real router gives no_data for 10 of D's offline_state=known questions (Q01, Q06, Q08, Q12, Q18, Q19, Q20, plus Q15/Q17 if the caller passes only check_all). Not an A change."
+  - "To human: a live VLM check on real photos needs Ollama + qwen2.5vl:7b running on this machine (to-human 1523). Optional."
 notes: >
-  A-017: tests/A/test_capture_shared_samples.py. C's 7 label texts run everywhere; the real phone/samples
-  PNGs (C-owned) run once C's PR is on main (15 skips until then) and passed 23/23 against C's branch files.
-  Ibuprofen flags X5 x4 for Alex (one per med pair).
+  A-018: tests/A/test_app_real_path.py runs C's real app.py on A's real modules, with no monkeypatching
+  and no route() or cloud calls. With C's PR on main, the 15 phone/samples PNG tests from A-017 now run.
+  check_ownership and check_network were not run this cycle (they needed approval); the commit touches only tests/A.
 next: >
-  PR #5 review at G2. Live VLM run on C's PNGs (iTXt stripped) if the human starts Ollama. Otherwise requests from B/C/D.
+  PR #5 review. Live VLM run on C's PNGs (iTXt stripped) if the human starts Ollama. After that, requests from B, C and D.
