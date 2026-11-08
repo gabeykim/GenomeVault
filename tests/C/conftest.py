@@ -18,6 +18,13 @@ def _reset(module: str) -> None:
             mod.reset()
 
 
+def _set_offline(value) -> None:
+    if importlib.util.find_spec("core.cloud") is not None:
+        fn = getattr(importlib.import_module("core.cloud"), "set_offline", None)
+        if fn:
+            fn(value)
+
+
 @pytest.fixture(autouse=True)
 def offline_demo(monkeypatch, tmp_path):
     monkeypatch.setenv("DEMO", "1")
@@ -27,4 +34,6 @@ def offline_demo(monkeypatch, tmp_path):
     monkeypatch.delenv("GV_LEDGER_PATH", raising=False)
     _reset("ledger")
     _reset("kb")
+    _set_offline(None)
     yield
+    _set_offline(None)   # never leave the "Wi-Fi off" switch on for the next test

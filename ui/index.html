@@ -26,6 +26,10 @@
         <span>GenomeVault</span>
       </a>
       <span class="bar-meta"><span class="blink"></span>On device <span class="mute" id="demo-badge" hidden>· Demo mode</span></span>
+      <button class="net" id="net" type="button" role="switch" aria-checked="false" aria-label="Wi-Fi off" hidden>
+        <span class="net-track" aria-hidden="true"><span class="net-knob"></span></span>
+        <span class="net-state" id="net-state">Online</span>
+      </button>
       <span class="bar-stat"><span class="mute">Sent to cloud</span><strong class="ticker" id="total-bytes"><span class="tick">0 B</span></strong></span>
     </div>
 
@@ -63,7 +67,7 @@
       </div>
 
       <div class="panel" role="tabpanel" id="panel-ask" aria-labelledby="tab-ask" hidden>
-        <p class="lede">Only general questions leave this device, hidden in a group of 8.</p>
+        <p class="lede" id="ask-lede">Only general questions leave this device, hidden in a group of 8.</p>
         <div class="chat" id="chat" aria-live="polite"></div>
         <!-- Demo questions: exact texts from D's eval/queries.json so the eval measures what is shown. -->
         <ol class="chips" id="chips" aria-label="Suggested questions">

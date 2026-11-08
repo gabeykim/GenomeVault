@@ -587,6 +587,7 @@ async function pollLedger() {
     setTicker($("ledger-personal"), String(t.personal_fields_sent));
     $("ledger-personal").classList.toggle("good", t.personal_fields_sent === 0);
     $("ledger-personal").classList.toggle("bad", t.personal_fields_sent > 0);
+    applyCloud(data.cloud);
     const learned = $("learned");
     if (data.learned) {
       learned.hidden = false;
@@ -596,6 +597,42 @@ async function pollLedger() {
     // server restarting; try again next tick
   } finally {
     polling = false;
+  }
+}
+
+// ---------- online / offline (F8, S6) ----------
+
+const ASK_LEDE = {
+  online: "Only general questions leave this device, hidden in a group of 8.",
+  offline: "You're offline. Local checks and answers stored on this device still work; nothing can leave.",
+};
+let cloudState = null;
+
+function applyCloud(c) {
+  if (!c) return;
+  cloudState = c;
+  const net = $("net");
+  const offline = !c.online;
+  net.hidden = false;
+  net.disabled = !c.toggle;
+  net.title = c.toggle ? (offline ? "Turn the cloud back on" : "Simulate Wi-Fi off: nothing can leave")
+    : "Offline switch arrives with B's cloud module";
+  net.setAttribute("aria-checked", String(offline));
+  net.classList.toggle("off", offline);
+  $("net-state").textContent = offline ? "Offline" : "Online";
+  document.body.classList.toggle("offline", offline);
+  $("ask-lede").textContent = offline ? ASK_LEDE.offline : ASK_LEDE.online;
+}
+
+async function toggleOffline() {
+  if (!cloudState?.toggle) return;
+  const net = $("net");
+  net.disabled = true;
+  try {
+    applyCloud(await api("/api/offline", { offline: cloudState.online }));
+  } catch { /* keep the last state */ } finally {
+    net.disabled = !cloudState?.toggle;
+    pollLedger();
   }
 }
 
@@ -643,6 +680,7 @@ async function loadData() {
   try {
     const status = await api("/api/status");
     $("demo-badge").hidden = !status.demo;
+    applyCloud(status.cloud);
     // Which modules are still mocks: for the team, shown only with ?debug.
     if (new URLSearchParams(location.search).has("debug")) {
       const mocks = Object.entries(status.modules).filter(([, m]) => m === "mock").map(([n]) => n);
@@ -668,6 +706,7 @@ function boot() {
   buildStrand();
   watchScroll();
   initTabs();
+  $("net").addEventListener("click", toggleOffline);
   renderActions();
   $("check-form").addEventListener("submit", onCheck);
   $("ask-form").addEventListener("submit", onAsk);

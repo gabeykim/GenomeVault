@@ -63,7 +63,7 @@ code { font: 11px var(--mono); }
 .mast { padding: 0 var(--gutter); }
 .bar {
   position: sticky; top: 0; z-index: 10;
-  display: grid; grid-template-columns: 1fr auto auto; gap: 32px; align-items: center;
+  display: grid; grid-template-columns: 1fr auto auto auto; gap: 28px; align-items: center;
   padding: 14px 0 12px; background: var(--paper); font-size: 12px; line-height: 1.35;
   border-bottom: 1px solid transparent; transition: border-color .3s;
 }
@@ -474,3 +474,25 @@ body.ready .check-result .row { animation-delay: calc(var(--i, 0) * 80ms); }
 .plist .v.hot.na { color: var(--mute); }
 .plist .v.hot.na::before { background: none; border: 1px solid var(--mute); width: 5px; height: 5px; }
 @media (max-width: 640px) { .info-note { grid-template-columns: 30px minmax(0, 1fr); } }
+
+/* ---------- online / offline switch (F8, S6) ---------- */
+.net {
+  display: inline-flex; align-items: center; gap: 9px; padding: 5px 12px 5px 6px; border: 1px solid var(--ink);
+  border-radius: 999px; background: none; color: var(--ink); font-size: 12px; cursor: pointer;
+  transition: background .35s var(--ease), color .35s var(--ease);
+}
+.net:disabled { cursor: default; border-color: var(--line); }
+.net:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.net-track { position: relative; width: 26px; height: 14px; border-radius: 999px; background: var(--good); transition: background .35s var(--ease); }
+.net-knob {
+  position: absolute; top: 2px; left: 14px; width: 10px; height: 10px; border-radius: 50%; background: var(--paper);
+  transition: left .45s var(--ease);
+}
+.net.off { background: var(--ink); color: var(--paper); }
+.net.off .net-track { background: var(--mute); }
+.net.off .net-knob { left: 2px; }
+.net-state { min-width: 44px; text-align: left; font-weight: 500; }
+body.offline .strand-track { animation-play-state: paused; }
+body.offline .strand { opacity: .45; transition: opacity .6s var(--ease); }
+@media (max-width: 1080px) { .bar { grid-template-columns: 1fr auto auto; } .bar > .bar-meta { display: none; } }
+@media (max-width: 640px) { .bar { grid-template-columns: 1fr auto auto; gap: 12px; } .net { padding: 4px 9px 4px 5px; } }

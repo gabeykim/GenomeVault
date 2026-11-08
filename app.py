@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -85,6 +85,7 @@ to_ingredients = _resolve("normalize", "to_ingredients", _mock_to_ingredients)
 route = _resolve("router", "route", interfaces.route)
 personalize = _resolve("merge", "personalize", interfaces.personalize)
 ledger_feed = _resolve("ledger", "feed", _mock_ledger.feed)
+cloud_status = _resolve("cloud", "status", interfaces.status)    # contract since D-020; sends nothing (I2)
 LEDGER_IS_MOCK = MODES["ledger.feed"] == "mock"
 
 EXTRAS: dict[str, bool] = {}
@@ -105,6 +106,7 @@ kb_stats = _optional("kb", "stats")
 generalize_flag = _optional("generalize", "generalize")
 expected_notes_all = _optional("rules", "expected_notes_all")   # A, D-021: informational, never a Flag
 expected_notes = _optional("rules", "expected_notes")
+cloud_set_offline = _optional("cloud", "set_offline")            # B: "Wi-Fi off" for S6, no network
 
 
 def _note(kind: str, bytes_out: int = 0, bucket_id: Optional[str] = None) -> None:
@@ -136,6 +138,13 @@ def _notes(raw: list[dict]) -> list[dict]:
     return list(out.values())
 
 
+def _cloud() -> dict:
+    """{online, demo, forced_offline, toggle}: what the header badge shows. Never touches the network."""
+    s = dict(cloud_status())
+    return {"online": bool(s.get("online")), "demo": bool(s.get("demo", DEMO)),
+            "forced_offline": bool(s.get("forced_offline", False)), "toggle": cloud_set_offline is not None}
+
+
 def tier_label(fact: Fact) -> str:
     """Trust-tier label shown next to every fact (I6)."""
     if fact.tier == "cloud":
@@ -149,6 +158,10 @@ app = FastAPI(title="GenomeVault", docs_url=None, redoc_url=None)
 
 
 _asked: deque[str] = deque(maxlen=10)   # recent questions, in memory only, for the visit summary
+
+
+class OfflineIn(BaseModel):
+    offline: bool
 
 
 class CheckIn(BaseModel):
@@ -166,7 +179,7 @@ def index() -> FileResponse:
 
 @app.get("/api/status")
 def status() -> dict:
-    return {"demo": DEMO, "disclaimer": DISCLAIMER, "modules": MODES, "extras": EXTRAS}
+    return {"demo": DEMO, "disclaimer": DISCLAIMER, "modules": MODES, "extras": EXTRAS, "cloud": _cloud()}
 
 
 @app.get("/api/profile", response_model=Profile)
@@ -215,6 +228,16 @@ def ask(body: AskIn) -> dict:
     }
 
 
+@app.post("/api/offline")
+def set_offline(body: OfflineIn) -> dict:
+    """S6 "Wi-Fi off": B's forced-offline switch. Off means back to normal (GV_OFFLINE / network).
+    Only the cloud is cut; local checks, stored answers and actions keep working (F8)."""
+    if cloud_set_offline is None:
+        raise HTTPException(409, "offline switch arrives with B's cloud module")
+    cloud_set_offline(True if body.offline else None)
+    return _cloud()
+
+
 @app.get("/api/ledger")
 def ledger(since: int = 0) -> dict:
     """Live outbound ledger (F5). The UI polls with the last seq it has."""
@@ -227,6 +250,7 @@ def ledger(since: int = 0) -> dict:
             "personal_fields_sent": sum(e.personal_fields_sent for e in everything),
         },
         "learned": kb_stats() if kb_stats else None,   # facts the KB holds (F6, E2)
+        "cloud": _cloud(),                               # badge state, polled with the ledger
         "mock": LEDGER_IS_MOCK,
     }
 

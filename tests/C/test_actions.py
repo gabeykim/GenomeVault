@@ -53,7 +53,8 @@ def test_visit_summary_has_one_page_sections():
                      "Recent labs", "To discuss", "Questions I asked GenomeVault"]
     genes = next(sec for sec in s["sections"] if sec["heading"] == "Pharmacogenomic results")["items"]
     assert "CYP2C19 *2/*2: poor metabolizer (notable)" in genes
-    assert "CYP2D6 *1/*1: normal metabolizer" in genes
+    # D-021: CYP2D6 is not_assessed in PLAN v1.2 (the mock may still say *1/*1 until the integrator updates it)
+    assert ("CYP2D6 *1/*1: normal metabolizer" in genes) or ("CYP2D6: not assessed by this test" in genes)
     assert s["prepared"] == "2026-11-08"
     assert "never tells you to start or stop" in s["note"]
 
