@@ -9,20 +9,22 @@ main (A at G1, B at G2, C's own merge.py), otherwise the stub from core/interfac
 """
 from __future__ import annotations
 
+import html
 import importlib
 import importlib.util
 import os
 import threading
+from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Optional
 
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from core import interfaces
+from core import actions, interfaces
 from core.contracts import Answer, Drug, Fact, Flag, LedgerEntry, Profile
 
 ROOT = Path(__file__).resolve().parent
@@ -114,6 +116,9 @@ def tier_label(fact: Fact) -> str:
 app = FastAPI(title="GenomeVault", docs_url=None, redoc_url=None)
 
 
+_asked: deque[str] = deque(maxlen=10)   # recent questions, in memory only, for the visit summary
+
+
 class CheckIn(BaseModel):
     text: str = Field(min_length=1, max_length=200)
 
@@ -163,6 +168,7 @@ def ask(body: AskIn) -> dict:
     p = load_profile()
     current = _flags_for(p.meds, p)
     answer: Answer = route(body.question, current)
+    _asked.append(body.question)
     if answer.sent_to_cloud:
         _note("bucket", MOCK_BUCKET_BYTES, "mock-bucket")
     else:
@@ -188,6 +194,76 @@ def ledger(since: int = 0) -> dict:
         },
         "mock": LEDGER_IS_MOCK,
     }
+
+
+# --- actions (F7): prepared on device, handed to the user; nothing is sent (I2) ----------------
+
+def _current() -> tuple[list[Flag], Profile]:
+    p = load_profile()
+    return _flags_for(p.meds, p), p
+
+
+@app.get("/api/actions/pharmacist")
+def pharmacist() -> dict:
+    flags_now, p = _current()
+    return {"text": actions.pharmacist_draft(flags_now, p)}
+
+
+@app.get("/api/actions/summary")
+def summary() -> dict:
+    flags_now, p = _current()
+    s = actions.visit_summary(flags_now, p, list(_asked))
+    return {**s, "text": actions.summary_text(s)}
+
+
+@app.get("/api/actions/reminders")
+def reminders() -> dict:
+    flags_now, p = _current()
+    return {"reminders": actions.reminders(flags_now, p)}
+
+
+@app.get("/api/actions/reminders.ics")
+def reminders_ics() -> Response:
+    flags_now, p = _current()
+    return Response(actions.reminders_ics(actions.reminders(flags_now, p)), media_type="text/calendar",
+                    headers={"Content-Disposition": 'attachment; filename="genomevault-reminders.ics"'})
+
+
+SUMMARY_CSS = """
+:root { --paper:#fff; --ink:#0b0b0b; --mute:#6b6b67; --line:#c3c3be; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #e1e1de; color: var(--ink); font: 13px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.page { max-width: 780px; margin: 24px auto; padding: 40px 48px; background: var(--paper); }
+.top { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 8px solid var(--ink); padding-bottom: 10px; }
+h1 { margin: 0; font-size: 34px; font-weight: 500; letter-spacing: -.04em; }
+.meta { color: var(--mute); font-size: 12px; text-align: right; }
+section { display: grid; grid-template-columns: 170px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+h2 { margin: 0; font-size: 12px; font-weight: 400; color: var(--mute); }
+ul { margin: 0; padding: 0; list-style: none; }
+li { padding: 2px 0; }
+.note { margin-top: 16px; color: var(--mute); font-size: 11.5px; }
+.bar { max-width: 780px; margin: 16px auto 0; display: flex; justify-content: space-between; font-size: 12px; }
+.bar a, .bar button { color: var(--ink); background: none; border: 1px solid var(--ink); padding: 6px 12px; font: inherit; cursor: pointer; text-decoration: none; }
+@media print { body { background: #fff; } .bar { display: none; } .page { margin: 0; padding: 0; max-width: none; } }
+@media (max-width: 640px) { .page { padding: 24px 16px; margin: 0; } section { grid-template-columns: 1fr; gap: 4px; } }
+"""
+
+
+@app.get("/summary", response_class=HTMLResponse, include_in_schema=False)
+def summary_page() -> str:
+    """Printable one-page visit summary. Self-contained: no external assets (I8)."""
+    s = summary()
+    esc = html.escape
+    sections = "".join(
+        f"<section><h2>{esc(sec['heading'])}</h2><ul>{''.join(f'<li>{esc(i)}</li>' for i in sec['items'])}</ul></section>"
+        for sec in s["sections"])
+    return (f"<!doctype html><html lang='en'><head><meta charset='utf-8'>"
+            f"<meta name='viewport' content='width=device-width, initial-scale=1'>"
+            f"<title>Visit summary · GenomeVault</title><style>{SUMMARY_CSS}</style></head><body>"
+            f"<div class='bar'><a href='/'>← Back to GenomeVault</a><button onclick='print()'>Print</button></div>"
+            f"<main class='page'><div class='top'><h1>{esc(s['title'])}</h1>"
+            f"<div class='meta'>Prepared {esc(s['prepared'])}<br>GenomeVault</div></div>"
+            f"{sections}<p class='note'>{esc(s['note'])}</p></main></body></html>")
 
 
 app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")

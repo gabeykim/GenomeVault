@@ -386,6 +386,105 @@ function onAsk(ev) {
   ask(q);
 }
 
+// ---------- actions (F7): prepared on device, the user sends them ----------
+
+function lineButton(label, attrs = {}) {
+  const tag = attrs.href ? "a" : "button";
+  return el(tag, { class: "line-btn", type: tag === "button" ? "button" : null, ...attrs }, el("span", {}, label));
+}
+
+async function copyText(text, button) {
+  const label = button.querySelector("span");
+  try {
+    await navigator.clipboard.writeText(text);
+    label.textContent = "Copied";
+  } catch {
+    label.textContent = "Select the text to copy";
+  }
+  setTimeout(() => { label.textContent = "Copy text"; }, 1800);
+}
+
+function formatDue(iso) {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+}
+
+const ACTIONS = [
+  {
+    id: "A1", key: "action:pharmacist", title: "Draft a message to your pharmacist", kind: "Message",
+    async build() {
+      const { text } = await api("/api/actions/pharmacist");
+      const copy = lineButton("Copy text");
+      copy.addEventListener("click", () => copyText(text, copy));
+      return [
+        el("pre", { class: "draft" }, text),
+        el("div", { class: "action-bar" }, copy,
+          el("span", { class: "mute small" }, "Not sent. Paste it into your pharmacy's portal or an email yourself.")),
+      ];
+    },
+  },
+  {
+    id: "A2", key: "action:summary", title: "One-page visit summary", kind: "Print",
+    async build() {
+      const s = await api("/api/actions/summary");
+      return [
+        el("dl", { class: "sum-grid" }, s.sections.flatMap((sec) => [
+          el("dt", {}, sec.heading),
+          el("dd", {}, sec.items.length > 3 ? `${sec.items.slice(0, 3).join(" · ")} · +${sec.items.length - 3} more` : sec.items.join(" · ")),
+        ])),
+        el("div", { class: "action-bar" },
+          lineButton("Open printable page", { href: "/summary", target: "_blank", rel: "noopener" }),
+          el("span", { class: "mute small" }, `Prepared ${s.prepared}. Print it or show it on your phone at the visit.`)),
+      ];
+    },
+  },
+  {
+    id: "A3", key: "action:reminders", title: "Reminders", kind: "Calendar",
+    async build() {
+      const { reminders } = await api("/api/actions/reminders");
+      return [
+        reminders.length
+          ? el("ol", { class: "rem-list" }, reminders.map((r) => el("li", {},
+            el("span", { class: "rem-due" }, formatDue(r.due)),
+            el("span", {}, el("span", { class: "rem-title" }, r.title), el("span", { class: "mute" }, r.detail)))))
+          : el("p", { class: "mute" }, "No reminders right now."),
+        el("div", { class: "action-bar" },
+          lineButton("Download calendar file", { href: "/api/actions/reminders.ics", download: "genomevault-reminders.ics" }),
+          el("span", { class: "mute small" }, "Calendar entries only say “GenomeVault: …”. Health details stay on this device.")),
+      ];
+    },
+  },
+];
+
+function actionRow(a, i) {
+  const detailId = `d-${a.id}`;
+  const body = el("div", {});
+  const btn = el("button", { class: "row-btn", type: "button", "aria-expanded": "false", "aria-controls": detailId },
+    el("span", { class: "r-id" }, a.id),
+    glyph(a.key),
+    el("span", { class: "r-title" }, a.title),
+    el("span", { class: "r-engine" }, a.kind),
+    el("span", { class: "r-sev" }, "Open"));
+  const li = el("li", { class: "row action", style: `--i:${i}` }, btn,
+    el("div", { class: "row-detail", id: detailId }, el("div", {}, el("div", { class: "detail-inner" }, body))));
+  btn.addEventListener("click", async () => {
+    const open = li.classList.toggle("open");
+    btn.setAttribute("aria-expanded", String(open));
+    btn.querySelector(".r-sev").textContent = open ? "Close" : "Open";
+    if (!open) return;
+    body.replaceChildren(el("p", { class: "mute" }, "Preparing on this device…"));
+    try {
+      body.replaceChildren(...await a.build());
+    } catch (err) {
+      body.replaceChildren(el("p", { class: "mute" }, `Couldn't prepare this: ${err.message}`));
+    }
+  });
+  return li;
+}
+
+function renderActions() {
+  $("actions").replaceChildren(...ACTIONS.map(actionRow));
+}
+
 // ---------- ledger ----------
 
 let lastSeq = 0;
@@ -464,6 +563,7 @@ function boot() {
   buildWordmark();
   buildStrand();
   watchScroll();
+  renderActions();
   $("check-form").addEventListener("submit", onCheck);
   $("ask-form").addEventListener("submit", onAsk);
   $("chat").addEventListener("click", (ev) => {
