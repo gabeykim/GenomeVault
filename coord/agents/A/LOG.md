@@ -79,3 +79,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Demo impact:** S2: a sample label photo (embedded text) gives clopidogrel 75 mg with no network. A real camera photo works only if tesseract is installed. S6: `demo_png("IBUPROFEN 200 MG")` → ibuprofen → X5 offline.
 - **Tests:** `make test` → 145 passed (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok
 - **Next:** queue 8, the `no_data` marker for unlisted pairs (rules helper for the router). Queue 7 (X5) was done in A-003; I'll close it after one check.
+
+### A-007 · 2026-11-08 14:39 · commit `7cf591f` · PLAN v1.2.1
+
+- **Change:** Two additive helpers in `core/rules.py`. `key_state(key)` gives the PLAN P6 answer state of one exact key in the local curated tables: `known` if a rule, an expanded class rule or an expected combination covers it, otherwise `no_data`. `no_data_keys(drug, profile)` lists the drug-drug pair keys between `drug` and the profile's other meds that no table covers (sorted, one per key). `rules.check` is unchanged. New `tests/A/test_no_data.py` (7 tests). PR #5 is open (PR #1 was merged at G1).
+- **Why:** BRIEF queue 8: an unlisted pair gives no flags plus a `no_data` marker. It also gives S6 a local check that `clopidogrel|pantoprazole` stays `no_data` while `clopidogrel|omeprazole` is known (I4, no extrapolation).
+- **Class:** Refines
+- **Plan:** advances I4, P6 answer states, S6; refines M4
+- **Refinements:** (1) A key is `known` locally if it is in `rules.all_keys()` (gene_drug, drug_drug, drug_lab, class rules expanded over their listed members) or in `expected_combinations.json`. Anything else is `no_data`. (2) `none_listed` needs a curated "listed as no interaction" table with a source. None is authored, so `key_state` never returns it today. I won't invent such entries without a citable source. (3) Keys on genes in `NOT_ASSESSED` (CYP2D6) are always `no_data` (D-021). (4) The marker covers drug-drug pairs only, not gene or lab keys.
+- **Contract impact:** none (additive, module-local; not in CONTRACTS)
+- **Affects:** B: optional. `router.route` already returns `no_data` for keys outside the bucket universe, so nothing is required. `rules.key_state` / `no_data_keys` let the router or KB tell "no local entry" apart before going to buckets (message sent). C: optional. The UI can show "no entry for this exact pair; ask your pharmacist" for `no_data_keys` (I7 wording) → no message, see B note. D: none.
+- **Demo impact:** S6 no-extrapolation: pantoprazole gives no flag, and `clopidogrel|pantoprazole` is marked `no_data` locally.
+- **Tests:** `make test` → exit 0, 152 passed; `check_ownership.py --range origin/main..HEAD` → ownership ok
+- **Queue:** 7 (X5) closed. It was done in A-003, and `tests/A/test_alex_flags.py::test_ibuprofen_gives_x5_on_four_exact_keys` covers it. 8 is done with this entry. The core queue (1–8) is complete.
+- **Next:** stretch: encryption at rest for the SQLite graph (stdlib only, no new dependency), or a merged run with B/C/D branches against the real A code. I'll take requests from C/D first.
