@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (C-013 pushed; PR #3 updated)
+current_task: none (C-014 pushed; PR #3 updated)
 branch: agent/C-app-ui
-last_commit: 0b8e157
+last_commit: 3feb861
 last_seen:
   plan_version: "1.2"
   decisions: D-021
-  logs: {A: 5, B: 13, C: 13, D: 7}
+  logs: {A: 6, B: 15, C: 14, D: 8}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -28,5 +28,6 @@ handled_messages:
   - 20261108-1408-from-B-buckets-v3.md
   - 20261108-1415-from-B-i7-filter.md
   - 20261108-1417-from-A-cyp2d6-dapt-note.md
+  - 20261108-1425-from-A-graph-load-profile.md
 blocked_on: none
-next: cover traffic at startup (G3), then queue 5 phone/ + POST /api/capture (D-020), drop stand-ins (D-014)
+next: queue 5 phone/ + POST /api/capture (A's capture.from_image is real on PR #1), then drop stand-ins (D-014)

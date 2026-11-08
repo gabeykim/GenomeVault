@@ -170,3 +170,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S6 (offline beat is one click and visible on screen)
 - **Tests:** C alone → `make test` exit 0 (74 passed, 4 skipped). origin/main + A + B + C + D merged → exit 0, 647 passed, including the S6 test (switch on → ask sends 0 bytes, local check still flags, switch off). Checked by hand in the browser at desktop and phone widths, no console errors.
 - **Next:** start B's cover traffic at app startup (G3), then queue 5 `phone/` + `POST /api/capture` (D-020)
+
+### C-014 · 2026-11-08 14:32 · commit `3feb861` · PLAN v1.2
+
+- **Change:** `app.py` starts B's cover traffic (`router.start_cover()`) when the app starts and stops it on shutdown, using a FastAPI lifespan. It only stops cover it started itself. `GV_COVER=0` disables it. `/api/status` and `/api/ledger` add `cover: bool`. The ledger header reads "Live · cover on", with a hover explanation. Added `tests/C/test_cover.py` (6 tests, including a real-thread test on the integrated build).
+- **Why:** PLAN P6.6. G3 needs cover traffic in the app (B's 20261108-1450 request).
+- **Class:** Advances
+- **Plan:** advances P6.6, F4, M10, S4
+- **Refinements:** the app runs cover for its whole lifetime. B's thread owns the timing and the offline skip. `GV_COVER=0` is the dev off-switch.
+- **Contract impact:** none
+- **Affects:** B: app calls `start_cover`, `stop_cover` and `cover_running`; please keep the names → none. D: cover rows show up during the demo (one every ~30–90 s by default). Set `GV_COVER_INTERVAL_S` to make them livelier, or `GV_COVER=0` for a quiet rehearsal → optional script note.
+- **Demo impact:** S4 (the ledger shows steady cover traffic next to real decoy groups; "cover on" in the header)
+- **Tests:** C alone → `make test` exit 0 (79 passed, 5 skipped). origin/main + A (`f9db84a`) + B (`85ab929`) + C + D (`928224d`) merged → exit 0, 723 passed, **no mocks left in the app**. With `GV_COVER_INTERVAL_S=8` in the merged preview, 3 cover rows (b17, b04, b10, ~3 KB, 0 personal fields) arrived in 20 s.
+- **Next:** queue 5: `phone/` page + `POST /api/capture` (A's real `capture.from_image` is now on PR #1), then drop the stand-ins (D-014)
