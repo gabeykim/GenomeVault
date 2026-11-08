@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GenomeVault</title>
+  <link rel="stylesheet" href="/ui/style.css">
+</head>
+<body>
+  <!-- Intro: sequencing lanes slide apart like vault doors. Click to skip. -->
+  <div class="intro" id="intro" aria-hidden="true">
+    <div class="intro-cols" id="intro-cols"></div>
+    <svg class="intro-mark" viewBox="0 0 32 32">
+      <path d="M16 2 4 7v8c0 7.4 5.1 13.6 12 15 6.9-1.4 12-7.6 12-15V7L16 2Z" fill="currentColor"/>
+      <path d="M12 9c0 4 8 6 8 10s-8 4-8 6M20 9c0 4-8 6-8 10s8 4 8 6" stroke="var(--paper)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <header class="mast">
+    <div class="bar" id="bar">
+      <a class="logo" href="/" aria-label="GenomeVault">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 2 4 7v8c0 7.4 5.1 13.6 12 15 6.9-1.4 12-7.6 12-15V7L16 2Z" fill="currentColor"/>
+          <path d="M12 9c0 4 8 6 8 10s-8 4-8 6M20 9c0 4-8 6-8 10s8 4 8 6" stroke="var(--paper)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span>GenomeVault</span>
+      </a>
+      <span class="bar-meta"><span class="blink"></span>On device <span class="mute" id="demo-badge" hidden>· Demo mode</span></span>
+      <button class="net" id="net" type="button" role="switch" aria-checked="false" aria-label="Wi-Fi off" hidden>
+        <span class="net-track" aria-hidden="true"><span class="net-knob"></span></span>
+        <span class="net-state" id="net-state">Online</span>
+      </button>
+      <span class="bar-stat"><span class="mute">Sent to cloud</span><strong class="ticker" id="total-bytes"><span class="tick">0 B</span></strong></span>
+    </div>
+
+    <h1 class="wordmark" aria-label="GenomeVault">
+      <span class="wm" data-word="GENOME"></span>
+      <span class="wm-rule"></span>
+      <span class="wm" data-word="VAULT"></span>
+    </h1>
+
+    <div class="strand" id="strand" aria-hidden="true"><div class="strand-track" id="strand-track"></div></div>
+
+    <p class="disclaimer" role="note"><strong>Demo, not medical advice.</strong> Synthetic data only.</p>
+  </header>
+
+  <main class="grid">
+    <section class="sec col-main" id="sec-main">
+      <div class="rule"></div>
+      <nav class="tabs" role="tablist" aria-label="Sections">
+        <button class="tab" role="tab" id="tab-meds" aria-controls="panel-meds" aria-selected="true" data-tab="meds"><span class="num">01</span>Medications</button>
+        <button class="tab" role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" data-tab="ask"><span class="num">02</span>Ask</button>
+        <button class="tab" role="tab" id="tab-actions" aria-controls="panel-actions" aria-selected="false" data-tab="actions"><span class="num">03</span>Actions</button>
+        <button class="tab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-tab="data"><span class="num">04</span>My data</button>
+      </nav>
+
+      <div class="panel active" role="tabpanel" id="panel-meds" aria-labelledby="tab-meds">
+        <p class="lede" id="flags-summary">Checking your medications…</p>
+        <ol class="index" id="flags"></ol>
+        <ul class="notes" id="notes" aria-label="For information"></ul>
+        <div class="from-phone" id="from-phone" hidden>
+          <h3>From your phone</h3>
+          <ol class="captures" id="captures"></ol>
+        </div>
+        <form class="line-form" id="check-form" autocomplete="off">
+          <label for="check-input" class="sr-only">Check another medication</label>
+          <input id="check-input" type="text" placeholder="Check another medication" maxlength="200">
+          <button type="submit"><span>Check</span></button>
+        </form>
+        <div id="check-result"></div>
+      </div>
+
+      <div class="panel" role="tabpanel" id="panel-ask" aria-labelledby="tab-ask" hidden>
+        <p class="lede" id="ask-lede">Only general questions leave this device, hidden in a group of 8.</p>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <!-- Demo questions: exact texts from D's eval/queries.json so the eval measures what is shown. -->
+        <ol class="chips" id="chips" aria-label="Suggested questions">
+          <li><button type="button" class="suggestion" data-qid="Q18" data-q="What should I bring up with my cardiologist?" title="Demo: decoy group (S4)"><span class="qtext">What should I bring up with my cardiologist?</span></button></li>
+          <li><button type="button" class="suggestion" data-qid="Q19" data-q="Which of my new prescriptions should I ask my pharmacist about first?" title="Demo: learns (S6)"><span class="qtext">Which of my new prescriptions should I ask my pharmacist about first?</span></button></li>
+          <li><button type="button" class="suggestion" data-qid="Q07" data-q="Could pantoprazole work instead of omeprazole with my clopidogrel?" title="Demo: no guessing between drugs (S6)"><span class="qtext">Could pantoprazole work instead of omeprazole with my clopidogrel?</span></button></li>
+          <li><button type="button" class="suggestion" data-qid="Q15" data-q="Can I take ibuprofen for a headache?" title="Demo: offline (S6)"><span class="qtext">Can I take ibuprofen for a headache?</span></button></li>
+        </ol>
+        <form class="line-form" id="ask-form" autocomplete="off">
+          <label for="ask-input" class="sr-only">Ask a question</label>
+          <input id="ask-input" type="text" placeholder="Ask about your medications" maxlength="500">
+          <button type="submit"><span>Ask</span></button>
+        </form>
+      </div>
+
+      <div class="panel" role="tabpanel" id="panel-actions" aria-labelledby="tab-actions" hidden>
+        <p class="lede">Prepared here for you to send, print or save. Nothing is sent for you.</p>
+        <ol class="index" id="actions"></ol>
+      </div>
+
+      <div class="panel" role="tabpanel" id="panel-data" aria-labelledby="tab-data" hidden>
+        <p class="lede"><span class="sq"></span>Stays on this device</p>
+        <div class="profile" id="profile"><p class="mute">Loading profile…</p></div>
+      </div>
+    </section>
+
+    <aside class="col-ledger">
+      <section class="sec ledger-sec" id="sec-ledger">
+        <div class="rule"></div>
+        <header class="sec-head">
+          <h2>Outbound ledger</h2>
+          <span class="tag"><span class="blink"></span>Live<span class="live-cover" id="live-cover" hidden
+            title="Decoy groups also go out on a steady schedule, so no one watching can tell when you are actually asking.">&nbsp;· cover on</span></span>
+        </header>
+        <div class="totals">
+          <div><span class="mute">Bytes out</span><strong class="ticker" id="ledger-bytes"><span class="tick">0 B</span></strong></div>
+          <div><span class="mute">Personal fields</span><strong class="ticker" id="ledger-personal"><span class="tick">0</span></strong></div>
+        </div>
+        <p class="learned" id="learned" hidden><strong class="ticker" id="learned-n"><span class="tick">0</span></strong><span>facts learned on this device</span></p>
+        <div class="sync" id="sync" hidden>
+          <button type="button" class="line-btn" id="sync-btn"><span>Sync knowledge pack</span></button>
+          <span class="mute small" id="sync-msg">The same answers every user gets, so more works offline. Nothing about you picks what is sent.</span>
+        </div>
+        <ol class="ledger" id="ledger">
+          <li class="ledger-empty">Nothing has left this device.</li>
+        </ol>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="foot"><span id="modules" class="mute" hidden></span></footer>
+
+  <script src="/ui/app.js"></script>
+</body>
+</html>
