@@ -9,8 +9,20 @@ Stage rules: pre-load everything, keep the demo-mode toggle ready (I8: the full 
 | S3 Local flags | 30 s | "Four problems, found on the device. Zero bytes sent." | X1–X4 with severity and evidence; ledger shows `local_only`, 0 bytes | Q01, Q02, Q06, Q11 |
 | S4 Hybrid | 45 s | "What should I bring up with my cardiologist?" "The cloud gets fixed groups of 8 general questions. Only this screen knows which one was real." | As each bucket leaves, 8 identical blocks slide across the strand under the header (C-002) and the ledger row shows 8 cells; separate bucket entries, 0 personal fields; personalized answer citing Alex's results | Q18 |
 | S5 Red team | 45 s | "We gave everything that left the laptop to an attacker. We don't claim privacy. We measure it." | `docs/charts/redteam.svg`: naive leaks everything, random decoys collapse on repeat, fixed buckets near 1 in 8 | — |
-| S6 Learns, offline, acts | 45 s | "A related question: answered locally, 0 bytes." Then: "Wi-Fi off. Ibuprofen: still flagged." Then: "Pantoprazole instead of omeprazole? No local data for that exact pair, so it doesn't guess." | Q19 is a KB hit; Wi-Fi off → Q15 flags X5; Q07 says no data offline (fetches and stores its own key online); pharmacist draft (copy button) and the one-page visit summary (`/summary`) appear under 05 Actions; the reminder reaches the phone. Say: "Even the calendar entry only says 'GenomeVault: Call your pharmacist', so no health detail lands in a synced calendar." (C-005) | Q19, Q15, Q07 |
+| S6 Learns, offline, acts | 45 s | "A related question: answered locally, 0 bytes." Then: "Wi-Fi off. Ibuprofen: still flagged." Then: "Pantoprazole instead of omeprazole? No local data for that exact pair, so it doesn't guess." | Q19 is a KB hit (its ↻ chip; the ledger adds a 0-byte `kb_hit` row and "facts learned" rises). Wi-Fi off, then type **ibuprofen** into **"Check another medication"** under 02 Medication check, not the Ask box: the medication check runs the local rules, so four high flags appear (bleeding with aspirin and with clopidogrel, kidney with lisinopril and eGFR), 0 bytes sent. Q07 says no data offline (fetches and stores its own key online); pharmacist draft (copy button) and the one-page visit summary (`/summary`) appear under 05 Actions; the reminder reaches the phone. Say: "Even the calendar entry only says 'GenomeVault: Call your pharmacist', so no health detail lands in a synced calendar." (C-005) | Q19, typed "ibuprofen" (Q15's drug), Q07 |
 | S7 Close | 15 s | "The more you use it, the less it needs the cloud. The same stack runs on a clinic edge server, or across hospitals without moving a genome." | `docs/charts/learning_curve.svg` | — |
+
+## Before rehearsing: what must be true
+
+Checked on a local merge of all four branches in demo mode (D-006). The privacy path works: Q18 sends b01 and b05, 0 personal fields. Three things still block beats:
+
+| Needed | Blocks | Owner | Status |
+| --- | --- | --- | --- |
+| Recorded demo cloud answers in `mocks/cloud_cache/` | S4 personalized answer (every Ask is `no_data` today); S6 "learns" (Q19 re-sends b01 + b05 instead of a 0-byte KB hit) | Integrator (B's request, 13:50) | open |
+| App shows all four X5 flags | S6 ibuprofen: the typed check shows only the kidney flag because flags are de-duplicated by id, and all four share id `X5` | C (A's note, A-003) | open |
+| A's real rules on main | S3 and S6 flags come from A's tables, not mocks | Integrator at G1 (14:30) | PR #1 ready |
+
+Rehearsal check: restart `make demo` (the ledger is in memory), ask Q18 then Q19, and confirm Q19 adds a `kb_hit` row with 0 bytes. If it doesn't, the cache isn't loaded: switch to the backup video.
 
 Backup: record the full run as video by G5 (20:15). Print `/summary` as a handout for judges.
 

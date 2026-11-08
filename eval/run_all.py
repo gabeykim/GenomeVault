@@ -108,7 +108,7 @@ def write_results(rt: dict, lc: dict, lat: dict, off: dict) -> str:
     L.append("## E4 · Offline\n")
     L.append("![offline](charts/offline.svg)\n")
     L.append(f"Wi-Fi off: **{off['cold_answered']}/20** answered with content on a cold device, **{off['warm_answered']}/20** after one "
-             f"online session. Every other question gets an honest \"no data for this combination; ask your pharmacist\" "
+             f"online session{', **' + str(off['synced_answered']) + '/20** after a full knowledge-pack sync (B-010)' if off.get('synced_answered') is not None else ''}. Every other question gets an honest \"no data for this combination; ask your pharmacist\" "
              f"({off['matches_offline_state_cold']}/20 cold answers match the predicted state). Nothing is sent offline.\n")
     L.append("## Method and limits\n")
     L.append("- Synthetic priors, domains and clusters: `eval/fixtures/universe_v1.json` (illustrative, not real prescription data).\n"

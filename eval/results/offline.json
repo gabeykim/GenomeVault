@@ -25,6 +25,7 @@
   "open_ended": 3
  },
  "matches_offline_state_cold": 20,
+ "synced_answered": 18,
  "cold_rows": {
   "Q01": {
    "category": "gene_drug",

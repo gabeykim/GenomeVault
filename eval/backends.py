@@ -123,9 +123,11 @@ class LiveBackend:
         from core import interfaces, ledger, router
         self.router, self.ledger = router, ledger
         self.mocked = []
+        self.check_all = None
         try:
             from core import rules
             self.check = rules.check
+            self.check_all = getattr(rules, "check_all", None)
         except ImportError:
             self.check = interfaces.check
             self.mocked.append("rules")
@@ -143,6 +145,15 @@ class LiveBackend:
         from core import kb
         kb.clear()
 
+    def sync_pack(self) -> bool:
+        """Fully warm KB (B-010): every in-universe key, logged as cover rows. False if the build lacks it."""
+        fn = getattr(self.router, "sync_pack", None)
+        if fn is None:
+            return False
+        fn()
+        self.seq = max((e.seq for e in self.ledger.feed(0)), default=0)   # sync rows are not per-question traffic
+        return True
+
     @property
     def offline(self) -> bool:
         from core import cloud
@@ -156,9 +167,13 @@ class LiveBackend:
 
     def ask(self, q: dict) -> Result:
         from core.contracts import Drug
-        flags = [f for d in q["drugs"] for f in self.check(Drug(ingredient=d), self.profile)]
-        if not q["drugs"]:
-            flags = list({f.id: f for m in self.profile.meds for f in self.check(m, self.profile)}.values())
+        if q["drugs"]:
+            raw = [f for d in q["drugs"] for f in self.check(Drug(ingredient=d), self.profile)]
+        elif self.check_all:
+            raw = self.check_all(self.profile)
+        else:
+            raw = [f for m in self.profile.meds for f in self.check(m, self.profile)]
+        flags = list({f.key: f for f in raw}.values())   # dedupe by exact key: X5 is four flags sharing one id (A-003)
         t0 = time.perf_counter()
         ans = self.router.route(q["text"], flags)
         ms = (time.perf_counter() - t0) * 1000

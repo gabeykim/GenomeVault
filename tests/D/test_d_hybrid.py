@@ -35,3 +35,27 @@ def test_offline_warm_beats_cold_and_sends_nothing():   # E4, F8, I8
     assert r["warm_answered"] >= r["cold_answered"] > 0
     assert r["matches_offline_state_cold"] == r["n"]    # every cold answer is the state queries.json predicts
     assert r["cold_rows"]["Q15"]["state"] == "known"     # S6 offline ibuprofen still flagged
+
+
+def test_live_backend_dedupes_flags_by_key_not_id():      # A-003: X5 is four flags sharing one id
+    from types import SimpleNamespace
+    from core.contracts import Answer, Flag
+    from eval.backends import LiveBackend
+    x5 = [Flag(id="X5", key=k, severity="high", engine="class_rule", evidence=["e"])
+          for k in ("aspirin|ibuprofen", "clopidogrel|ibuprofen", "ibuprofen|lisinopril", "ibuprofen|egfr<60")]
+    seen = {}
+    be = object.__new__(LiveBackend)
+    be.check = lambda drug, profile: x5 + x5[:1]               # one duplicate key on purpose
+    be.check_all = None
+    be.profile = SimpleNamespace(meds=[])
+    be.router = SimpleNamespace(route=lambda text, flags: seen.setdefault("flags", flags) and Answer(state="known", text="t"))
+    be.ledger = SimpleNamespace(feed=lambda since: [])
+    be.seq = 0
+    q = next(q for q in load_queries() if q["id"] == "Q15")
+    be.ask(q)
+    assert sorted(f.key for f in seen["flags"]) == sorted(f.key for f in x5)
+
+
+def test_full_pack_sync_answers_most_offline():          # B-010 model
+    r = offline.run(write=False, live=False)
+    assert r["synced_answered"] >= r["warm_answered"]

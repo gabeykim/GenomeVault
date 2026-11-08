@@ -36,8 +36,13 @@ def run(write: bool = True, live: bool | None = None) -> dict:
         _pass(be, qs)                   # one online session fills the KB
         be.offline = True
         warm_rows = _pass(be, qs)
+        synced_rows = None
+        be.reset()
+        if be.sync_pack():              # B-010: whole partition prefetched, then offline
+            be.offline = True
+            synced_rows = _pass(be, qs)
         be.offline = False
-        name = "live"
+        name = be.name
     else:
         cold = SimBackend(part, offline=True)
         cold_rows = _pass(cold, qs)
@@ -45,6 +50,10 @@ def run(write: bool = True, live: bool | None = None) -> dict:
         _pass(warm, qs)                 # one online session fills the KB
         warm.offline = True
         warm_rows = _pass(warm, qs)
+        synced = SimBackend(part)
+        synced.kb.update(part.keys)     # model of B-010 sync_pack: every in-universe key prefetched
+        synced.offline = True
+        synced_rows = _pass(synced, qs)
         name = "simulated"
     for rows in (cold_rows, warm_rows):
         assert all(r["cloud_calls"] == 0 for r in rows.values()), "offline must send nothing"
@@ -56,6 +65,7 @@ def run(write: bool = True, live: bool | None = None) -> dict:
            "warm_answered": sum(r["with_content"] for r in warm_rows.values()), "n": len(qs),
            "cold_by_category": by_cat(cold_rows), "warm_by_category": by_cat(warm_rows), "category_sizes": dict(total),
            "matches_offline_state_cold": sum(cold_rows[q["id"]]["state"] == q["offline_state"] for q in qs),
+           "synced_answered": sum(r["with_content"] for r in synced_rows.values()) if synced_rows else None,
            "cold_rows": cold_rows, "warm_rows": warm_rows}
     if write:
         RESULTS.mkdir(parents=True, exist_ok=True)

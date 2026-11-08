@@ -63,7 +63,7 @@ Latency and tokens are **modelled** (constants: {"rules": 5, "kb": 20, "local_ll
 
 ![offline](charts/offline.svg)
 
-Wi-Fi off: **10/20** answered with content on a cold device, **18/20** after one online session. Every other question gets an honest "no data for this combination; ask your pharmacist" (20/20 cold answers match the predicted state). Nothing is sent offline.
+Wi-Fi off: **10/20** answered with content on a cold device, **18/20** after one online session, **18/20** after a full knowledge-pack sync (B-010). Every other question gets an honest "no data for this combination; ask your pharmacist" (20/20 cold answers match the predicted state). Nothing is sent offline.
 
 ## Method and limits
 
