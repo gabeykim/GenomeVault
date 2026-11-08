@@ -187,3 +187,25 @@ def test_covering_class_rule_flag_is_known_even_with_out_of_partition_pair(monke
 def test_flag_for_another_drug_does_not_cover_the_question():
     a = router.route("Can I take zolpidem?", [X3])            # names zolpidem only: X3 says nothing about it
     assert a.state == "no_data" and not a.sent_to_cloud
+
+
+def test_brand_names_count_as_their_ingredient():
+    # A's normalize reads brands (B-019): "Plavix with Protonix" is clopidogrel|pantoprazole, not "no drug named".
+    assert router._question_keys("Is Plavix OK with Protonix?") == ["clopidogrel|pantoprazole"]
+    assert router._named_drugs("Can I take Advil with my lisinopril?") == ["ibuprofen", "lisinopril"]
+
+
+def test_brand_question_is_not_covered_by_an_unrelated_flag_offline(monkeypatch):
+    # I4: a local clopidogrel flag shares a drug, but the asked pair clopidogrel|pantoprazole is open.
+    local = Flag(id="X2", key="aspirin|clopidogrel", severity="medium", engine="drug_drug",
+                 evidence=["aspirin with clopidogrel"], needs_cloud=False)
+    monkeypatch.delenv("DEMO")
+    a = router.route("Is Plavix OK with Protonix?", [local])
+    assert a.state == "no_data" and not a.sent_to_cloud and a.text == router.OFFLINE_TEXT
+
+
+def test_brand_question_gets_the_exact_pair_fact_online(cache_all):
+    a = router.route("Is Plavix OK with Protonix?", [])
+    assert a.state == "known" and a.sent_to_cloud
+    assert [f.key for f in a.facts] == ["clopidogrel|pantoprazole"]
+    assert all(e.personal_fields_sent == 0 for e in ledger.feed(0))

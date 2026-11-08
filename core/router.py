@@ -73,10 +73,22 @@ def _vocab() -> set[str]:
     return vocab
 
 
+def _normalized(question: str) -> set[str]:
+    """Ingredient ids A's normalizer reads in the question: brand and typed names ("Plavix",
+    "Advil"), multi-word names (local only, never sent)."""
+    try:
+        from .normalize import to_ingredients
+        return {d.ingredient.strip().lower() for d in to_ingredients(question)}
+    except Exception:  # the plain word match below still works
+        return set()
+
+
 def _named_drugs(question: str) -> list[str]:
-    """Drugs of the bucket universe the user names in the question (local parse, never sent)."""
+    """Drugs of the bucket universe the user names in the question (local parse, never sent).
+    A brand name counts as its ingredient (I4: "Plavix with Protonix" asks clopidogrel|pantoprazole)."""
     vocab = _vocab()
-    return sorted({w for w in _WORD_RE.findall(question.lower()) if w in vocab})
+    words = set(_WORD_RE.findall(question.lower())) | _normalized(question)
+    return sorted(w for w in words if w in vocab)
 
 
 def _question_keys(question: str) -> list[str]:
