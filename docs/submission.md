@@ -32,7 +32,7 @@ An attacker that sees everything leaving the device tries to recover the real qu
 
 - **0 personal fields** left the device in every test, against 420 for a cloud-only app answering the same 20 questions.
 - **11 cloud calls for 20 questions**: the last five needed none, and a related follow-up is answered on the device.
-- **Offline:** 11 of 20 questions answered on a fresh device, 18 of 20 after syncing the knowledge pack. The rest get an honest "no data, ask your pharmacist", never a guess.
+- **Offline:** 11 of 20 questions answered on a fresh device (4 if you count only stored answers, not on-screen flags), and 18 of 20 after syncing the knowledge pack by either count. The rest get an honest "no data, ask your pharmacist", never a guess.
 - **Our red team made it better today.** Our evaluation agent found and the team fixed a wording filter that missed rephrased advice (3 → 25 of 25 caught), a leak through which group was sent (2.4% of patients → 0), and an answer that read as "checked" with nothing behind it.
 
 ### What's real, and what's demo

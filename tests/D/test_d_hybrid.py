@@ -104,3 +104,11 @@ def test_gate_fails_when_live_run_could_not_reach_the_cloud():   # B-035
     rows = gate.check(redteam.run(trials=100, seed=2, write=False), lc, latency_cost.run(write=False, live=False),
                       offline.run(write=False, live=False), wording.run(write=False))
     assert next(r for r in rows if r["id"] == "P3")["status"] == "PASS"
+
+
+def test_both_offline_readings_are_reported():             # A-016: user-visible vs router state
+    r = offline.run(write=False, live=False)
+    assert r["cold_router_answered"] <= r["cold_answered"]
+    assert r["synced_router_answered"] >= r["cold_router_answered"]
+    q01 = r["cold_rows"]["Q01"]                              # X1 shows on screen; the router still waits on a fact
+    assert q01["with_content"] and not q01["router_answered"]

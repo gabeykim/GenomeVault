@@ -1,8 +1,8 @@
 {
  "summary": {
-  "PASS": 20,
+  "PASS": 22,
   "WARN": 0,
-  "FAIL": 1
+  "FAIL": 0
  },
  "checks": [
   {
@@ -20,8 +20,8 @@
   {
    "id": "P3",
    "claim": "The live run could reach the cloud or its demo replay",
-   "status": "FAIL",
-   "value": "offline: nothing was sent, so E2/E4 understate the design. Re-run with DEMO=1 make eval (B-035)"
+   "status": "PASS",
+   "value": "demo replay"
   },
   {
    "id": "E1a",
@@ -69,7 +69,7 @@
    "id": "E2a",
    "claim": "Fewer cloud calls than questions",
    "status": "PASS",
-   "value": "0 calls / 20 questions"
+   "value": "11 calls / 20 questions"
   },
   {
    "id": "E2b",
@@ -99,13 +99,19 @@
    "id": "E4a",
    "claim": "Offline keeps working (warm >= cold > 0)",
    "status": "PASS",
-   "value": "cold 11/20, warm 11/20"
+   "value": "cold 11/20, warm 18/20"
   },
   {
    "id": "E4c",
    "claim": "A synced knowledge pack answers offline at least as well as a warm device (D-027)",
    "status": "PASS",
-   "value": "synced 11/20, warm 11/20, cold 11/20"
+   "value": "synced 18/20, warm 18/20, cold 11/20"
+  },
+  {
+   "id": "E4d",
+   "claim": "Strict reading (router state only, A-016): the pack lifts offline answers",
+   "status": "PASS",
+   "value": "cold 4/20, synced 18/20 (user-visible: cold 11/20)"
   },
   {
    "id": "E4b",

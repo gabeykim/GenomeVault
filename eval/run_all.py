@@ -139,6 +139,11 @@ def write_results(rt: dict, lc: dict, lat: dict, off: dict, wd: dict | None = No
     L.append(f"Wi-Fi off: **{off['cold_answered']}/20** answered with content on a cold device, **{off['warm_answered']}/20** after one "
              f"online session{', **' + str(off['synced_answered']) + '/20** after a full knowledge-pack sync (B-010)' if off.get('synced_answered') is not None else ''}. Every other question gets an honest \"no data for this combination; ask your pharmacist\" "
              f"({off['matches_offline_state_cold']}/20 cold answers match the predicted state). Nothing is sent offline.\n")
+    if off.get("cold_router_answered") is not None:
+        L.append(f"Two readings (A-016). **User-visible** counts a covering local flag or curated note, because it's on the screen: "
+                 f"{off['cold_answered']}/20 cold, {off['synced_answered']}/20 after a pack sync. **Strict** counts only the router's own "
+                 f"`known` (a stored fact or a local-only flag): {off['cold_router_answered']}/20 cold, "
+                 f"{off.get('synced_router_answered')}/20 after a pack sync.\n")
     L.append("## I7 wording filter red team\n")
     if wd and wd.get("status") == "ran":
         L.append(f"D's adversarial cases (`eval/fixtures/wording_cases.json`) against B's `wording_problems` (B-013): "
@@ -182,6 +187,9 @@ def write_numbers(rt: dict, lc: dict, lat: dict, off: dict, wd: dict | None) -> 
         ("Personal fields sent: hybrid vs cloud-only", f"{h['personal_fields_sent']} vs {co['personal_fields_sent']}", "E3a"),
         ("Offline: answered on a cold device", f"{off['cold_answered']}/20", "E4a"),
         ("Offline: answered after one online session", f"{off['warm_answered']}/20", "E4a"),
+        ("Offline: after a knowledge-pack sync", f"{off.get('synced_answered')}/20", "E4c"),
+        ("Offline, strict reading (stored answers only): cold / synced",
+         f"{off.get('cold_router_answered')}/20 / {off.get('synced_router_answered')}/20", "E4d"),
     ]
     if wd and wd.get("status") == "ran":
         rows.append(("Wording filter: adversarial texts caught", f"{wd['caught']}/{wd['should_reject']}", "I7b"))

@@ -7,10 +7,10 @@ figure's G4 gate status. Quote only rows marked PASS, and re-run `make eval` on 
 2. **Insight (15 s).** Move the model to the data, not the data to the model. The AI PC holds the genome; the cloud only ever sees general, decoy-protected questions.
 3. **What it does (45 s, or the live demo S2–S6).** Alex, 58, has just had a stent and has five new prescriptions. GenomeVault flags four problems on the device with 0 bytes sent. An open question goes out as fixed buckets of 8, and the answer comes back personalized locally. It works offline, and it drafts a message to his pharmacist.
 4. **Proof, not promises (30 s).** "We don't claim privacy. We measure it."
-   - Red team: naive leaks [100%], random decoys [95%] once a question repeats, fixed buckets [14%] (near 1 in 8). The statistical attacker reaches [17%] on the stand-in and [22%] on B's partition, and we report that number too.
-   - Joint inference: one session names the condition [64%] of the time; separate sessions plus cover bring it to [24%], about a blind guess ([23%]).
-   - Learning: [6] cloud calls for 20 questions; [75%] answered on device; follow-ups are 0 bytes.
-   - Offline: [10]/20 answered on a cold device, [18]/20 warm, and the rest get an honest "no data".
+   - Red team: naive leaks [100%], random decoys [99%] once a question repeats, fixed buckets [11%] (near 1 in 8). The statistical attacker reaches [22%], and we report that number too.
+   - Joint inference: one session names the condition [72%] of the time; separate sessions plus cover bring it to [34%], close to a blind guess ([26%]).
+   - Learning: [11] cloud calls for 20 questions; the last five need none, and follow-ups are 0 bytes.
+   - Offline: [11]/20 answered on a fresh device ([4]/20 counting only stored answers), [18]/20 after syncing the knowledge pack by either count, and the rest get an honest "no data".
 5. **Hybrid in Lenovo's terms (10 s).** What ran on the NPU/GPU (local model, rules, knowledge base) and what ran in the cloud (general reasoning over buckets), and why.
 6. **Vision (10 s).** Personal device today; a clinic edge server next; federated queries across hospitals without moving a genome.
 

@@ -34,6 +34,13 @@ class Result:
     personal_fields_sent: int = 0
     local_flags: int = 0          # flags A's rules produced for this question
     facts: int = 0                # keyed facts behind the answer (KB or cloud)
+    router_state: str | None = None   # what B's router itself answers, when it differs from `state` (A-016)
+
+    @property
+    def strict_state(self) -> str:
+        """The router's own answer state: `known` only when a stored fact or a local-only flag backs it (A-016)."""
+        s = self.router_state or self.state
+        return "no_data" if self.state in ("known", "none_listed") and self.unbacked else s
 
     @property
     def local(self) -> bool:
@@ -129,6 +136,7 @@ class SimBackend:
             return r
         if self.mode == "local_only" or self.offline:
             r.state = "known" if is_flagged else "no_data"       # flags still fire from local rules (F8)
+            r.router_state = "no_data"                           # the router still waits on a cloud fact (A-016)
             return r
         buckets = {self.part.bucket_for(t).id: self.part.bucket_for(t) for t in missing if self.part.bucket_for(t)}
         for b in buckets.values():

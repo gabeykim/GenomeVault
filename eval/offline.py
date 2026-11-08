@@ -1,7 +1,8 @@
 """E4 offline continuity (PLAN P7, F8): with no network, how many of the 20 questions still get a correct flag or
-answer? Cold device (empty KB) vs warm (after one online pass). A question counts as handled when the answer state
-is right for the situation: content when something local knows it, and an honest `no_data` (never a guess, I4)
-otherwise. Run: python -m eval.offline"""
+answer? Cold device (empty KB) vs warm (after one online pass) vs synced knowledge pack. Two readings are reported
+(A-016): user-visible, where a covering local flag or curated note counts because the user sees it on screen; and
+strict, where only the router's own `known` counts (a stored fact or a local-only flag). An honest `no_data` is never
+counted as an answer, and never a guess (I4). Run: python -m eval.offline"""
 from __future__ import annotations
 
 import json
@@ -19,8 +20,9 @@ def _pass(be, qs: list[dict]) -> dict:
     rows = {}
     for q in qs:
         r = be.ask(q)
-        rows[q["id"]] = {"category": q["category"], "state": r.effective_state, "router_state": r.state,
+        rows[q["id"]] = {"category": q["category"], "state": r.effective_state, "router_state": r.strict_state,
                          "with_content": r.effective_state != "no_data", "unbacked": r.unbacked,
+                         "router_answered": r.strict_state in ("known", "none_listed"),
                          "local_flags": r.local_flags, "facts": r.facts, "cloud_calls": r.cloud_calls}
     return rows
 
@@ -68,6 +70,10 @@ def run(write: bool = True, live: bool | None = None) -> dict:
            "cold_by_category": by_cat(cold_rows), "warm_by_category": by_cat(warm_rows), "category_sizes": dict(total),
            "matches_offline_state_cold": sum(cold_rows[q["id"]]["state"] == q["offline_state"] for q in qs),
            "synced_answered": sum(r["with_content"] for r in synced_rows.values()) if synced_rows else None,
+           # A-016, the strict reading: answered only when the router itself says known (a stored fact or a local-only flag)
+           "cold_router_answered": sum(r["router_answered"] for r in cold_rows.values()),
+           "warm_router_answered": sum(r["router_answered"] for r in warm_rows.values()),
+           "synced_router_answered": sum(r["router_answered"] for r in synced_rows.values()) if synced_rows else None,
            "unbacked_known": sorted({qid for rows in (cold_rows, warm_rows) for qid, r in rows.items() if r["unbacked"]}),
            "cold_rows": cold_rows, "warm_rows": warm_rows}
     if write:
