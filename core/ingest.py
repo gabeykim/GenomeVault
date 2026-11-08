@@ -123,13 +123,94 @@ def genotype_vcf(path: pathlib.Path | str = VCF) -> tuple[dict[str, str], dict[s
     return call_genes(parse_vcf(pathlib.Path(path).read_text()))
 
 
+# --- PharmCAT path (BRIEF A stretch) ------------------------------------------------------------
+# PharmCAT is a separate Java tool the user runs on their own machine; we only read the
+# ``*.phenotype.json`` it writes (stdlib json, no new dependency, no network: I2). Its calls are
+# accepted only when they are unambiguous and use a phenotype our own table already knows.
+# Anything else (several diplotypes, "Likely ...", "Indeterminate", "n/a", an unknown term, or a
+# phenotype that disagrees with our VCF call) comes out ``indeterminate``, so it can never produce
+# a flag (I4). CYP2D6 stays ``not_assessed`` whatever PharmCAT says (D-021).
+
+def _snake(term: str) -> str:
+    return "_".join(term.strip().lower().replace("-", " ").split())
+
+
+def _gene_reports(report: dict) -> dict[str, dict]:
+    """gene -> PharmCAT gene report. Accepts ``geneReports`` keyed by source (``{"CPIC": {...}}``,
+    PharmCAT 2.x) or directly by gene. CPIC wins over other sources for the same gene."""
+    reports = report.get("geneReports", {})
+    if not isinstance(reports, dict):
+        return {}
+    genes = set(table()["genes"])
+    if any(k in genes for k in reports):
+        return {g: r for g, r in reports.items() if g in genes and isinstance(r, dict)}
+    out: dict[str, dict] = {}
+    for source in sorted(reports, key=lambda s: s != "CPIC"):
+        by_gene = reports[source]
+        if not isinstance(by_gene, dict):
+            continue
+        for g, r in by_gene.items():
+            if g in genes and isinstance(r, dict):
+                out.setdefault(g, r)
+    return out
+
+
+def _pharmcat_call(gene: str, rep: dict) -> tuple[str, str]:
+    """(diplotype, phenotype) for one gene report; indeterminate unless exactly one known call."""
+    dips = rep.get("recommendationDiplotypes") or rep.get("sourceDiplotypes") or []
+    if len(dips) != 1 or not isinstance(dips[0], dict):
+        return INDETERMINATE, INDETERMINATE
+    d = dips[0]
+    phs = d.get("phenotypes") or []
+    known = set(table()["phenotypes"].get(gene, {}).values())
+    ph = _snake(phs[0]) if len(phs) == 1 and isinstance(phs[0], str) else INDETERMINATE
+    if ph not in known:
+        return INDETERMINATE, INDETERMINATE
+    label = d.get("label")
+    if not isinstance(label, str) or not label.strip():
+        names = [(d.get(k) or {}).get("name") for k in ("allele1", "allele2")]
+        label = "/".join(n for n in names if isinstance(n, str)) or INDETERMINATE
+    return label.strip(), ph
+
+
+def read_pharmcat(report: dict | pathlib.Path | str) -> dict[str, tuple[str, str]]:
+    """gene -> (diplotype, phenotype) for the table's genes that a PharmCAT phenotype report
+    covers. Genes it does not mention are left out (the VCF caller keeps them)."""
+    if not isinstance(report, dict):
+        report = json.loads(pathlib.Path(report).read_text())
+    calls = {}
+    for gene, rep in _gene_reports(report).items():
+        if gene in table()["not_assessed"]:
+            continue                                   # D-021: never taken from PharmCAT
+        calls[gene] = _pharmcat_call(gene, rep)
+    return calls
+
+
+def merge_pharmcat(genotypes: dict[str, str], phenotypes: dict[str, str],
+                   pharmcat: dict[str, tuple[str, str]]) -> tuple[dict[str, str], dict[str, str]]:
+    """Overlay PharmCAT calls on VCF calls. Where both give a phenotype and they differ, the gene
+    is ``indeterminate``: we don't pick a side (I4)."""
+    genotypes, phenotypes = dict(genotypes), dict(phenotypes)
+    for gene, (dip, ph) in pharmcat.items():
+        ours = phenotypes.get(gene, INDETERMINATE)
+        if ph == INDETERMINATE or (ours not in (INDETERMINATE, NOT_ASSESSED) and ours != ph):
+            genotypes[gene] = phenotypes[gene] = INDETERMINATE
+        else:
+            genotypes[gene], phenotypes[gene] = dip, ph
+    return genotypes, phenotypes
+
+
 # --- records + VCF -> Profile -------------------------------------------------------------------
 
-def ingest(vcf: pathlib.Path | str = VCF, records: pathlib.Path | str = RECORDS) -> Profile:
+def ingest(vcf: pathlib.Path | str = VCF, records: pathlib.Path | str = RECORDS,
+           pharmcat: Optional[dict | pathlib.Path | str] = None) -> Profile:
     """Profile from a VCF (genotypes, phenotypes) plus a records file (meds, conditions, allergies,
-    labs). Any genotypes/phenotypes in the records file are ignored: the VCF is the source."""
+    labs). Any genotypes/phenotypes in the records file are ignored: the VCF is the source. An
+    optional PharmCAT phenotype report is overlaid gene by gene (see ``merge_pharmcat``)."""
     rec = json.loads(pathlib.Path(records).read_text())
     genotypes, phenotypes = genotype_vcf(vcf)
+    if pharmcat is not None:
+        genotypes, phenotypes = merge_pharmcat(genotypes, phenotypes, read_pharmcat(pharmcat))
     return Profile(genotypes=genotypes, phenotypes=phenotypes,
                    meds=rec.get("meds", []), conditions=rec.get("conditions", []),
                    allergies=rec.get("allergies", []), labs=rec.get("labs", []))
