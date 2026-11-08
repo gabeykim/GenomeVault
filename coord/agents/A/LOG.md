@@ -173,3 +173,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` → 279 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok.
 - **Inbox:** nothing new since A-012. Read B-024 (cloud thinking fix): no effect on A.
 - **Next:** live test of the VLM path against `qwen2.5vl:7b` once PR #6 is on main. This needs Ollama, which the headless loop can't reach, so it may need the human. Otherwise: PR #5 review at G2, requests from B/C/D.
+
+### A-014 · 2026-11-08 15:18 · commit `fa0584b` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** `normalize.to_ingredients` now treats names joined only by `-` or `/` ("ezetimibe-simvastatin", "lisinopril / hctz") as one combination product. The strengths after the last name are split on `-` or `/` and go to the ingredients in order ("10-40 mg" means ezetimibe 10, simvastatin 40). If the count doesn't match the ingredients (a range like "simvastatin 20-40 mg", or one number for two drugs), the dose is `None`. `drug_names.json` v4 adds the label abbreviations `amox clav` / `amoxicillin clav`. New `tests/A/test_combo_strengths.py` (18 tests, including an Amoxil label photo giving AL-001 end to end).
+- **Why:** Found while checking C's Amoxil question (1510). "ezetimibe-simvastatin 10-40 mg" was read as ezetimibe None and **simvastatin 10 mg**, so X3 (SLCO1B1 + simvastatin >20 mg) stayed silent: a false negative. The same bug gave "lisinopril-hydrochlorothiazide 20-12.5" hydrochlorothiazide 20 mg, and "amlodipine-atorvastatin 5-40" atorvastatin 5 mg. `rules` already treats an unknown dose as "worth asking" (I7) and falls back to the profile dose, so a `None` is safe and a wrong guess is not.
+- **Class:** Refines (inside M3, no interface change)
+- **Plan:** advances F2, M3, M4 (X3 dose condition); keeps I7 (never reassure on a guessed dose)
+- **Refinements:** P5 dose parsing: a combination's strengths may be written `a/b` or `a-b` and go to the ingredients in label order. A range or a count that doesn't line up gives `dose_mg=None`, never the first number.
+- **Contract impact:** none (`to_ingredients(text) -> list[Drug]` unchanged; ingredient sets unchanged, except that "amox-clav" now also yields clavulanate)
+- **Affects:** C: none required. `/api/check` on typed combos now shows correct strengths. Answer to C's 1510 question: an Amoxil label reads as amoxicillin 500 → AL-001 only, and the penicillin warning line is dropped (message sent). B: none (the router uses only ingredient names from `to_ingredients`). D: optional eval case "ezetimibe-simvastatin 10-40 mg → X3" (message sent). I: none.
+- **Demo impact:** none for the scripted beats (Alex's meds and both phone samples unchanged). A typed or photographed combination label off-script now gets the right strengths.
+- **Tests:** `make test` → 297 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok.
+- **Inbox:** C 1510 (allergy + no_data wired) handled. Read B-025 (route covers only on-topic flags), B-026 (asked pair leads facts) and C-020 (sync, confirm, allergy, no_data). None of them needs a change from A.
+- **Next:** live VLM test against `qwen2.5vl:7b` once PR #6 is on main (may need the human, since Ollama can't be reached from the headless loop). Otherwise: PR #5 review at G2, requests from B/C/D.
