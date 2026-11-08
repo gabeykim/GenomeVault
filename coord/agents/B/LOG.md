@@ -105,3 +105,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S6 offline beat: with offline forced, the ibuprofen X5 local flags still show, and any cloud question shows the offline `no_data` text with 0 bytes.
 - **Tests:** `make test` → exit 0, 285 passed; `scripts/check_network.sh` → network ok
 - **Next:** queue 8: random delays and cover buckets (P6.4, P6.6), for G3.
+
+### B-009 · 2026-11-08 14:50 · commit `bf8918b` · PLAN v1.1
+
+- **Change:** Random delays and cover buckets. `core/cloud.py`: `pause()` sleeps a random delay (OS entropy) before every outbound request, live and demo replay; `delay_range()` reads `GV_DELAY_S=lo,hi`. `core/router.py`: `send_cover()` sends one bucket drawn uniformly from the fixed partition, without looking at any question, KB or flag. It goes through the same leakage check, writes a `cover` ledger entry (or `blocked`), and stores its 8 answers in the KB. `start_cover(interval_s=None)` / `stop_cover()` / `cover_running()` run it in a daemon thread on a steady, jittered schedule. Errors never stop the thread. Nothing is sent while offline or when the cloud is unreachable. New `tests/B/conftest.py` (no real sleeps, cover always stopped) and `tests/B/test_cover_delays.py` (14 tests). PR #2 updated.
+- **Why:** BRIEF B queue item 8 (P6.4, P6.6, D-006), needed for G3. Without these, the two buckets that one question needs (e.g. Q18: b01 + b05) leave as a single tight burst, and that is what E1's joint-inference attacker exploits.
+- **Class:** Advances
+- **Plan:** advances P6.4, P6.6, F4, M5, M8, G3, D-006; refines P6.4/P6.6
+- **Refinements:** (1) The delay is uniform in `GV_DELAY_S`, default 0.3–2.0 s before each request when live, and 0 in demo mode, where nothing leaves the device (set `GV_DELAY_S` to show it in demo). (2) The cover interval is `GV_COVER_INTERVAL_S` (default 60 s) times a random factor from 0.5 to 1.5. (3) Cover answers are stored in the KB, so cover traffic also warms the KB. (4) The app, not the router, decides when cover starts (`router.start_cover()`). Nothing starts it implicitly, so tests and evals stay deterministic.
+- **Contract impact:** none. `router.route` is unchanged. The new router functions are additive inside B's module, and `cover` was already a `LedgerEntry.kind`.
+- **Affects:** C: call `router.start_cover()` once at app start, and `stop_cover()` on shutdown if you like. Show `cover` rows in the ledger as "cover traffic". → message sent. D: E1 can now model cover traffic, and E3 live latency includes the delays (≈1.15 s mean per request, or set `GV_DELAY_S=0,0` to measure without them). → message sent. A: none.
+- **Demo impact:** S4: the ledger can show `cover` rows between real sends if C starts cover. In demo mode there is no added latency.
+- **Tests:** `make test` → exit 0, 299 passed; `scripts/check_network.sh` → network ok
+- **Next:** rebalance buckets by frequency when D sends per-bucket numbers; swap to A's real X5 keys after G1; stretch: knowledge-pack sync.
