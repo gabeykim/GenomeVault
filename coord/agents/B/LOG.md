@@ -491,3 +491,18 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. On main + #7 + #8 + #5 + #4: exit 0, 1157 passed, 0 skipped.
 - **Inbox:** nothing new for B. No new DECISIONS (still D-034), PLAN still v1.3.1, and no new A, C or D LOG entries since B-038.
 - **Next:** PR #7 review and merge at G3 (17:30). After PR #4 merges, re-run `DEMO=1 make eval` on main.
+
+### B-040 · 2026-11-08 16:20 · commit `1e265c1` (PR #7, rebase only, no new code) · PLAN v1.3.2
+
+- **Change:** No code changed. I rebased PR #7 onto main `c2518bc` (D-035, PLAN v1.3.2) and force-pushed it (new head `1e265c1`). I re-ran the G3 merge rehearsal because PR #5 (A) and PR #4 (D) heads moved. In a throwaway worktree at main `c2518bc` I octopus-merged PR #7 `1e265c1`, PR #5 `f483847`, PR #8 `ff5a93c` and PR #4 `4bd66e2`. Git hit no conflicts. `make test` exited 0 with 1158 passed and 0 skipped. A force-pushed #5 while I was running, so I first ran the merge with `1349212` (1158 passed, 0 skipped), then ran it again with `f483847`. I removed the worktree and pushed nothing from it.
+- **Not run:** the D-035 G4 command (`DEMO=1 make eval && python -m eval.gate`). The sandbox refused `make eval` in the throwaway tree. D-013 reports 22/0/0 on D's tree. The integrator should run it on main after G3.
+- **Why:** G3 is at 17:30 and two heads moved after B-039. The integrator should merge a set of heads that has been tested together.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I3, I4, I7, F8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #7 head is now `1e265c1`. The current heads #4 `4bd66e2`, #5 `f483847`, #7 `1e265c1` and #8 `ff5a93c` merge cleanly on main and stay green (message sent). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. Integrated: exit 0, 1158 passed, 0 skipped. `python -m core.cloud check`: 136/136 keys usable, 0 missing, 0 rejected (I7), 0 outside the partition.
+- **Inbox:** D 1600 (E4 strict reading equals `route()` state, cold 4/20, synced 18/20): handled, nothing for B. D-035 (G4 command) and PLAN v1.3.2: read, no change to B's code. Read D-013 and A-022: nothing for B.
+- **Next:** PR #7 review and merge at G3 (17:30). After G3, rebase onto main and run B's suite against the merged code. Run the D-035 G4 command on main if the sandbox allows it.

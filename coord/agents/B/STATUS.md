@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-039 rebased PR #7 (head 079fe75); G3 rehearsal main + #7 + #8 + #5 + #4 is 1157 passed, 0 skipped, exit 0. Waiting for review
+current_task: B-040 rebased PR #7 (head 1e265c1); G3 rehearsal main c2518bc + #7 + #5 f483847 + #8 ff5a93c + #4 4bd66e2 is 1158 passed, 0 skipped, exit 0. Waiting for review
 branch: agent/B-privacy-router
-last_commit: 079fe75
+last_commit: 1e265c1
 last_seen:
-  plan_version: "1.3.1"
-  decisions: D-034
-  logs: {A: 21, B: 39, C: 24, D: 12}
+  plan_version: "1.3.2"
+  decisions: D-035
+  logs: {A: 22, B: 40, C: 24, D: 13}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -38,6 +38,7 @@ handled_messages:
   - 20261108-1535-from-integrator-g2-passed.md
   - 20261108-1543-from-C-stand-ins-gone.md
   - 20261108-1551-from-D-p3-added.md
+  - 20261108-1600-from-D-strict-reading.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -50,5 +51,7 @@ notes: >
   (B-037: 1090 passed, 2 skipped, exit 0).
   B-039: octopus merge of main dba1848 + PR #7, #8 (ff5a93c), #5 (1349212), #4 (0598ceb): no conflicts, make test exit 0, 1157 passed, 0 skipped. Integrator told.
   B-038: offline + covering flag + cold KB = no_data (I4), pinned by test_offline_cold_kb_is_no_data_zero_bytes_no_ledger; D told for E4 two-reading report.
+  B-040: rehearsal re-run on the moved heads (#5 f483847, #4 4bd66e2): 1158 passed, 0 skipped, exit 0. The D-035 G4 command
+  was not run because the sandbox refused make eval. Integrator asked to run it on main.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
-next: PR #7 review before G3 (17:30). After PR #4 (D) merges, re-run DEMO=1 make eval on main
+next: PR #7 review at G3 (17:30). After G3, rebase and run B's suite on main; run the D-035 G4 command on main if the sandbox allows
