@@ -149,3 +149,17 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Tests:** `make test` → exit 0 (188 passed). Dry run on main + PR #6 (`2cc266b`) + A `9e94292` + B `170ba35` + C `714e9b0` + D: `python -m core.cloud check` → exit 0 (136/136 usable); `make test` → exit 0 (916 passed); `make eval` → exit 0; `python -m eval.gate` → **20 pass, 0 warn, 0 fail**.
 - **Live results with the pack:** 11 cloud calls for 20 questions (first five 4, last five 0); Q19 answered on the device; offline 11/20 cold, 18/20 warm, 18/20 synced; 0 personal fields; I4 `unbacked_known` empty.
 - **Next:** G4 at 18:15 on main per `docs/G4.md`; optional extra cases from A (allergy, look-alike label, label warnings) and B (brand names)
+
+### D-012 · 2026-11-08 15:51 · commits `9b90a78`, `5112526`, `832b065` (merge of main after G2), `0598ceb` · PLAN v1.3.1
+
+- **Change:** (1) `docs/submission.md`: the judging draft (accepted, D-034). (2) `slides/judge_qa.md`: 16 answers on the integrated results, including the integrator's five; `slides/video_script.md`: a 3:00 backup video. (3) Merged main after G2 (D-032): D's branch now runs on A's, B's and C's real modules and the knowledge pack. `eval/results`, `docs/results.md`, `docs/charts` and `slides/numbers.md` come from the live integrated build. (4) New gate check P3 (B-035): a live run must reach the cloud or its demo replay, else FAIL. `docs/G4.md` says to always run `DEMO=1 make eval`.
+- **Why:** integrator 15:20 list items 4–6; G2 notice; B-035.
+- **Class:** Refines
+- **Plan:** advances P8, P9 G2/G4, P7 E2/E4; follows D-025, D-027, D-032, D-034
+- **Refinements:** a G4 run without the demo replay or a key is a FAIL, not a quiet understatement.
+- **Contract impact:** none
+- **Affects:** I: G4 command is `DEMO=1 make eval && python -m eval.gate` → message sent. B: P3 added → reply sent. A: offline-state question is with D's human owner → reply sent. C: deck re-theme to bone/black in progress → reply sent.
+- **Demo impact:** none
+- **Tests:** on D's branch synced with main: `DEMO=1 make test` → exit 0 (835 passed); `DEMO=1 make eval` → exit 0; `python -m eval.gate` → **21 pass, 0 warn, 0 fail** (P3 FAILs and exits 1 without `DEMO=1`, as intended).
+- **Open question (A-016):** B's router answers `no_data` offline for 10 questions where D's E4 counts a covering local flag as answered. D proposes reporting both readings (user-visible content and router state); awaiting D's human owner.
+- **Next:** G4 at 18:15; final number pass on deck and submission after G4
