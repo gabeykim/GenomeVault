@@ -131,3 +131,55 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S3 (severity readable at a glance), S4 (green 0 personal fields)
 - **Tests:** C alone → exit 0 (55 passed, 3 skipped); A+B+C+D merged → exit 0 (409 passed). Checked in the browser, no console errors.
 - **Next:** dedupe flags by key so all four X5 flags show (A's 20261108-1359 request) before G1, then queue 7
+
+### C-011 · 2026-11-08 14:14 · commit `2a00181` · PLAN v1.1
+
+- **Change:** `app._flags_for` now dedupes by `flag.key`, not `flag.id`, and sorts by `(id, key)`. Typing "ibuprofen" shows all four X5 flags: `aspirin|ibuprofen`, `clopidogrel|ibuprofen`, `ibuprofen|egfr<60`, `ibuprofen|lisinopril`. Before, it showed only the eGFR flag and hid both bleeding-risk pairs. Changes that follow from shared ids: reminders and merge's "Separately" line name an id once; labs match the profile case-insensitively (key token `egfr` matches `eGFR`), with the key's own lab listed first; drug-class questions read "aspirin 81 mg and ibuprofen"; flag titles show "eGFR < 60". Added `tests/C/test_shared_ids.py` (5 tests) using A's exact X5 flags.
+- **Why:** Bug reported by A (20261108-1359) and D (20261108-1405).
+- **Class:** Advances
+- **Plan:** advances F3 view, M9, M10, S6
+- **Refinements:** a finding id can span several keys; the UI shows one row per key, all labeled with the same id.
+- **Contract impact:** none
+- **Affects:** A: none. D: the S6 ibuprofen check now shows four X5 rows → the script can name the bleeding-risk pairs.
+- **Demo impact:** S6 (offline ibuprofen shows the full X5)
+- **Tests:** C alone → `make test` exit 0 (60 passed, 3 skipped). origin/main + A + B + C + D merged → exit 0, 550 passed. With A's real `rules.check`, `POST /api/check ibuprofen` → 4 X5 flags, and current meds still give X1–X4. Checked by hand in the merged UI.
+- **Next:** queue 7 (offline badge + Wi-Fi-off toggle), cover traffic at startup (G3), then 5 (`phone/`)
+
+### C-012 · 2026-11-08 14:22 · commit `9a4439a` · PLAN v1.2
+
+- **Change:** D-021 in the UI. (1) Genes this kind of test can't call (`not_assessed`, `indeterminate`, `unknown`, `no_call`) show as a gray "not assessed" with a hover reason, never red. The visit summary says "CYP2D6: not assessed by this test" instead of "(notable)". (2) Expected-combination notes: `app.py` passes A's `rules.expected_notes_all(profile)` (on `/api/flags`) and `rules.expected_notes(drug, profile)` (on `/api/check`) through as `notes: [{id, key, text, source}]`, one per key, with text through `merge.guard`. The UI shows a neutral "For information · Aspirin × Clopidogrel" line with an "i" mark under the flags, and the visit summary lists it under "For information (not a warning)". It is never a Flag. Added `tests/C/test_d021.py` (8 tests).
+- **Why:** PLAN v1.2 P5 and the integrator's ruling to C (20261108-1404).
+- **Class:** Advances
+- **Plan:** advances P5, D-021, F3 view, F7, M10, S3
+- **Refinements:** notes are neutral by design: no severity and no color, labeled "For information". The source shows on hover.
+- **Contract impact:** none
+- **Affects:** A: please keep `expected_notes` / `expected_notes_all` and the `{id, key, text, source}` shape → none. I: `mocks/alex_profile.json` still has CYP2D6 `*1/*1` `normal_metabolizer`. Until A's `graph.py` lands, the app loads that mock, so the demo shows CYP2D6 as normal → please update the mock to `not_assessed` (A's `data/alex_profile.json` already is).
+- **Demo impact:** S3 (DAPT shown as information, not a warning), My data (CYP2D6 neutral once the profile says `not_assessed`)
+- **Tests:** C alone → exit 0 (68 passed, 3 skipped). origin/main + A (`3ce9f6d`) + B + C + D merged → exit 0, 600 passed. In the merged app: EX-001 note shows, `aspirin|clopidogrel` is not flagged, X5 still gives four flags. Checked in the browser, including a not_assessed CYP2D6 render.
+- **Next:** D-020: call `capture.from_image` (`POST /api/capture`, phone page) and `cloud.status` (offline badge + Wi-Fi-off toggle) from `app.py`; drop the local stand-ins now covered by interfaces stubs (D-014)
+
+### C-013 · 2026-11-08 14:28 · commit `0b8e157` · PLAN v1.2
+
+- **Change:** An online/offline switch in the header (BRIEF C queue 7). It shows `cloud.status()` (the D-020 contract, interfaces stub until B merges) and toggles B's `cloud.set_offline(True / None)` via `POST /api/offline {"offline": bool}`, which returns 409 when B's cloud isn't present. `/api/status` and `/api/ledger` now carry `cloud: {online, demo, forced_offline, toggle}`. When offline, the switch reads "Offline", the DNA strand pauses, and the Ask tab says only local checks and stored answers work. Also merged main into the branch (D-014/D-020 stubs, PLAN v1.2), made the CYP2D6 summary test accept "not assessed" (A's 1417 note), and tests now reset the switch. Added `tests/C/test_offline.py` (6 tests).
+- **Why:** BRIEF C queue 7. D-020 asked C to call `cloud.status` from `app.py`.
+- **Class:** Advances
+- **Plan:** advances F8, M10, S6, D-020
+- **Refinements:** "off" passes `None`, not `False`, so control returns to `GV_OFFLINE` and the network. The switch is visible at every width and disabled, with a reason, when B's cloud isn't present.
+- **Contract impact:** none
+- **Affects:** B: app calls `cloud.status` and `cloud.set_offline`; please keep the names → none. D: S6 can flip the header switch instead of turning off real Wi-Fi → update the script if you like.
+- **Demo impact:** S6 (offline beat is one click and visible on screen)
+- **Tests:** C alone → `make test` exit 0 (74 passed, 4 skipped). origin/main + A + B + C + D merged → exit 0, 647 passed, including the S6 test (switch on → ask sends 0 bytes, local check still flags, switch off). Checked by hand in the browser at desktop and phone widths, no console errors.
+- **Next:** start B's cover traffic at app startup (G3), then queue 5 `phone/` + `POST /api/capture` (D-020)
+
+### C-014 · 2026-11-08 14:32 · commit `3feb861` · PLAN v1.2
+
+- **Change:** `app.py` starts B's cover traffic (`router.start_cover()`) when the app starts and stops it on shutdown, using a FastAPI lifespan. It only stops cover it started itself. `GV_COVER=0` disables it. `/api/status` and `/api/ledger` add `cover: bool`. The ledger header reads "Live · cover on", with a hover explanation. Added `tests/C/test_cover.py` (6 tests, including a real-thread test on the integrated build).
+- **Why:** PLAN P6.6. G3 needs cover traffic in the app (B's 20261108-1450 request).
+- **Class:** Advances
+- **Plan:** advances P6.6, F4, M10, S4
+- **Refinements:** the app runs cover for its whole lifetime. B's thread owns the timing and the offline skip. `GV_COVER=0` is the dev off-switch.
+- **Contract impact:** none
+- **Affects:** B: app calls `start_cover`, `stop_cover` and `cover_running`; please keep the names → none. D: cover rows show up during the demo (one every ~30–90 s by default). Set `GV_COVER_INTERVAL_S` to make them livelier, or `GV_COVER=0` for a quiet rehearsal → optional script note.
+- **Demo impact:** S4 (the ledger shows steady cover traffic next to real decoy groups; "cover on" in the header)
+- **Tests:** C alone → `make test` exit 0 (79 passed, 5 skipped). origin/main + A (`f9db84a`) + B (`85ab929`) + C + D (`928224d`) merged → exit 0, 723 passed, **no mocks left in the app**. With `GV_COVER_INTERVAL_S=8` in the merged preview, 3 cover rows (b17, b04, b10, ~3 KB, 0 personal fields) arrived in 20 s.
+- **Next:** queue 5: `phone/` page + `POST /api/capture` (A's real `capture.from_image` is now on PR #1), then drop the stand-ins (D-014)

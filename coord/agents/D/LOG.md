@@ -80,3 +80,31 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** S6 ibuprofen beat moved to the medication check; S4/S6 blocked on the demo cache
 - **Tests:** `make test` → exit 0 (38 passed). All four branches merged with this change: `make test` → exit 0 (495 passed). Live E4 on that build: cold 10, warm 10, synced 10, because the empty demo cache leaves nothing to learn.
 - **Next:** rerun E1 on B's v2, add priors for v2's four new keys, update `queries.json` lab keys to A/B's banded spelling
+
+### D-007 · 2026-11-08 14:15 · commits `f69dc14`, `0f7b1e3` (merge of main), `4a68768` · PLAN v1.2
+
+- **Change:** `eval/universe.py` follows B's current partition (`core.decoys.CURRENT_VERSION`, else the highest `data/buckets/vN.json`), indexes B's exact keys so a question sends the bucket of its exact local key, and records topics whose phenotype variants sit in different buckets. E1 measures that split. Priors for v2's 4 and v3's 15 new keys (`src: b-v2`/`b-v3`); phenotype variants inherit their topic's prior. `queries.json` q-v3: banded lab keys (`lisinopril|egfr<60`, `simvastatin|alt>120`, `simvastatin|ck>1000`, `ibuprofen|egfr<60`); D-021: Q03 uses `CYP2D6:not_assessed`, Q08 references expected DAPT; synthetic patients carry CYP2D6 not_assessed. Demo script follows C-009's tabs and starts rehearsal with `python -m core.cloud check` (B-013). Merged main (D-014..D-021) into the branch, no rebase.
+- **Why:** B-011/B-012/B-013, C-009/C-010, PLAN v1.2 (D-021).
+- **Class:** Refines
+- **Plan:** advances P7 E1/E3, P8, M11; follows D-021 (P5)
+- **Refinements:** (1) The eval partition is B's current version, never a hard-coded file. (2) A topic split across buckets is an E1 leak metric (`phenotype_via_bucket`).
+- **Contract impact:** none
+- **Affects:** B: v3 puts phenotype variants of two topics in different buckets → message sent (I3). I: same finding, FYI, since it touches an invariant → message sent. C: none.
+- **Demo impact:** S3/S4/S6 steps now name C's tabs
+- **Tests:** `make test` → exit 0 (42 passed, including main's new contract test). All four branches merged with this change on B's v3: `make test` → exit 0 (548 passed).
+- **Results (5 seeds × 1000, synthetic priors):** statistical attacker v1 22.6% ± 2.0, v2 22.1% ± 0.9, v3 20.3% ± 1.5 (v3 ceiling 20.1%); repeat-ask about 12% on all three; joint inference 71% in one session vs 32% with separate sessions + cover (blind guess 25%); v3 genotype revealed by bucket identity 2.4% ± 0.4. Hybrid answers 20/20 on v2 and v3.
+- **Next:** E3 live latency with and without `GV_DELAY_S`; adversarial wording cases for B's I7 filter; G4 run on the integrated build
+
+### D-008 · 2026-11-08 14:26 · commits `4f19077`, `928224d` · PLAN v1.2
+
+- **Change:** (1) `eval/wording.py` + `eval/fixtures/wording_cases.json`: 35 adversarial cloud-answer texts (25 that break I7, 8 neutral, 2 rejected by design) scored against B's `validator.wording_problems`. (2) `eval/latency_cost.py`: a live hybrid arm on the integrated build, with `GV_DELAY_S=0,0` and, opt-in via `EVAL_DELAYS=1`, B's default `0.3,2.0`. (3) `queries.json` q-v5: Q01 and Q09 references reworded to pass the I7 rule; Q03 (CYP2D6) is a local `no_data` answer. D's wording test uses B's rule. (4) `universe_v1.json` v5: CYP2D6 topics get prior 0 (D-021: never a real question, so known-fake decoys); synthetic patients never ask a prior-0 topic; priors for v4's four new gene topics. (5) Demo script and judge Q&A: keep demo mode on stage, plus a latency answer.
+- **Why:** B-013 asked for adversarial wording cases; E3 live latency was queued; B-014 (v4) and A's D-021 note.
+- **Class:** Refines
+- **Plan:** advances P7 E1/E3, I7 red team, P8, M11; follows D-021, B-014
+- **Refinements:** (1) Prior 0 marks a topic no real user can ask. (2) E3's delayed arm is opt-in because it waits through real P6.4 pauses.
+- **Contract impact:** none
+- **Affects:** B: wording gaps, delay cost and v4 results → message sent. I: the I7 filter gaps, FYI (invariant) → message sent. A: none (reply sent).
+- **Demo impact:** stage run stays in demo mode (live delays add about 19 s to a question that sends buckets)
+- **Tests:** `make test` → exit 0 (44 passed, 1 skipped without B's validator). All four branches merged on B's v4: `make test` → exit 0 (636 passed).
+- **Results:** I7 filter on the merged build: 3/25 rejected (only the plain cases), 0/5 reassurance without the word, 0/14 rephrased instructions, 0/4 character tricks, 0/1 non-English; 1/8 false alarms. Live E3: median 1.2 ms vs 18.8 s per question that sends buckets (no delay vs default); 0.02 s vs 168 s for the 20 questions. E1 on v4 (5 seeds × 1000): statistical 19.4% ± 0.8, repeat-ask 12.8%, genotype via bucket 1.8% across 4 split topics; joint 76% one session vs 35% separate + cover (blind 26%).
+- **Next:** G4 run on the integrated build; extend synthetic patients to A's VCF path (A-005); retake slide screenshots after C-010

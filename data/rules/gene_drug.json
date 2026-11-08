@@ -1,0 +1,26 @@
+{
+  "version": "rules-v1",
+  "note": "Synthetic demo table (I1), deliberately incomplete (I7): a missing key means no_data, never 'no interaction' (I4). Key = GENE:phenotype|drug, plus |dose>Nmg when dose-conditioned (CONTRACTS.md).",
+  "rules": [
+    {"id": "GD-001", "key": "CYP2C19:poor_metabolizer|clopidogrel",
+     "gene": "CYP2C19", "phenotype": "poor_metabolizer", "drug": "clopidogrel", "dose": null,
+     "severity": "high", "tier": "curated", "needs_cloud": true,
+     "source": "CPIC guideline for CYP2C19 genotype and clopidogrel therapy (2022 update)",
+     "text": "CYP2C19 poor metabolizers convert clopidogrel to its active form poorly, so it may protect less after a stent. The guideline suggests the prescriber consider an alternative antiplatelet."},
+    {"id": "GD-002", "key": "CYP2C19:intermediate_metabolizer|clopidogrel",
+     "gene": "CYP2C19", "phenotype": "intermediate_metabolizer", "drug": "clopidogrel", "dose": null,
+     "severity": "medium", "tier": "curated", "needs_cloud": true,
+     "source": "CPIC guideline for CYP2C19 genotype and clopidogrel therapy (2022 update)",
+     "text": "CYP2C19 intermediate metabolizers activate clopidogrel less than usual. The guideline suggests the prescriber consider an alternative antiplatelet after a stent."},
+    {"id": "GD-003", "key": "SLCO1B1:decreased_function|simvastatin|dose>20mg",
+     "gene": "SLCO1B1", "phenotype": "decreased_function", "drug": "simvastatin", "dose": {"op": ">", "mg": 20},
+     "severity": "medium", "tier": "curated", "needs_cloud": false,
+     "source": "CPIC guideline for SLCO1B1, ABCG2 and CYP2C9 genotypes and statin-associated musculoskeletal symptoms (2022)",
+     "text": "Decreased SLCO1B1 function raises simvastatin blood levels and the risk of muscle problems, more so above 20 mg a day. Worth asking the prescriber about the dose or another statin."},
+    {"id": "GD-004", "key": "SLCO1B1:poor_function|simvastatin",
+     "gene": "SLCO1B1", "phenotype": "poor_function", "drug": "simvastatin", "dose": null,
+     "severity": "high", "tier": "curated", "needs_cloud": false,
+     "source": "CPIC guideline for SLCO1B1, ABCG2 and CYP2C9 genotypes and statin-associated musculoskeletal symptoms (2022)",
+     "text": "Poor SLCO1B1 function greatly raises simvastatin blood levels and the risk of muscle problems. The guideline suggests the prescriber consider another statin."}
+  ]
+}

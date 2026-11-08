@@ -1,21 +1,28 @@
 agent: A
-state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: queue 5 (ingest + graph) next; PR #1 ready for G1 merge
+state: working     # working | blocked | waiting-review | done | not-started
+current_task: queue 8 (no_data marker for unlisted pairs) next; PR #1 ready (queue 1-6)
 branch: agent/A-data-rules
-last_commit: 6e484af
-pr: "#1 (ready) agent/A-data-rules -> main: queue 1 data, 2 normalize, 3 rule tables, 4 rules.check"
+last_commit: f9db84a
+pr: "#1 (ready) agent/A-data-rules -> main: queue 1-6 (data, normalize, rules X1-X5, D-021, ingest + graph, capture)"
 last_seen:
-  plan_version: "1.1"
-  decisions: D-013
-  logs: {A: 3, B: 9, C: 7, D: 4}
+  plan_version: "1.2"
+  decisions: D-021
+  logs: {A: 6, B: 14, C: 12, D: 8}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
   - 20261108-1324-from-B-bucket-keys.md
+  - 20261108-1404-from-integrator-pgx-and-capture.md
+  - 20261108-1405-from-D-dedupe-ack.md
+  - 20261108-1408-from-B-rule-keys-covered.md
+  - 20261108-1410-from-B-v2-lab-bands.md
+  - 20261108-1414-from-C-x5-fixed.md
+  - 20261108-1426-from-D-re-ingest.md
 blocked_on: none
 notes: >
-  A-003: rule tables + rules.check done. Alex's discharge meds give exactly mocks/flags.json (X1-X4).
-  Ibuprofen gives X5 as four flags sharing id X5. Asked C to dedupe by flag.key instead of flag.id.
-  clopidogrel|pantoprazole is absent everywhere (S6). G1 deliverable is on PR #1 and waits on the
-  integrator merge. graph.load_profile is still the mock (identical data) until queue 5.
-next: queue 5 (ingest.py VCF -> phenotypes, graph.py load_profile + stale labs), then 6 (capture), 7 (X5 check), 8 (no_data marker)
+  A-006: core/capture.py from_image (D-020): embedded label text (PNG gv:label chunk / JPEG
+  comment) or a local tesseract if installed -> normalize; [] if unreadable, never raises;
+  from_text typed fallback; demo_png() for sample photos; GV_OCR picks the source. Stdlib only, no
+  network. Read C-012 (uses expected_notes; keep the {id,key,text,source} shape) and D-008 (no
+  action for A). Messages sent to C and the integrator (optional tesseract on the demo laptop).
+next: queue 8 (rules no_data marker for unlisted pairs, for the router), then close queue 7 (X5 done in A-003)
