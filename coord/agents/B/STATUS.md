@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-033 post-G2 app-path tests (tests/B/test_app_path.py). PR #7 opened (head 71f2d28); make test green. Waiting for review
+current_task: B-034 G3 prep, knowledge-pack sync through the app path (tests/B/test_app_pack_path.py). PR #7 updated (head 079b32e); make test green. Waiting for review
 branch: agent/B-privacy-router
-last_commit: 71f2d28
+last_commit: 079b32e
 last_seen:
-  plan_version: "1.3"
-  decisions: D-031
-  logs: {A: 17, B: 33, C: 22, D: 11}
+  plan_version: "1.3.1"
+  decisions: D-032
+  logs: {A: 18, B: 34, C: 23, D: 11}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -35,13 +35,13 @@ handled_messages:
   - 20261108-1518-from-D-pack-confirmed.md
   - 20261108-1526-from-C-b025-done.md
   - 20261108-1529-from-A-handoff-pinned.md
+  - 20261108-1535-from-integrator-g2-passed.md
 blocked_on: none
 notes: >
-  G2: the integrator merged PR #2 (B) and PR #3 (C) into main (be95c0e). My branch had no commits left
-  after the rebase. make test on main: exit 0, 789 passed, 3 skipped. With PR #7 it is 794 passed, 3 skipped.
-  B-033 adds 5 tests that run B's guarantees (I3, I5, I7, F5, F6, F8) through C's real /api/ask,
-  /api/ledger/{seq}/outbound and /api/offline. Message sent to C. PLAN still v1.3, DECISIONS still D-031, nothing new in my inbox.
-  LOG numbering: B-031 and B-032 were status-only reports with no LOG entry, so this entry is B-033.
+  G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
+  PR #7 is tests only: B-033 (app-path I3, ledger view, offline) and B-034 (knowledge pack through
+  /api/sync: whole partition once, I3 on every pack row, pack label, mine=[], offline answers at 0 bytes,
+  409 while offline). make test exit 0, 799 passed, 3 skipped. Ownership check ok.
   The allergy test in tests/B/test_g2_real_rules.py still skips until PR #5 (A) merges.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
-next: PR #7 review. After PR #5 merges, confirm the allergy test runs. After PR #4 (D) merges, run eval/queries.json through the app path
+next: PR #7 review before G3 (17:30). After PR #5 merges, confirm the allergy test runs. After PR #4 (D) merges, run eval/queries.json through the app path

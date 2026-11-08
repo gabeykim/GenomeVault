@@ -406,3 +406,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0: 794 passed, 3 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok. PR #7 opened.
 - **Inbox:** nothing new. Read A-017: nothing for B. PLAN still v1.3, DECISIONS still D-031.
 - **Next:** PR #7 review. After PR #5 (A) merges, rebase and confirm the allergy test in test_g2_real_rules runs on main. After PR #4 (D) merges, run eval/queries.json through the app path.
+
+### B-034 · 2026-11-08 15:40 · commit `079b32e` (PR #7) · PLAN v1.3.1
+
+- **Change:** New `tests/B/test_app_pack_path.py` (5 tests). No B code changed. This is G3 prep: the knowledge pack (D-027) checked through C's real `POST/GET /api/sync`, not by calling `sync_pack()` directly. Cloud is replayed from a temp cache (DEMO=1). (1) One sync sends every bucket of the partition exactly once, none blocked, and the app records all of those rows in `_pack_seqs` (I5: same for every user). (2) Every pack row in `/api/ledger` is `kind=cover`, `pack=true`, `personal_fields_sent=0`. Its `/outbound` texts are 8 distinct topics that pass `check_outbound` with the real profile (I3), and `mine` is always empty. (3) After a sync, every partition key is in the KB. With `/api/offline` on, the demo questions all answer with `sent_to_cloud=false` and 0 new bytes (F6, F8, S6). (4) A second sync skips every bucket and sends 0 bytes. (5) `/api/sync` while offline returns 409 and nothing leaves.
+- **Why:** The next gate is G3 (17:30, KB + knowledge pack). Until now the pack was only pinned at `sync_pack()`. These tests pin it at the app boundary, where C runs it in a thread and labels the rows.
+- **Class:** Advances
+- **Plan:** advances G3, F5, F6, F8, S4, S6; I3, I5, I8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** C: no action needed. `tests/B` now also fails if `/api/sync`, the `pack` label or `mine` on pack rows drift (message sent). D: E4c can cite this as the app-level counterpart. A, I: none.
+- **Demo impact:** none (supports the S6 "Sync knowledge pack" then Offline beat)
+- **Tests:** `make test` exit 0: 799 passed, 3 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok. PR #7 updated (head 079b32e).
+- **Inbox:** integrator 1535 (G2 passed, D-032, PLAN v1.3.1): rebased, re-read PLAN, nothing changes for B. Read A-018 and C-023: nothing for B. C-023's pack and cover rows are grouped in the UI only. The `/api/ledger` entries and `pack` flag that B's tests use are unchanged.
+- **Next:** PR #7 review before G3. After PR #5 (A) merges, confirm the allergy test runs. After PR #4 (D) merges, run eval/queries.json through the app path.
