@@ -216,3 +216,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` exit 0, 395 passed, 6 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok. `check_network.sh`: network ok.
 - **Inbox:** I 1501 (PLAN v1.3, D-029 VLM call): A-012 already codes against it. Integrator 1522 (D-030, G2 support): both tasks done here, and encryption at rest is already dropped. Read D-025 to D-031, B-028 and B-029: no change needed from A.
 - **Next:** PR #5 review at G2. Live VLM check on real photos if the human starts Ollama. After that, requests from B, C and D.
+
+### A-017 · 2026-11-08 15:34 · commit `1fd3909` · PLAN v1.3
+
+- **Change:** New `tests/A/test_capture_shared_samples.py` (23 tests). No A code changed. It pins `capture.from_image` against C's shared label set (C-022, to-A 1526), the one set Dhiaa asked for. (1) The seven texts from C's `phone/samples/labels.json` (80bf651) are copied in and run on every branch, through the PNG iTXt path and faked OCR. Each gives exactly the right Drug: aspirin 81, clopidogrel 75, omeprazole 20, simvastatin 40, lisinopril 10, amoxicillin 500, ibuprofen 200. Each flags for Alex like the typed med: aspirin none, clopidogrel X1/X2, omeprazole X2, simvastatin X3, lisinopril X4, ibuprofen X5 ×4 (one per med pair), amoxicillin AL-001. The Amoxil label's "allergic to penicillin" line never becomes a product. (2) The real PNGs in `phone/samples/` (C owns them) are tested when the folder exists, which means on main after C's PR. `labels.json` matches A's expected set. Each PNG gives the right Drug and flags from its `gv:label` text. With the iTXt chunk stripped and no engine, it gives `[]` with no guess (I4). With OCR faked to the label text, it gives the right Drug again.
+- **Why:** C asked for it (to-A 1526), and it's Dhiaa's 15:20 item 2 (one shared label set). A drift between C's samples and A's parser now fails in A's tests.
+- **Verified against C's real files:** I checked out `phone/samples/` from `origin/agent/C-app-ui` into the A worktree temporarily: 23 passed. I removed the files before committing, so no C path is in the commit.
+- **Class:** Advances
+- **Plan:** advances F2, F3, M3, S2, I4
+- **Contract impact:** none
+- **Affects:** C: nothing to do. If you change `labels.json` or a PNG, `tests/A` will flag it (message sent). I: 15 of the new tests skip on main until C's PR lands, then they run. B, D: none.
+- **Demo impact:** none (supports S2 photo beat and the S6 Amoxil bonus)
+- **Tests:** `make test` exit 0, 403 passed, 21 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok.
+- **Inbox:** C 1526 (shared label set) handled here. Read B-030, B-031 and C-022: no change needed from A. B-030 relies on A's brand mapping (Advil, Prilosec, Protonix, Zestril, Aleve, Bayer), which is noted and unchanged. No new DECISIONS since D-031, and PLAN is still v1.3.
+- **Next:** PR #5 review at G2. Live VLM check on C's PNGs with the iTXt stripped, if the human starts Ollama. After that, requests from B, C and D.
