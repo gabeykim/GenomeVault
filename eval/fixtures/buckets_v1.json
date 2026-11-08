@@ -1,0 +1,110 @@
+{
+ "version": "fixture-v1",
+ "doc": "D stand-in partition (build_buckets.py, seed 4783, stat-attacker score 0.160). Replace with B's data/buckets/v1.json.",
+ "buckets": [
+  {
+   "id": "B00",
+   "keys": [
+    "CYP2C19|citalopram",
+    "CYP2C19|clopidogrel",
+    "CYP2C19|sertraline",
+    "CYP2C9|ibuprofen",
+    "CYP2D6|codeine",
+    "SLCO1B1|atorvastatin",
+    "VKORC1|warfarin",
+    "aspirin|clopidogrel"
+   ]
+  },
+  {
+   "id": "B01",
+   "keys": [
+    "CYP2C19|escitalopram",
+    "CYP2C19|omeprazole",
+    "CYP2C9|warfarin",
+    "SLCO1B1|rosuvastatin",
+    "acetaminophen|alt",
+    "apixaban|egfr",
+    "lisinopril|egfr",
+    "lisinopril|potassium"
+   ]
+  },
+  {
+   "id": "B02",
+   "keys": [
+    "CYP2D6|metoprolol",
+    "CYP2D6|paroxetine",
+    "CYP2D6|tramadol",
+    "SLCO1B1|simvastatin",
+    "aspirin|ibuprofen",
+    "clopidogrel|omeprazole",
+    "ibuprofen|lisinopril",
+    "metformin|egfr"
+   ]
+  },
+  {
+   "id": "B03",
+   "keys": [
+    "CYP2D6|atomoxetine",
+    "HLA-B|allopurinol",
+    "clopidogrel|ibuprofen",
+    "clopidogrel|pantoprazole",
+    "fluconazole|warfarin",
+    "ibuprofen|lithium",
+    "nitroglycerin|sildenafil",
+    "simvastatin|ck"
+   ]
+  },
+  {
+   "id": "B04",
+   "keys": [
+    "CYP2C19|pantoprazole",
+    "CYP2D6|amitriptyline",
+    "CYP2D6|ondansetron",
+    "DPYD|fluorouracil",
+    "TPMT|azathioprine",
+    "methotrexate|trimethoprim",
+    "sertraline|tramadol",
+    "warfarin|inr"
+   ]
+  },
+  {
+   "id": "B05",
+   "keys": [
+    "CYP3A5|tacrolimus",
+    "amlodipine|simvastatin",
+    "aspirin|warfarin",
+    "citalopram|ondansetron",
+    "ibuprofen|egfr",
+    "lisinopril|spironolactone",
+    "lithium|sodium",
+    "spironolactone|potassium"
+   ]
+  },
+  {
+   "id": "B06",
+   "keys": [
+    "CYP2C19|voriconazole",
+    "CYP2D6|tamoxifen",
+    "G6PD|rasburicase",
+    "amiodarone|digoxin",
+    "atorvastatin|clarithromycin",
+    "clarithromycin|simvastatin",
+    "clopidogrel|esomeprazole",
+    "digoxin|potassium"
+   ]
+  },
+  {
+   "id": "B07",
+   "keys": [
+    "CYP2C9|celecoxib",
+    "CYP2C9|phenytoin",
+    "HLA-B|abacavir",
+    "HLA-B|carbamazepine",
+    "NUDT15|mercaptopurine",
+    "UGT1A1|irinotecan",
+    "allopurinol|azathioprine",
+    "simvastatin|alt"
+   ]
+  }
+ ]
+}
