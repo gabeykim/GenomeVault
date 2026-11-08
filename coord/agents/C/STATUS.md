@@ -36,5 +36,9 @@ handled_messages:
   - 20261108-1449-from-B-brand-names.md
   - 20261108-1500-from-A-allergy-flags.md
   - 20261108-1500-from-D-palette-ack.md
+  - 20261108-1506-from-A-vlm-capture.md
+  - 20261108-1510-from-B-route-flag-scope.md
+  - 20261108-1512-from-A-label-warnings.md
+  - 20261108-1520-from-B-asked-pair-first.md
 blocked_on: none
-next: drop stand-ins (D-014); full rehearsal after the PRs merge; optional Amoxil sample label
+next: (1) /api/ask also passes local flags for drugs the question names (B-025 option; Q15 answers with X5); (2) phone: downscale camera photos to ~1280px JPEG + spinner for the VLM path (A-012/A-013 idea); drop stand-ins (D-014); rehearsal after merges
