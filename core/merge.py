@@ -16,9 +16,22 @@ Output is plain text; paragraphs are separated by a blank line.
 """
 from __future__ import annotations
 
+import importlib
+import importlib.util
 import re
 
 from .contracts import Answer, Fact, Flag, Profile
+
+WITHHELD = ("The general answer was withheld because it did not match a keyed source. "
+            "Your local flags below still apply.")
+
+
+def _output_check():
+    """B's validator.check_output(text, facts) -> bool, once core/validator.py exists (agreed in
+    coord/inbox/to-C/20261108-1345-from-B-g2-interfaces.md). Until then nothing is checked here."""
+    if importlib.util.find_spec("core.validator") is None:
+        return None
+    return getattr(importlib.import_module("core.validator"), "check_output", None)
 
 CLOSING = ("Bring this to your pharmacist or doctor. GenomeVault prepares you for that conversation; "
            "it never tells you to start or stop a medication.")
@@ -151,6 +164,11 @@ def _lead(answer: Answer) -> str:
     text = guard(answer.text.strip())
     if not text:
         return ""
+    # Only the cloud-derived text is checked: the personal part below quotes the user's own doses
+    # and labs, which come from the profile, never from facts.
+    check = _output_check()
+    if check is not None and not check(text, answer.facts):
+        return WITHHELD
     cloud = answer.sent_to_cloud or any(f.tier == "cloud" for f in answer.facts)
     return f"In general: {text}" + (f" ({CLOUD_LABEL}.)" if cloud else "")
 

@@ -102,6 +102,29 @@ def test_all_banned_text_still_returns_something():
     assert out == merge.CLOSING
 
 
+def test_validator_checks_only_the_general_text(monkeypatch):
+    seen = []
+
+    def fake_check(text, facts):
+        seen.append(text)
+        return True
+
+    monkeypatch.setattr(merge, "_output_check", lambda: fake_check)
+    a = Answer(state="known", text="Clopidogrel response differs by CYP2C19 type.", sent_to_cloud=True)
+    out = merge.personalize(a, FLAGS, PROFILE)
+    assert seen == ["Clopidogrel response differs by CYP2C19 type."]   # not the personal paragraph
+    assert "75 mg" in out
+
+
+def test_failed_validator_withholds_general_text_but_keeps_flags(monkeypatch):
+    monkeypatch.setattr(merge, "_output_check", lambda: (lambda text, facts: False))
+    a = Answer(state="known", text="Clopidogrel needs 300 mg loading in everyone.", sent_to_cloud=True)
+    out = merge.personalize(a, FLAGS, PROFILE)
+    assert "300 mg" not in out
+    assert out.startswith(merge.WITHHELD)
+    assert "For you:" in out
+
+
 def test_app_uses_real_merge():
     import app
     assert app.MODES["merge.personalize"] == "real"
