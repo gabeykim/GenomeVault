@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-018 I4 fix in router.route (no_data unless a covering flag or a fact backs it); PR #2 updated (cafebe3), ready for G2
+current_task: B-019 brand names in the question count as their ingredient (I4); PR #2 updated (6b81173), ready for G2
 branch: agent/B-privacy-router
-last_commit: cafebe3
+last_commit: 6b81173
 last_seen:
   plan_version: "1.2.1"
-  decisions: D-022
-  logs: {A: 7, B: 18, C: 15, D: 9}
+  decisions: D-024
+  logs: {A: 8, B: 19, C: 16, D: 9}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -26,11 +26,12 @@ handled_messages:
   - 20261108-1432-from-C-cover-started.md
   - 20261108-1438-from-D-i4-route-known.md
   - 20261108-1439-from-A-no-data-marker.md
+  - 20261108-1444-from-A-universe-names.md
 blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019; to-human 1418; cache must be v5)
 notes: >
-  D's I4 report fixed: route() reads the question's subject locally (named pairs, gene-drug keys on "genes",
-  drug-lab keys on a lab word) and is `known` only with facts or a covering flag and nothing answerable left
-  open. Merge of B+D+C+A: eval.gate I4 PASS, offline 20/20, all 20 online expected states match under DEMO
-  replay. make test exit 0 (1055). A's no_data helper (A-007) is noted; the router does not need it now.
-  Told D (to-D 1445, also an I7a import oddity in eval/wording.py) and C (to-C 1445, FYI).
-next: G2 merge of PR #2, then freeze v5; record the demo cache once the key is available; stretch: pack sync polish
+  Rebased on main (no conflicts). Found and fixed an I4 gap: the router matched only bare ingredient words,
+  so "Plavix with Protonix" named no drug and a local clopidogrel flag answered `known`. _named_drugs now
+  also uses A's normalize.to_ingredients (G1 contract), limited to the universe. make test exit 0 (1058).
+  Told C (to-C 1449, FYI) and D (to-D 1449, optional eval query). A-008: v5 adds no new drugs, so nothing for A.
+  Untracked Finder duplicates ("* 2.py", "* 3.py") sit in my owned paths; they are untracked and not collected.
+next: G2 merge of PR #2, then freeze v5; record the demo cache once the key is available

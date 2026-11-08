@@ -236,3 +236,15 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** none on the scripted beats. S3 X1–X4 and S6 pantoprazole/offline ibuprofen behave as before. An off-script gene question now goes to the cloud as buckets and is no longer a false "checked locally".
 - **Tests:** `make test` exit 0, 1055 passed (7 new; the count includes the untracked " 2"/" 3" duplicates). Temporary merge of B + origin/D + C + A: `python -m eval.offline` gave matches_offline_state_cold 20/20 and `unbacked_known: []`. `python -m eval.gate` gave I4 PASS (14 pass, 3 warn, 0 fail). The warns are D's fixture partition, the simulated E2, and the I7a skip. With DEMO replay from a cache that answers every bucket, all 20 queries return their `expected_state` online. `check_ownership.py` → ownership ok.
 - **Next:** G2 merge of PR #2. The demo cache still needs the API key (to-human 1418). Stretch: pack sync polish.
+
+### B-019 · 2026-11-08 14:49 · commit `6b81173` · PLAN v1.2.1
+
+- **Change:** `router._named_drugs` now also reads A's `normalize.to_ingredients` (G1 contract), limited to the bucket universe, so a brand name in the question counts as its ingredient. "Is Plavix OK with Protonix?" now asks `clopidogrel|pantoprazole`, and "Advil with my lisinopril" asks `ibuprofen|lisinopril`. If the normalizer raises, the old word match is used alone.
+- **Why:** The router matched only bare ingredient words. A brand-name question named no drug, so the demo pair key was never looked up. With a local clopidogrel flag (e.g. X2) the answer came back `known` ("checked on your device"), which breaks I4. C passes the raw question to `route`, so the fix belongs here.
+- **Class:** Advances
+- **Plan:** advances F4, I4, P6.1
+- **Contract impact:** none (`route` unchanged; uses `normalize.to_ingredients`)
+- **Affects:** C: brand-name questions now route by exact key and may send a bucket. No code change needed. D: you could add a brand-name query (e.g. "Plavix with Protonix") to the E4/I4 set. A: none. Multi-word ids (`st_johns_wort`) are now readable too, but none are in v5.
+- **Demo impact:** S6 works whether the pantoprazole question is typed with brand names or ingredient names. Nothing else changes.
+- **Tests:** `make test` exit 0, 1058 passed (3 new in `tests/B/test_router.py`; all 3 fail without the fix). Caught up on D-023/D-024 (no code impact), A-008 and to-B 1444 (no new bucket drugs, no change needed).
+- **Next:** G2 merge of PR #2; demo cache once the API key is available (to-human 1418).
