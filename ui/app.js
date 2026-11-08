@@ -482,6 +482,23 @@ const ACTIONS = [
       ];
     },
   },
+  {
+    id: "A4", key: "action:phone", title: "Use your phone", kind: "Phone",
+    async build() {
+      const p = await api("/api/phone");
+      const where = p.url
+        ? el("p", {}, "On your phone, open ", el("strong", {}, p.url), ".")
+        : el("p", {}, "Start the app for the phone with ", el("code", {}, "bash phone/serve_https.sh"),
+            ", then open the address it prints on your phone (same Wi-Fi).");
+      return [
+        where,
+        el("div", { class: "pair-code", "aria-label": "Pairing code" }, p.code),
+        el("p", { class: "mute small" },
+          "Type this code on the phone once. The phone can then scan labels and see reminders. "
+          + "Photos are read on this laptop and not kept; nothing leaves your network."),
+      ];
+    },
+  },
 ];
 
 function actionRow(a, i) {
@@ -510,6 +527,33 @@ function actionRow(a, i) {
 
 function renderActions() {
   $("actions").replaceChildren(...ACTIONS.map(actionRow));
+}
+
+// ---------- captures from the phone (S2) ----------
+
+let lastCapture = 0;
+
+function captureItem(c) {
+  const names = c.drugs.map((d) => cap(d.ingredient) + (d.dose_mg ? ` ${d.dose_mg} mg` : "")).join(", ");
+  const worst = c.flags.some((f) => f.severity === "high") ? "high" : c.flags.length ? "medium" : "none";
+  const ids = [...new Set(c.flags.map((f) => f.id))];
+  const how = { photo: "Photo", sample: "Sample label", typed: "Typed" }[c.source] || "Phone";
+  return el("li", { class: `capture sev-${worst}` },
+    el("span", { class: "cap-how" }, how),
+    el("span", { class: "cap-drug" }, names),
+    el("span", { class: "cap-flags" }, ids.length ? `${c.flags.length} flag${c.flags.length === 1 ? "" : "s"} · ${ids.join(", ")}` : "No flags"));
+}
+
+async function pollCaptures() {
+  try {
+    const { captures } = await api(`/api/captures?since=${lastCapture}`);
+    if (!captures.length) return;
+    $("from-phone").hidden = false;
+    for (const c of captures) {
+      $("captures").prepend(captureItem(c));
+      lastCapture = Math.max(lastCapture, c.seq);
+    }
+  } catch { /* next tick */ }
 }
 
 // ---------- ledger ----------
@@ -723,6 +767,8 @@ function boot() {
     await data;
     pollLedger();
     setInterval(pollLedger, 1500);
+    pollCaptures();
+    setInterval(pollCaptures, 2000);
   });
 }
 

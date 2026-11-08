@@ -14,14 +14,16 @@ import importlib
 from contextlib import asynccontextmanager
 import importlib.util
 import os
+import secrets
 import threading
+import time
 from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Optional
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -30,6 +32,7 @@ from core.contracts import Answer, Drug, Fact, Flag, LedgerEntry, Profile
 
 ROOT = Path(__file__).resolve().parent
 UI_DIR = ROOT / "ui"
+PHONE_DIR = ROOT / "phone"
 DEMO = os.environ.get("DEMO", "0") == "1"
 DISCLAIMER = "Demo, not medical advice. All patient data is synthetic."
 
@@ -83,6 +86,7 @@ def _resolve(module: str, attr: str, fallback: Callable) -> Callable:
 load_profile = _resolve("graph", "load_profile", interfaces.load_profile)
 check = _resolve("rules", "check", interfaces.check)
 to_ingredients = _resolve("normalize", "to_ingredients", _mock_to_ingredients)
+from_image = _resolve("capture", "from_image", interfaces.from_image)   # A, D-020: label photo -> drugs
 route = _resolve("router", "route", interfaces.route)
 personalize = _resolve("merge", "personalize", interfaces.personalize)
 ledger_feed = _resolve("ledger", "feed", _mock_ledger.feed)
@@ -188,6 +192,7 @@ class OfflineIn(BaseModel):
 
 class CheckIn(BaseModel):
     text: str = Field(min_length=1, max_length=200)
+    via: Optional[str] = Field(default=None, pattern="^phone$")   # typed on the phone: also shown on the laptop
 
 
 class AskIn(BaseModel):
@@ -220,16 +225,22 @@ def flags() -> dict:
             "notes": _notes(expected_notes_all(p) if expected_notes_all else [])}
 
 
+def _check(drugs: list[Drug]) -> dict:
+    """Flags and notes for some drugs against the profile, all on device (F3)."""
+    p = load_profile()
+    notes = [n for d in drugs for n in (expected_notes(d, p) if expected_notes else [])]
+    return {"drugs": [d.model_dump() for d in drugs], "flags": [f.model_dump() for f in _flags_for(drugs, p)],
+            "notes": _notes(notes)}
+
+
 @app.post("/api/check")
 def check_drug(body: CheckIn) -> dict:
     """Check one typed drug name against the profile (F2 typed input, F3)."""
-    p = load_profile()
-    drugs = to_ingredients(body.text)
-    result = _flags_for(drugs, p)
+    result = _check(to_ingredients(body.text))
     _note("local_only")
-    notes = [n for d in drugs for n in (expected_notes(d, p) if expected_notes else [])]
-    return {"input": body.text, "drugs": [d.model_dump() for d in drugs],
-            "flags": [f.model_dump() for f in result], "notes": _notes(notes)}
+    if body.via == "phone" and result["drugs"]:
+        _record_capture("typed", result)
+    return {"input": body.text, **result}
 
 
 @app.post("/api/ask")
@@ -368,4 +379,102 @@ def summary_page() -> str:
             f"{sections}<p class='note'>{esc(s['note'])}</p></main></body></html>")
 
 
+# --- phone (F2, S2, S6): label photo in, reminders out; nothing leaves the local network --------
+
+# The phone reaches the laptop over the local network, and this app holds the whole profile. So any
+# request that isn't from this machine needs the pairing code shown on the laptop (Actions tab).
+PHONE_CODE = (os.environ.get("GV_PHONE_CODE") or secrets.token_hex(3)).upper()
+PHONE_URL = os.environ.get("GV_PHONE_URL", "")          # set by phone/serve_https.sh
+PAIR_COOKIE = "gv_pair"
+_LOCAL = {"127.0.0.1", "::1", "localhost", "testclient"}
+_OPEN_PATHS = ("/phone", "/phone-assets/", "/api/phone/pair")
+_fails = {"n": 0, "until": 0.0}
+MAX_UPLOAD = 15 * 1024 * 1024
+_captures: deque[dict] = deque(maxlen=20)
+_capture_seq = {"n": 0}
+
+
+def _is_local(request: Request) -> bool:
+    return (request.client.host if request.client else "") in _LOCAL
+
+
+def _paired(request: Request) -> bool:
+    given = request.cookies.get(PAIR_COOKIE) or request.query_params.get("pair") or ""
+    return secrets.compare_digest(given.upper(), PHONE_CODE)
+
+
+@app.middleware("http")
+async def phone_gate(request: Request, call_next):
+    path = request.url.path
+    if _is_local(request) or _paired(request) or path == "/phone" or path.startswith(_OPEN_PATHS[1:]):
+        return await call_next(request)
+    return JSONResponse({"detail": "pair this phone first: open /phone and enter the code on the laptop"},
+                        status_code=401)
+
+
+class PairIn(BaseModel):
+    code: str = Field(min_length=4, max_length=16)
+
+
+@app.post("/api/phone/pair")
+def phone_pair(body: PairIn, request: Request) -> Response:
+    """Phone enters the code shown on the laptop; a cookie then pairs it. Locks out after 10 misses."""
+    now = time.time()
+    if now < _fails["until"]:
+        raise HTTPException(423, "too many wrong codes; try again in a few minutes")
+    if not secrets.compare_digest(body.code.strip().upper(), PHONE_CODE):
+        _fails["n"] += 1
+        if _fails["n"] >= 10:
+            _fails.update(n=0, until=now + 300)
+        raise HTTPException(403, "wrong code")
+    _fails["n"] = 0
+    r = JSONResponse({"paired": True})
+    r.set_cookie(PAIR_COOKIE, PHONE_CODE, httponly=True, samesite="strict",
+                 secure=request.url.scheme == "https", max_age=12 * 3600)
+    return r
+
+
+@app.get("/api/phone")
+def phone_info(request: Request) -> dict:
+    """For the laptop only: the pairing code and the address to open on the phone."""
+    if not _is_local(request):
+        raise HTTPException(403, "shown on the laptop only")
+    return {"code": PHONE_CODE, "url": PHONE_URL, "https": PHONE_URL.startswith("https://")}
+
+
+def _record_capture(source: str, result: dict) -> None:
+    _capture_seq["n"] += 1
+    _captures.append({"seq": _capture_seq["n"], "ts": datetime.now(timezone.utc).isoformat(), "source": source,
+                      "drugs": result["drugs"], "flags": [{"id": f["id"], "key": f["key"], "severity": f["severity"]}
+                                                          for f in result["flags"]]})
+
+
+@app.post("/api/capture")
+async def capture(request: Request) -> dict:
+    """Label photo from the phone (S2): raw image bytes in the body, its MIME type in Content-Type.
+    A's capture.from_image reads it on this laptop; the photo itself is never stored or sent."""
+    mime = request.headers.get("content-type", "")
+    data = await request.body()
+    if len(data) > MAX_UPLOAD:
+        raise HTTPException(413, "photo too large")
+    drugs = from_image(data, mime) if mime.startswith("image/") and data else []
+    result = _check(drugs)
+    _note("local_only")
+    if drugs:
+        _record_capture(request.headers.get("x-gv-source", "photo")[:12], result)
+    return {"read": bool(drugs), **result}
+
+
+@app.get("/api/captures")
+def captures(since: int = 0) -> dict:
+    """Recent phone captures, for the laptop's Medications tab."""
+    return {"captures": [c for c in _captures if c["seq"] > since]}
+
+
+@app.get("/phone", include_in_schema=False)
+def phone_page() -> FileResponse:
+    return FileResponse(PHONE_DIR / "index.html")
+
+
+app.mount("/phone-assets", StaticFiles(directory=PHONE_DIR), name="phone")
 app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
