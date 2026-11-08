@@ -86,6 +86,22 @@ def test_local_only_flags_send_nothing(alex):
     assert [e.kind for e in ledger.feed(0)] == ["local_only"]
 
 
+def test_allergy_flag_never_leaves_the_device(alex):
+    # F3 allergy engine (A, PR #5): penicillin allergy on record + amoxicillin. The allergy list is
+    # personal (I3), so even a flag marked needs_cloud is answered locally with 0 bytes out.
+    profile, _ = alex
+    hits = [f for f in rules.check(Drug(ingredient="amoxicillin", dose_mg=500), profile)
+            if f.engine == "allergy"]
+    if not hits:
+        pytest.skip("A's allergy engine is not on this branch yet (PR #5)")
+    forced = [f.model_copy(update={"needs_cloud": True}) for f in hits]
+    a = router.route("Can I take amoxicillin for my sinus infection?", forced)
+    assert not a.sent_to_cloud
+    assert all(bucket_for(f.key) is None for f in hits)
+    assert all(e.bytes_out == 0 and e.personal_fields_sent == 0 for e in ledger.feed(0))
+    assert [e.kind for e in ledger.feed(0)] == ["local_only"]
+
+
 def test_offline_ibuprofen_x5_sends_nothing(alex):
     # S6: offline, a new NSAID is still flagged locally (X5) and nothing leaves (F8).
     profile, _ = alex

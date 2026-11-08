@@ -88,8 +88,14 @@ def test_rule_keys_match_real_rules_when_present():
         from core import rules  # type: ignore
     except ImportError:
         return
-    missing = sorted(k for k in rules.all_keys() if bucket_for(k) is None)
+    keys = rules.all_keys()
+    # Allergy keys are answered locally and never sent (generalize -> [], B-002 refinement 6),
+    # so they are deliberately outside the universe: the allergy list is a personal field.
+    allergy = {k for k in keys if k.startswith("allergy:")}
+    missing = sorted(k for k in keys - allergy if bucket_for(k) is None)
     assert not missing, missing
+    in_buckets = sorted(k for k in allergy if bucket_for(k) is not None)
+    assert not in_buckets, in_buckets
 
 
 def test_v2_keeps_every_v1_key_and_adds_question_keys():
