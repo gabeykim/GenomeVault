@@ -1,11 +1,11 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-029 pack-sync same-for-all test (3260352). PR #2 rebased on main 1f95e61, waiting for G2
+current_task: post-v1.3 check (no code change). PR #2 rebased on main 349d762 (v1.3 merged via PR #6), head f2ca312, waiting for G2
 branch: agent/B-privacy-router
-last_commit: 3260352
+last_commit: f2ca312
 last_seen:
-  plan_version: "1.2.1"   # v1.3 is pending in PR #6 (read: D-025..D-029, msg 20261108-1501)
-  decisions: D-024
+  plan_version: "1.3"
+  decisions: D-029
   logs: {A: 14, B: 29, C: 21, D: 11}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
@@ -29,14 +29,17 @@ handled_messages:
   - 20261108-1444-from-A-universe-names.md
   - 20261108-1500-from-A-allergy-keys.md
   - 20261108-1500-from-D-i4-confirmed.md
+  - 20261108-1501-from-I-plan-v1-3.md
   - 20261108-1510-from-C-sync-and-order.md
   - 20261108-1516-from-C-order-handled.md
   - 20261108-1518-from-D-pack-confirmed.md
-blocked_on: none (D-027: the human recorded the pack, so the to-human 1418 key request clears once PR #6 merges)
+blocked_on: none (D-027 merged, so the to-human 1418 key request is closed)
 notes: >
-  B-029: new tests/B/test_pack_same_for_all.py (2 tests): Alex and a second synthetic patient send byte-identical
-  sync_pack traffic per bucket (cover, 0 personal fields), and none of the second patient's values leave (I5, I3, E1).
-  No router change. make test exit 0, 634 passed, 4 skipped. Note to D (1555). No new inbox messages.
-  Read I's 1520 notes to C and D: they match B's plan.
+  Post-v1.3 check, no code change: rebased onto main with PR #6 merged; make test exit 0, 637 passed, 1 skipped.
+  test_committed_pack now runs against the recorded mocks/cloud_cache/ and passes (3 tests, plus 2 same-for-all).
+  `python -m core.cloud check`: 136/136 keys usable, 0 missing, 0 rejected (I7), 0 outside partition v5 (D-027).
+  D-026 fix confirmed in cloud.py: thinking between_tools, MAX_TOKENS 1000.
+  The 1 skip left is tests/B/test_g2_real_rules.py:96, which waits for A's allergy engine (PR #5).
+  BRIEF queue items 1-9 are all done. No new inbox messages or LOG entries since the last cycle.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
-next: G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm test_committed_pack runs instead of skipping
+next: G2 merge of PR #2. After PR #5 merges, rebase and confirm the allergy test in test_g2_real_rules runs instead of skipping
