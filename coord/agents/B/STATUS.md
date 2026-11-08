@@ -33,5 +33,5 @@ notes: >
   so "Plavix with Protonix" named no drug and a local clopidogrel flag answered `known`. _named_drugs now
   also uses A's normalize.to_ingredients (G1 contract), limited to the universe. make test exit 0 (1058).
   Told C (to-C 1449, FYI) and D (to-D 1449, optional eval query). A-008: v5 adds no new drugs, so nothing for A.
-  Untracked Finder duplicates ("* 2.py", "* 3.py") sit in my owned paths; they are untracked and not collected.
+  Untracked Finder duplicates ("* 2.py", "* 3.py") sit in my owned paths; they are untracked and never committed, but pytest still collects them (see B-018).
 next: G2 merge of PR #2, then freeze v5; record the demo cache once the key is available
