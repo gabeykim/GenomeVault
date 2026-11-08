@@ -288,3 +288,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 619 passed. PR #2 CI green before this push; mergeable.
 - **Next:** G2 merge of PR #2, then freeze bucket v5. Record the demo cache once the API key arrives (to-human 1418; `python -m core.cloud record` then `check`).
 - **Note:** the B-021 header time (15:10) was ahead of the system clock; this entry uses the system clock.
+
+### B-023 · 2026-11-08 15:02 · commit `20000fc` · PLAN v1.2.1
+
+- **Change:** Tests only. I merged main + A's PR #5 (`143fa41`) + B's PR #2 in a scratch worktree before G2, and 1 test failed: `tests/B/test_buckets.py::test_rule_keys_match_real_rules_when_present`. A's new allergy table adds `allergy:<group>|drug` keys to `rules.all_keys()`, and the test required every rule key to sit in a bucket. Allergy flags never go to the cloud (`generalize` returns `[]`, B-002 refinement 6), so these keys belong outside the universe. The test now leaves `allergy:` keys out and also asserts that none of them is in a bucket. New test `test_allergy_flag_never_leaves_the_device` (tests/B/test_g2_real_rules.py) runs Alex's real penicillin allergy against amoxicillin, forces `needs_cloud=True`, and routes the flag. It must come back `local_only` with 0 bytes and 0 personal fields. It skips until PR #5 merges.
+- **Why:** PRs #2 and #5 must merge in either order without turning main red at G2. The router and buckets were already right. Only the test's assumption was wrong.
+- **Class:** Advances
+- **Plan:** advances F3 (allergy), I3, G2
+- **Refinements:** none (B-002 refinement 6 already covers it, and the tests now enforce it)
+- **Contract impact:** none
+- **Affects:** A: PR #5 merges green with PR #2. Keep the `allergy:` prefix on allergy keys, because the tests key off it → nothing to do. I: G2 can merge #2 and #5 in either order → none. C, D: none. C-019 (white accent, visual only) does not touch B.
+- **Demo impact:** none. Bucket v5 is unchanged.
+- **Tests:** B branch: `make test` exit 0, 619 passed, 1 skipped (the new allergy test, waiting on PR #5). main + PR #5 + PR #2 (`20000fc`): `make test` exit 0, 713 passed, 0 skipped (the allergy test runs and passes).
+- **Next:** G2 merge of PR #2, then freeze bucket v5. Record the demo cache once the API key arrives (to-human 1418).

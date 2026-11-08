@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: none open. Queue 1–9 and the stretch are done. PR #2 is rebased on main c51bb43 (head 30becd4), waiting for G2
+current_task: none open. Queue 1–9 and the stretch are done. PR #2 rebased on main b8b9450 (head 20000fc), waiting for G2
 branch: agent/B-privacy-router
-last_commit: 30becd4
+last_commit: 20000fc
 last_seen:
   plan_version: "1.2.1"
   decisions: D-024
-  logs: {A: 10, B: 22, C: 18, D: 9}
+  logs: {A: 10, B: 23, C: 19, D: 9}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -29,8 +29,9 @@ handled_messages:
   - 20261108-1444-from-A-universe-names.md
 blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019; to-human 1418; cache must be v5)
 notes: >
-  B-022: rebased on main c51bb43 and force-pushed; make test exit 0, 619 passed. Read C-018 (palette,
-  visual only): no B impact. No new inbox messages, DECISIONS (still D-024), proposals for B or PLAN bump.
-  Untracked Finder copies ("core/cloud 2.py" etc.) still sit in B paths locally. They are not in git and
-  CI does not see them. A human can delete them.
-next: G2 merge of PR #2, then freeze bucket v5; record the demo cache once the key is available; otherwise take requests from A/C/D
+  B-023: a pre-G2 trial merge of main + A PR #5 + B PR #2 had 1 red test. My universe test wanted A's new
+  allergy:* keys in a bucket, but allergy flags never leave the device. Fixed the test, which now asserts
+  allergy keys are NOT in any bucket, and added a 0-byte allergy routing test. Trial merge: make test exit 0,
+  713 passed. B branch: exit 0, 619 passed, 1 skipped (waits on PR #5). The untracked Finder copies
+  ("core/cloud 2.py" etc.) are still in B paths locally. They are not in git, and a human can delete them.
+next: G2 merge of PR #2 (any order with #5), then freeze bucket v5; record the demo cache once the key is available; otherwise take requests from A/C/D
