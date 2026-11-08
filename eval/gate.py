@@ -77,6 +77,10 @@ def check(rt: dict | None = None, lc: dict | None = None, lat: dict | None = Non
     if off:
         add("E4a", "Offline keeps working (warm >= cold > 0)",
             "PASS" if off["warm_answered"] >= off["cold_answered"] > 0 else "FAIL", f"cold {off['cold_answered']}/20, warm {off['warm_answered']}/20")
+        if off.get("synced_answered") is not None:
+            add("E4c", "A synced knowledge pack answers offline at least as well as a warm device (D-027)",
+                "PASS" if off["synced_answered"] >= off["warm_answered"] else "WARN",
+                f"synced {off['synced_answered']}/20, warm {off['warm_answered']}/20, cold {off['cold_answered']}/20")
         add("E4b", "Offline answers are the honest expected states",
             "PASS" if off["matches_offline_state_cold"] == off["n"] else "WARN", f"{off['matches_offline_state_cold']}/{off['n']}")
     unbacked = set((off or {}).get("unbacked_known", []))

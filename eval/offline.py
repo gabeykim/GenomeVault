@@ -38,8 +38,9 @@ def run(write: bool = True, live: bool | None = None) -> dict:
         be.offline = True
         warm_rows = _pass(be, qs)
         synced_rows = None
+        be.offline = False              # sync_pack fetches nothing while offline (B-010), so go back online first
         be.reset()
-        if be.sync_pack():              # B-010: whole partition prefetched, then offline
+        if be.sync_pack():              # B-010 / D-027: whole partition prefetched (same for every user), then offline
             be.offline = True
             synced_rows = _pass(be, qs)
         be.offline = False
