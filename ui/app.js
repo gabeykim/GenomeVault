@@ -172,7 +172,9 @@ function playIntro(onOpen) {
     let left = 100;
     while (left > 0) {
       const h = Math.min(left, 6 + Math.floor(r() * 26));
-      col.append(el("i", { class: r() < 0.64 ? "b" : "w", style: `height:${h}%` }));
+      const roll = r();
+      const kind = roll < 0.56 ? "b" : roll < 0.62 ? "e" : roll < 0.67 ? "m" : "w";   // midnight, blue, cantaloupe, bone
+      col.append(el("i", { class: kind, style: `height:${h}%` }));
       left -= h;
     }
     cols.append(col);

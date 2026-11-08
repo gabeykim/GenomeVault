@@ -1,7 +1,9 @@
-/* GenomeVault phone page (S2, S6). Same bone/ink palette as the laptop UI. No external assets (I8). */
+/* GenomeVault phone page (S2, S6). Same palette as the laptop UI: bone paper, midnight black (main),
+   electric blue (secondary), cantaloupe orange (third). No external assets (I8). */
 :root {
-  --paper: #e1e1de; --ink: #0b0b0b; --mute: #6b6b67; --line: #c3c3be;
-  --bad: #c22d17; --warn: #95570a; --good: #23703e;
+  --paper: #e1e1de; --ink: #0a1020; --mute: #6b6b67; --line: #c3c3be;
+  --blue: #1f4bff; --melon: #ffa177; --melon-text: #9c4614;
+  --bad: #c22d17; --warn: var(--melon-text); --good: #23703e;
   --ease: cubic-bezier(.76, 0, .24, 1); --ease-out: cubic-bezier(.16, 1, .3, 1);
   --font: "Helvetica Neue", Helvetica, Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
   color-scheme: light;
@@ -89,3 +91,16 @@ section, .screen { animation: rise .7s var(--ease-out) both; }
 .foot strong { color: var(--ink); font-weight: 500; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* accents */
+::selection { background: var(--melon); color: var(--ink); }
+.camera:focus-within, .camera:hover { outline: 2px solid var(--blue); outline-offset: 2px; }
+.sample:focus-visible, .line-btn:focus-visible, .line-form button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.sample.busy { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); }
+.sample-rx { border-color: var(--blue); color: var(--blue); }
+.line-form:focus-within { border-bottom-color: var(--blue); }
+.line-form input { caret-color: var(--blue); }
+.read { border-bottom-color: var(--blue); }
+.medium .sev { background: var(--melon); color: var(--ink); padding: 1px 6px; }
+.medium .id { color: var(--melon-text); }
+.line-btn:active { background: var(--blue); border-color: var(--blue); color: var(--paper); }

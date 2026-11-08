@@ -1,15 +1,18 @@
-/* GenomeVault UI. Bone paper, black ink, in every system theme, plus three status colors used only on
-   small indicators, always next to a word (never color alone). No external assets (I8). */
+/* GenomeVault UI. Bone paper with three accents: midnight black (main: text, rules, fills), electric blue
+   (secondary: data in motion and interaction), cantaloupe orange (third: medium / no-data and warm details).
+   Red and green stay as status colors on small indicators, always next to a word. No external assets (I8). */
 :root {
   --paper: #e1e1de;
   --paper-2: #d7d7d3;
-  --ink: #0b0b0b;
+  --ink: #0a1020;            /* midnight black: main accent */
   --mute: #6b6b67;
   --line: #c3c3be;
   --strand: #a3a39e;
   /* status: on bone paper (AA for text) / lighter variant for use on ink */
   --bad: #c22d17;  --bad-on-ink: #ff6b4f;
-  --warn: #95570a; --warn-on-ink: #f2a93b;
+  --blue: #1f4bff;  --blue-on-ink: #7d97ff;   /* electric blue: secondary accent */
+  --melon: #ffa177; --melon-text: #9c4614;    /* cantaloupe orange: third accent (fill / text on bone) */
+  --warn: var(--melon-text); --warn-on-ink: var(--melon);
   --good: #23703e; --good-on-ink: #5fd38b;
   --ease: cubic-bezier(.76, 0, .24, 1);
   --ease-out: cubic-bezier(.16, 1, .3, 1);
@@ -516,3 +519,36 @@ body.offline .strand { opacity: .45; transition: opacity .6s var(--ease); }
   font: 500 28px var(--mono); letter-spacing: .25em;
 }
 @media (max-width: 640px) { .capture { grid-template-columns: minmax(0, 1fr) auto; } .cap-how { grid-column: 1 / -1; } }
+
+/* ---------- accents: midnight (main) · electric blue (secondary) · cantaloupe (third) ---------- */
+::selection { background: var(--melon); color: var(--ink); }
+
+/* electric blue: data in motion */
+.packet { background: var(--blue); }
+.cells i { background: var(--blue); }
+.outq li.mine { background: var(--blue); border-bottom-color: var(--blue); }
+.outq li.mine .oq-tag { color: var(--paper); }
+.outq { border-top-color: var(--blue); }
+.learned strong { color: var(--blue); }
+.live-cover { color: var(--blue); }
+.cells:hover .cells-label, .cells:focus-visible .cells-label { color: var(--blue); text-decoration-color: var(--blue); }
+
+/* electric blue: interaction */
+.tab::after { background: var(--blue); }
+.tab:hover, .tab:focus-visible { color: var(--blue); }
+.tab[aria-selected="true"]:hover { color: var(--ink); }
+.net-track { background: var(--blue); }
+.net:focus-visible, .tab:focus-visible, .line-btn:focus-visible, .suggestion:focus-visible,
+.row-btn:focus-visible, .line-form button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.line-form:focus-within { border-bottom-color: var(--blue); }
+.line-form input { caret-color: var(--blue); }
+
+/* cantaloupe: medium severity, no data, warm details */
+.sev-medium { --sev: var(--melon-text); --sev-ink: var(--melon); }
+.row.sev-medium .sev-bar i.on { background: var(--melon); border-color: var(--melon-text); }
+.row.sev-medium .row-btn:hover .sev-bar i.on, .row.sev-medium.open .sev-bar i.on { border-color: var(--melon); }
+.chip.warn { background: var(--melon); border-color: var(--melon); color: var(--ink); }
+.count.warn { color: var(--melon-text); }
+.suggestion.asked .qtext::before { color: var(--melon-text); }
+.intro-col i.m { background: var(--melon); }
+.intro-col i.e { background: var(--blue); }
