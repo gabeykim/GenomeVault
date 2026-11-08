@@ -51,7 +51,7 @@ F = {
     "(": "00010 00100 01000 01000 01000 00100 00010", ")": "01000 00100 00010 00010 00010 00100 01000",
     "'": "00100 00100 01000 00000 00000 00000 00000",
 }
-WHITE, INK, BLUE, GRAY = (255, 255, 255), (2, 7, 10), (2, 151, 222), (120, 128, 134)
+WHITE, INK, GRAY = (255, 255, 255), (11, 11, 11), (107, 107, 103)
 W, SCALE, MARGIN, WRAP = 960, 3, 36, 46
 
 
@@ -87,14 +87,14 @@ def render(text: str) -> list[list[tuple]]:
                         rect(x + gx * scale, y + gy * scale, x + (gx + 1) * scale, y + (gy + 1) * scale, color)
             x += 6 * scale
 
-    rect(0, 0, W, 8, BLUE)                                     # brand stripe
+    rect(0, 0, W, 8, INK)                                      # brand stripe
     rect(MARGIN, MARGIN, W - MARGIN, MARGIN + 48, INK)         # header band
     text_at(MARGIN + 14, MARGIN + 13, header, WHITE, 3)
     y = MARGIN + 48 + 18
     for i, line in enumerate(body):
         text_at(MARGIN, y, line, INK if i == 0 or not line.lower().startswith("do not") else GRAY, 4 if i == 0 else SCALE)
         y += line_h + (8 if i == 0 else 0)
-    rect(MARGIN, h - MARGIN - 6, W - MARGIN, h - MARGIN, BLUE)  # bottom rule
+    rect(MARGIN, h - MARGIN - 6, W - MARGIN, h - MARGIN, INK)   # bottom rule
     return px
 
 

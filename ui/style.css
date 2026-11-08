@@ -1,28 +1,22 @@
-/* GenomeVault UI. One palette, three colors, on a dark canvas:
-   - midnight black #02070A: the canvas and raised surfaces (main)
-   - electric blue  #0297DE: structure and motion: section bars, the shield, hover fills, data blocks (secondary)
-   - white          #FFFFFF: the spark: wordmark bar, active tab, packets, "yours", medium severity (third)
-   Body text is a warm white on midnight; text on blue or white fills is midnight.
-   Red and green stay as status colors, always next to a word. No external assets (I8). */
+/* GenomeVault UI. Bone paper, black ink, in every system theme, plus three status colors used only on
+   small indicators, always next to a word (never color alone). No external assets (I8). */
 :root {
-  --paper: #02070A;          /* midnight black canvas */
-  --paper-2: #0b161d;        /* raised midnight surface */
-  --ink: #f2ede4;            /* warm white text */
-  --mute: #8d9ca6;           /* muted text */
-  --line: #17252e;           /* hairlines */
-  --strand: #1c3442;         /* DNA barcode bars */
-  --blue: #0297DE;  --blue-text: #0297DE;      /* electric blue: fills and text both read on midnight */
-  --melon: #FFFFFF; --melon-text: #FFFFFF;     /* white: third accent (token name kept from the cantaloupe era) */
-  --bad: #ff4f8b;   --good: #5fd38b;           /* status, tuned for midnight (red kept 33° of hue from cantaloupe) */
-  --warn: var(--melon);
-  --bad-on-ink: var(--paper); --warn-on-ink: var(--paper); --good-on-ink: var(--paper);  /* text on blue hover fills */
-  --blue-on-ink: var(--paper);
+  --paper: #e1e1de;
+  --paper-2: #d7d7d3;
+  --ink: #0b0b0b;
+  --mute: #6b6b67;
+  --line: #c3c3be;
+  --strand: #a3a39e;
+  /* status: on bone paper (AA for text) / lighter variant for use on ink */
+  --bad: #c22d17;  --bad-on-ink: #ff6b4f;
+  --warn: #95570a; --warn-on-ink: #f2a93b;
+  --good: #23703e; --good-on-ink: #5fd38b;
   --ease: cubic-bezier(.76, 0, .24, 1);
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --gutter: 28px;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -523,114 +517,6 @@ body.offline .strand { opacity: .45; transition: opacity .6s var(--ease); }
 }
 @media (max-width: 640px) { .capture { grid-template-columns: minmax(0, 1fr) auto; } .cap-how { grid-column: 1 / -1; } }
 
-/* ---------- accents: midnight (main) · electric blue (secondary) · cantaloupe (third) ---------- */
-::selection { background: var(--melon); color: var(--ink); }
-
-/* electric blue: data in motion */
-.packet { background: var(--blue); }
-.cells i { background: var(--blue); }
-.outq li.mine { background: var(--blue); border-bottom-color: var(--blue); }
-.outq li.mine .oq-tag { color: var(--paper); }
-.outq { border-top-color: var(--blue); }
-.learned strong { color: var(--blue); }
-.live-cover { color: var(--blue); }
-.cells:hover .cells-label, .cells:focus-visible .cells-label { color: var(--blue); text-decoration-color: var(--blue); }
-
-/* electric blue: interaction */
-.tab::after { background: var(--blue); }
-.tab:hover, .tab:focus-visible { color: var(--blue); }
-.tab[aria-selected="true"]:hover { color: var(--ink); }
-.net-track { background: var(--blue); }
-.net:focus-visible, .tab:focus-visible, .line-btn:focus-visible, .suggestion:focus-visible,
-.row-btn:focus-visible, .line-form button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-.line-form:focus-within { border-bottom-color: var(--blue); }
-.line-form input { caret-color: var(--blue); }
-
-/* cantaloupe: medium severity, no data, warm details */
-.sev-medium { --sev: var(--melon-text); --sev-ink: var(--melon); }
-.row.sev-medium .sev-bar i.on { background: var(--melon); border-color: var(--melon-text); }
-.row.sev-medium .row-btn:hover .sev-bar i.on, .row.sev-medium.open .sev-bar i.on { border-color: var(--melon); }
-.chip.warn { background: var(--melon); border-color: var(--melon); color: var(--ink); }
-.count.warn { color: var(--melon-text); }
-.suggestion.asked .qtext::before { color: var(--melon-text); }
-.intro-col i.m { background: var(--melon); }
-.intro-col i.e { background: var(--blue); }
-
-/* =========== full theme: midnight canvas, electric blue structure, cantaloupe spark =========== */
-::selection { background: var(--melon); color: var(--paper); }
-
-/* brand: blue shield, warm-white helix */
-.logo svg, .intro-mark { color: var(--blue); }
-.logo svg path:last-child, .intro-mark path:last-child { stroke: var(--paper); }
-
-/* intro lanes: midnight, raised midnight, electric blue, cantaloupe */
-.intro-col i.b { background: var(--paper-2); }
-.intro-col i.w { background: var(--paper); }
-.intro-col i.e { background: var(--blue); }
-.intro-col i.m { background: var(--melon); }
-
-/* hero */
-.wm-rule { background: var(--melon); }
-.packet { background: var(--melon); }
-.disclaimer { border-top-color: var(--line); }
-
-/* structure in electric blue */
-.rule { background: var(--blue); }
-.tab::after { background: var(--melon); }
-.tab:hover, .tab:focus-visible { color: var(--blue-text); }
-.tab[aria-selected="true"], .tab[aria-selected="true"]:hover { color: var(--ink); }
-.sq { background: var(--melon); }
-
-/* hover / open fills: electric blue with midnight text (6.3:1) */
-.row-btn::before, .suggestion::before, .line-form button::before, .line-btn::before { background: var(--blue); }
-.row-btn:hover, .row-btn:focus-visible, .row.open .row-btn,
-.suggestion:hover, .suggestion:focus-visible,
-.line-form button:hover, .line-form button:focus-visible,
-.line-btn:hover, .line-btn:focus-visible { color: var(--paper); }
-.row[class*="sev-"] .row-btn:hover .r-sev, .row[class*="sev-"] .row-btn:focus-visible .r-sev, .row[class*="sev-"].open .r-sev,
-.row[class*="sev-"] .row-btn:hover .r-id, .row[class*="sev-"] .row-btn:focus-visible .r-id, .row[class*="sev-"].open .r-id { color: var(--paper); }
-.row[class*="sev-"] .row-btn:hover::after, .row[class*="sev-"].open .row-btn::after { background: var(--paper); }
-.row-btn:hover .sev-bar i, .row.open .sev-bar i { border-color: var(--paper); }
-.row-btn:hover .sev-bar i.on, .row.open .sev-bar i.on { background: var(--paper); }
-.row.sev-medium .sev-bar i.on { background: var(--melon); border-color: var(--melon); }
-.line-btn { border-color: var(--mute); }
-.line-form { border-bottom-color: var(--mute); }
-.line-form:focus-within { border-bottom-color: var(--melon); }
-.line-form input { caret-color: var(--melon); }
-:is(.net, .tab, .line-btn, .suggestion, .row-btn, .line-form button, .cells):focus-visible { outline: 2px solid var(--melon); outline-offset: 2px; }
-
-/* chips */
-.chip { border-color: var(--mute); }
-.chip.solid { background: var(--blue); border-color: var(--blue); color: var(--paper); }
-.chip.warn { background: var(--melon); border-color: var(--melon); color: var(--paper); }
-.chip.good { border-color: var(--good); color: var(--good); }
-
-/* ledger: blue data, cantaloupe "yours" */
-.entry::after { background: var(--blue); }
-.cells i { background: var(--blue); }
-.cells:hover .cells-label, .cells:focus-visible .cells-label { color: var(--melon); text-decoration-color: var(--melon); }
-.outq { border-top-color: var(--blue); }
-.outq li.mine { background: var(--melon); color: var(--paper); border-bottom-color: var(--melon); }
-.outq li.mine .oq-n, .outq li.mine .oq-tag { color: var(--paper); }
-.learned strong { color: var(--blue-text); }
-.live-cover { color: var(--blue-text); }
-.totals { border-top-color: var(--blue); }
-.totals > div + div { border-left-color: var(--line); }
-
-/* online / offline switch */
-.net { border-color: var(--mute); }
-.net-track { background: var(--blue); }
-.net-knob { background: var(--ink); }
-.net.off { background: var(--melon); border-color: var(--melon); color: var(--paper); }
-.net.off .net-track { background: var(--paper); }
-.net.off .net-knob { background: var(--melon); }
-
-/* surfaces and details */
-.pair-code { border-color: var(--blue); color: var(--ink); background: var(--paper-2); }
-.info-mark { border-color: var(--mute); color: var(--mute); }
-.stale { border-color: var(--mute); color: var(--mute); }
-.suggestion.asked .qtext::before { color: var(--melon); }
-
 /* ---------- knowledge pack sync (D-027) ---------- */
 .sync { display: grid; gap: 6px; margin: -4px 0 16px; }
 .sync .line-btn { justify-self: start; font-size: 12px; padding: 7px 12px; }
@@ -639,21 +525,37 @@ body.offline .strand { opacity: .45; transition: opacity .6s var(--ease); }
 
 /* ---------- answers: asked pair first, the rest folded (C-021) ---------- */
 .fact { margin: 2px 0 12px; animation: row-in .6s var(--ease-out) both; }
-.fact.primary { padding-left: 12px; border-left: 3px solid var(--blue); }
+.fact.primary { padding-left: 12px; border-left: 3px solid var(--ink); }
 .fact-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 4px; }
 .fact-head strong { font-weight: 500; font-size: 15px; }
 .fact-tier { font-size: 11px; color: var(--mute); }
-.fact-tier.cloud::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); margin-right: 5px; vertical-align: 1px; }
+.fact-tier.cloud::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); margin-right: 5px; vertical-align: 1px; }
 .fact p { margin: 0 0 6px; font-size: 15px; }
 .fact-more p { font-size: 14px; color: var(--mute); }
 .more-btn, .also-btn {
-  border: 0; background: none; padding: 2px 0; font-size: 12px; color: var(--blue-text); cursor: pointer;
+  border: 0; background: none; padding: 2px 0; font-size: 12px; color: var(--ink); cursor: pointer;
   text-decoration: underline; text-underline-offset: 3px;
 }
 .also { margin: 6px 0 12px; padding-top: 8px; border-top: 1px solid var(--line); }
 .also-btn { text-align: left; color: var(--mute); text-decoration: none; }
-.also-btn::before { content: "+ "; color: var(--blue-text); }
+.also-btn::before { content: "+ "; color: var(--ink); }
 .also-btn.open::before { content: "− "; }
 .also-btn:hover { color: var(--ink); }
 .also-list { margin-top: 10px; }
 .para:last-of-type { color: var(--mute); }
+
+/* ---------- simpler (C-023): header is logo + switch; background traffic grouped ---------- */
+.bar, .bar.stuck { grid-template-columns: 1fr auto; }
+.cover-row {
+  display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 0; font-size: 13px;
+  border-top: 1px solid var(--ink);
+}
+.cover-row + .cover-row { border-top-color: var(--line); }
+.cover-row .mute { margin-left: auto; font: 12px var(--mono); }
+.cover-dot { width: 7px; height: 7px; border: 1px solid var(--ink); }
+#live-cover .cover-dot { animation: blink 1.6s steps(1) infinite; background: var(--ink); }
+.cover-row:not([hidden]) ~ .ledger { border-top-color: var(--line); }
+.learned { margin: -6px 0 12px; }
+.sync { margin: 0 0 14px; }
+.sync #sync-msg:empty { display: none; }
+.chips .suggestion { font-size: 14px; padding: 10px 0; }
