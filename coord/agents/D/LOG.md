@@ -53,3 +53,17 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** none
 - **Tests:** `make test` → exit 0 (34 passed); `make eval` → exit 0; dry run with B's file → all evals run
 - **Next:** extend `universe_v1.json` priors/clusters to B's 96 keys; re-run on real flags after G1
+
+### D-005 · 2026-11-08 13:57 · commit `f88da85` · PLAN v1.1
+
+- **Change:** (1) `eval/fixtures/universe_v1.json` v2: synthetic priors, domains and clusters for the 59 keys of B's `data/buckets/v1.json` that D lacked (`src: b-v1`), plus 5 new scenarios. D's stand-in partition still uses D's own 64 keys; it was rebuilt because the cardiac cluster grew. (2) Whether a question's keys can be sent is now computed from the loaded partition (`backends.sendable` / `expected_state`). Q09 is a normal cloud question. (3) E3 coverage is measured against the best answer, so hybrid is charged for keys outside the partition (`not_fully_answered`). (4) `LiveBackend` uses `kb.clear()` and `cloud.set_offline()` (B-008), falls back to `core.interfaces` for rules/graph like C's app, and `offline.py` has a live path. (5) Demo script: C-005 actions plus the calendar-privacy line; C-003 answer format.
+- **Why:** B-007/B-008 replies, C-003/C-005/C-007, and the D-004 coverage warning (60 of B's keys had no prior, which inflated the statistical attacker to 38%).
+- **Class:** Refines
+- **Plan:** advances P7 E1–E4, M11, S6; refines P7 E3 (coverage vs best answer)
+- **Refinements:** (1) A question's in-universe status is partition-dependent, never hard-coded. (2) Tests check D's P6 model; live runs are reported, not asserted.
+- **Contract impact:** none
+- **Affects:** B: per-bucket statistical-attacker numbers on v1 and three keys Alex's questions need → message sent. C: none (reply sent).
+- **Demo impact:** S6 line about calendar privacy; S4 read-aloud of the "For you" paragraph
+- **Tests:** `make test` → exit 0 (36 passed). Merged locally with `agent/B-privacy-router`: `make test` → exit 0 (331 passed), `make eval` → exit 0 on the live backend (mock rules/graph).
+- **Results on B's v1 (simulated wire, full priors):** fixed buckets 12% repeat-ask, 22% statistical (ceiling 23%); joint 71% in one session vs 29–30% with separate sessions + cover (blind guess 30%). Hybrid can't fully answer Q05 or Q14 because their keys aren't in v1.
+- **Next:** E3 live latency with and without `GV_DELAY_S` delays; model B-009's uniform cover buckets in E1; G4 run on the integrated build

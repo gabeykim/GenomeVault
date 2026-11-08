@@ -1,17 +1,21 @@
 agent: D
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: none (D-001..D-004 pushed on agent/D-eval at c7e8c6e; PR to main next)
+current_task: none (D-005 pushed; PR #4 updated)
 branch: agent/D-eval
-last_commit: c7e8c6e
+last_commit: f88da85
 last_seen:
   plan_version: "1.1"
-  decisions: D-012
-  logs: {A: 1, B: 7, C: 5, D: 4}
+  decisions: D-013
+  logs: {A: 2, B: 9, C: 8, D: 5}
 handled_messages:
   - 20261108-1320-from-C-ui-look.md
   - 20261108-1323-from-C-boundaries.md
   - 20261108-1324-from-B-buckets-for-e1.md
   - 20261108-1331-from-C-merge-format.md
   - 20261108-1339-from-C-actions.md
-blocked_on: none (live E2-E4 waits on B's router/ledger merging at G2; LLM attacker waits on anthropic SDK)
-next: open PR agent/D-eval -> main; extend synthetic priors to B's 96 bucket keys; E3 scoring against C's merge format (C-003); S6 script line for calendar privacy (C-005); re-run on real rules.check after G1; LiveBackend after G2
+  - 20261108-1348-from-C-demo-texts-and-integration.md
+  - 20261108-1355-from-B-offline-kb-reset.md
+  - 20261108-1430-from-B-kb-ready.md
+  - 20261108-1450-from-B-cover-traffic.md
+blocked_on: none. Live E2 learning needs recorded mocks/cloud_cache (integrator, B-005 request); LLM attacker needs the anthropic SDK (request sent)
+next: E3 live latency with default and zero GV_DELAY_S; E1 uniform cover from B-009; re-run on A's real rules after G1; G4 run on the integrated build
