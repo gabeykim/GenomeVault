@@ -131,7 +131,7 @@ def run(trials: int = 500, asks: int = 3, seed: int = 7, llm: bool = False, llm_
            "single_topic": run_single_topic(trials, asks, seed, part, u, priors),
            "joint": run_joint(trials, seed, part, u, priors),
            "bucket_design": bucket_design_report(part, u, priors),
-           "llm": run_llm(llm_trials, asks, seed, part, u) if llm else {"status": "not requested (pass --llm or EVAL_LLM=1)"}}
+           "llm": run_llm(llm_trials, asks, seed, part, u) if llm else {"status": "not requested; pass --llm or set EVAL_LLM=1"}}
     if write:
         RESULTS.mkdir(parents=True, exist_ok=True)
         CHARTS.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,28 @@
+{
+ "backend": "simulated",
+ "latency": "modelled",
+ "quality": "pending live judge (coverage reported instead)",
+ "modes": {
+  "local_only": {
+   "median_latency_ms": 925.0,
+   "cloud_calls": 0,
+   "cloud_tokens": 0,
+   "personal_fields_sent": 0,
+   "coverage": 0.6
+  },
+  "cloud_only": {
+   "median_latency_ms": 3000.0,
+   "cloud_calls": 20,
+   "cloud_tokens": 17000,
+   "personal_fields_sent": 420,
+   "coverage": 1.0
+  },
+  "hybrid": {
+   "median_latency_ms": 935.0,
+   "cloud_calls": 6,
+   "cloud_tokens": 15780,
+   "personal_fields_sent": 0,
+   "coverage": 1.0
+  }
+ }
+}

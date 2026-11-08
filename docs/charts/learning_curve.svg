@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 800" width="760" height="800"><g transform="translate(0,0)">
+<title>Cloud calls per question</title>
+<style>
+svg{--surface:#fcfcfb;--grid:#e6e5e1;--axis:#c3c2b7;--t1:#0b0b0b;--t2:#52514e;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--ref:#52514e}
+@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--grid:#2e2e2c;--axis:#52514e;--t1:#f0efec;--t2:#c3c2b7;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--ref:#c3c2b7}}
+text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:var(--t2);font-size:12px}
+.title{fill:var(--t1);font-size:16px;font-weight:600}.sub{font-size:12px}.val{fill:var(--t1);font-size:10px;letter-spacing:-0.3px}
+</style>
+<rect width="760" height="400" fill="var(--surface)"/>
+<text class="title" x="64" y="28">Cloud calls per question</text>
+<text class="sub" x="64" y="48">20 scripted questions in order, empty knowledge base at start (simulated)</text>
+<line x1="64" x2="736" y1="336.0" y2="336.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="56" y="340.0" text-anchor="end">0</text>
+<line x1="64" x2="736" y1="270.0" y2="270.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="274.0" text-anchor="end">1</text>
+<line x1="64" x2="736" y1="204.0" y2="204.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="208.0" text-anchor="end">2</text>
+<line x1="64" x2="736" y1="138.0" y2="138.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="142.0" text-anchor="end">3</text>
+<line x1="64" x2="736" y1="72.0" y2="72.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="76.0" text-anchor="end">4</text>
+<path d="M69.0,336.0V274.0Q69.0,270.0 73.0,270.0H88.6Q92.6,270.0 92.6,274.0V336.0Z" fill="var(--s1)"><title>Q01 · Buckets sent: 1</title></path>
+<text x="80.8" y="354" text-anchor="middle">Q01</text>
+<path d="" fill="var(--s1)"><title>Q02 · Buckets sent: 0</title></path>
+<text x="114.4" y="354" text-anchor="middle">Q02</text>
+<path d="" fill="var(--s1)"><title>Q03 · Buckets sent: 0</title></path>
+<text x="148.0" y="354" text-anchor="middle">Q03</text>
+<path d="M169.8,336.0V274.0Q169.8,270.0 173.8,270.0H189.4Q193.4,270.0 193.4,274.0V336.0Z" fill="var(--s1)"><title>Q04 · Buckets sent: 1</title></path>
+<text x="181.6" y="354" text-anchor="middle">Q04</text>
+<path d="" fill="var(--s1)"><title>Q05 · Buckets sent: 0</title></path>
+<text x="215.2" y="354" text-anchor="middle">Q05</text>
+<path d="M237.0,336.0V274.0Q237.0,270.0 241.0,270.0H256.6Q260.6,270.0 260.6,274.0V336.0Z" fill="var(--s1)"><title>Q06 · Buckets sent: 1</title></path>
+<text x="248.8" y="354" text-anchor="middle">Q06</text>
+<path d="M270.6,336.0V274.0Q270.6,270.0 274.6,270.0H290.2Q294.2,270.0 294.2,274.0V336.0Z" fill="var(--s1)"><title>Q07 · Buckets sent: 1</title></path>
+<text x="282.4" y="354" text-anchor="middle">Q07</text>
+<path d="" fill="var(--s1)"><title>Q08 · Buckets sent: 0</title></path>
+<text x="316.0" y="354" text-anchor="middle">Q08</text>
+<path d="" fill="var(--s1)"><title>Q09 · Buckets sent: 0</title></path>
+<text x="349.6" y="354" text-anchor="middle">Q09</text>
+<path d="M371.4,336.0V274.0Q371.4,270.0 375.4,270.0H391.0Q395.0,270.0 395.0,274.0V336.0Z" fill="var(--s1)"><title>Q10 · Buckets sent: 1</title></path>
+<text x="383.2" y="354" text-anchor="middle">Q10</text>
+<path d="" fill="var(--s1)"><title>Q11 · Buckets sent: 0</title></path>
+<text x="416.8" y="354" text-anchor="middle">Q11</text>
+<path d="" fill="var(--s1)"><title>Q12 · Buckets sent: 0</title></path>
+<text x="450.4" y="354" text-anchor="middle">Q12</text>
+<path d="" fill="var(--s1)"><title>Q13 · Buckets sent: 0</title></path>
+<text x="484.0" y="354" text-anchor="middle">Q13</text>
+<path d="M505.8,336.0V274.0Q505.8,270.0 509.8,270.0H525.4Q529.4,270.0 529.4,274.0V336.0Z" fill="var(--s1)"><title>Q14 · Buckets sent: 1</title></path>
+<text x="517.6" y="354" text-anchor="middle">Q14</text>
+<path d="" fill="var(--s1)"><title>Q15 · Buckets sent: 0</title></path>
+<text x="551.2" y="354" text-anchor="middle">Q15</text>
+<path d="" fill="var(--s1)"><title>Q16 · Buckets sent: 0</title></path>
+<text x="584.8" y="354" text-anchor="middle">Q16</text>
+<path d="" fill="var(--s1)"><title>Q17 · Buckets sent: 0</title></path>
+<text x="618.4" y="354" text-anchor="middle">Q17</text>
+<path d="" fill="var(--s1)"><title>Q18 · Buckets sent: 0</title></path>
+<text x="652.0" y="354" text-anchor="middle">Q18</text>
+<path d="" fill="var(--s1)"><title>Q19 · Buckets sent: 0</title></path>
+<text x="685.6" y="354" text-anchor="middle">Q19</text>
+<path d="" fill="var(--s1)"><title>Q20 · Buckets sent: 0</title></path>
+<text x="719.2" y="354" text-anchor="middle">Q20</text>
+</g><g transform="translate(0,400)">
+<title>Share answered on device so far</title>
+<style>
+svg{--surface:#fcfcfb;--grid:#e6e5e1;--axis:#c3c2b7;--t1:#0b0b0b;--t2:#52514e;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--ref:#52514e}
+@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--grid:#2e2e2c;--axis:#52514e;--t1:#f0efec;--t2:#c3c2b7;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--ref:#c3c2b7}}
+text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:var(--t2);font-size:12px}
+.title{fill:var(--t1);font-size:16px;font-weight:600}.sub{font-size:12px}.val{fill:var(--t1);font-size:10px;letter-spacing:-0.3px}
+</style>
+<rect width="760" height="400" fill="var(--surface)"/>
+<text class="title" x="64" y="28">Share answered on device so far</text>
+<text class="sub" x="64" y="48">Cumulative; rules, knowledge-base hits and the no-data path send nothing</text>
+<line x1="64" x2="736" y1="336.0" y2="336.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="56" y="340.0" text-anchor="end">0%</text>
+<line x1="64" x2="736" y1="270.0" y2="270.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="274.0" text-anchor="end">25%</text>
+<line x1="64" x2="736" y1="204.0" y2="204.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="208.0" text-anchor="end">50%</text>
+<line x1="64" x2="736" y1="138.0" y2="138.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="142.0" text-anchor="end">75%</text>
+<line x1="64" x2="736" y1="72.0" y2="72.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="76.0" text-anchor="end">100%</text>
+<text x="76.0" y="354" text-anchor="middle">Q01</text>
+<text x="144.2" y="354" text-anchor="middle">Q03</text>
+<text x="212.4" y="354" text-anchor="middle">Q05</text>
+<text x="280.6" y="354" text-anchor="middle">Q07</text>
+<text x="348.8" y="354" text-anchor="middle">Q09</text>
+<text x="417.1" y="354" text-anchor="middle">Q11</text>
+<text x="485.3" y="354" text-anchor="middle">Q13</text>
+<text x="553.5" y="354" text-anchor="middle">Q15</text>
+<text x="621.7" y="354" text-anchor="middle">Q17</text>
+<text x="689.9" y="354" text-anchor="middle">Q19</text>
+<text x="724.0" y="354" text-anchor="middle">Q20</text>
+<path d="M76.0,336.0L110.1,204.0L144.2,159.9L178.3,204.0L212.4,177.6L246.5,204.0L280.6,222.7L314.7,204.0L348.8,189.2L382.9,204.0L417.1,192.1L451.2,182.1L485.3,173.6L519.4,185.3L553.5,177.6L587.6,171.0L621.7,165.2L655.8,159.9L689.9,155.4L724.0,151.2" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="76.0" cy="336.0" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q01 · Answered locally: 0%</title></circle>
+<circle cx="110.1" cy="204.0" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q02 · Answered locally: 50%</title></circle>
+<circle cx="144.2" cy="159.9" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q03 · Answered locally: 67%</title></circle>
+<circle cx="178.3" cy="204.0" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q04 · Answered locally: 50%</title></circle>
+<circle cx="212.4" cy="177.6" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q05 · Answered locally: 60%</title></circle>
+<circle cx="246.5" cy="204.0" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q06 · Answered locally: 50%</title></circle>
+<circle cx="280.6" cy="222.7" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q07 · Answered locally: 43%</title></circle>
+<circle cx="314.7" cy="204.0" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q08 · Answered locally: 50%</title></circle>
+<circle cx="348.8" cy="189.2" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q09 · Answered locally: 56%</title></circle>
+<circle cx="382.9" cy="204.0" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q10 · Answered locally: 50%</title></circle>
+<circle cx="417.1" cy="192.1" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q11 · Answered locally: 55%</title></circle>
+<circle cx="451.2" cy="182.1" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q12 · Answered locally: 58%</title></circle>
+<circle cx="485.3" cy="173.6" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q13 · Answered locally: 62%</title></circle>
+<circle cx="519.4" cy="185.3" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q14 · Answered locally: 57%</title></circle>
+<circle cx="553.5" cy="177.6" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q15 · Answered locally: 60%</title></circle>
+<circle cx="587.6" cy="171.0" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q16 · Answered locally: 62%</title></circle>
+<circle cx="621.7" cy="165.2" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q17 · Answered locally: 65%</title></circle>
+<circle cx="655.8" cy="159.9" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q18 · Answered locally: 67%</title></circle>
+<circle cx="689.9" cy="155.4" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q19 · Answered locally: 68%</title></circle>
+<circle cx="724.0" cy="151.2" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"><title>Q20 · Answered locally: 70%</title></circle>
+<text class="val" x="724.0" y="141.2" text-anchor="end">70%</text>
+</g></svg>

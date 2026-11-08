@@ -127,6 +127,6 @@
   ]
  },
  "llm": {
-  "status": "not requested (pass --llm or EVAL_LLM=1)"
+  "status": "not requested; pass --llm or set EVAL_LLM=1"
  }
 }

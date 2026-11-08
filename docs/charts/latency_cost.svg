@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1200" width="760" height="1200"><g transform="translate(0,0)">
+<title>Cloud calls for the 20 questions</title>
+<style>
+svg{--surface:#fcfcfb;--grid:#e6e5e1;--axis:#c3c2b7;--t1:#0b0b0b;--t2:#52514e;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--ref:#52514e}
+@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--grid:#2e2e2c;--axis:#52514e;--t1:#f0efec;--t2:#c3c2b7;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--ref:#c3c2b7}}
+text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:var(--t2);font-size:12px}
+.title{fill:var(--t1);font-size:16px;font-weight:600}.sub{font-size:12px}.val{fill:var(--t1);font-size:10px;letter-spacing:-0.3px}
+</style>
+<rect width="760" height="400" fill="var(--surface)"/>
+<text class="title" x="64" y="28">Cloud calls for the 20 questions</text>
+<text class="sub" x="64" y="48">Fewer is cheaper and leaks less (simulated)</text>
+<line x1="64" x2="736" y1="336.0" y2="336.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="56" y="340.0" text-anchor="end">0</text>
+<line x1="64" x2="736" y1="270.0" y2="270.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="274.0" text-anchor="end">5.8</text>
+<line x1="64" x2="736" y1="204.0" y2="204.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="208.0" text-anchor="end">12</text>
+<line x1="64" x2="736" y1="138.0" y2="138.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="142.0" text-anchor="end">17</text>
+<line x1="64" x2="736" y1="72.0" y2="72.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="76.0" text-anchor="end">23</text>
+<path d="" fill="var(--s1)"><title>Local only · Cloud calls: 0</title></path>
+<text class="val" x="176.0" y="330.0" text-anchor="middle">0</text>
+<text x="176.0" y="354" text-anchor="middle">Local only</text>
+<path d="M388.0,336.0V110.4Q388.0,106.4 392.0,106.4H408.0Q412.0,106.4 412.0,110.4V336.0Z" fill="var(--s1)"><title>Cloud only
+(naive) · Cloud calls: 20</title></path>
+<text class="val" x="400.0" y="100.4" text-anchor="middle">20</text>
+<text x="400.0" y="354" text-anchor="middle">Cloud only</text>
+<text x="400.0" y="368" text-anchor="middle">(naive)</text>
+<path d="M612.0,336.0V271.1Q612.0,267.1 616.0,267.1H632.0Q636.0,267.1 636.0,271.1V336.0Z" fill="var(--s1)"><title>Hybrid
+(GenomeVault) · Cloud calls: 6</title></path>
+<text class="val" x="624.0" y="261.1" text-anchor="middle">6</text>
+<text x="624.0" y="354" text-anchor="middle">Hybrid</text>
+<text x="624.0" y="368" text-anchor="middle">(GenomeVault)</text>
+</g><g transform="translate(0,400)">
+<title>Personal fields sent to the cloud</title>
+<style>
+svg{--surface:#fcfcfb;--grid:#e6e5e1;--axis:#c3c2b7;--t1:#0b0b0b;--t2:#52514e;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--ref:#52514e}
+@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--grid:#2e2e2c;--axis:#52514e;--t1:#f0efec;--t2:#c3c2b7;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--ref:#c3c2b7}}
+text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:var(--t2);font-size:12px}
+.title{fill:var(--t1);font-size:16px;font-weight:600}.sub{font-size:12px}.val{fill:var(--t1);font-size:10px;letter-spacing:-0.3px}
+</style>
+<rect width="760" height="400" fill="var(--surface)"/>
+<text class="title" x="64" y="28">Personal fields sent to the cloud</text>
+<text class="sub" x="64" y="48">Genotypes, labs, meds, conditions, age (simulated)</text>
+<line x1="64" x2="736" y1="336.0" y2="336.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="56" y="340.0" text-anchor="end">0</text>
+<line x1="64" x2="736" y1="270.0" y2="270.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="274.0" text-anchor="end">121</text>
+<line x1="64" x2="736" y1="204.0" y2="204.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="208.0" text-anchor="end">241</text>
+<line x1="64" x2="736" y1="138.0" y2="138.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="142.0" text-anchor="end">362</text>
+<line x1="64" x2="736" y1="72.0" y2="72.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="76.0" text-anchor="end">483</text>
+<path d="" fill="var(--s1)"><title>Local only · Personal fields: 0</title></path>
+<text class="val" x="176.0" y="330.0" text-anchor="middle">0</text>
+<text x="176.0" y="354" text-anchor="middle">Local only</text>
+<path d="M388.0,336.0V110.4Q388.0,106.4 392.0,106.4H408.0Q412.0,106.4 412.0,110.4V336.0Z" fill="var(--s1)"><title>Cloud only
+(naive) · Personal fields: 420</title></path>
+<text class="val" x="400.0" y="100.4" text-anchor="middle">420</text>
+<text x="400.0" y="354" text-anchor="middle">Cloud only</text>
+<text x="400.0" y="368" text-anchor="middle">(naive)</text>
+<path d="" fill="var(--s1)"><title>Hybrid
+(GenomeVault) · Personal fields: 0</title></path>
+<text class="val" x="624.0" y="330.0" text-anchor="middle">0</text>
+<text x="624.0" y="354" text-anchor="middle">Hybrid</text>
+<text x="624.0" y="368" text-anchor="middle">(GenomeVault)</text>
+</g><g transform="translate(0,800)">
+<title>Questions reaching their expected answer</title>
+<style>
+svg{--surface:#fcfcfb;--grid:#e6e5e1;--axis:#c3c2b7;--t1:#0b0b0b;--t2:#52514e;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--ref:#52514e}
+@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--grid:#2e2e2c;--axis:#52514e;--t1:#f0efec;--t2:#c3c2b7;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--ref:#c3c2b7}}
+text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:var(--t2);font-size:12px}
+.title{fill:var(--t1);font-size:16px;font-weight:600}.sub{font-size:12px}.val{fill:var(--t1);font-size:10px;letter-spacing:-0.3px}
+</style>
+<rect width="760" height="400" fill="var(--surface)"/>
+<text class="title" x="64" y="28">Questions reaching their expected answer</text>
+<text class="sub" x="64" y="48">Coverage, not graded quality (quality judge runs on the live build)</text>
+<line x1="64" x2="736" y1="336.0" y2="336.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="56" y="340.0" text-anchor="end">0%</text>
+<line x1="64" x2="736" y1="270.0" y2="270.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="274.0" text-anchor="end">25%</text>
+<line x1="64" x2="736" y1="204.0" y2="204.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="208.0" text-anchor="end">50%</text>
+<line x1="64" x2="736" y1="138.0" y2="138.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="142.0" text-anchor="end">75%</text>
+<line x1="64" x2="736" y1="72.0" y2="72.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="76.0" text-anchor="end">100%</text>
+<path d="M164.0,336.0V181.6Q164.0,177.6 168.0,177.6H184.0Q188.0,177.6 188.0,181.6V336.0Z" fill="var(--s1)"><title>Local only · Coverage: 60%</title></path>
+<text class="val" x="176.0" y="171.6" text-anchor="middle">60%</text>
+<text x="176.0" y="354" text-anchor="middle">Local only</text>
+<path d="M388.0,336.0V76.0Q388.0,72.0 392.0,72.0H408.0Q412.0,72.0 412.0,76.0V336.0Z" fill="var(--s1)"><title>Cloud only
+(naive) · Coverage: 100%</title></path>
+<text class="val" x="400.0" y="66.0" text-anchor="middle">100%</text>
+<text x="400.0" y="354" text-anchor="middle">Cloud only</text>
+<text x="400.0" y="368" text-anchor="middle">(naive)</text>
+<path d="M612.0,336.0V76.0Q612.0,72.0 616.0,72.0H632.0Q636.0,72.0 636.0,76.0V336.0Z" fill="var(--s1)"><title>Hybrid
+(GenomeVault) · Coverage: 100%</title></path>
+<text class="val" x="624.0" y="66.0" text-anchor="middle">100%</text>
+<text x="624.0" y="354" text-anchor="middle">Hybrid</text>
+<text x="624.0" y="368" text-anchor="middle">(GenomeVault)</text>
+</g></svg>
