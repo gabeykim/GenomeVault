@@ -131,3 +131,5 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S6 offline beat can run fully warm: sync, go offline, and the ibuprofen X5 question is a KB hit with 0 bytes. No change if unused.
 - **Tests:** `make test` → exit 0, 307 passed; `check_ownership.py` → ownership ok; `scripts/check_network.sh` → network ok
 - **Next:** rebalance buckets by frequency if D sends per-bucket numbers; switch to real A code after G1; otherwise support G2 merge fixes.
+
+- **Correction to B-010:** the partition has 12 buckets, not 22. A live `sync_pack()` is 96 requests, about 2 minutes with the P6.4 delays (C/D messages said about 3 minutes, which is an overestimate).
