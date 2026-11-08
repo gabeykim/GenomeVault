@@ -9,16 +9,27 @@ Text sources, all on this machine (I2: no network, no new Python dependency):
 1. **Embedded label text.** A PNG text chunk (`tEXt`/`zTXt`/`iTXt`) with keyword `gv:label`, or a
    JPEG comment segment that starts with `gv:label`. The bundled demo photos and the tests use this,
    so S2 runs the same way with no OCR engine installed (I8). `demo_png(text)` builds such an image.
-2. **Tesseract OCR**, only if the `tesseract` program is on PATH. It runs as a local subprocess on the
+2. **Local vision model** (D-029), only if `local_llm.VLM_MODEL` is set (`LOCAL_VLM_MODEL`, e.g.
+   `qwen2.5vl:7b` under Ollama on localhost, I2). It is asked for `{brand_name, ingredient,
+   strength_mg}` as JSON. The model only reads: each name still goes through the exact-key
+   `normalize` table, so an unknown or misspelled name gives `[]` (I4, never a guess). If the brand
+   and the ingredient both resolve but name different drugs, the answer is `[]` too. If the model is
+   not configured, not running, or answers with something that is not that JSON, this source is
+   skipped and the next one runs.
+3. **Tesseract OCR**, only if the `tesseract` program is on PATH. It runs as a local subprocess on the
    image bytes, with a timeout.
 
-`GV_OCR` picks the sources: `auto` (default: 1 then 2), `embedded`, `tesseract`, or `off`.
+`GV_OCR` picks the sources: `auto` (default: 1, then 2, then 3), `embedded`, `vlm`, `tesseract`, or
+`off`. In `auto`, the first source that reads anything decides; later ones don't run.
 
-The label text (which can include a name, Rx number or pharmacy) never leaves this module: only the
-`Drug` list is returned, and nothing is logged or stored.
+The photo goes only to the localhost model (I2). The label text (which can include a name, Rx number
+or pharmacy) never leaves this module: only the `Drug` list is returned, and nothing is logged or
+stored.
 """
 from __future__ import annotations
 
+import base64
+import json
 import os
 import shutil
 import struct
@@ -35,13 +46,35 @@ _PNG_SIG = b"\x89PNG\r\n\x1a\n"
 _TEXT_CAP = 20_000                     # characters of label text passed to normalize
 
 
+_VLM_PROMPT = (
+    "Read this medication label. Reply with JSON only, exactly these keys: "
+    '{"brand_name": string or null, "ingredient": string or null, "strength_mg": number or null}. '
+    "Copy names as printed on the label. Use null for anything not printed. Do not guess."
+)
+_VLM_FIELD_CAP = 200                   # characters kept from each field the model returns
+_STRENGTH_OK = set("0123456789./ ,mgcuµ")
+
+
 def from_image(data: bytes, mime: str) -> list[Drug]:
     """Label photo -> ingredients. `[]` if the image is unreadable or names no known drug."""
     try:
-        text = read_text(data, mime)
+        if not _acceptable(data, mime):
+            return []
+        mode = _mode()
+        if mode in ("auto", "embedded"):
+            text = embedded_text(data, sniff(data))
+            if text or mode == "embedded":
+                return to_ingredients(text[:_TEXT_CAP]) if text else []
+        if mode in ("auto", "vlm"):
+            drugs = vlm_drugs(data)
+            if drugs is not None or mode == "vlm":
+                return drugs or []
+        if mode in ("auto", "tesseract"):
+            text = tesseract_text(data)
+            return to_ingredients(text[:_TEXT_CAP]) if text else []
+        return []
     except Exception:                  # a bad upload must never break the phone page
         return []
-    return to_ingredients(text) if text else []
 
 
 def from_text(text: str) -> list[Drug]:
@@ -50,19 +83,83 @@ def from_text(text: str) -> list[Drug]:
 
 
 def read_text(data: bytes, mime: str) -> str:
-    """Label text from the image, or "" if none can be read. Stays local (see module doc)."""
-    kind = sniff(data)
-    if not kind or not str(mime or "").lower().startswith("image/") or len(data) > MAX_BYTES:
+    """Label text from the text sources (embedded, tesseract; the vision model returns fields, not
+    text), or "" if none can be read. Stays local (see module doc)."""
+    if not _acceptable(data, mime):
         return ""
-    mode = os.environ.get("GV_OCR", "auto").strip().lower()
-    if mode == "off":
-        return ""
+    kind, mode = sniff(data), _mode()
     text = ""
     if mode in ("auto", "embedded"):
         text = embedded_text(data, kind)
     if not text and mode in ("auto", "tesseract"):
         text = tesseract_text(data)
     return text[:_TEXT_CAP]
+
+
+def _acceptable(data: bytes, mime: str) -> bool:
+    return bool(sniff(data)) and str(mime or "").lower().startswith("image/") and len(data) <= MAX_BYTES
+
+
+def _mode() -> str:
+    return os.environ.get("GV_OCR", "auto").strip().lower()
+
+
+def vlm_drugs(data: bytes) -> list[Drug] | None:
+    """Drugs read by the local vision model (D-029). `None` if the model is unavailable or its answer
+    is not the expected JSON (so the next source runs); `[]` if it read the label but no name is in
+    the table, or the brand and ingredient disagree."""
+    try:
+        from . import local_llm
+        model = getattr(local_llm, "VLM_MODEL", "") or ""
+        if not model or model == "set-me":
+            return None
+        raw = local_llm.generate(_VLM_PROMPT, images=[base64.b64encode(bytes(data)).decode("ascii")],
+                                 format="json", model=model)
+        fields = json.loads(raw)
+    except Exception:                  # not configured, not running, old client, bad JSON
+        return None
+    if not isinstance(fields, dict):
+        return None
+    brand, ingredient = _field(fields.get("brand_name")), _field(fields.get("ingredient"))
+    if not brand and not ingredient:
+        return None
+    return drugs_from_fields(brand, ingredient, fields.get("strength_mg"))
+
+
+def drugs_from_fields(brand: str, ingredient: str, strength=None) -> list[Drug]:
+    """{brand_name, ingredient, strength_mg} -> Drugs through the exact-key table (I4).
+
+    Each name is normalized on its own. If both resolve, one ingredient set must contain the other
+    (a model that reads "Zestoretic" but only "lisinopril" keeps both of Zestoretic's); otherwise
+    they name different drugs and the answer is `[]`. The strength is applied by `normalize`'s own
+    dose parser, so a combination strength like "20/12.5" splits the same way typed text does."""
+    from_brand = {d.ingredient for d in to_ingredients(brand)} if brand else set()
+    from_ing = {d.ingredient for d in to_ingredients(ingredient)} if ingredient else set()
+    if from_brand and from_ing and not (from_brand <= from_ing or from_ing <= from_brand):
+        return []
+    name = brand if len(from_brand) >= len(from_ing) else ingredient
+    if not name or not (from_brand | from_ing):
+        return []
+    dose = _strength(strength)
+    drugs = to_ingredients(f"{name} {dose}" if dose else name)
+    return drugs if {d.ingredient for d in drugs} == (from_brand | from_ing) else []
+
+
+def _field(value) -> str:
+    return value.strip()[:_VLM_FIELD_CAP] if isinstance(value, str) else ""
+
+
+def _strength(value) -> str:
+    """The model's strength as dose text for `normalize`, or "" if it isn't a plain strength."""
+    if isinstance(value, bool) or value is None:
+        return ""
+    if isinstance(value, (int, float)):
+        return f"{value:g} mg" if 0 < value < 100_000 else ""
+    if isinstance(value, str):
+        v = value.strip().lower()[:30]
+        if v and v[0].isdigit() and set(v) <= _STRENGTH_OK:
+            return v if any(c.isalpha() for c in v) else f"{v} mg"
+    return ""
 
 
 def sniff(data: bytes) -> str:

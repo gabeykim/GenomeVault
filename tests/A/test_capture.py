@@ -20,8 +20,11 @@ QTY: 30   REFILLS: 2"""
 
 @pytest.fixture(autouse=True)
 def _no_real_ocr(monkeypatch):
-    """Tests never depend on a tesseract install; the tesseract tests fake it explicitly."""
+    """Tests never depend on a tesseract install or a local vision model; the tesseract and VLM tests
+    fake them explicitly."""
+    from core import local_llm
     monkeypatch.setattr(capture.shutil, "which", lambda name: None)
+    monkeypatch.setattr(local_llm, "VLM_MODEL", "", raising=False)
     monkeypatch.delenv("GV_OCR", raising=False)
 
 
@@ -205,6 +208,9 @@ def test_no_tesseract_and_no_embedded_text_gives_empty():
 
 
 def test_capture_does_no_network_io():
+    """I2: capture never does network I/O itself and never reaches the cloud; the only model it may
+    call is the localhost-only `local_llm` (D-029)."""
     src = open(capture.__file__).read()
-    for mod in ("httpx", "requests", "socket", "urllib", "aiohttp", "http.client", "local_llm", "cloud"):
+    assert "from . import local_llm" in src
+    for mod in ("httpx", "requests", "socket", "urllib", "aiohttp", "http.client", "cloud"):
         assert f"import {mod}" not in src and f"from {mod}" not in src and f".{mod} import" not in src
