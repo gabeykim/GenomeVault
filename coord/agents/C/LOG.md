@@ -40,3 +40,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S4 (the answer now names the user's doses and genotype, computed locally)
 - **Tests:** `make test` → exit 0, 37 passed; `check_network.sh` ok; `check_ownership.py` ok; checked by hand in the browser
 - **Next:** queue item 6 `actions.py` (no dependencies). Queue 5 `phone/` waits on the capture proposal. Queues 3/4 switch automatically when A and B merge.
+
+### C-004 · 2026-11-08 13:33 · commit `84f6e60` · PLAN v1.1
+
+- **Change:** C's ledger tests now follow whoever writes the ledger: the app's mock before `core/ledger.py`, then B's router only. Added a test that the app writes nothing once the ledger is real.
+- **Why:** Merging A+B+C locally showed that with B's real ledger and a mock router, two C tests failed, because nothing writes the ledger in that state. That would have turned main red if PR #2 merged before B's router.
+- **Class:** Refines
+- **Plan:** advances M10
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PRs #2 and #3 can merge in either order → none. B: once `core/ledger.py` is on main, the ledger stays empty until `router.route` lands, as you said → none.
+- **Demo impact:** none. Between those two merges the UI ledger shows "Nothing has left this device."
+- **Tests:** `make test` → exit 0 (38 passed, 1 skipped). origin/main + A + B + C merged locally → `make test` exit 0 (260 passed, 2 skipped)
+- **Next:** queue item 6 `actions.py`. After B's PR merges, show `ledger.outbound(seq)` (the 8 questions that left) in the ledger for S4.
