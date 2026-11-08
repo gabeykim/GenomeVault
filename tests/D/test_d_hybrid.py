@@ -84,3 +84,10 @@ def test_unbacked_known_answer_fails_the_gate():          # I4: a missing key is
     rows = gate.check(redteam.run(trials=100, seed=2, write=False), learning_curve.run(write=False),
                       latency_cost.run(write=False, live=False), off, wording.run(write=False))
     assert next(r for r in rows if r["id"] == "I4")["status"] == "FAIL"
+
+
+def test_curated_note_answers_q08_offline():               # A-008: EX-001 is a curated, exact-key local fact
+    qs = {q["id"]: q for q in load_queries()}
+    be = SimBackend(load_partition(), offline=True)
+    r = be.ask(qs["Q08"])
+    assert r.effective_state == "known" and not r.unbacked and r.cloud_calls == 0

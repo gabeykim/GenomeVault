@@ -8,7 +8,7 @@ text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;f
 </style>
 <rect width="760" height="400" fill="var(--surface)"/>
 <text class="title" x="64" y="28">What still works with Wi-Fi off?</text>
-<text class="sub" x="64" y="48">Share of questions answered with content: cold 10/20, warm 17/20 (rest get an honest &#x27;no data&#x27;)</text>
+<text class="sub" x="64" y="48">Share of questions answered with content: cold 11/20, warm 17/20 (rest get an honest &#x27;no data&#x27;)</text>
 <line x1="64" x2="736" y1="336.0" y2="336.0" stroke="var(--axis)" stroke-width="1"/>
 <text x="56" y="340.0" text-anchor="end">0%</text>
 <line x1="64" x2="736" y1="274.0" y2="274.0" stroke="var(--grid)" stroke-width="1"/>
@@ -24,8 +24,8 @@ text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;f
 <path d="M132.2,336.0V141.6Q132.2,137.6 136.2,137.6H152.2Q156.2,137.6 156.2,141.6V336.0Z" fill="var(--s2)"><title>Gene–drug · Warm device (after one session): 80%</title></path>
 <text class="val" x="144.2" y="131.6" text-anchor="middle">80%</text>
 <text x="131.2" y="354" text-anchor="middle">Gene–drug</text>
-<path d="M240.6,336.0V290.4Q240.6,286.4 244.6,286.4H260.6Q264.6,286.4 264.6,290.4V336.0Z" fill="var(--s1)"><title>Drug–drug · Cold device (empty KB): 20%</title></path>
-<text class="val" x="252.6" y="280.4" text-anchor="middle">20%</text>
+<path d="M240.6,336.0V240.8Q240.6,236.8 244.6,236.8H260.6Q264.6,236.8 264.6,240.8V336.0Z" fill="var(--s1)"><title>Drug–drug · Cold device (empty KB): 40%</title></path>
+<text class="val" x="252.6" y="230.8" text-anchor="middle">40%</text>
 <path d="M266.6,336.0V141.6Q266.6,137.6 270.6,137.6H286.6Q290.6,137.6 290.6,141.6V336.0Z" fill="var(--s2)"><title>Drug–drug · Warm device (after one session): 80%</title></path>
 <text class="val" x="278.6" y="131.6" text-anchor="middle">80%</text>
 <text x="265.6" y="354" text-anchor="middle">Drug–drug</text>

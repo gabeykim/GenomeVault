@@ -73,6 +73,7 @@ def answering_flags(q: dict) -> int:
     """How many expected local flags answer q itself (key among q['keys']); authored class rules answer their own keys."""
     keys = set(q["keys"])
     n = sum(len(FLAG_KEYS.get(f, set()) & keys) for f in q["expected_flags"])
+    n += len(q.get("local_notes", []))                  # A's curated expected-combination notes (D-021, EX-001)
     return n + (len(keys) if q.get("expected_engines") else 0)
 
 
@@ -161,12 +162,16 @@ class LiveBackend:
         self.router, self.ledger = router, ledger
         self.mocked = []
         self.check_all = None
+        self.notes = []
         try:
             from core import rules
             self.check = rules.check
             self.check_all = getattr(rules, "check_all", None)
+            notes_fn = getattr(rules, "expected_notes_all", None)
+            self._notes_fn = notes_fn
         except ImportError:
             self.check = interfaces.check
+            self._notes_fn = None
             self.mocked.append("rules")
         try:
             from core import graph
@@ -174,6 +179,8 @@ class LiveBackend:
         except ImportError:
             self.profile = interfaces.load_profile()
             self.mocked.append("graph")
+        if self._notes_fn:
+            self.notes = self._notes_fn(self.profile)          # curated notes that answer a pair locally (EX-001)
         self.name = "live" + (f" (mock {', '.join(self.mocked)})" if self.mocked else "")
         self.seq = max((e.seq for e in ledger.feed(0)), default=0)
 
@@ -220,4 +227,6 @@ class LiveBackend:
         return Result(q["id"], ans.state, cloud_calls=sum(e.kind == "bucket" for e in entries),
                       kb_hits=sum(e.kind == "kb_hit" for e in entries), bytes_out=sum(e.bytes_out for e in entries),
                       latency_ms=ms, personal_fields_sent=sum(e.personal_fields_sent for e in entries),
-                      local_flags=sum(f.key in set(q["keys"]) for f in flags), facts=len(ans.facts))
+                      local_flags=sum(f.key in set(q["keys"]) for f in flags)
+                      + sum(n["key"] in set(q["keys"]) for n in getattr(self, "notes", [])),
+                      facts=len(ans.facts))

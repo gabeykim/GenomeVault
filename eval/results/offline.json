@@ -1,11 +1,11 @@
 {
  "backend": "simulated",
- "cold_answered": 10,
+ "cold_answered": 11,
  "warm_answered": 17,
  "n": 20,
  "cold_by_category": {
   "gene_drug": 2,
-  "drug_drug": 1,
+  "drug_drug": 2,
   "drug_lab": 2,
   "otc": 2,
   "open_ended": 3
@@ -100,11 +100,11 @@
   },
   "Q08": {
    "category": "drug_drug",
-   "state": "no_data",
-   "router_state": "no_data",
-   "with_content": false,
+   "state": "known",
+   "router_state": "known",
+   "with_content": true,
    "unbacked": false,
-   "local_flags": 0,
+   "local_flags": 1,
    "facts": 0,
    "cloud_calls": 0
   },
@@ -306,7 +306,7 @@
    "router_state": "known",
    "with_content": true,
    "unbacked": false,
-   "local_flags": 0,
+   "local_flags": 1,
    "facts": 1,
    "cloud_calls": 0
   },
