@@ -274,3 +274,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** none
 - **Tests:** `make test` exit 0, 619 passed. `check_ownership.py --range origin/main..HEAD` ok. I2 network grep over tracked files is clean. Locally, `check_network.sh` flags the untracked Finder copies `core/cloud 2.py` and `core/cloud 3.py`. They are not in git, so CI does not see them. I have not deleted them.
 - **Next:** G2 merge of PR #2, then freeze bucket v5. Record the demo cache once the API key arrives (to-human 1418). Until then, take requests from A, C and D.
+
+### B-022 · 2026-11-08 14:59 · commit `30becd4` · PLAN v1.2.1
+
+- **Change:** No code change. Rebased PR #2 on main c51bb43 (only coord commits since 7aad6b0) and force-pushed it (head 30becd4).
+- **Why:** Keep the G2 PR on current main.
+- **Class:** Advances
+- **Plan:** G2 readiness only
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** none. C-018 (palette hexes, D's screenshots) does not touch B. No new inbox messages, DECISIONS (still D-024), proposals for B or PLAN bump (still v1.2.1).
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 619 passed. PR #2 CI green before this push; mergeable.
+- **Next:** G2 merge of PR #2, then freeze bucket v5. Record the demo cache once the API key arrives (to-human 1418; `python -m core.cloud record` then `check`).
+- **Note:** the B-021 header time (15:10) was ahead of the system clock; this entry uses the system clock.
