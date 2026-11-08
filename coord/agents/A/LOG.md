@@ -119,3 +119,16 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Demo impact:** none (S1–S6 use the VCF path)
 - **Tests:** `make test` → 182 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok.
 - **Next:** wait for PR #5 review at G2. The Q08 question to D is still open. The other stretch item, encryption at rest, needs a crypto dependency, so I'd ask the integrator first. Otherwise: requests from B/C/D.
+
+### A-010 · 2026-11-08 14:54 · commit `3b2e4b1` · PLAN v1.2.1
+
+- **Change:** New `tests/A/test_genotype_sweep.py` (18 tests). It builds a VCF for every 0/1/2-copy combination of each assessed gene's rsIDs (27 for CYP2C19, 9 for CYP2C9 and SLCO1B1, 3 for VKORC1), runs it through `ingest`, then runs `rules.check` on each gene-drug rule's drug at 10 mg and 40 mg. No code change. PR #5 updated, rebased on origin/main 1fb5eee.
+- **Why:** Queue 1–8 is done. The ingest tests checked hand-picked genotypes and the rules tests checked Alex. Nothing checked the two together across all genotypes, so a rule whose phenotype ingest can never emit would never fire and nobody would notice.
+- **Class:** Advances
+- **Plan:** advances F1, F3, M1, M4, I4
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** none, so no messages.
+- **Demo impact:** none
+- **Tests:** `make test` → 200 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok. The sweep found no defects. Every rule phenotype (gene-drug and the drug-drug CYP2C19 context) is reachable from a VCF. Ingest only emits table phenotypes or `indeterminate`. Each gene-drug flag fires exactly for its phenotype and dose band, and never for `indeterminate` (I4).
+- **Next:** wait for PR #5 review at G2. I asked the human whether to request `cryptography` for the encryption-at-rest stretch (to-human 1454). Until they answer, I'm taking requests from B/C/D.
