@@ -1,4 +1,4 @@
-# GenomeVault PLAN — v1.1
+# GenomeVault PLAN — v1.2
 
 Source of truth for the idea. Edited only by the integrator, through accepted proposals (see AGENTS.md §5, §12). Cite these IDs in every commit, report and proposal.
 
@@ -60,13 +60,14 @@ Flow: phone → capture → rules (reads graph) → router → KB exact-key hit?
 | Situation | 58, just discharged after a coronary stent |
 | Conditions | CAD, hypertension, high cholesterol, GERD |
 | Allergy | Penicillin |
-| Genotypes | CYP2C19 \*2/\*2 (poor metabolizer); SLCO1B1 \*1/\*5 (decreased); CYP2D6 \*1/\*1; CYP2C9 \*1/\*1; VKORC1 reference |
+| Genotypes | CYP2C19 \*2/\*2 (poor metabolizer); SLCO1B1 \*1/\*5 (decreased); CYP2D6 not_assessed (gene deletions/duplications are not callable from SNP data; no rule may use it); CYP2C9 \*1/\*1; VKORC1 reference |
 | Labs | eGFR 48 (62 a year ago); K 5.2 mmol/L; ALT 28; CK 110; LDL 142 |
 | Meds | aspirin 81, clopidogrel 75, omeprazole 20, simvastatin 40, lisinopril 10 |
 | Later input | ibuprofen (offline beat) |
 
 Expected flags: **X1** clopidogrel × CYP2C19 PM (high) · **X2** omeprazole × clopidogrel × CYP2C19 (high) · **X3** simvastatin 40 × SLCO1B1 decreased (medium, dose-conditioned) · **X4** lisinopril × K/eGFR trend (medium) · **X5** ibuprofen × antiplatelets and × lisinopril/eGFR (high).
 Deliberately absent from curated tables: `clopidogrel|pantoprazole` (demo of no-extrapolation, S6).
+Expected therapy, no Flag (informational UI note only): `aspirin|clopidogrel` is standard dual antiplatelet therapy after a coronary stent — A records expected combinations in `data/rules/expected_combinations.json`; the NSAID + antiplatelet rule (X5) still fires for `ibuprofen`. Genotypes are matched by rsID (the VCF `ID` column), never by position; VCF coordinates are GRCh38 per dbSNP (rs4244285 `CYP2C19*2` chr10:94781859; rs4986893 `*3` chr10:94780653; rs12248560 `*17` chr10:94761900).
 
 ## P6 Privacy stack (in order)
 
@@ -112,3 +113,4 @@ S1 Hook · S2 Capture on phone · S3 Local flags X1–X4, "0 bytes sent" · S4 H
 
 - v1.0 — initial plan.
 - v1.1 — P9: added clock times for a 12:00 start (D-011).
+- v1.2 — P5 PGx corrections: CYP2D6 not_assessed (SNP-uncallable); `aspirin|clopidogrel` expected DAPT shown as an informational note, not a Flag; genotypes matched by rsID on GRCh38. CONTRACTS +`capture.from_image` (A) +`cloud.status` (B). `anthropic` added for the eval LLM client. Backup-integrator pass (D-014…D-021).

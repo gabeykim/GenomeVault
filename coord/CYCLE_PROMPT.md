@@ -11,6 +11,7 @@ Run exactly ONE cycle of the protocol in <COORD_DIR>/AGENTS.md §4, then stop.
 - Work only inside your owned paths (AGENTS.md §1) and your own coordination files.
 - Classify every change as Advances, Refines or Alters (§5). Alters needs a proposal first.
 - Sync code: `git fetch origin && git rebase --autostash origin/main` in the code worktree. Push code: `git push --force-with-lease origin HEAD`.
+- Run `make test` directly and check its exit code. Never pipe test output through tail/head or anything that hides failure.
 - Publish coordination files, from the code worktree: `bash scripts/coord_push.sh <ID> "<ID>-NNN short summary"`.
 - If any escalation condition in §9 applies, write to coord/inbox/to-human/ in the coordination worktree, publish, and end the cycle.
 

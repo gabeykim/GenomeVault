@@ -191,7 +191,7 @@ Pause one agent by committing `coord/agents/<ID>/STOP` to `main`; stop all by co
 | Agent B owner | Dhiaa |
 | Agent C owner | Cristian |
 | Agent D owner | Kaitlyn |
-| Integrator | Gabe |
+| Integrator | Dhiaa (backup: Gabe) |
 
 ## License
 

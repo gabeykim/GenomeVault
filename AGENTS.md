@@ -10,7 +10,7 @@ Every agent reads this file at the start of every cycle. **This file overrides a
 | B | privacy-router | `agent/B-privacy-router` | `core/router.py`, `core/generalize.py`, `core/decoys.py`, `core/kb.py`, `core/cloud.py`, `core/ledger.py`, `core/validator.py`, `data/buckets/`, `tests/B/` | Dhiaa |
 | C | app-ui-actions | `agent/C-app-ui` | `app.py`, `ui/`, `phone/`, `core/merge.py`, `core/actions.py`, `tests/C/` | Cristian |
 | D | eval-redteam | `agent/D-eval` | `eval/`, `docs/`, `slides/`, `tests/D/` | Kaitlyn |
-| I | integrator (human) | `main` | `coord/PLAN.md`, `coord/DECISIONS.md`, `coord/CONTRACTS.md`, `core/contracts.py`, `core/interfaces.py`, `core/local_llm.py`, `mocks/`, repo config | Gabe |
+| I | integrator (human) | `main` | `coord/PLAN.md`, `coord/DECISIONS.md`, `coord/CONTRACTS.md`, `core/contracts.py`, `core/interfaces.py`, `core/local_llm.py`, `mocks/`, repo config | Dhiaa (backup: Gabe) |
 
 ## 2. Sources of truth, in read order
 
@@ -46,7 +46,7 @@ Every agent reads this file at the start of every cycle. **This file overrides a
 2. **Catch up.** Read what changed since your `last_seen` markers: PLAN version, new DECISIONS entries, your inbox, new LOG entries from other agents.
 3. **React.** For each change, ask: does it affect my code, my queue, or my assumptions? Adjust your queue, reply to messages, and note anything you now depend on.
 4. **Pick one task** from your BRIEF queue, sized to 45 minutes or less. If it is blocked, message the blocker, mark it blocked in STATUS, and take the next unblocked task. Never idle-wait.
-5. **Build and test.** `make test` must be green for your scope (against mocks until your dependencies merge, then against real code).
+5. **Build and test.** `make test` must be green for your scope (against mocks until your dependencies merge, then against real code). Run `make test` directly and check its exit code. Never pipe test output through tail/head or anything that hides failure.
 6. **Commit code** using the convention in §6; push your branch; open or update your PR.
 7. **Report.** In the coordination worktree: append an impact report to your LOG (§7), rewrite your STATUS (including new `last_seen` markers), and add a message for every agent your change affects. Then run `coord_push.sh`.
 8. **Repeat.**

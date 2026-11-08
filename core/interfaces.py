@@ -1,7 +1,7 @@
 """Stub implementations backed by mocks/. Each owner replaces the stub with real code in their own module;
 other branches import from here until the gate where the real module merges (coord/CONTRACTS.md)."""
-import json, pathlib
-from .contracts import Profile, Drug, Flag, Answer
+import json, os, pathlib
+from .contracts import Profile, Drug, Flag, Answer, LedgerEntry
 
 MOCKS = pathlib.Path(__file__).resolve().parent.parent / "mocks"
 
@@ -17,3 +17,15 @@ def route(question: str, flags: list[Flag]) -> Answer:           # B, real at G2
 
 def personalize(answer: Answer, flags: list[Flag], profile: Profile) -> str:   # C, real at G2
     return f"[mock] {answer.text}"
+
+def to_ingredients(text: str) -> list[Drug]:                     # A (normalize), real at G1
+    return [Drug(ingredient=w.strip().lower()) for w in text.split(",") if w.strip()]
+
+def feed(since: int) -> list[LedgerEntry]:                       # B (ledger), real at G2
+    return []
+
+def from_image(data: bytes, mime: str) -> list[Drug]:            # A (capture), real at G3; [] if unreadable
+    return [Drug(ingredient="clopidogrel", dose_mg=75)]
+
+def status() -> dict:                                            # B (cloud), real at G3; sends nothing (I2)
+    return {"online": True, "demo": os.getenv("DEMO") == "1"}

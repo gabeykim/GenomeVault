@@ -17,7 +17,7 @@ while true; do
   if [ -f "$COORD_DIR/coord/agents/$AGENT/STOP" ]; then echo "[$AGENT] paused (STOP)"; sleep "$PAUSE"; continue; fi
   prompt=$(sed -e "s|<ID>|$AGENT|g" -e "s|<CODE_DIR>|$CODE_DIR|g" -e "s|<COORD_DIR>|$COORD_DIR|g" "$COORD_DIR/coord/CYCLE_PROMPT.md")
   echo "[$AGENT] cycle start $(date +%H:%M)"
-  if $AGENT_CMD "$prompt" $AGENT_FLAGS; then
+  if $AGENT_CMD "$prompt" $AGENT_FLAGS < /dev/null; then
     fails=0
   else
     fails=$((fails+1)); echo "[$AGENT] cycle failed ($fails/$MAX_FAILS)"
