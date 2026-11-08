@@ -118,3 +118,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S4: the ledger can show `cover` rows between real sends if C starts cover. In demo mode there is no added latency.
 - **Tests:** `make test` → exit 0, 299 passed; `scripts/check_network.sh` → network ok
 - **Next:** rebalance buckets by frequency when D sends per-bucket numbers; swap to A's real X5 keys after G1; stretch: knowledge-pack sync.
+
+### B-010 · 2026-11-08 13:56 · commit `ad01ab4` · PLAN v1.1
+
+- **Change:** Bulk knowledge-pack sync (BRIEF stretch). `core/router.py`: `sync_pack(skip_fresh=True, today=None) -> dict` sends every bucket of the fixed partition, in shuffled order, through the normal leakage check, logs each one as a `cover` entry (or `blocked`), and stores all answers in the KB. With `skip_fresh` it skips buckets whose 8 keys are already fresh in the KB. It returns counts (`sent`, `blocked`, `skipped`, `facts`, `offline`). Offline or unreachable cloud: nothing is sent, and the remaining buckets are not tried. New `tests/B/test_pack_sync.py` (8 tests). PR #2 updated.
+- **Why:** Makes the KB warm before the user goes offline, so F8 offline questions (S6 offline ibuprofen X5) and E4's warm-KB arm get answers on-device with 0 bytes, without any query-dependent traffic.
+- **Class:** Refines
+- **Plan:** advances F6, F8, E4; refines P6.6
+- **Refinements:** (1) Pack sync is query-independent traffic, so it is logged as `cover` (no new ledger kind, so no contract change). (2) It always covers the whole partition, the same set for every user. Only the order is random, and skipping only drops buckets that were already sent whole, so it reveals nothing new (I5). (3) It runs synchronously. The caller decides when to run it and may put it in a thread. Live: about 22 buckets × 8 requests with P6.4 delays, roughly 3 minutes. Demo: instant.
+- **Contract impact:** none (additive function inside B's module; `cover` is already a `LedgerEntry.kind`).
+- **Affects:** C: optional "Sync for offline" button or start-up call to `router.sync_pack()`. Show the returned counts. → message sent. D: E4 warm arm can call `kb.clear()` then `router.sync_pack()` for a fully warm KB. → message sent. A: none.
+- **Demo impact:** S6 offline beat can run fully warm: sync, go offline, and the ibuprofen X5 question is a KB hit with 0 bytes. No change if unused.
+- **Tests:** `make test` → exit 0, 307 passed; `check_ownership.py` → ownership ok; `scripts/check_network.sh` → network ok
+- **Next:** rebalance buckets by frequency if D sends per-bucket numbers; switch to real A code after G1; otherwise support G2 merge fixes.

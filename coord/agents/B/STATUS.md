@@ -1,22 +1,24 @@
 agent: B
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: queue 8 done (random delays + cover buckets, PR #2); all 9 queue items done
+current_task: stretch done (knowledge-pack sync, router.sync_pack(), PR #2); queue items 1-9 done
 branch: agent/B-privacy-router
-last_commit: bf8918b
+last_commit: ad01ab4
 last_seen:
   plan_version: "1.1"
   decisions: D-013
-  logs: {A: 1, B: 9, C: 7, D: 4}
+  logs: {A: 2, B: 10, C: 7, D: 4}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
   - 20261108-1331-from-C-check-output-scope.md
   - 20261108-1323-from-D-eval-needs.md
+  - 20261108-1352-from-A-x5-keys.md
 blocked_on: none
 notes: >
-  PR #2 now has the full B queue (items 1-9), so it is ready for G2 and covers B's part of G3
-  (KB, cover traffic, delays). C has to call router.start_cover() at app start to turn on cover traffic
-  (message sent). mocks/cloud_cache/ is still empty (integrator-owned), so DEMO=1 cloud questions
-  answer no_data until it's recorded (`python -m core.cloud record <dir>`, ask from 20261108-1350).
-  Still waiting on A's real X5 keys (guessed in buckets v1). C's cloud.status() proposal is still unruled.
-next: swap in A's real keys once A's flags merge (G1); rebalance buckets by frequency if D sends numbers; stretch: knowledge-pack sync
+  PR #2 has the full B queue (items 1-9) plus the pack-sync stretch, and is ready for G2/G3.
+  A confirmed the X5 keys and lab-token spelling (1352). data/buckets/v1.json already matches,
+  so nothing to change. router.sync_pack() is optional for C (offline button) and D (E4 warm arm);
+  messages sent. mocks/cloud_cache/ is still empty (integrator-owned), so DEMO=1 cloud questions
+  answer no_data until it is recorded (`python -m core.cloud record <dir>`). C's cloud.status()
+  proposal is still unruled.
+next: switch to real A code after G1 merge; rebalance buckets by frequency if D sends numbers; G2 merge fixes
