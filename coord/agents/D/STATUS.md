@@ -1,12 +1,12 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (D-009 pushed; PR #4 at b76ebc4; G4 runbook ready)
+current_task: none (D-010 pushed; PR #4 at bc33463; G4 dry run 17 pass, 2 warn, 0 fail)
 branch: agent/D-eval
-last_commit: b76ebc4
+last_commit: bc33463
 last_seen:
   plan_version: "1.2.1"
-  decisions: D-022
-  logs: {A: 6, B: 16, C: 14, D: 9}
+  decisions: D-024
+  logs: {A: 10, B: 21, C: 18, D: 10}
 handled_messages:
   - 20261108-1320-from-C-ui-look.md
   - 20261108-1323-from-C-boundaries.md
@@ -33,5 +33,13 @@ handled_messages:
   - 20261108-1440-from-B-wording-hardened.md
   - 20261108-1445-from-B-merged-check.md
   - 20261108-1450-from-B-cover-traffic.md
-blocked_on: G4 gate FAIL I4 (B: router.route answers 'known' with nothing behind it); E2b waits on the recorded demo cache (D-019)
-next: re-run the G4 gate when I4 is fixed and the cache is recorded; G4 at 19:30 per docs/G4.md
+  - 20261108-1404-from-integrator-anthropic-status-dapt.md
+  - 20261108-1441-from-C-phone-s2.md
+  - 20261108-1444-from-A-q08-and-names.md
+  - 20261108-1445-from-B-i4-fixed.md
+  - 20261108-1445-from-C-palette.md
+  - 20261108-1449-from-B-brand-names.md
+  - 20261108-1452-from-C-dark-theme.md
+  - 20261108-1455-from-C-final-hexes.md
+blocked_on: none for D. E2a/E2b WARN until the demo cache is recorded (D-019)
+next: G4 at 19:30 on main per docs/G4.md once PRs #2-#4 merge; re-check after the demo cache is recorded; optional brand-name question (B-019)

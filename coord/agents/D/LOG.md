@@ -122,3 +122,16 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Tests:** `make test` → exit 0 (187 passed with A's modules on main). G4 dry run on a fresh merge of all four branches (B's v5, live): `make test` → exit 0 (720 passed); `make eval` → exit 0; `python -m eval.gate` → 17 pass, 1 warn, 1 fail.
 - **Dry-run results:** v5 phenotype splits `{}` (4 aliases); wording filter 25/25 caught, 0/8 false alarms (2 rejected by design); repeat-ask 11%, statistical 22% (ceiling 20%); offline states 20/20 as expected. WARN E2b: the demo cache is unrecorded (`python -m core.cloud check`: 0/136, exit 1). **FAIL I4**: `router.route()` answers `known` ("This was checked on your device… Nothing was sent.") with no flag or fact covering the question for Q03, Q04, Q05, Q16, and for Q13/Q14 where only an unrelated flag (X3) fired.
 - **Next:** re-run the G4 gate when B fixes I4 and the cache is recorded; G4 at 19:30
+
+### D-010 · 2026-11-08 15:00 · commits `24e4911`, `7cac7fd` (merge of main), `bc33463` · PLAN v1.2.1
+
+- **Change:** (1) Re-ran the G4 runbook after B-018/B-019 on a fresh merge of A `3b2e4b1`, B `8e98cf1`, C `b4fc781` and D. I4 now passes. (2) `eval/gate.py`: the E2a warning says why on the live build (no recorded demo cache, so repeats go out again); `docs/G4.md` drops I4 from "expected FAIL". (3) Q08: A's curated note EX-001 answers it on the device, so `offline_state` is `known` (`queries.json` q-v7 `local_notes`); both backends count a covering note as backing. (4) Merged main (D-023, D-024).
+- **Why:** B fixed the I4 issue D reported (B-018, B-019). A asked whether its EX-001 note should count (A-008).
+- **Class:** Refines
+- **Plan:** advances P9 G4, P7 E4; checks I4; follows D-021
+- **Refinements:** A curated expected-combination note covering a question's exact key counts as local content (like a covering flag).
+- **Contract impact:** none
+- **Affects:** A: keep `key_state` as it is → reply sent. B: I4 confirmed → reply sent. C: none (palette noted).
+- **Demo impact:** none (deck: offline figure now 11/20)
+- **Tests:** `make test` → exit 0 (188 passed). Four-branch merge with this change: `make test` → exit 0 (815 passed); `make eval` → exit 0; `python -m eval.gate` → **17 pass, 2 warn, 0 fail** (WARN E2a and E2b: the demo cache is unrecorded, D-019). Offline states 20/20, 11/20 answered cold.
+- **Next:** G4 at 19:30 on main once PRs #2–#4 merge; re-check after the demo cache is recorded
