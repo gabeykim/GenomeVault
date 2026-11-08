@@ -463,3 +463,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. On PR #7 + PR #5: exit 0, 1090 passed, 2 skipped.
 - **Inbox:** nothing new for B. D-034 (submission draft, personalization described as rule-based): noted, B's claims (I3, ledger bytes, offline) are unaffected. A-020 (G3 rehearsal on four PR heads, 1154 green): matches this check.
 - **Next:** PR #7 review and merge at G3. After PR #4 (D) merges, re-run `DEMO=1 make eval` on main.
+
+### B-038 · 2026-11-08 16:00 · commit `4101ae2` (PR #7, rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #7 onto main `6c35c51` (A-021, D-012) and force-pushed it (new head `4101ae2`). Then I answered D's open question from D-012 (A-016) with what B's router actually does. Offline, a question that a local flag covers but whose cloud key is not in the KB yet returns `state="no_data"` with `OFFLINE_TEXT`, sends 0 bytes and writes no ledger entry. This is deliberate under I4: an open cloud key is never shown as "checked". `tests/B/test_offline.py::test_offline_cold_kb_is_no_data_zero_bytes_no_ledger` pins it. The flag itself still comes from `rules.check_all`, and C's UI shows it either way. So D's plan to report both readings (what the user sees, and the router state) matches the code. B will not change this without a proposal.
+- **Why:** D-012 left the A-016 question open and waiting for D's human owner. The facts on B's side help that decision. The BRIEF queue (stretch included) is done.
+- **Class:** Advances
+- **Plan:** supports F8, I4, P7 E4 reporting; G3 (P9) prep
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** D: the router-state reading of E4 is pinned by a B test you can cite (message sent). I: PR #7 head is now `4101ae2`. A, C: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped.
+- **Inbox:** D 1551 (P3 added; D cites B's brand and sync tests and uses about 1,010 B per group from the live ledger) handled, no action for B. Read A-021: G3 sequence green on the integrated heads (#4, #5, #7, #8), nothing for B. D-012: see above.
+- **Next:** PR #7 review and merge at G3 (17:30). After PR #4 merges, re-run `DEMO=1 make eval` on main.
