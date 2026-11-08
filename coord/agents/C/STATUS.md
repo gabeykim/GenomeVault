@@ -2,11 +2,11 @@ agent: C
 state: working            # working | blocked | waiting-review | done | not-started
 current_task: none (C-005 pushed; PR #3 updated)
 branch: agent/C-app-ui
-last_commit: 4e2ff03
+last_commit: eb74f22
 last_seen:
   plan_version: "1.1"
   decisions: D-013
-  logs: {A: 2, B: 9, C: 9, D: 4}
+  logs: {A: 3, B: 10, C: 10, D: 5}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md

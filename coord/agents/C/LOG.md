@@ -118,3 +118,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S1 (hero shorter), S3 (Medications tab, default), S4 (Ask tab + ledger), S6 (Actions tab)
 - **Tests:** C alone → exit 0 (55 passed, 3 skipped); A+B+C+D merged → exit 0 (409 passed). Checked by hand at 1440×900 and 375×812: tabs, deep links, ask, ledger, no horizontal scroll.
 - **Next:** queue item 7 (offline badge + Wi-Fi-off toggle), cover traffic at startup (G3), then 5 (`phone/`)
+
+### C-010 · 2026-11-08 14:05 · commit `eb74f22` · PLAN v1.1
+
+- **Change:** Added three status colors, used only on small indicators and always next to their word. Red: high severity, poor or decreased gene function, the allergy, labs named in a flag's evidence, and any personal field sent. Amber: medium severity and `no_data` answers. Green: normal gene results, `local_only`/`kb_hit` ledger rows, the "On device" marker, and 0 personal fields.
+- **Why:** Human owner asked for color on the indicators (poor = red, good = green).
+- **Class:** Refines
+- **Plan:** advances M10, S3, S4
+- **Refinements:** Color never stands alone (each colored item also says "High", "poor metabolizer", and so on). Labs are never green, because there are no reference ranges in the data; only flags make a lab red. Colors meet AA contrast on bone, with lighter variants on ink.
+- **Contract impact:** none
+- **Affects:** D: screenshots now show color → retake for slides
+- **Demo impact:** S3 (severity readable at a glance), S4 (green 0 personal fields)
+- **Tests:** C alone → exit 0 (55 passed, 3 skipped); A+B+C+D merged → exit 0 (409 passed). Checked in the browser, no console errors.
+- **Next:** dedupe flags by key so all four X5 flags show (A's 20261108-1359 request) before G1, then queue 7
