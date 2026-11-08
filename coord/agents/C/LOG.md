@@ -144,3 +144,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S6 (offline ibuprofen shows the full X5)
 - **Tests:** C alone → `make test` exit 0 (60 passed, 3 skipped). origin/main + A + B + C + D merged → exit 0, 550 passed. With A's real `rules.check`, `POST /api/check ibuprofen` → 4 X5 flags, and current meds still give X1–X4. Checked by hand in the merged UI.
 - **Next:** queue 7 (offline badge + Wi-Fi-off toggle), cover traffic at startup (G3), then 5 (`phone/`)
+
+### C-012 · 2026-11-08 14:22 · commit `9a4439a` · PLAN v1.2
+
+- **Change:** D-021 in the UI. (1) Genes this kind of test can't call (`not_assessed`, `indeterminate`, `unknown`, `no_call`) show as a gray "not assessed" with a hover reason, never red. The visit summary says "CYP2D6: not assessed by this test" instead of "(notable)". (2) Expected-combination notes: `app.py` passes A's `rules.expected_notes_all(profile)` (on `/api/flags`) and `rules.expected_notes(drug, profile)` (on `/api/check`) through as `notes: [{id, key, text, source}]`, one per key, with text through `merge.guard`. The UI shows a neutral "For information · Aspirin × Clopidogrel" line with an "i" mark under the flags, and the visit summary lists it under "For information (not a warning)". It is never a Flag. Added `tests/C/test_d021.py` (8 tests).
+- **Why:** PLAN v1.2 P5 and the integrator's ruling to C (20261108-1404).
+- **Class:** Advances
+- **Plan:** advances P5, D-021, F3 view, F7, M10, S3
+- **Refinements:** notes are neutral by design: no severity and no color, labeled "For information". The source shows on hover.
+- **Contract impact:** none
+- **Affects:** A: please keep `expected_notes` / `expected_notes_all` and the `{id, key, text, source}` shape → none. I: `mocks/alex_profile.json` still has CYP2D6 `*1/*1` `normal_metabolizer`. Until A's `graph.py` lands, the app loads that mock, so the demo shows CYP2D6 as normal → please update the mock to `not_assessed` (A's `data/alex_profile.json` already is).
+- **Demo impact:** S3 (DAPT shown as information, not a warning), My data (CYP2D6 neutral once the profile says `not_assessed`)
+- **Tests:** C alone → exit 0 (68 passed, 3 skipped). origin/main + A (`3ce9f6d`) + B + C + D merged → exit 0, 600 passed. In the merged app: EX-001 note shows, `aspirin|clopidogrel` is not flagged, X5 still gives four flags. Checked in the browser, including a not_assessed CYP2D6 render.
+- **Next:** D-020: call `capture.from_image` (`POST /api/capture`, phone page) and `cloud.status` (offline badge + Wi-Fi-off toggle) from `app.py`; drop the local stand-ins now covered by interfaces stubs (D-014)
