@@ -260,6 +260,8 @@ def ask(body: AskIn) -> dict:
     return {
         "state": answer.state,
         "text": personalize(answer, current, p),
+        # Same content as "text", as ordered sections, so the UI can lead with the asked pair (C-021).
+        "sections": merge.structure(answer, current, p) if MODES["merge.personalize"] == "real" else None,
         "facts": [{**f.model_dump(mode="json"), "label": tier_label(f)} for f in answer.facts],
         "sent_to_cloud": answer.sent_to_cloud,
     }

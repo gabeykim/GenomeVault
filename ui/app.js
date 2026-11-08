@@ -389,14 +389,54 @@ function answerParagraph(text, i) {
   return el("span", { class: `reveal para${i === 0 ? "" : " later"}` }, inner);
 }
 
+// One keyed fact: its pair as a title, its trust label (I6), the first paragraph, and the rest behind "More".
+function factBlock(sec, i) {
+  const [first, ...rest] = sec.paragraphs;
+  const more = rest.length ? el("div", { class: "fact-more", hidden: true }, rest.map((t) => el("p", {}, t))) : null;
+  const toggle = rest.length ? el("button", { type: "button", class: "more-btn" }, "More") : null;
+  toggle?.addEventListener("click", () => {
+    more.hidden = !more.hidden;
+    toggle.textContent = more.hidden ? "More" : "Less";
+  });
+  return el("div", { class: `fact${sec.primary ? " primary" : ""}`, style: `animation-delay:${i * 110}ms` },
+    el("div", { class: "fact-head" },
+      el("strong", {}, flagTitle(sec.key)),
+      el("span", { class: `fact-tier ${sec.tier}` }, sec.tier === "cloud" ? "AI-summarized, verify" : sec.label)),
+    el("p", {}, first), more, toggle);
+}
+
+// Other facts fold away so the answer leads with what was asked (C-021).
+function alsoBlock(secs) {
+  const list = el("div", { class: "also-list", hidden: true }, secs.map((s, i) => factBlock({ ...s, primary: false }, i)));
+  const btn = el("button", { type: "button", class: "also-btn" },
+    `Also relevant: ${secs.map((s) => flagTitle(s.key)).join(" · ")}`);
+  btn.addEventListener("click", () => { list.hidden = !list.hidden; btn.classList.toggle("open", !list.hidden); });
+  return el("div", { class: "also" }, btn, list);
+}
+
 function answerMessage(a) {
-  // Facts and their trust tiers (I6) are already written into the merged text.
   const meta = el("div", { class: "msg-meta" },
     el("span", { class: a.state === "no_data" ? "chip warn" : "chip solid" }, STATES[a.state] || a.state),
     a.sent_to_cloud
       ? el("span", { class: "chip" }, "Asked privately · decoy group of 8")
       : el("span", { class: "chip good" }, "Answered on device"));
-  return message("Vault", a.text.split(/\n{2,}/).map(answerParagraph), [meta]);
+  if (!a.sections) {   // mock merge: plain paragraphs, trust tiers are written into the text
+    return message("Vault", a.text.split(/\n{2,}/).map(answerParagraph), [meta]);
+  }
+  const lead = a.sections.filter((s) => s.kind === "lead");
+  const facts = a.sections.filter((s) => s.kind === "fact");
+  const primary = facts.find((s) => s.primary) || (lead.length ? null : facts[0]);
+  const others = facts.filter((s) => s !== primary);
+  const personal = a.sections.filter((s) => s.kind === "personal");
+  const closing = a.sections.filter((s) => s.kind === "closing");
+  const nodes = [
+    ...lead.flatMap((s) => s.paragraphs.map((t, i) => answerParagraph(t, i))),
+    primary ? factBlock(primary, 0) : null,
+    ...personal.flatMap((s) => s.paragraphs.map((t) => answerParagraph(t, 1))),
+    others.length ? alsoBlock(others) : null,
+    ...closing.flatMap((s) => s.paragraphs.map((t) => answerParagraph(t, 2))),
+  ];
+  return message("Vault", nodes, [meta]);
 }
 
 async function ask(question) {

@@ -195,26 +195,79 @@ def _lead(answer: Answer) -> tuple[str, set[int]]:
     return f"In general: {text}" + "".join(f" ({l}.)" for l in labels), covered
 
 
-def personalize(answer: Answer, flags: list[Flag], profile: Profile) -> str:
-    """Contract: merge.personalize(answer, flags, profile) -> str (coord/CONTRACTS.md)."""
-    lead, covered = _lead(answer)
-    paragraphs = [lead]
+def _paragraphs(text: str) -> list[str]:
+    return [p.strip() for p in guard(text).split("\n\n") if p.strip()]
 
-    for i, fact in enumerate(answer.facts):  # every fact carries its trust tier (I6)
-        text = guard(fact.text)
-        if text and i not in covered:
-            paragraphs.append(f"{_tier_label(fact)}: {text}")
+
+def _fact_order(answer: Answer, flags: list[Flag]) -> list[int]:
+    """Lead with what the question brought in. The contract gives merge no question, so: facts whose key
+    no local flag already covers come first (Q07: clopidogrel|pantoprazole before the clopidogrel
+    background its flags pull in); ties keep the router's order."""
+    flag_keys = {f.key for f in flags}
+    return sorted(range(len(answer.facts)), key=lambda i: (answer.facts[i].key in flag_keys, i))
+
+
+def structure(answer: Answer, flags: list[Flag], profile: Profile) -> list[dict]:
+    """The merged answer as ordered sections, for a UI that leads with the asked pair and folds the rest.
+    Kinds: lead (state line or general text), fact (one keyed fact: key, label, primary, paragraphs),
+    personal ("For you" / "Separately"), closing. personalize() flattens exactly this (I6, I7 guarded)."""
+    sections: list[dict] = []
+    facts = answer.facts
+    general = guard(answer.text.strip())
+    # Router answers are their facts' texts joined (B-006). Then build the general part fact by fact.
+    by_fact = (answer.state == "known" and facts and general
+               and all(_norm(guard(f.text)) and _norm(guard(f.text)) in _norm(general) for f in facts))
+    if by_fact:
+        check = _output_check()
+        if check is not None and not check(general, facts):
+            sections.append({"kind": "lead", "paragraphs": [WITHHELD]})
+        else:
+            for n, i in enumerate(_fact_order(answer, flags)):
+                f = facts[i]
+                paras = _paragraphs(f.text)
+                if paras:
+                    sections.append({"kind": "fact", "key": f.key, "label": _tier_label(f), "tier": f.tier,
+                                     "primary": n == 0, "paragraphs": paras})
+    else:
+        lead, covered = _lead(answer)
+        if lead:
+            sections.append({"kind": "lead", "paragraphs": [lead]})
+        for i in _fact_order(answer, flags):
+            f = facts[i]
+            paras = _paragraphs(f.text)
+            if paras and i not in covered:
+                sections.append({"kind": "fact", "key": f.key, "label": _tier_label(f), "tier": f.tier,
+                                 "primary": False, "paragraphs": paras})
 
     mine = relevant_flags(answer, flags)
     if mine:
-        paragraphs.append("For you: " + " ".join(describe(f, profile) for f in mine))
+        sections.append({"kind": "personal", "paragraphs": ["For you: " + " ".join(describe(f, profile) for f in mine)]})
     else:
         high = list(dict.fromkeys(f.id for f in flags if f.severity == "high"))   # X5 spans 4 keys
         if high:
             ids = high[0] if len(high) == 1 else ", ".join(high[:-1]) + " and " + high[-1]
-            paragraphs.append(f"Separately, your flagged item{'' if len(high) == 1 else 's'} {ids} "
-                              f"{'is' if len(high) == 1 else 'are'} still worth raising.")
+            sections.append({"kind": "personal", "paragraphs": [
+                f"Separately, your flagged item{'' if len(high) == 1 else 's'} {ids} "
+                f"{'is' if len(high) == 1 else 'are'} still worth raising."]})
+    sections.append({"kind": "closing", "paragraphs": [CLOSING]})
+    return sections
 
-    paragraphs.append(CLOSING)
-    out = guard("\n\n".join(p for p in paragraphs if p))
+
+def _flatten(sections: list[dict]) -> str:
+    out = []
+    for sec in sections:
+        paras = list(sec["paragraphs"])
+        if sec["kind"] == "fact":
+            if sec["primary"]:
+                paras[0] = f"In general: {paras[0]}"
+                paras[-1] = f"{paras[-1]} ({sec['label']}.)"
+            else:
+                paras[0] = f"{sec['label']}: {paras[0]}"
+        out += paras
+    return "\n\n".join(p for p in out if p)
+
+
+def personalize(answer: Answer, flags: list[Flag], profile: Profile) -> str:
+    """Contract: merge.personalize(answer, flags, profile) -> str (coord/CONTRACTS.md)."""
+    out = guard(_flatten(structure(answer, flags, profile)))
     return out or CLOSING

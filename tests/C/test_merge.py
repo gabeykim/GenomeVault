@@ -155,3 +155,64 @@ def test_failed_validator_withholds_general_text_but_keeps_flags(monkeypatch):
 def test_app_uses_real_merge():
     import app
     assert app.MODES["merge.personalize"] == "real"
+
+
+# ---------- structure: lead with the asked pair (C-021) ----------
+
+def _router_answer(*facts):
+    """What B's router returns: Answer.text is the facts' texts joined by blank lines (B-006)."""
+    return Answer(state="known", text="\n\n".join(f.text for f in facts), facts=list(facts), sent_to_cloud=True)
+
+
+X1F = fact(key="CYP2C19:poor_metabolizer|clopidogrel", text="Clopidogrel is a prodrug activated by CYP2C19.\n\nMore detail.")
+X2F = fact(key="clopidogrel|omeprazole", text="An interaction with omeprazole is listed.")
+PANF = fact(key="clopidogrel|pantoprazole", text="An interaction with pantoprazole is classed as minor.\n\nOutcome data are mixed.")
+
+
+def test_question_pair_leads_when_flags_cover_the_rest():  # Q07
+    secs = merge.structure(_router_answer(X1F, X2F, PANF), FLAGS, PROFILE)
+    facts = [s for s in secs if s["kind"] == "fact"]
+    assert [s["key"] for s in facts] == ["clopidogrel|pantoprazole", "CYP2C19:poor_metabolizer|clopidogrel",
+                                         "clopidogrel|omeprazole"]
+    assert facts[0]["primary"] and not facts[1]["primary"]
+    assert facts[0]["paragraphs"] == ["An interaction with pantoprazole is classed as minor.", "Outcome data are mixed."]
+    out = merge.personalize(_router_answer(X1F, X2F, PANF), FLAGS, PROFILE)
+    assert out.startswith("In general: An interaction with pantoprazole is classed as minor.")
+    assert out.count("pantoprazole is classed as minor") == 1
+
+
+def test_router_order_kept_when_every_fact_is_flag_backed():  # Q18
+    secs = merge.structure(_router_answer(X1F, X2F), FLAGS, PROFILE)
+    assert [s["key"] for s in secs if s["kind"] == "fact"] == ["CYP2C19:poor_metabolizer|clopidogrel", "clopidogrel|omeprazole"]
+
+
+def test_sections_end_with_personal_then_closing():
+    kinds = [s["kind"] for s in merge.structure(_router_answer(X1F, PANF), FLAGS, PROFILE)]
+    assert kinds[-2:] == ["personal", "closing"]
+
+
+def test_every_fact_section_carries_its_tier_label():  # I6
+    for s in merge.structure(_router_answer(X1F, PANF), FLAGS, PROFILE):
+        if s["kind"] == "fact":
+            assert s["label"] == "AI-summarized, verify" and s["tier"] == "cloud"
+
+
+def test_withheld_applies_to_router_answers_too(monkeypatch):
+    monkeypatch.setattr(merge, "_output_check", lambda: (lambda text, facts: False))
+    secs = merge.structure(_router_answer(X1F, PANF), FLAGS, PROFILE)
+    assert secs[0] == {"kind": "lead", "paragraphs": [merge.WITHHELD]}
+    assert not [s for s in secs if s["kind"] == "fact"]
+
+
+def test_guard_still_applies_inside_sections():  # I7
+    bad = fact(key="clopidogrel|pantoprazole", text="Pantoprazole is safer. Outcome data are mixed.")
+    secs = merge.structure(_router_answer(X1F, bad), FLAGS, PROFILE)
+    joined = " ".join(p for s in secs for p in s["paragraphs"])
+    assert not BANNED.search(joined) and "Outcome data are mixed." in joined
+
+
+def test_ask_endpoint_returns_sections():
+    from fastapi.testclient import TestClient
+    import app
+    d = TestClient(app.app).post("/api/ask", json={"question": "What should I bring up with my cardiologist?"}).json()
+    assert d["sections"] and d["sections"][-1]["kind"] == "closing"

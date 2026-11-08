@@ -636,3 +636,24 @@ body.offline .strand { opacity: .45; transition: opacity .6s var(--ease); }
 .sync .line-btn { justify-self: start; font-size: 12px; padding: 7px 12px; }
 .sync .line-btn:disabled { opacity: .45; cursor: default; }
 .sync .line-btn:disabled::before { transform: translateY(101%); }
+
+/* ---------- answers: asked pair first, the rest folded (C-021) ---------- */
+.fact { margin: 2px 0 12px; animation: row-in .6s var(--ease-out) both; }
+.fact.primary { padding-left: 12px; border-left: 3px solid var(--blue); }
+.fact-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 4px; }
+.fact-head strong { font-weight: 500; font-size: 15px; }
+.fact-tier { font-size: 11px; color: var(--mute); }
+.fact-tier.cloud::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); margin-right: 5px; vertical-align: 1px; }
+.fact p { margin: 0 0 6px; font-size: 15px; }
+.fact-more p { font-size: 14px; color: var(--mute); }
+.more-btn, .also-btn {
+  border: 0; background: none; padding: 2px 0; font-size: 12px; color: var(--blue-text); cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.also { margin: 6px 0 12px; padding-top: 8px; border-top: 1px solid var(--line); }
+.also-btn { text-align: left; color: var(--mute); text-decoration: none; }
+.also-btn::before { content: "+ "; color: var(--blue-text); }
+.also-btn.open::before { content: "− "; }
+.also-btn:hover { color: var(--ink); }
+.also-list { margin-top: 10px; }
+.para:last-of-type { color: var(--mute); }
