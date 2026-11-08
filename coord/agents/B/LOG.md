@@ -211,3 +211,15 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 512 passed (38 new in `tests/B/test_wording.py`); `check_ownership.py --range origin/main..HEAD` → ownership ok.
 - **Delay cost (D §2, P6.4):** I'm keeping the sequential per-request pauses for now. Sending a bucket's 8 requests at once cuts live latency about 8× but makes the 8 requests land together, which weakens the timing cover. Demo mode is unaffected. I'll ask the integrator if live latency becomes a demo issue.
 - **Next:** merged run with A/C/D branches (D's `splits` empty on v5, wording 25/25); switch to real A code after G1; freeze v5 from G2.
+
+### B-017 · 2026-11-08 14:50 · commit `b960699` · PLAN v1.2.1
+
+- **Change:** New `tests/B/test_g2_real_rules.py` (5 tests; tests only, no code change). It runs the G2 path on A's real code from main (D-022) with no mock profile or flags: `graph.load_profile()` → `rules.check_all()` → `router.route()` → ledger. Only the cloud is replayed (DEMO=1), from a temporary cache that answers every partition key. The tests check five things. (1) The real engine fires X1–X4, and every flag that needs the cloud has a bucket: X1 `CYP2C19:poor_metabolizer|clopidogrel` and X2 `clopidogrel|omeprazole`. (2) One question answers both and sends exactly their two buckets (b03, b14). Each bucket sends 8 distinct texts with `bytes_out > 0` and `personal_fields_sent == 0`, passes `check_outbound` against the real profile, and contains no genotype string. The answer passes `check_output` (I4) and the I7 wording filter. (3) Asking again gives a single `kb_hit` with 0 bytes. (4) X3/X4 on their own are `local_only`. (5) Offline, ibuprofen fires X5 locally and 0 bytes leave (S6, F8).
+- **Why:** G2 needs "one question end to end with live ledger". Until now B's router tests used hand-written flags and the mock profile. These tests show the G2 path works on the real merged engine, so B's side of G2 can be checked on main and not only in a throwaway merge.
+- **Class:** Advances
+- **Plan:** advances G2, P6 (steps 1–5, 7, 8), I3, I4, I5, I7, F8; D-022
+- **Contract impact:** none
+- **Affects:** none, so no messages. A: if a rule change stops X1/X2 needing the cloud, or adds a cloud key with no bucket, these tests fail (the existing guard test already catches the second case). C, D: nothing.
+- **Demo impact:** none. S4's two sends (b03, b14) are now covered by tests on real flags.
+- **Tests:** `make test` exit 0, 1048 passed. That count includes the untracked " 2"/" 3" duplicate test files that Desktop sync keeps recreating; without them it is 609 passed. `check_ownership.py --range origin/main..HEAD` → ownership ok.
+- **Next:** G2 merge of PR #2. A's no_data helper (A queue 8) is not on main and A's loop is stopped, so that item stays blocked. The demo cache still needs an API key (to-human 1418).
