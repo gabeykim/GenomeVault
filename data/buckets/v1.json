@@ -1,0 +1,175 @@
+{
+  "version": "v1",
+  "k": 8,
+  "note": "Fixed partition (I5, D-003). Never regenerate from a query; a new partition is a new version file.",
+  "buckets": [
+    {
+      "id": "b01",
+      "version": "v1",
+      "keys": [
+        "CYP2C19:poor_metabolizer|clopidogrel",
+        "CYP2C19:ultrarapid_metabolizer|escitalopram",
+        "CYP2D6:poor_metabolizer|amitriptyline|dose>75mg",
+        "CYP2D6:poor_metabolizer|codeine",
+        "DPYD:poor_metabolizer|fluorouracil",
+        "HLA-B:5701_positive|abacavir",
+        "TPMT:poor_metabolizer|azathioprine",
+        "UGT1A1:poor_metabolizer|irinotecan"
+      ]
+    },
+    {
+      "id": "b02",
+      "version": "v1",
+      "keys": [
+        "CYP2B6:poor_metabolizer|efavirenz",
+        "CYP2C9:poor_metabolizer|warfarin",
+        "CYP2D6:ultrarapid_metabolizer|tramadol",
+        "CYP3A5:normal_metabolizer|tacrolimus",
+        "G6PD:deficient|rasburicase",
+        "NUDT15:poor_metabolizer|mercaptopurine",
+        "SLCO1B1:decreased_function|simvastatin|dose>20mg",
+        "VKORC1:high_sensitivity|warfarin"
+      ]
+    },
+    {
+      "id": "b03",
+      "version": "v1",
+      "keys": [
+        "digoxin|potassium<3.5",
+        "glipizide|glucose<70",
+        "levothyroxine|tsh>4.5",
+        "lisinopril|potassium>5.0",
+        "lithium|sodium<135",
+        "metformin|egfr<30",
+        "methotrexate|alt>120",
+        "warfarin|inr>3.0"
+      ]
+    },
+    {
+      "id": "b04",
+      "version": "v1",
+      "keys": [
+        "allopurinol|egfr<30",
+        "amiodarone|tsh>4.5",
+        "enoxaparin|egfr<30",
+        "gabapentin|egfr<30",
+        "ibuprofen|egfr<60",
+        "simvastatin|ck>1000",
+        "sotalol|magnesium<1.7",
+        "spironolactone|potassium>5.0"
+      ]
+    },
+    {
+      "id": "b05",
+      "version": "v1",
+      "keys": [
+        "allopurinol|azathioprine",
+        "aspirin|simvastatin",
+        "citalopram|ondansetron",
+        "clopidogrel|omeprazole",
+        "fluconazole|warfarin",
+        "hydrochlorothiazide|lithium",
+        "methotrexate|trimethoprim",
+        "nitroglycerin|sildenafil"
+      ]
+    },
+    {
+      "id": "b06",
+      "version": "v1",
+      "keys": [
+        "amiodarone|digoxin",
+        "ciprofloxacin|tizanidine",
+        "clarithromycin|colchicine",
+        "clopidogrel|pantoprazole",
+        "linezolid|sertraline",
+        "lisinopril|omeprazole",
+        "metronidazole|warfarin",
+        "spironolactone|trimethoprim"
+      ]
+    },
+    {
+      "id": "b07",
+      "version": "v1",
+      "keys": [
+        "alprazolam|ketoconazole",
+        "aspirin|ibuprofen",
+        "carbamazepine|levonorgestrel",
+        "clopidogrel|lisinopril",
+        "fluconazole|methadone",
+        "levonorgestrel|rifampin",
+        "phenytoin|valproate",
+        "tramadol|venlafaxine"
+      ]
+    },
+    {
+      "id": "b08",
+      "version": "v1",
+      "keys": [
+        "bupropion|tamoxifen",
+        "clopidogrel|ibuprofen",
+        "doxycycline|isotretinoin",
+        "escitalopram|sumatriptan",
+        "gabapentin|oxycodone",
+        "methadone|quetiapine",
+        "naproxen|prednisone",
+        "omeprazole|simvastatin"
+      ]
+    },
+    {
+      "id": "b09",
+      "version": "v1",
+      "keys": [
+        "albuterol|propranolol",
+        "apixaban|diltiazem",
+        "aspirin|omeprazole",
+        "atorvastatin|clarithromycin",
+        "fluconazole|glipizide",
+        "ibuprofen|lisinopril",
+        "iohexol|metformin",
+        "levofloxacin|prednisone"
+      ]
+    },
+    {
+      "id": "b10",
+      "version": "v1",
+      "keys": [
+        "amlodipine|simvastatin",
+        "aspirin|clopidogrel",
+        "aspirin|methotrexate",
+        "diphenhydramine|zolpidem",
+        "ibuprofen|simvastatin",
+        "isosorbide|tadalafil",
+        "methotrexate|omeprazole",
+        "phenelzine|sumatriptan"
+      ]
+    },
+    {
+      "id": "b11",
+      "version": "v1",
+      "keys": [
+        "aspirin|lisinopril",
+        "azithromycin|hydroxychloroquine",
+        "ciprofloxacin|theophylline",
+        "clonidine|metoprolol",
+        "clopidogrel|simvastatin",
+        "fluconazole|tacrolimus",
+        "fluoxetine|trazodone",
+        "naltrexone|oxycodone"
+      ]
+    },
+    {
+      "id": "b12",
+      "version": "v1",
+      "keys": [
+        "acetaminophen|warfarin",
+        "donepezil|oxybutynin",
+        "furosemide|gentamicin",
+        "ibuprofen|omeprazole",
+        "lamotrigine|valproate",
+        "linezolid|pseudoephedrine",
+        "lisinopril|simvastatin",
+        "sildenafil|tamsulosin"
+      ]
+    }
+  ]
+}
