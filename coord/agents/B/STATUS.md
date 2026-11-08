@@ -1,8 +1,8 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-030 brand-name question tests done. PR #2 rebased on main 0cf2180, head 28e5edf, waiting for G2
+current_task: B-031 G2 merge check. PR #2 (head 24db8ad, on main 43160e6) merged locally with PR #5 (A, 25cd41d) has no conflicts and passes. Waiting for G2
 branch: agent/B-privacy-router
-last_commit: 28e5edf
+last_commit: 24db8ad
 last_seen:
   plan_version: "1.3"
   decisions: D-031
@@ -36,9 +36,13 @@ handled_messages:
   - 20261108-1526-from-C-b025-done.md
 blocked_on: none
 notes: >
-  Rebased onto main 0cf2180 (D-030, D-031). make test exit 0: 658 passed, 1 skipped.
-  New tests/B/test_brand_questions.py (21 tests) runs on A's real normalizer: brand names map to ingredient keys and never leave the device.
-  The one skip left is tests/B/test_g2_real_rules.py, which waits for A's allergy engine (PR #5).
+  Nothing new since last cycle (PLAN v1.3, D-031, no new inbox messages or LOG entries).
+  Rebased onto main 43160e6 and force-pushed PR #2. make test exit 0: 658 passed, 1 skipped
+  (the skip is the allergy test in tests/B/test_g2_real_rules.py, which waits for PR #5).
+  G2 check: I merged origin/agent/A-data-rules (25cd41d, PR #5) into my head in a throwaway worktree.
+  No conflicts; pytest 914 passed, 1 skipped. test_g2_real_rules.py: 6 of 6 pass, including
+  test_allergy_flag_never_leaves_the_device. The one skip there is A's test_eval_queries, which needs D's eval/queries.json.
+  No code change this cycle, so no LOG entry.
   BRIEF queue items 1-9 and the stretch item are done.
-  The untracked Finder copies ("core/cloud 2.py", "... 4.py" etc.) are still local only and not committed. A human can delete them.
-next: G2 merge of PR #2. After PR #5 merges, rebase and confirm the allergy test in test_g2_real_rules runs instead of skipping
+  The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
+next: G2 merge of PR #2 and PR #5 (either order works). After that, rebase and confirm the allergy test runs on main
