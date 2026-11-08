@@ -90,9 +90,10 @@ def _lab_trend(profile: Profile, test: str) -> str | None:
     rows = sorted((l for l in profile.labs if l.test.lower() == test.lower()), key=lambda l: l.date)
     if not rows:
         return None
+    name = rows[-1].test                     # the profile's spelling ("eGFR"), not the key token ("egfr")
     if len(rows) > 1:
-        return f"{test} {rows[-2].value:g} → {rows[-1].value:g} {rows[-1].unit}"
-    return f"{test} {rows[-1].value:g} {rows[-1].unit}"
+        return f"{name} {rows[-2].value:g} → {rows[-1].value:g} {rows[-1].unit}"
+    return f"{name} {rows[-1].value:g} {rows[-1].unit}"
 
 
 def describe(flag: Flag, profile: Profile) -> str:
@@ -146,12 +147,16 @@ def _mentions(flag: Flag, haystack: str) -> bool:
     return any(re.search(rf"\b{re.escape(t)}\b", haystack, re.I) for t in drugs + genes)
 
 
-def relevant_flags(answer: Answer, flags: list[Flag]) -> list[Flag]:
-    """Flags whose drugs or genes the answer (text or fact keys) talks about."""
+def relevant_flags(answer: Answer, flags: list[Flag], profile: Profile | None = None) -> list[Flag]:
+    """Flags whose drugs or genes the answer (text or fact keys) talks about, plus flags about a drug that
+    isn't on the med list: those exist only because the question named that drug (B-025), e.g. X5 for
+    "Can I take ibuprofen?", whose local answer text names no drug."""
     haystack = " ".join([answer.text, *(f.key for f in answer.facts), *(f.text for f in answer.facts)])
+    on_list = {m.ingredient for m in profile.meds} if profile else None
     order = {"high": 0, "medium": 1, "low": 2}
-    hits = [f for f in flags if _mentions(f, haystack)]
-    return sorted(hits, key=lambda f: (order[f.severity], f.id))
+    hits = [f for f in flags
+            if _mentions(f, haystack) or (on_list is not None and any(d not in on_list for d in _key_parts(f.key)[0]))]
+    return sorted(hits, key=lambda f: (order[f.severity], f.id, f.key))
 
 
 # ---------- the answer ----------
@@ -239,7 +244,7 @@ def structure(answer: Answer, flags: list[Flag], profile: Profile) -> list[dict]
                 sections.append({"kind": "fact", "key": f.key, "label": _tier_label(f), "tier": f.tier,
                                  "primary": False, "paragraphs": paras})
 
-    mine = relevant_flags(answer, flags)
+    mine = relevant_flags(answer, flags, profile)
     if mine:
         sections.append({"kind": "personal", "paragraphs": ["For you: " + " ".join(describe(f, profile) for f in mine)]})
     else:

@@ -216,3 +216,36 @@ def test_ask_endpoint_returns_sections():
     import app
     d = TestClient(app.app).post("/api/ask", json={"question": "What should I bring up with my cardiologist?"}).json()
     assert d["sections"] and d["sections"][-1]["kind"] == "closing"
+
+
+# ---------- questions that name a drug not on the list (B-025, Q15) ----------
+
+X5_FLAGS = [Flag(id="X5", key="aspirin|ibuprofen", severity="high", engine="class_rule",
+                 evidence=["ibuprofen is an NSAID", "aspirin is an antiplatelet"]),
+            Flag(id="X5", key="clopidogrel|ibuprofen", severity="high", engine="class_rule",
+                 evidence=["ibuprofen is an NSAID", "clopidogrel is an antiplatelet"])]
+
+
+def test_flags_for_a_drug_not_taken_are_described_even_if_the_answer_names_no_drug():
+    local = Answer(state="known", text="Answered from the local tables on this device.")   # router LOCAL_TEXT style
+    out = merge.personalize(local, FLAGS + X5_FLAGS, PROFILE)
+    assert "For you: X5 (high): aspirin 81 mg and ibuprofen." in out
+    assert "X1" not in out.split("For you:")[1]      # current-med flags still need a mention to show
+
+
+def test_named_drug_flags_reach_the_router(monkeypatch):
+    import app
+    from fastapi.testclient import TestClient
+    from core.contracts import Drug
+    seen = {}
+    monkeypatch.setitem(app.MODES, "normalize.to_ingredients", "real")
+    monkeypatch.setattr(app, "to_ingredients", lambda text: [Drug(ingredient="ibuprofen")] if "ibuprofen" in text else [])
+    monkeypatch.setattr(app, "check", lambda d, p: list(X5_FLAGS) if d.ingredient == "ibuprofen" else [])
+    monkeypatch.setattr(app, "route", lambda q, flags: seen.setdefault("flags", flags) and Answer(state="known", text="Local."))
+    TestClient(app.app).post("/api/ask", json={"question": "Can I take ibuprofen for a headache?"})
+    assert {f.key for f in seen["flags"]} == {"aspirin|ibuprofen", "clopidogrel|ibuprofen"}
+
+
+def test_lab_token_from_a_key_reads_with_profile_spelling():
+    f = Flag(id="X5", key="ibuprofen|egfr<60", severity="high", engine="drug_lab", evidence=["eGFR 48"])
+    assert "your eGFR 62 → 48" in merge.describe(f, PROFILE)

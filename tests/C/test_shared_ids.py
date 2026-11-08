@@ -48,7 +48,8 @@ def test_reminders_and_merge_list_a_shared_id_once():
     assert rs["r-pharmacist"]["flags"] == ["X5"]
     assert "X5, X5" not in rs["r-pharmacist"]["detail"]
     out = merge.personalize(Answer(state="no_data", text=""), X5, PROFILE)
-    assert "flagged item X5 is still worth raising" in out
+    # X5 is about ibuprofen, which Alex doesn't take: it is described under "For you" (C-022), never "X5, X5".
+    assert "For you: X5 (high)" in out and "X5, X5" not in out
 
 
 def test_each_x5_key_gets_its_own_question():

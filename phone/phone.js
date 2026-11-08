@@ -231,6 +231,6 @@ async function refreshSent() {
 
 $("pair-form").addEventListener("submit", onPair);
 $("photo").addEventListener("change", onPhoto);
-document.querySelector(".samples").addEventListener("click", onSample);
+document.querySelectorAll(".samples").forEach((g) => g.addEventListener("click", onSample));
 $("type-form").addEventListener("submit", onType);
 start();

@@ -551,6 +551,8 @@ const ACTIONS = [
         el("p", { class: "mute small" },
           "Type this code on the phone once. The phone can then scan labels and see reminders. "
           + "Photos are read on this laptop and not kept; nothing leaves your network."),
+        el("div", { class: "action-bar" },
+          lineButton("Open sample labels to photograph", { href: "/phone-assets/labels.html", target: "_blank", rel: "noopener" })),
       ];
     },
   },

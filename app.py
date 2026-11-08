@@ -246,11 +246,21 @@ def check_drug(body: CheckIn) -> dict:
     return {"input": body.text, **result}
 
 
+def _named_drugs(question: str, p: Profile) -> list[Drug]:
+    """Drugs the question names that aren't already on the med list (B-025): their local flags go to the
+    router too, so "Can I take ibuprofen?" is covered by X5 like a typed ibuprofen check. Needs A's real
+    normalizer: the mock one treats the whole question as one ingredient."""
+    if MODES["normalize.to_ingredients"] != "real":
+        return []
+    on_list = {m.ingredient for m in p.meds}
+    return [d for d in to_ingredients(question) if d.ingredient not in on_list]
+
+
 @app.post("/api/ask")
 def ask(body: AskIn) -> dict:
     """Open question: router decides what (if anything) leaves; merge personalizes locally."""
     p = load_profile()
-    current = _flags_for(p.meds, p)
+    current = _flags_for(p.meds + _named_drugs(body.question, p), p)
     answer: Answer = route(body.question, current)
     _asked.append(body.question)
     if answer.sent_to_cloud:

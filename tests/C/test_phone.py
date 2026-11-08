@@ -122,12 +122,20 @@ def test_typed_on_phone_shows_on_laptop():
 
 @pytest.mark.skipif(not REAL_CAPTURE, reason="needs A's capture.py (integrated build)")
 @pytest.mark.parametrize("sample,ingredient,flag_ids", [("clopidogrel.png", "clopidogrel", {"X1", "X2"}),
-                                                        ("ibuprofen.png", "ibuprofen", {"X5"})])
+                                                        ("omeprazole.png", "omeprazole", {"X2"}),
+                                                        ("simvastatin.png", "simvastatin", {"X3"}),
+                                                        ("lisinopril.png", "lisinopril", {"X4"}),
+                                                        ("aspirin.png", "aspirin", set()),
+                                                        ("ibuprofen.png", "ibuprofen", {"X5"}),
+                                                        ("amoxicillin.png", "amoxicillin", {"AL-001"})])
 def test_sample_labels_read_with_a_real_reader(sample, ingredient, flag_ids):
     d = local.post("/api/capture", content=(PHONE / "samples" / sample).read_bytes(),
                    headers={"Content-Type": "image/png"}).json()
     assert d["drugs"][0]["ingredient"] == ingredient
     c = local.post("/api/capture/confirm", json={"drugs": d["drugs"], "source": "sample"}).json()
+    import core.rules as _rules
+    if "AL-001" in flag_ids and not hasattr(_rules, "allergy_key"):
+        pytest.skip("allergy engine arrives with A's PR #5")
     assert flag_ids <= {f["id"] for f in c["flags"]}
 
 
@@ -149,3 +157,40 @@ def test_phone_page_loads_no_external_assets():  # I8
 
 def test_no_voice_input():  # browser speech recognition sends audio to a cloud service
     assert "SpeechRecognition" not in _phone_text()
+
+
+# ---------- the shared synthetic label set (Dhiaa 15:20 item 2; A tests from_image against the same set) ----------
+
+import json as _json
+import struct as _struct
+
+LABELS = _json.loads((PHONE / "samples" / "labels.json").read_text())
+
+
+def _embedded(png: bytes) -> str:
+    i = 8
+    while i < len(png):
+        n = _struct.unpack(">I", png[i:i + 4])[0]; t = png[i + 4:i + 8]; body = png[i + 8:i + 8 + n]
+        if t == b"iTXt" and body.startswith(b"gv:label"):
+            return body.split(b"\x00", 5)[-1].decode()
+        i += 12 + n
+    return ""
+
+
+def test_label_set_covers_all_discharge_meds_plus_demo_drugs():
+    names = {n.split(".")[0] for n in LABELS}
+    meds = {m.ingredient for m in app_module.load_profile().meds}
+    assert meds <= names and {"ibuprofen", "amoxicillin"} <= names
+
+
+@pytest.mark.parametrize("name", sorted(LABELS))
+def test_each_label_embeds_its_printed_text_and_is_served(name):
+    png = (PHONE / "samples" / name).read_bytes()
+    assert png.startswith(b"\x89PNG") and _embedded(png) == LABELS[name]
+    assert remote.get(f"/phone-assets/samples/{name}").status_code == 200    # assets need no pairing
+
+
+def test_phone_offers_every_label_and_a_print_sheet():
+    html = (PHONE / "index.html").read_text() + (PHONE / "labels.html").read_text()
+    for name in LABELS:
+        assert f"/phone-assets/samples/{name}" in html

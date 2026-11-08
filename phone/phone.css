@@ -132,3 +132,11 @@ section, .screen { animation: rise .7s var(--ease-out) both; }
 .confirm-actions { display: flex; align-items: center; gap: 16px; }
 .confirm-actions .line-btn { margin: 0; }
 .link-btn { border: 0; background: none; color: var(--blue); font-size: 15px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 10px 0; }
+
+/* more sample labels */
+.samples { grid-template-columns: repeat(3, 1fr); }
+.more-samples { margin-top: 10px; font-size: 13px; color: var(--mute); }
+.more-samples summary { cursor: pointer; padding: 6px 0; }
+.more-samples .samples { grid-template-columns: 1fr 1fr; margin: 8px 0; }
+.more-samples a { color: var(--blue); }
+@media (max-width: 380px) { .samples { grid-template-columns: 1fr 1fr; } }
