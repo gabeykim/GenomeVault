@@ -30,21 +30,23 @@ Meet **Alex** (synthetic): 58, just discharged after a coronary stent, with five
 4. **Personalize locally.** General answers come back; the laptop combines them with Alex's private results into an answer about him.
 5. **Act.** It drafts a message to his pharmacist, a one-page visit summary, and a reminder on his phone.
 6. **Learn.** All cloud answers, decoys included, are stored on the laptop. Related questions are answered locally next time.
-7. **Work offline.** With no connection, the rules engine and stored knowledge keep working.
+7. **Sync the knowledge pack.** The cloud answers every question in the fixed set once, for everyone, and every device downloads the same pack. After a sync, those questions are answered on the laptop with nothing sent, so the cloud learns nothing at all.
+8. **Work offline.** With no connection, the rules engine, the stored knowledge and the synced pack keep working.
 
 ```mermaid
 flowchart LR
   phone["Phone<br/>label photo, voice"] --> capture
   subgraph pc["AI PC: everything personal stays here"]
-    ingest["Ingest<br/>VCF, records, labs"] --> graph["Health graph"]
+    ingest["Ingest<br/>VCF, records, labs"] --> hgraph["Health graph"]
     capture["Capture + normalize"] --> rules["Rules engine<br/>gene, drug, lab, allergy"]
-    graph --> rules
+    hgraph --> rules
     rules --> router["Privacy router<br/>generalize, split, bucket of 8"]
     router --> kb["Knowledge base<br/>exact keys, trust tiers"]
     router --> ledger["Ledger<br/>every byte that leaves"]
     kb --> merge["Merge + actions"]
   end
   router <-->|"decoy buckets only"| cloud["Cloud LLM"]
+  pack["Knowledge pack<br/>same for every user"] -->|"sync"| kb
   merge --> phone
 ```
 
@@ -62,6 +64,8 @@ Each step runs only if the previous one could not answer:
 | 6. Cover traffic | Decoy buckets on a steady schedule | Hides when you're active |
 | 7. Leakage check | Blocks any outbound text containing personal fields | Zero personal fields |
 | 8. Ledger | Logs everything that left, shown live in the UI | Auditable |
+
+**Knowledge pack.** The cloud does the heavy reasoning once, for everyone: it answers the whole fixed set of generalized questions (136 today), and the answers ship as one pack that every device downloads identically. A synced question stops at step 2 and sends nothing. The demo pack is human-reviewed for the facts the demo shows; the same design scales to the top 1,000 drugs (about 500,000 pairs, roughly half a gigabyte), built once for everyone. Interactions among three or more drugs, and anything new, still go through steps 3–8.
 
 ### Safety rules
 
@@ -106,7 +110,8 @@ make eval                   # regenerates every proof chart into docs/
 | `ANTHROPIC_API_KEY` | `core/cloud.py`, `eval/llm_client.py` | Cloud model access |
 | `CLOUD_MODEL` | `core/cloud.py` | Cloud model name |
 | `LOCAL_LLM_URL` | `core/local_llm.py` | Local model server (must be localhost) |
-| `LOCAL_LLM_MODEL` | `core/local_llm.py` | On-device model name |
+| `LOCAL_LLM_MODEL` | `core/local_llm.py` | On-device text model (demo: `qwen3:8b`, thinking off) |
+| `LOCAL_VLM_MODEL` | `core/local_llm.py` | On-device vision model for label photos (demo: `qwen2.5vl:7b`) |
 | `DEMO` | app | `1` replays cached cloud answers with no network |
 
 ## Repository layout
@@ -164,9 +169,10 @@ Pause one agent by committing `coord/agents/<ID>/STOP` to `main`; stop all by co
 | G0 | 0:30 | Contracts, mocks and protocol on `main` |
 | G1 | 2:30 | Rules engine flags Alex's four issues from real data |
 | G2 | 4:00 | One question works end to end with the live ledger |
-| G3 | 6:30 | Knowledge base, cover traffic, full UI and phone page |
-| G4 | 7:30 | Evaluations run on the integrated build |
-| G5 | 8:15 | Freeze: bug fixes only |
+| G3 | 5:30 | Knowledge base and knowledge pack, full UI and phone page |
+| G4 | 6:15 | Evaluations run on the integrated build |
+| G5 | 6:30 | Freeze: bug fixes only |
+| Draft | 7:00 | Project draft saved for judging (19:00); demos at 20:00 |
 
 ## Limitations
 
@@ -179,7 +185,7 @@ Pause one agent by committing `coord/agents/<ID>/STOP` to `main`; stop all by co
 ## Roadmap
 
 - Replace the hand-coded genotype lookup with PharmCAT; real FHIR import.
-- Relay layer for network metadata; bulk knowledge-pack sync so refreshes reveal nothing.
+- Relay layer for network metadata; signed, versioned knowledge-pack updates at scale, built from curated interaction databases.
 - Clinic mode on an edge server for pharmacies and practices.
 - Federated cohort queries across sites without moving genomes.
 
