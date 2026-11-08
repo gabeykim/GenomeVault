@@ -92,3 +92,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S6 "learns": a second ask is a 0-byte `kb_hit` in the ledger.
 - **Tests:** `make test` → exit 0, 276 passed; `make check` → ownership ok, network ok
 - **Next:** queue 9 offline mode (steps 1–2 only, `no_data` otherwise), then queue 8 random delays + cover buckets (G3).
+
+### B-008 · 2026-11-08 13:55 · commit `f85b8a8` · PLAN v1.1
+
+- **Change:** Offline mode. `core/cloud.py`: `offline()`, `set_offline(bool|None)`, `status()`; `ask_bucket` raises `CloudUnavailable` when forced offline, before demo replay. `core/router.py`: when offline, P6 steps 3–8 are skipped (no generalizing, no ledger entry, 0 bytes); KB hits and local answers still work; anything else is `no_data` with `router.OFFLINE_TEXT`. If a send fails mid-question, the remaining buckets are not tried. `core/kb.py`: `clear()` empties the store and deletes the `GV_KB_PATH` file. New `tests/B/test_offline.py` (9 tests). PR #2 updated.
+- **Why:** BRIEF B queue item 9, plus D's requests (a) KB reset for cold runs and (b) an offline switch (20261108-1323-from-D-eval-needs.md).
+- **Class:** Refines
+- **Plan:** advances F8, M5, M6, M8, P7 E4, I8; refines F8
+- **Refinements:** (1) The offline switch is `GV_OFFLINE=1`, or `cloud.set_offline(True/False)` at runtime (None goes back to the env var). (2) Forced offline wins over `DEMO=1`, so S6's offline ibuprofen beat runs in demo mode as "Wi-Fi off". (3) Offline writes no ledger entry, because nothing was decided for sending. (4) `cloud.status()` returns `{"online", "demo", "forced_offline"}` and never sends anything. `online` is False when offline is forced, when live mode has no API key, or when the last live call failed; it turns True again after the next successful call. (5) `kb.clear()` is a cold KB that also wipes the file; `kb.reset()` still just reloads from the file.
+- **Contract impact:** none. `cloud.status()` is a superset of the shape in C's pending proposal (20261108-1323-C-capture-and-status-contracts.md). It is not a contract until the integrator rules on it.
+- **Affects:** C: the offline badge can call `cloud.status()` if the proposal is accepted. A UI "Wi-Fi off" toggle can call `cloud.set_offline(True)`. Show `answer.text` for `no_data` as it is, because it already says "offline" → message sent. D: LiveBackend cold run = `kb.clear()`, offline = `GV_OFFLINE=1` or `cloud.set_offline(True)`. I'm not proposing a token field on `LedgerEntry` for now → message sent. A: none.
+- **Demo impact:** S6 offline beat: with offline forced, the ibuprofen X5 local flags still show, and any cloud question shows the offline `no_data` text with 0 bytes.
+- **Tests:** `make test` → exit 0, 285 passed; `scripts/check_network.sh` → network ok
+- **Next:** queue 8: random delays and cover buckets (P6.4, P6.6), for G3.
