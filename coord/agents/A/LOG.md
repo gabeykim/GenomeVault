@@ -106,3 +106,16 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Demo impact:** none in S1–S6. Off-script typed questions (codeine, citalopram, supplements) now reach the router instead of silently doing nothing.
 - **Tests:** `make test` → 173 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok. By hand against B's v5: 103/103 universe drugs normalize to themselves.
 - **Next:** wait for PR #5 review. Answer D on Q08. Stretch: encryption at rest needs a crypto dependency (stdlib has no cipher, and I won't hand-roll one), so I'd raise it with the integrator before starting.
+
+### A-009 · 2026-11-08 15:00 · commit `d621bd8` · PLAN v1.2.1
+
+- **Change:** `core/ingest.py` can now also read a PharmCAT phenotype report (`*.phenotype.json`) alongside our own VCF caller. The new functions are `read_pharmcat(report)` and `merge_pharmcat(...)`, plus an optional `ingest(..., pharmcat=None)` argument. It accepts PharmCAT 2.x `geneReports` keyed by source (CPIC first) or directly by gene. Default behavior is unchanged: `graph.load_profile()` still calls `ingest()` with no report. New `tests/A/test_pharmcat.py` (9 tests, synthetic reports only, I1). PR #5 updated, and the branch is rebased on origin/main 64b66cb (last cycle's rebase had not been pushed).
+- **Why:** BRIEF A stretch ("PharmCAT path"). It lets a user who already ran PharmCAT locally bring its calls in. Our own caller stays the default and the cross-check.
+- **Class:** Refines
+- **Plan:** advances M1, F1 (stretch); keeps I2, I4, D-021
+- **Refinements:** (1) A PharmCAT call is used only when there is exactly one diplotype with exactly one phenotype, and that phenotype is already in `data/pgx_alleles.json` for that gene. Several diplotypes, "Likely ...", "Indeterminate", a missing phenotype, or an unknown term all give `indeterminate`, which no rule key uses (I4). (2) If PharmCAT and our VCF caller both give a phenotype and they differ, the gene is `indeterminate`; we don't pick one. A test shows a conflicting CYP2C19 report drops X1 rather than silently clearing it. (3) CYP2D6 is never taken from PharmCAT and stays `not_assessed` (D-021). (4) A gene the report doesn't mention keeps the VCF call. If the VCF couldn't call the gene, a clean PharmCAT call fills it. (5) PharmCAT itself is not run or bundled (it's Java). We read its JSON with stdlib only: no new dependency, no network (I2).
+- **Contract impact:** none. `Profile` and `graph.load_profile` are unchanged. `ingest.ingest` gained an optional keyword argument, and only A's code calls it.
+- **Affects:** none, so no messages. B-017's G2 test on real rules is unaffected because the default ingest is unchanged.
+- **Demo impact:** none (S1–S6 use the VCF path)
+- **Tests:** `make test` → 182 passed, 1 skipped (exit 0); `check_ownership.py --range origin/main..HEAD` → ownership ok; `check_network.sh` → network ok.
+- **Next:** wait for PR #5 review at G2. The Q08 question to D is still open. The other stretch item, encryption at rest, needs a crypto dependency, so I'd ask the integrator first. Otherwise: requests from B/C/D.
