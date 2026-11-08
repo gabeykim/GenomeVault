@@ -1,11 +1,11 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (C-015 pushed; PR #3 updated)
+current_task: none (C-015 pushed; branch synced to main after G1)
 branch: agent/C-app-ui
-last_commit: bd85112
+last_commit: 4f65b04
 last_seen:
-  plan_version: "1.2"
-  decisions: D-021
+  plan_version: "1.2.1"
+  decisions: D-022
   logs: {A: 6, B: 15, C: 15, D: 8}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
@@ -30,5 +30,6 @@ handled_messages:
   - 20261108-1417-from-A-cyp2d6-dapt-note.md
   - 20261108-1425-from-A-graph-load-profile.md
   - 20261108-1430-from-A-capture-ready.md
+  - 20261108-1431-from-integrator-g1-real-rules.md
 blocked_on: none
-next: drop stand-ins (D-014); full demo rehearsal with D's script once PRs merge; optional sync-for-offline button
+next: drop stand-ins (D-014); show A's no_data marker when PR #5 lands; rehearsal with D's script after G2
