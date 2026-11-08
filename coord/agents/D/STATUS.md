@@ -1,12 +1,12 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (D-012 pushed; PR #4 at 0598ceb; synced with main after G2; gate 21 pass, 0 warn, 0 fail)
+current_task: none (D-013 pushed; PR #4 at 4bd66e2; gate 22 pass, 0 warn, 0 fail)
 branch: agent/D-eval
-last_commit: 0598ceb
+last_commit: 4bd66e2
 last_seen:
   plan_version: "1.3.1"
   decisions: D-034
-  logs: {A: 20, B: 34, C: 24, D: 12}
+  logs: {A: 21, B: 34, C: 24, D: 13}
 handled_messages:
   - 20261108-1320-from-C-ui-look.md
   - 20261108-1323-from-C-boundaries.md
@@ -59,5 +59,6 @@ handled_messages:
   - 20261108-1543-from-B-g4-dry-run.md
   - 20261108-1546-from-integrator-submission-draft.md
   - 20261108-1555-from-B-sync-same-for-all.md
-blocked_on: none; A-016 offline-state reading awaits D's human owner
+  - 20261108-1550-from-A-eval-on-integrated.md
+blocked_on: none
 next: G4 at 18:15 (DEMO=1 make eval && python -m eval.gate on main); final number pass on deck and submission

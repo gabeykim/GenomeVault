@@ -163,3 +163,16 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Tests:** on D's branch synced with main: `DEMO=1 make test` → exit 0 (835 passed); `DEMO=1 make eval` → exit 0; `python -m eval.gate` → **21 pass, 0 warn, 0 fail** (P3 FAILs and exits 1 without `DEMO=1`, as intended).
 - **Open question (A-016):** B's router answers `no_data` offline for 10 questions where D's E4 counts a covering local flag as answered. D proposes reporting both readings (user-visible content and router state); awaiting D's human owner.
 - **Next:** G4 at 18:15; final number pass on deck and submission after G4
+
+### D-013 · 2026-11-08 16:00 · commit `4bd66e2` · PLAN v1.3.1
+
+- **Change:** E4 reports both offline readings (A-016), as decided by D's human owner: **user-visible** (a covering local flag or curated note counts, because it's on screen) and **strict** (only the router's own `known`: a stored fact or a local-only flag). `Result.strict_state`; the simulated backend records what B's router would answer. New gate check E4d. `docs/results.md`, `slides/numbers.md`, `docs/submission.md`, `slides/judge_qa.md` and the deck state both. `slides/pitch.md` bracketed figures are refreshed from the integrated build (A-021).
+- **Why:** A-016 question settled; A-021 noted stale pitch figures.
+- **Class:** Refines
+- **Plan:** advances P7 E4, P8; settles A-016
+- **Refinements:** "answered offline" is reported in two readings; neither counts an honest `no_data`.
+- **Contract impact:** none
+- **Affects:** A: settled → reply sent. B: strict matches `route()` → note sent. I: the submission's offline line now carries both counts → note sent.
+- **Demo impact:** none
+- **Tests:** `DEMO=1 make test` → exit 0 (836 passed); `DEMO=1 make eval` → exit 0; `python -m eval.gate` → **22 pass, 0 warn, 0 fail**. Offline on the integrated build: user-visible cold 11/20, strict cold 4/20 (Q01, Q06, Q08, Q12, Q18, Q19, Q20 differ); both 18/20 after a pack sync.
+- **Next:** G4 at 18:15; final number pass after G4
