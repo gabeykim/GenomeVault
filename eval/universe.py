@@ -117,7 +117,7 @@ def _parse_buckets(raw) -> list[Bucket]:
     return out
 
 
-MIN_OVERLAP = 0.25        # share of D's universe keys the real partition must cover before evals switch to it
+MIN_OVERLAP = 0.25        # share of the real partition's keys that need synthetic priors before evals switch to it
 
 
 def generalized_view(buckets: list[Bucket]) -> tuple[list[Bucket], dict]:
@@ -149,10 +149,12 @@ def load_partition(prefer_real: bool = True, path: pathlib.Path | None = None) -
         u = load_universe()
         overlap = sum(part.bucket_for(k) is not None for k in u.keys) / len(u.keys)
         part.stats["universe_overlap"] = round(overlap, 3)
-        if overlap >= MIN_OVERLAP:
+        part.stats["partition_keys_without_prior"] = sum(k not in u.keys for k in part.keys)
+        covered = sum(k in u.keys for k in part.keys) / len(part.keys)
+        if covered >= MIN_OVERLAP:
             return part
         fb = load_partition(prefer_real=False)
-        fb.stats = {"fallback_reason": f"real partition covers only {overlap:.0%} of D's universe keys", **stats}
+        fb.stats = {"fallback_reason": f"only {covered:.0%} of the real partition's keys have synthetic priors", **stats}
         return fb
     part = Partition(_parse_buckets(json.loads(FIXTURE_BUCKETS.read_text())), "fixture:eval/fixtures/buckets_v1.json")
     part.stats = {}

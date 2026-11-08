@@ -28,16 +28,17 @@ def ok(buckets, clusters):
 
 def build():
     u = load_universe()
-    keys = sorted(u.keys)
+    keys = sorted(k for k, v in u.keys.items() if v.get("src", "d-v1") == "d-v1")   # the stand-in stays D's original 64
     assert len(keys) % K == 0, f"universe size {len(keys)} must be a multiple of {K}"
     prior = {k: u.prior(k) for k in keys}
+    clusters = {c: [k for k in ks if k in prior] for c, ks in u.clusters.items()}
     best = None
     for seed in range(SEEDS):
         rng = random.Random(seed)
         # frequency-banded start (similar priors together), then shuffle within +-1 band for diversity
         order = sorted(keys, key=lambda k: (-prior[k] + rng.uniform(-2.5, 2.5)))
         buckets = [order[i:i + K] for i in range(0, len(order), K)]
-        if not ok(buckets, u.clusters):
+        if not ok(buckets, clusters):
             continue
         s = score(buckets, prior)
         if best is None or s < best[0]:

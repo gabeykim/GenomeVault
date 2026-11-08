@@ -31,9 +31,9 @@
   {
    "q": "Q04",
    "category": "gene_drug",
-   "cloud_calls": 1,
-   "kb_hits": 1,
-   "bytes_out": 1440,
+   "cloud_calls": 2,
+   "kb_hits": 0,
+   "bytes_out": 2880,
    "state": "known",
    "cum_local_share": 0.5
   },
@@ -49,11 +49,11 @@
   {
    "q": "Q06",
    "category": "drug_drug",
-   "cloud_calls": 1,
-   "kb_hits": 0,
-   "bytes_out": 1440,
+   "cloud_calls": 0,
+   "kb_hits": 1,
+   "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.5
+   "cum_local_share": 0.667
   },
   {
    "q": "Q07",
@@ -62,7 +62,7 @@
    "kb_hits": 0,
    "bytes_out": 1440,
    "state": "known",
-   "cum_local_share": 0.429
+   "cum_local_share": 0.571
   },
   {
    "q": "Q08",
@@ -71,7 +71,7 @@
    "kb_hits": 1,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.5
+   "cum_local_share": 0.625
   },
   {
    "q": "Q09",
@@ -80,7 +80,7 @@
    "kb_hits": 0,
    "bytes_out": 0,
    "state": "no_data",
-   "cum_local_share": 0.556
+   "cum_local_share": 0.667
   },
   {
    "q": "Q10",
@@ -89,7 +89,7 @@
    "kb_hits": 0,
    "bytes_out": 1440,
    "state": "known",
-   "cum_local_share": 0.5
+   "cum_local_share": 0.6
   },
   {
    "q": "Q11",
@@ -98,7 +98,7 @@
    "kb_hits": 0,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.545
+   "cum_local_share": 0.636
   },
   {
    "q": "Q12",
@@ -107,25 +107,25 @@
    "kb_hits": 2,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.583
+   "cum_local_share": 0.667
   },
   {
    "q": "Q13",
    "category": "drug_lab",
-   "cloud_calls": 0,
-   "kb_hits": 1,
-   "bytes_out": 0,
+   "cloud_calls": 1,
+   "kb_hits": 0,
+   "bytes_out": 1440,
    "state": "known",
    "cum_local_share": 0.615
   },
   {
    "q": "Q14",
    "category": "drug_lab",
-   "cloud_calls": 1,
-   "kb_hits": 0,
-   "bytes_out": 1440,
+   "cloud_calls": 0,
+   "kb_hits": 1,
+   "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.571
+   "cum_local_share": 0.643
   },
   {
    "q": "Q15",
@@ -134,7 +134,7 @@
    "kb_hits": 0,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.6
+   "cum_local_share": 0.667
   },
   {
    "q": "Q16",
@@ -143,7 +143,7 @@
    "kb_hits": 0,
    "bytes_out": 0,
    "state": "no_data",
-   "cum_local_share": 0.625
+   "cum_local_share": 0.688
   },
   {
    "q": "Q17",
@@ -152,7 +152,7 @@
    "kb_hits": 0,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.647
+   "cum_local_share": 0.706
   },
   {
    "q": "Q18",
@@ -161,7 +161,7 @@
    "kb_hits": 4,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.667
+   "cum_local_share": 0.722
   },
   {
    "q": "Q19",
@@ -170,7 +170,7 @@
    "kb_hits": 2,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.684
+   "cum_local_share": 0.737
   },
   {
    "q": "Q20",
@@ -179,12 +179,12 @@
    "kb_hits": 2,
    "bytes_out": 0,
    "state": "known",
-   "cum_local_share": 0.7
+   "cum_local_share": 0.75
   }
  ],
  "total_cloud_calls": 6,
- "local_share": 0.7,
- "cloud_calls_first5": 2,
+ "local_share": 0.75,
+ "cloud_calls_first5": 3,
  "cloud_calls_last5": 0,
  "repeat_q19_is_local": true
 }

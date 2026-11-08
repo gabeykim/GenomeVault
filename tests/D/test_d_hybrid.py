@@ -31,7 +31,7 @@ def test_hybrid_sends_no_personal_fields():         # E3, I3
 
 
 def test_offline_warm_beats_cold_and_sends_nothing():   # E4, F8, I8
-    r = offline.run(write=False)
+    r = offline.run(write=False, live=False)   # spec check on the P6 model; live runs are reported, not asserted
     assert r["warm_answered"] >= r["cold_answered"] > 0
     assert r["matches_offline_state_cold"] == r["n"]    # every cold answer is the state queries.json predicts
     assert r["cold_rows"]["Q15"]["state"] == "known"     # S6 offline ibuprofen still flagged

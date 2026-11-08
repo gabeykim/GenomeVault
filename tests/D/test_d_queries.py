@@ -73,7 +73,8 @@ def test_universe_membership_matches_partition():
 def test_fixture_partition_is_valid():                     # I5
     part = load_partition(prefer_real=False)
     u = load_universe()
-    assert len(part.buckets) * 8 == len(part.keys) == len(u.keys) >= 64
+    d_keys = {k for k, v in u.keys.items() if v.get("src", "d-v1") == "d-v1"}
+    assert len(part.buckets) * 8 == len(part.keys) == len(d_keys) >= 64 and set(part.keys) == d_keys
     for b in part.buckets:
         Bucket.model_validate(b.model_dump())
     for k in ["CYP2C19|clopidogrel", "clopidogrel|omeprazole", "SLCO1B1|simvastatin", "lisinopril|potassium", "clopidogrel|pantoprazole"]:
@@ -82,6 +83,7 @@ def test_fixture_partition_is_valid():                     # I5
         assert all(k in u.keys for k in cluster), name
         for b in part.buckets:
             assert sum(k in b.keys for k in cluster) <= 2, (name, b.id)
+    assert all(any(k in c for c in u.clusters.values()) for k in u.keys)     # every key belongs to a scenario
 
 
 def test_generalize_examples():
@@ -109,7 +111,7 @@ def test_loads_exact_key_partition_like_b(tmp_path):     # B-001 keys carry phen
     f.write_text(json.dumps(raw))
     part = load_partition(path=f)
     assert part.source.startswith("real") and set(part.keys) == set(fixture.keys)
-    assert part.stats["raw_keys_with_phenotype"] > 0 and part.stats["universe_overlap"] == 1.0
+    assert part.stats["raw_keys_with_phenotype"] > 0 and part.stats["partition_keys_without_prior"] == 0
     assert part.bucket_for("CYP2C19|clopidogrel").id == fixture.bucket_for("CYP2C19|clopidogrel").id
 
 
@@ -126,3 +128,25 @@ def test_generalize_b_spellings():
     assert generalize_key("HLA-B:5701_positive|abacavir") == "HLA-B|abacavir"
     assert generalize_key("sotalol|magnesium<1.7") == "sotalol|magnesium"
     assert generalize_key("ibuprofen|egfr<60") == "ibuprofen|egfr"
+
+
+def test_priors_cover_every_key_in_bs_v1_partition():   # B-001 keys, D-005
+    import json, pathlib
+    b_keys = json.loads((pathlib.Path(__file__).parent / "b_v1_keys.json").read_text())
+    u = load_universe()
+    assert len(b_keys) == 96 and all(generalize_key(k) in u.keys for k in b_keys)
+
+
+def test_expected_state_follows_loaded_partition(tmp_path):
+    import json
+    from eval.backends import SimBackend, expected_state
+    q09 = next(q for q in QUERIES if q["id"] == "Q09")
+    fixture = load_partition(prefer_real=False)
+    assert expected_state(q09, fixture) == "no_data" and SimBackend(fixture).ask(q09).cloud_calls == 0
+    keys = sorted(fixture.keys)
+    keys[0] = "lisinopril|simvastatin"                     # a partition that contains Q09's pair
+    raw = [{"id": f"b{i:02d}", "keys": keys[i * 8:(i + 1) * 8]} for i in range(len(keys) // 8)]
+    f = tmp_path / "v1.json"
+    f.write_text(json.dumps(raw))
+    part = load_partition(path=f)
+    assert expected_state(q09, part) == "known" and SimBackend(part).ask(q09).cloud_calls == 1

@@ -2,7 +2,8 @@
 
 Simulated: counts follow from the design; latency/tokens use MODELLED constants (eval/backends.py).
 Quality 1-5 against the reference answers needs a judge model (eval/llm_client.py) on the live build; until then
-the table reports coverage (share of questions reaching their expected answer state), clearly labeled as such.
+the table reports coverage: the share of questions reaching the best answer state queries.json expects. Hybrid loses
+coverage when a needed key is outside the partition (I5), which is a real cost of the design and reported as such.
 Run: python -m eval.latency_cost"""
 from __future__ import annotations
 
@@ -30,6 +31,7 @@ def run(write: bool = True) -> dict:
             "cloud_tokens": sum(r.tokens for r in rs),
             "personal_fields_sent": sum(r.personal_fields_sent for r in rs),
             "coverage": round(sum(r.state == q["expected_state"] for r, q in zip(rs, qs)) / len(qs), 3),
+            "not_fully_answered": [q["id"] for q, r in zip(qs, rs) if r.state != q["expected_state"]],
         }
     if write:
         RESULTS.mkdir(parents=True, exist_ok=True)

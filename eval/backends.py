@@ -5,7 +5,7 @@ SimBackend   - a model of PLAN P6 built from the spec: rules first (needs_cloud 
                Counts (cloud calls, KB hits, bytes) follow from the design; latency and tokens use the constants
                below and are labeled MODELLED, not measured.
 LiveBackend  - the integrated build (G2+): real rules.check, router.route and ledger.feed. Cloud calls and bytes
-               come from the ledger. KB reset and the offline switch need B's API (asked in coord/inbox/to-B).
+               come from the ledger. Cold KB via core.kb.clear(), offline via core.cloud.set_offline() (B-008).
 """
 from __future__ import annotations
 
@@ -38,6 +38,22 @@ class Result:
         return self.cloud_calls == 0
 
 
+def sendable(q: dict, part: Partition) -> list[str]:
+    """Topic keys of q that have a fixed bucket in this partition (the rest take the no-data path, I5)."""
+    return [t for t in q["topic_keys"] if part.bucket_for(t) is not None]
+
+
+def flagged(q: dict) -> bool:
+    return bool(q["expected_flags"]) or bool(q.get("expected_engines"))
+
+
+def expected_state(q: dict, part: Partition) -> str:
+    """queries.json states assume the keys can be sent; recompute for the partition actually loaded."""
+    if q["needs_cloud"] and q["topic_keys"] and not sendable(q, part) and not flagged(q):
+        return "no_data"
+    return q["expected_state"]
+
+
 class SimBackend:
     name = "simulated"
 
@@ -51,7 +67,7 @@ class SimBackend:
 
     def ask(self, q: dict) -> Result:
         r = Result(q["id"], state="no_data", latency_ms=MS["rules"])
-        flagged = bool(q["expected_flags"]) or bool(q.get("expected_engines"))
+        is_flagged = flagged(q)
         if self.mode == "cloud_only":
             if self.offline:
                 return r
@@ -60,18 +76,22 @@ class SimBackend:
             r.personal_fields_sent = PERSONAL_FIELDS_FULL
             r.state = q["expected_state"]
             return r
-        if not q["needs_cloud"] or not q["in_universe"]:        # rules / authored class rule / no-data path: nothing sent
-            r.state = q["expected_state"] if q["in_universe"] else "no_data"
+        if not q["needs_cloud"]:                                 # rules / authored class rule / no-data path: nothing sent
+            r.state = q["expected_state"]
+            return r
+        send = sendable(q, self.part)
+        if not send:                                             # every key outside the partition: no-data path (I5)
+            r.state = "known" if is_flagged else "no_data"
             return r
         r.latency_ms += MS["local_llm"]                          # local merge of whatever is known
-        missing = [t for t in q["topic_keys"] if t not in self.kb]
-        r.kb_hits = len(q["topic_keys"]) - len(missing)
-        r.latency_ms += MS["kb"] * len(q["topic_keys"])
+        missing = [t for t in send if t not in self.kb]
+        r.kb_hits = len(send) - len(missing)
+        r.latency_ms += MS["kb"] * len(send)
         if not missing:
             r.state = q["expected_state"]
             return r
         if self.mode == "local_only" or self.offline:
-            r.state = "known" if flagged else "no_data"          # flags still fire from local rules (F8)
+            r.state = "known" if is_flagged else "no_data"       # flags still fire from local rules (F8)
             return r
         buckets = {self.part.bucket_for(t).id: self.part.bucket_for(t) for t in missing if self.part.bucket_for(t)}
         for b in buckets.values():
@@ -85,33 +105,60 @@ class SimBackend:
 
 
 class LiveBackend:
-    """Integrated build. Usable once B's router and ledger exist on main (G2)."""
+    """Integrated build. Needs B's router, ledger, kb and cloud (G2). A's rules/graph are used when they exist and
+    the mocks in core.interfaces otherwise, like C's app does; `self.mocked` says which."""
     name = "live"
-    MODULES = ("core.rules", "core.graph", "core.router", "core.ledger")
+    REQUIRED = ("core.router", "core.ledger", "core.kb", "core.cloud")
 
     @classmethod
     def available(cls) -> bool:
         try:
-            for m in cls.MODULES:
+            for m in cls.REQUIRED:
                 importlib.import_module(m)
             return True
         except ImportError:
             return False
 
     def __init__(self):
-        from core import graph, ledger, router, rules
-        self.rules, self.graph, self.router, self.ledger = rules, graph, router, ledger
-        self.profile = graph.load_profile()
+        from core import interfaces, ledger, router
+        self.router, self.ledger = router, ledger
+        self.mocked = []
+        try:
+            from core import rules
+            self.check = rules.check
+        except ImportError:
+            self.check = interfaces.check
+            self.mocked.append("rules")
+        try:
+            from core import graph
+            self.profile = graph.load_profile()
+        except ImportError:
+            self.profile = interfaces.load_profile()
+            self.mocked.append("graph")
+        self.name = "live" + (f" (mock {', '.join(self.mocked)})" if self.mocked else "")
         self.seq = max((e.seq for e in ledger.feed(0)), default=0)
 
     def reset(self):
-        raise NotImplementedError("KB reset API pending from B (coord/inbox/to-B)")
+        """Cold KB (B-008): kb.clear() empties the store and deletes the GV_KB_PATH file."""
+        from core import kb
+        kb.clear()
+
+    @property
+    def offline(self) -> bool:
+        from core import cloud
+        return not cloud.status()["online"]
+
+    @offline.setter
+    def offline(self, value: bool) -> None:
+        """B-008: forced offline wins over DEMO=1; router sends nothing and writes no cloud ledger entry."""
+        from core import cloud
+        cloud.set_offline(True if value else None)
 
     def ask(self, q: dict) -> Result:
         from core.contracts import Drug
-        flags = [f for d in q["drugs"] for f in self.rules.check(Drug(ingredient=d), self.profile)]
+        flags = [f for d in q["drugs"] for f in self.check(Drug(ingredient=d), self.profile)]
         if not q["drugs"]:
-            flags = [f for m in self.profile.meds for f in self.rules.check(m, self.profile)]
+            flags = list({f.id: f for m in self.profile.meds for f in self.check(m, self.profile)}.values())
         t0 = time.perf_counter()
         ans = self.router.route(q["text"], flags)
         ms = (time.perf_counter() - t0) * 1000

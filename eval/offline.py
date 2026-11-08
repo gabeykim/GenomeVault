@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 from collections import Counter
 
-from eval.backends import SimBackend
+from eval.backends import LiveBackend, SimBackend
 from eval.charts import grouped_bars
 from eval.universe import ROOT, load_partition, load_queries
 
@@ -15,7 +15,7 @@ RESULTS, CHARTS = ROOT / "eval" / "results", ROOT / "docs" / "charts"
 CATS = ["gene_drug", "drug_drug", "drug_lab", "otc", "open_ended"]
 
 
-def _pass(be: SimBackend, qs: list[dict]) -> dict:
+def _pass(be, qs: list[dict]) -> dict:
     rows = {}
     for q in qs:
         r = be.ask(q)
@@ -24,21 +24,35 @@ def _pass(be: SimBackend, qs: list[dict]) -> dict:
     return rows
 
 
-def run(write: bool = True) -> dict:
+def run(write: bool = True, live: bool | None = None) -> dict:
     qs, part = load_queries(), load_partition()
-    cold = SimBackend(part, offline=True)
-    cold_rows = _pass(cold, qs)
-    warm = SimBackend(part)
-    _pass(warm, qs)                     # one online session fills the KB
-    warm.offline = True
-    warm_rows = _pass(warm, qs)
+    live = LiveBackend.available() if live is None else live
+    if live:
+        be = LiveBackend()
+        be.reset()
+        be.offline = True
+        cold_rows = _pass(be, qs)
+        be.offline = False
+        _pass(be, qs)                   # one online session fills the KB
+        be.offline = True
+        warm_rows = _pass(be, qs)
+        be.offline = False
+        name = "live"
+    else:
+        cold = SimBackend(part, offline=True)
+        cold_rows = _pass(cold, qs)
+        warm = SimBackend(part)
+        _pass(warm, qs)                 # one online session fills the KB
+        warm.offline = True
+        warm_rows = _pass(warm, qs)
+        name = "simulated"
     for rows in (cold_rows, warm_rows):
         assert all(r["cloud_calls"] == 0 for r in rows.values()), "offline must send nothing"
     def by_cat(rows):
         c = Counter(r["category"] for r in rows.values() if r["with_content"])
         return {k: c.get(k, 0) for k in CATS}
     total = Counter(q["category"] for q in qs)
-    res = {"backend": "simulated", "cold_answered": sum(r["with_content"] for r in cold_rows.values()),
+    res = {"backend": name, "cold_answered": sum(r["with_content"] for r in cold_rows.values()),
            "warm_answered": sum(r["with_content"] for r in warm_rows.values()), "n": len(qs),
            "cold_by_category": by_cat(cold_rows), "warm_by_category": by_cat(warm_rows), "category_sizes": dict(total),
            "matches_offline_state_cold": sum(cold_rows[q["id"]]["state"] == q["offline_state"] for q in qs),
