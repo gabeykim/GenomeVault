@@ -79,3 +79,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S4 works end to end once the cloud cache exists; S3 gets a real `local_only` ledger row.
 - **Tests:** `make test` → exit 0, 269 passed; `check_network.sh` → ok; `check_ownership.py` → ok
 - **Next:** queue 7 `kb.py` (exact-key store with tier + expiry, `kb.get`/`kb.put`; router already calls them), then queue 9 offline.
+
+### B-007 · 2026-11-08 14:30 · commit `a184cf8` · PLAN v1.1
+
+- **Change:** Added `core/kb.py` (`get`, `put`, `put_many`, `remove`, `all_facts`, `stats`, `reset`) and wired `router.route` to it, plus `tests/B/test_kb.py` (7 tests). PR #2 updated.
+- **Why:** BRIEF B queue item 7. Done-when met: the same question asked twice is a `kb_hit` with 0 bytes out, and decoy keys from a sent bucket are answered from the KB too.
+- **Class:** Advances
+- **Plan:** advances F6, M6, P6.2, P6.5 (store all 8), I4, I6; refines M6
+- **Refinements:** (1) Exact key only: no lowercasing, trimming or prefix match, so a missing key is `no_data` (I4). (2) `get(key, today=None)` never returns an expired fact. (3) Tier precedence: a `cloud` fact never replaces a `curated` fact for the same key, even one that has expired (I6). Within a tier, the most recently fetched fact wins. (4) Persistence: in memory by default; `GV_KB_PATH` → JSON file, loaded on first use and rewritten atomically on each put. (5) `stats(today)` → `{total, fresh, expired, curated, cloud}` for the UI and E2.
+- **Contract impact:** none (`kb.get(key) -> Fact | None` as in CONTRACTS; the optional `today` argument is additive)
+- **Affects:** C: `kb.get` is real on PR #2; `kb.stats()` is available for a "learned facts" counter. Tests that call `router.route` more than once should call `kb.reset()` in setup, or a repeat question will be a KB hit → note sent. D: E2/E4 can use `kb.reset()` for a cold KB and `GV_KB_PATH` for a warm KB that survives restarts → note sent. A: curated tables can later be loaded with `kb.put_many(Fact(tier="curated", ...))`, and cloud facts will never overwrite them → none for now.
+- **Demo impact:** S6 "learns": a second ask is a 0-byte `kb_hit` in the ledger.
+- **Tests:** `make test` → exit 0, 276 passed; `make check` → ownership ok, network ok
+- **Next:** queue 9 offline mode (steps 1–2 only, `no_data` otherwise), then queue 8 random delays + cover buckets (G3).
