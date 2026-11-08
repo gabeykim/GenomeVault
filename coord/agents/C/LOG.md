@@ -183,3 +183,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S4 (the ledger shows steady cover traffic next to real decoy groups; "cover on" in the header)
 - **Tests:** C alone → `make test` exit 0 (79 passed, 5 skipped). origin/main + A (`f9db84a`) + B (`85ab929`) + C + D (`928224d`) merged → exit 0, 723 passed, **no mocks left in the app**. With `GV_COVER_INTERVAL_S=8` in the merged preview, 3 cover rows (b17, b04, b10, ~3 KB, 0 personal fields) arrived in 20 s.
 - **Next:** queue 5: `phone/` page + `POST /api/capture` (A's real `capture.from_image` is now on PR #1), then drop the stand-ins (D-014)
+
+### C-015 · 2026-11-08 14:41 · commit `bd85112` · PLAN v1.2
+
+- **Change:** Added the phone page (BRIEF C queue 5) at `/phone` (`phone/index.html`, `phone.css`, `phone.js`). It has: take a photo of a label, two synthetic sample labels (`phone/samples/*.png`, built with A's `capture.demo_png`), or type a name. Then it shows flags in red/amber, info notes, and reminders with "Add to my calendar". `POST /api/capture` takes the raw image bytes plus Content-Type (no multipart dependency), calls `capture.from_image` (D-020), and returns `{read, drugs, flags, notes}`. The photo is never stored or sent. `GET /api/captures?since` feeds a live "From your phone" list on the laptop's Medications tab. `/api/check` accepts `via: "phone"`. Pairing: any request that isn't from this machine needs the code from Actions → Use your phone (`POST /api/phone/pair` sets an HttpOnly, SameSite=Strict cookie; lockout after 10 misses; `GET /api/phone` shows the code to the laptop only). `phone/serve_https.sh` serves on the LAN over HTTPS with a 7-day self-signed cert from the system `openssl`, kept in `~/.genomevault/cert`, never in the repo. Added `tests/C/test_phone.py` (17 tests).
+- **Why:** BRIEF C queue 5, S2 and S6 ("actions to phone"). D-020 asked C to call `capture.from_image` from `app.py`.
+- **Class:** Advances
+- **Plan:** advances F2, M10, S2, S6, D-020
+- **Refinements:** (1) Pairing gate: the app is reachable on the LAN only through `serve_https.sh`, and only paired devices get data. (2) No voice input, because browser speech recognition sends audio to a cloud service (contrary to P1). (3) Raw-body upload avoids adding `python-multipart`. (4) An unreadable photo says so honestly and points to typed input.
+- **Contract impact:** none
+- **Affects:** A: app passes raw bytes + Content-Type to `capture.from_image` → none. D: S2 can be phone page → tap the Plavix sample (or a real photo with tesseract) → it shows on the laptop → script note. I: `phone/serve_https.sh` binds 0.0.0.0, pairing-gated → FYI.
+- **Demo impact:** S2 (capture on phone, appears on the laptop), S6 (reminders on the phone)
+- **Tests:** C alone → `make test` exit 0 (94 passed, 7 skipped). origin/main + A + B + C + D merged → exit 0, 743 passed; both samples read with A's reader (clopidogrel → X1, X2; ibuprofen → X5 ×4). Real `serve_https.sh` run on the LAN IP: `/phone` 200, unpaired `/api/profile` 401, pair 200, capture reads ibuprofen with 4 flags, a paired phone gets 403 for `/api/phone`, and the laptop sees the capture. Checked by hand at phone and desktop sizes, no console errors.
+- **Next:** drop the stand-ins (D-014); rehearsal with D's script after the merge

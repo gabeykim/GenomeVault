@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (C-014 pushed; PR #3 updated)
+current_task: none (C-015 pushed; PR #3 updated)
 branch: agent/C-app-ui
-last_commit: 3feb861
+last_commit: bd85112
 last_seen:
   plan_version: "1.2"
   decisions: D-021
-  logs: {A: 6, B: 15, C: 14, D: 8}
+  logs: {A: 6, B: 15, C: 15, D: 8}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -29,5 +29,6 @@ handled_messages:
   - 20261108-1415-from-B-i7-filter.md
   - 20261108-1417-from-A-cyp2d6-dapt-note.md
   - 20261108-1425-from-A-graph-load-profile.md
+  - 20261108-1430-from-A-capture-ready.md
 blocked_on: none
-next: queue 5 phone/ + POST /api/capture (A's capture.from_image is real on PR #1), then drop stand-ins (D-014)
+next: drop stand-ins (D-014); full demo rehearsal with D's script once PRs merge; optional sync-for-offline button
