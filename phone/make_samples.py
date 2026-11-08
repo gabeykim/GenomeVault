@@ -29,7 +29,7 @@ def png(px, text):
             + chunk(b"iTXt", itxt) + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
 
 out = sys.argv[1] if len(sys.argv) > 1 else "phone/samples"   # usage: python phone/make_samples.py
-open(f"{out}/clopidogrel.png", "wb").write(png(draw(MELON, [96, 120, 80, 104]),
+open(f"{out}/clopidogrel.png", "wb").write(png(draw(MID, [96, 120, 80, 104]),
      "CLOPIDOGREL 75 MG TABLET\nGeneric for: PLAVIX\nTake 1 tablet by mouth daily"))
 open(f"{out}/ibuprofen.png", "wb").write(png(draw(BLUE, [84, 112, 96, 64]),
      "IBUPROFEN 200 MG TABLET\nPain reliever / fever reducer"))

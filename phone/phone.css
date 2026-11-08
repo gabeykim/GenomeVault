@@ -1,8 +1,8 @@
 /* GenomeVault phone page (S2, S6). Same palette as the laptop UI: bone paper, midnight black (main),
-   electric blue (secondary), cantaloupe orange (third). No external assets (I8). */
+   electric blue (secondary), white (third). No external assets (I8). */
 :root {
   --paper: #02070A; --paper-2: #0b161d; --ink: #f2ede4; --mute: #8d9ca6; --line: #17252e;
-  --blue: #0297DE; --blue-text: #0297DE; --melon: #FC734D; --melon-text: #FC734D;
+  --blue: #0297DE; --blue-text: #0297DE; --melon: #FFFFFF; --melon-text: #FFFFFF;
   --bad: #ff4f8b; --warn: var(--melon); --good: #5fd38b;
   --ease: cubic-bezier(.76, 0, .24, 1); --ease-out: cubic-bezier(.16, 1, .3, 1);
   --font: "Helvetica Neue", Helvetica, Arial, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, monospace;

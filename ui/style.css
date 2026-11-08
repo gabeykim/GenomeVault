@@ -1,8 +1,8 @@
 /* GenomeVault UI. One palette, three colors, on a dark canvas:
    - midnight black #02070A: the canvas and raised surfaces (main)
    - electric blue  #0297DE: structure and motion: section bars, the shield, hover fills, data blocks (secondary)
-   - cantaloupe     #FC734D: the spark: wordmark bar, active tab, packets, "yours", medium severity (third)
-   Text is a warm white on midnight, and midnight on blue or cantaloupe fills (white fails AA on both).
+   - white          #FFFFFF: the spark: wordmark bar, active tab, packets, "yours", medium severity (third)
+   Body text is a warm white on midnight; text on blue or white fills is midnight.
    Red and green stay as status colors, always next to a word. No external assets (I8). */
 :root {
   --paper: #02070A;          /* midnight black canvas */
@@ -12,7 +12,7 @@
   --line: #17252e;           /* hairlines */
   --strand: #1c3442;         /* DNA barcode bars */
   --blue: #0297DE;  --blue-text: #0297DE;      /* electric blue: fills and text both read on midnight */
-  --melon: #FC734D; --melon-text: #FC734D;     /* cantaloupe: fills and text both read on midnight */
+  --melon: #FFFFFF; --melon-text: #FFFFFF;     /* white: third accent (token name kept from the cantaloupe era) */
   --bad: #ff4f8b;   --good: #5fd38b;           /* status, tuned for midnight (red kept 33° of hue from cantaloupe) */
   --warn: var(--melon);
   --bad-on-ink: var(--paper); --warn-on-ink: var(--paper); --good-on-ink: var(--paper);  /* text on blue hover fills */

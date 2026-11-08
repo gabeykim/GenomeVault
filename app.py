@@ -343,7 +343,7 @@ def reminders_ics() -> Response:
 
 
 SUMMARY_CSS = """
-:root { --paper:#fff; --ink:#02070A; --blue:#0297DE; --melon:#FC734D; --mute:#6b6b67; --line:#c3c3be; }
+:root { --paper:#fff; --ink:#02070A; --blue:#0297DE; --melon:#FFFFFF; --mute:#6b6b67; --line:#c3c3be; }
 * { box-sizing: border-box; }
 body { margin: 0; background: #02070A; color: var(--ink); font: 13px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .page { max-width: 780px; margin: 24px auto; padding: 40px 48px; background: var(--paper); }
