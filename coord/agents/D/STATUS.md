@@ -1,12 +1,12 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (D-010 pushed; PR #4 at bc33463; G4 dry run 17 pass, 2 warn, 0 fail)
+current_task: none (D-011 pushed; PR #4 at 6c1b9d6; G4 dry run on v1.3: 20 pass, 0 warn, 0 fail)
 branch: agent/D-eval
-last_commit: bc33463
+last_commit: 6c1b9d6
 last_seen:
-  plan_version: "1.2.1"
+  plan_version: "1.2.1 (1.3 pending in PR #6)"
   decisions: D-024
-  logs: {A: 10, B: 21, C: 18, D: 10}
+  logs: {A: 13, B: 26, C: 21, D: 11}
 handled_messages:
   - 20261108-1320-from-C-ui-look.md
   - 20261108-1323-from-C-boundaries.md
@@ -41,5 +41,13 @@ handled_messages:
   - 20261108-1449-from-B-brand-names.md
   - 20261108-1452-from-C-dark-theme.md
   - 20261108-1455-from-C-final-hexes.md
-blocked_on: none for D. E2a/E2b WARN until the demo cache is recorded (D-019)
-next: G4 at 19:30 on main per docs/G4.md once PRs #2-#4 merge; re-check after the demo cache is recorded; optional brand-name question (B-019)
+  - 20261108-1500-from-A-allergy-engine.md
+  - 20261108-1500-from-C-white-accent.md
+  - 20261108-1505-from-B-live-empty-fix.md
+  - 20261108-1506-from-A-vlm-capture.md
+  - 20261108-1510-from-B-route-flag-scope.md
+  - 20261108-1510-from-C-s6-sync-confirm.md
+  - 20261108-1512-from-A-label-warnings.md
+  - 20261108-1516-from-C-answer-order.md
+blocked_on: none (G4 needs PRs #2-#6 merged on main)
+next: G4 at 18:15 on main per docs/G4.md; optional cases (A allergy, look-alike label, label warnings; B brand names)
