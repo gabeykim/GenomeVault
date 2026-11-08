@@ -340,3 +340,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** S4: the Q07 answer starts with pantoprazole + clopidogrel.
 - **Tests:** `make test` exit 0, 627 passed, 1 skipped. The new leading-pair test fails on the old order.
 - **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and add a `sync_pack` test against the committed `mocks/cloud_cache/`.
+
+### B-027 · 2026-11-08 15:35 · commit `f6d6ae0` · PLAN v1.2.1 (v1.3 pending in PR #6)
+
+- **Change:** New `tests/B/test_committed_pack.py` (3 tests) for the committed knowledge pack in `mocks/cloud_cache/` (D-027): (1) one file per v5 bucket, each holding exactly that bucket's 8 keys; (2) every recorded answer is non-empty and passes `wording_problems` (I7); (3) `router.sync_pack()` in `DEMO=1` against the real pack sends all 17 buckets as cover, blocks none, and stores 136 facts plus the alias copies, with 0 personal fields. The tests skip while the pack isn't on the branch. `GV_PACK_CHECK=<dir>` points them at another pack.
+- **Why:** The pack is frozen with partition v5 (D-027). If someone changes v5 or re-records part of the pack, this test catches the mismatch before the demo replays half a pack or a reply that breaks I7.
+- **Class:** Advances
+- **Plan:** advances F6, F8, I7, E4; stretch pack sync
+- **Contract impact:** none
+- **Affects:** none. I: once PR #6 merges, these 3 tests stop skipping on main. I checked them against PR #6's pack (copied from `origin/integrator/v1.3` into a temporary folder, deleted afterwards): 3 passed.
+- **Demo impact:** none (S6 sync is protected by a test now)
+- **Tests:** `make test` exit 0, 627 passed, 4 skipped (the 3 new tests skip without the pack). With the PR #6 pack: 3 passed.
+- **Inbox:** nothing new. Read A-013 (capture: only the label's first drug line counts): no effect on B.
+- **Next:** G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm the 3 tests run, not skip.

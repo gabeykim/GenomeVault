@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-026 asked pair leads Answer.facts (170ba35). PR #2 rebased on main 32d4321, waiting for G2
+current_task: B-027 committed-pack test (f6d6ae0). PR #2 rebased on main 7798c1d, waiting for G2
 branch: agent/B-privacy-router
-last_commit: 170ba35
+last_commit: f6d6ae0
 last_seen:
   plan_version: "1.2.1"   # v1.3 is pending in PR #6 (read: D-025..D-029, msg 20261108-1501)
   decisions: D-024
-  logs: {A: 12, B: 26, C: 20, D: 10}
+  logs: {A: 13, B: 27, C: 20, D: 10}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -32,8 +32,8 @@ handled_messages:
   - 20261108-1510-from-C-sync-and-order.md
 blocked_on: none (D-027: the human recorded the pack, so the to-human 1418 key request clears once PR #6 merges)
 notes: >
-  B-026: C asked (1510) for the asked pair to come first. route() now orders facts with named pairs first,
-  then covering flags, then the other subject keys. Order only; sends unchanged. Reply sent to C. Read A-012
-  (VLM in capture) and C-020 (sync button, confirm tap); neither affects B. make test exit 0, 627 passed, 1 skipped.
+  B-027: new tests/B/test_committed_pack.py checks the D-027 pack in mocks/cloud_cache/: it matches partition v5
+  key-for-key, passes I7 wording, and sync_pack fills the KB with 0 personal fields. It skips until PR #6 merges.
+  Checked against PR #6's pack: 3 passed. make test exit 0, 627 passed, 4 skipped. Read A-013: no effect on B.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
-next: G2 merge of PR #2. Once PR #6 merges, rebase on v1.3 and add a sync_pack test against the committed mocks/cloud_cache/ (v5 frozen)
+next: G2 merge of PR #2. After PR #6 merges, rebase onto v1.3 and confirm test_committed_pack runs instead of skipping
