@@ -88,7 +88,7 @@ We measure the privacy and hybrid claims instead of asserting them. Results are 
 Requirements: Python 3.10+, a local model server (Ollama or llama.cpp) for the on-device model, and an API key for the cloud model.
 
 ```bash
-git clone https://github.com/<owner>/genomevault.git
+git clone https://github.com/gabeykim/GenomeVault.git genomevault
 cd genomevault
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
@@ -187,11 +187,11 @@ Pause one agent by committing `coord/agents/<ID>/STOP` to `main`; stop all by co
 
 | Role | Name |
 | --- | --- |
-| Agent A owner | _name_ |
-| Agent B owner | _name_ |
-| Agent C owner | _name_ |
-| Agent D owner | _name_ |
-| Integrator | _name_ |
+| Agent A owner | Gabe |
+| Agent B owner | Dhiaa |
+| Agent C owner | Cristian |
+| Agent D owner | Kaitlyn |
+| Integrator | Gabe |
 
 ## License
 

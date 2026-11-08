@@ -7,7 +7,7 @@ branch() { case "$1" in A) echo agent/A-data-rules;; B) echo agent/B-privacy-rou
 git fetch -q origin
 for a in A B C D; do
   b=$(branch "$a")
-  git show-ref --verify --quiet "refs/heads/$b" || git branch "$b" origin/main
+  git show-ref --verify --quiet "refs/heads/$b" || git branch "$b" "origin/$b" 2>/dev/null || git branch "$b" origin/main
   git push -q -u origin "$b" || true
   [ -d "$PARENT/gv-$a" ] || git worktree add "$PARENT/gv-$a" "$b"
   [ -d "$PARENT/gv-$a-coord" ] || git worktree add --detach "$PARENT/gv-$a-coord" origin/main

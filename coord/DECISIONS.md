@@ -10,3 +10,5 @@ Format: `D-NNN · time · PLAN version · decision · why · affects`
 - **D-006** · G0 · v1.0 · Separate sessions, random delays, cover buckets (P6.4, P6.6). · Joint inference across simultaneous buckets reveals conditions. · B, D
 - **D-007** · G0 · v1.0 · Never output "safe" (I7). · Demo tables are incomplete; liability. · C
 - **D-008** · G0 · v1.0 · Four agents + human integrator, protocol in AGENTS.md. · Parallel autonomous build. · all
+- **D-009** · G0 · v1.0 · Gabe is integrator; each agent runs independently on its owner's machine. · Parallel machines, one coordinator. · all
+- **D-010** · G0 · v1.0 · setup_worktrees.sh tracks existing remote agent branches. · Prevents a late setup from overwriting agent work. · all
