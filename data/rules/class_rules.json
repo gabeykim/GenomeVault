@@ -1,0 +1,19 @@
+{
+  "version": "rules-v1",
+  "note": "Authored class-level rules with a source (I4). They apply only to the listed members and expand to exact pair keys (contracts.pair_key); nothing is inferred for a drug that is not listed. Aspirin is listed as an antiplatelet, not an NSAID, so no rule pairs it with itself. An explicit drug_drug entry for the same key wins.",
+  "classes": {
+    "nsaid": {"label": "an NSAID", "members": ["ibuprofen", "naproxen", "celecoxib"]},
+    "antiplatelet": {"label": "an antiplatelet", "members": ["aspirin", "clopidogrel", "prasugrel", "ticagrelor"]},
+    "ace_inhibitor": {"label": "an ACE inhibitor", "members": ["lisinopril"]}
+  },
+  "rules": [
+    {"id": "CR-001", "classes": ["nsaid", "antiplatelet"],
+     "severity": "high", "tier": "curated", "needs_cloud": false, "context_labs": [],
+     "source": "FDA NSAID class labeling, bleeding warning with antiplatelet drugs; ACC/AHA guidance after coronary stenting",
+     "text": "NSAIDs taken with antiplatelet drugs raise the risk of stomach and other bleeding. Worth asking the pharmacist about other pain-relief options."},
+    {"id": "CR-002", "classes": ["nsaid", "ace_inhibitor"],
+     "severity": "high", "tier": "curated", "needs_cloud": false, "context_labs": ["egfr"],
+     "source": "FDA NSAID class labeling and ACE inhibitor labeling: NSAIDs can reduce the blood-pressure effect and worsen kidney function",
+     "text": "NSAIDs can blunt ACE inhibitors and, together, strain the kidneys, more so when kidney function is already reduced. Worth raising with the pharmacist or prescriber."}
+  ]
+}

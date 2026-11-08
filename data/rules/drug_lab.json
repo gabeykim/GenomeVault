@@ -1,0 +1,18 @@
+{
+  "version": "rules-v1",
+  "note": "Synthetic demo table (I1), deliberately incomplete (I7). Key = drug|<lab><op><value>, lab token lowercase with no spaces (egfr, potassium, alt, ck, ldl). The rule fires on the most recent result for that lab; context_labs adds a trend line (oldest -> latest) to the evidence.",
+  "rules": [
+    {"id": "DL-001", "key": "lisinopril|potassium>5.0", "drug": "lisinopril", "lab": "potassium", "op": ">", "value": 5.0,
+     "severity": "medium", "tier": "curated", "needs_cloud": false, "context_labs": ["egfr"],
+     "source": "FDA lisinopril (Zestril) label, warning on hyperkalemia and renal function monitoring",
+     "text": "ACE inhibitors such as lisinopril can raise potassium, more so when kidney function is falling. A potassium above 5.0 mmol/L is worth a recheck and a conversation with the prescriber."},
+    {"id": "DL-002", "key": "ibuprofen|egfr<60", "drug": "ibuprofen", "lab": "egfr", "op": "<", "value": 60,
+     "severity": "high", "tier": "curated", "needs_cloud": false, "context_labs": ["egfr"],
+     "source": "FDA NSAID class labeling, renal toxicity warning; KDIGO 2024 CKD guideline (avoid prolonged NSAID use at reduced eGFR)",
+     "text": "Ibuprofen can reduce blood flow to the kidneys, and the risk is higher when eGFR is below 60. Worth asking the pharmacist about other pain-relief options."},
+    {"id": "DL-003", "key": "spironolactone|potassium>5.0", "drug": "spironolactone", "lab": "potassium", "op": ">", "value": 5.0,
+     "severity": "high", "tier": "curated", "needs_cloud": false, "context_labs": ["egfr"],
+     "source": "FDA spironolactone (Aldactone) label, contraindicated with serum potassium above 5.0 mEq/L",
+     "text": "Spironolactone raises potassium, and its label lists a potassium above 5.0 as a reason not to use it. Worth raising with the prescriber."}
+  ]
+}
