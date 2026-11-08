@@ -36,3 +36,7 @@ coord/inbox/to-human/20261108-1523-from-A-g3-capture-results.md
 coord/inbox/to-integrator/20261108-1530-from-D-submission-draft.md
 coord/inbox/to-integrator/20261108-1542-from-A-g3-rehearsal.md
 coord/inbox/to-human/20261108-1546-from-integrator-needs-gabe-g3-merge.md
+coord/inbox/to-integrator/20261108-1550-from-A-g3-full-sequence.md
+coord/inbox/to-integrator/20261108-1550-from-A-g3-rehearsal-refresh.md
+coord/inbox/to-integrator/20261108-1551-from-D-g2-synced.md
+coord/inbox/to-human/20261108-1556-from-integrator-needs-gabe-g3-update.md
