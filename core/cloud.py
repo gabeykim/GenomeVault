@@ -33,7 +33,12 @@ Cache format (demo replay): any number of `*.json` files in the cache dir, each 
 `{"<exact key>": "<answer text>", ...}`. A key missing from the cache gets no Fact, which the
 router turns into `no_data` (I4: never invent an answer). Record a cache with
 `ANTHROPIC_API_KEY=... python -m core.cloud record <out_dir>`, which writes one `<bucket_id>.json`
-per bucket of the current partition.
+per bucket of the current partition and skips buckets already fully recorded (restartable).
+Vet it with `python -m core.cloud check [<cache_dir>]` (exit 0 = every partition key has an answer
+that passes the I7 wording check).
+
+I7 filter: every answer, live or replayed, goes through `validator.check_wording`. One that says
+"safe" or tells the reader to start/stop/change a medicine is dropped, so its key reads as `no_data`.
 """
 from __future__ import annotations
 
@@ -49,6 +54,7 @@ from typing import Iterable, Optional
 import httpx
 
 from .contracts import Bucket, Fact, Topic
+from .validator import check_wording, wording_problems
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DEFAULT_CACHE = ROOT / "mocks" / "cloud_cache"
@@ -190,55 +196,105 @@ def ask_bucket(bucket: Bucket, topics: Iterable[Topic]) -> list[Fact]:
     if stray:
         raise ValueError(f"topics outside bucket {bucket.id}: {stray}")
 
+    source, answers = _answers(bucket, topics)
+    # I7: an answer that says "safe" or gives a start/stop instruction is dropped -> no_data (I4)
+    return [_fact(k, text, source) for k, text in answers if check_wording(text)]
+
+
+def _answers(bucket: Bucket, topics: list[Topic]) -> tuple[str, list[tuple[str, str]]]:
+    """(source, [(key, raw non-blank text)]) from demo replay or the live API. No I7 filter."""
     if offline():
         raise CloudUnavailable("offline mode")
     if demo_mode():
         cache = load_cache()
-        source = f"cloud-cache:{bucket.version}"
         out = []
         for t in topics:
             pause()
             if cache.get(t.key, "").strip():
-                out.append(_fact(t.key, cache[t.key], source))
-        return out
+                out.append((t.key, cache[t.key]))
+        return f"cloud-cache:{bucket.version}", out
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
         raise CloudUnavailable("ANTHROPIC_API_KEY not set")
     global _last_failure
-    facts: list[Fact] = []
-    source = f"cloud:{model()}"
+    out: list[tuple[str, str]] = []
     try:
         with httpx.Client(timeout=TIMEOUT_S, transport=_transport) as client:   # one session per bucket
             for t in topics:
                 pause()
                 text = _ask_live(client, t, api_key)
                 if text.strip():
-                    facts.append(_fact(t.key, text, source))
+                    out.append((t.key, text.strip()))
     except httpx.HTTPError as e:
         _last_failure = type(e).__name__
         raise CloudUnavailable(f"cloud call failed: {type(e).__name__}") from e
     _last_failure = None
-    return facts
+    return f"cloud:{model()}", out
 
 
-def record(out_dir: pathlib.Path) -> int:
-    """Fetch every bucket live and write `<bucket_id>.json` caches for demo replay. Returns key count."""
+def record(out_dir: pathlib.Path, resume: bool = True) -> int:
+    """Fetch every bucket live and write `<bucket_id>.json` caches for demo replay. Returns key count.
+
+    Writes raw answers (including ones I7 will drop at replay) so `check` can show them; replay
+    filters them anyway. With `resume`, a bucket whose file already holds all its keys is skipped,
+    so a run that died halfway (rate limit, network) can be restarted without paying twice.
+    """
     from .decoys import load_buckets
     from .generalize import topic_for_key
 
     out_dir.mkdir(parents=True, exist_ok=True)
     n = 0
     for b in load_buckets():
-        facts = ask_bucket(b, [topic_for_key(k) for k in b.keys])
-        (out_dir / f"{b.id}.json").write_text(json.dumps({f.key: f.text for f in facts}, indent=2) + "\n")
-        n += len(facts)
+        f = out_dir / f"{b.id}.json"
+        if resume and f.is_file():
+            done = json.loads(f.read_text())
+            if isinstance(done, dict) and all(str(done.get(k, "")).strip() for k in b.keys):
+                n += len(b.keys)
+                continue
+        _, answers = _answers(b, [topic_for_key(k) for k in b.keys])
+        f.write_text(json.dumps(dict(answers), indent=2) + "\n")
+        n += len(answers)
     return n
 
 
+def check_cache(path: Optional[pathlib.Path] = None) -> dict:
+    """Vet a demo cache before rehearsal (I7, I8). Never touches the network.
+
+    Returns `{"universe", "answered", "missing", "rejected", "unknown", "ok"}`: `missing` keys of the
+    current partition with no answer (they replay as `no_data`), `rejected` key -> I7 problems
+    (dropped at replay), `unknown` cached keys outside the partition. `ok` = nothing missing or rejected.
+    """
+    from .decoys import universe
+
+    cache = load_cache(path)
+    keys = universe()
+    answered = [k for k in keys if cache.get(k, "").strip()]
+    rejected = {k: p for k in answered if (p := wording_problems(cache[k]))}
+    missing = [k for k in keys if k not in answered]
+    unknown = sorted(set(cache) - set(keys))
+    return {"universe": len(keys), "answered": len(answered) - len(rejected), "missing": missing,
+            "rejected": rejected, "unknown": unknown, "ok": not missing and not rejected}
+
+
+def _main(argv: list[str]) -> int:
+    if len(argv) == 2 and argv[0] == "record":
+        print(f"recorded {record(pathlib.Path(argv[1]))} answers")
+        return 0
+    if argv[:1] == ["check"] and len(argv) <= 2:
+        r = check_cache(pathlib.Path(argv[1]) if len(argv) == 2 else None)
+        print(f"{r['answered']}/{r['universe']} keys usable; {len(r['missing'])} missing, "
+              f"{len(r['rejected'])} rejected (I7), {len(r['unknown'])} outside the partition")
+        for k in r["missing"]:
+            print(f"  missing  {k}")
+        for k, probs in r["rejected"].items():
+            print(f"  rejected {k}: {'; '.join(probs)}")
+        for k in r["unknown"]:
+            print(f"  unknown  {k}")
+        return 0 if r["ok"] else 1
+    print("usage: python -m core.cloud record <out_dir> | check [<cache_dir>]")
+    return 2
+
+
 if __name__ == "__main__":
-    if len(sys.argv) == 3 and sys.argv[1] == "record":
-        print(f"recorded {record(pathlib.Path(sys.argv[2]))} answers")
-    else:
-        print("usage: python -m core.cloud record <out_dir>")
-        sys.exit(2)
+    sys.exit(_main(sys.argv[1:]))

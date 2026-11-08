@@ -19,6 +19,13 @@ from one of the keyed Facts behind it (I4: no extrapolation). Drugs are recognis
 bucket universe plus the drugs named in the facts' keys. A pair is two drugs named in the same
 sentence; it is covered when one fact names both drugs (in its key or its text). A number is
 covered when it appears as a number in a fact's text or key.
+
+Wording (`wording_problems`, `check_wording`): I7 on every cloud answer before it can become a
+Fact. A text is rejected if any word contains "safe" (safe, safely, safety, unsafe), or if a
+sentence tells the reader to start, stop or change a medicine: an imperative at the start of a
+sentence ("Stop taking...", "Do not take...", "Avoid...") or "you should/must/need to/can" followed
+by such a verb. Rejection is deliberately blunt: a rejected answer is dropped and its key reads as
+`no_data` (I4), which is always allowed; a wrongly kept one would break I7.
 """
 from __future__ import annotations
 
@@ -140,3 +147,30 @@ def check_output(text: str, facts: list[Fact]) -> bool:
                 if not any(a in c and b in c for c in covers):
                     return False
     return True
+
+
+# ---------------------------------------------------------------- wording check (I7)
+
+_SAFE_RE = re.compile(r"[a-z]*safe[a-z]*", re.I)
+_VERBS = (r"(?:stop|start|begin|discontinue|quit|cease|resume|avoid|take|use|switch|change|"
+          r"increase|decrease|reduce|lower|raise|double|halve|skip|continue)")
+_NOUN_USE = r"(?!\s+(?:of|in|on|is|was|were|are|may|can|has|had|with)\b)"   # "Use of...", "Increase in..."
+_IMPERATIVE_RE = re.compile(rf"^\W*(?:(?:do\s+not|don['’]t|never|please)\s+)?{_VERBS}\b{_NOUN_USE}", re.I)
+_YOU_SHOULD_RE = re.compile(
+    rf"\byou\s+(?:should|must|need\s+to|have\s+to|can|may\s+want\s+to|ought\s+to)\s+(?:not\s+)?{_VERBS}\b", re.I)
+
+
+def wording_problems(text: str) -> list[str]:
+    """Every I7 problem in `text` ('says "safe"', 'instruction: ...'). Empty means acceptable."""
+    out = [f'says "{m.group(0)}"' for m in _SAFE_RE.finditer(text)]
+    for sentence in _SENT_SPLIT.split(text):
+        s = sentence.strip()
+        m = _IMPERATIVE_RE.search(s) or _YOU_SHOULD_RE.search(s)
+        if m:
+            out.append(f"instruction: {s[:80]!r}")
+    return out
+
+
+def check_wording(text: str) -> bool:
+    """True if `text` never says "safe" and gives no start/stop/change instruction (I7)."""
+    return not wording_problems(text)
