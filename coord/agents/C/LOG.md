@@ -79,3 +79,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S4 answer reads cleaner
 - **Tests:** `make test` → exit 0 (51 passed, 1 skipped). Integrated A+B+C → exit 0 (309 passed, 2 skipped). The pipeline run's merged answer now shows the fact once.
 - **Next:** queue item 7 (demo toggle + offline badge)
+
+### C-007 · 2026-11-08 13:48 · commit `bb0c4fb` · PLAN v1.1
+
+- **Change:** Added `tests/C/conftest.py`. Every C test runs in demo mode with no API key and an empty cloud cache, and gets a fresh ledger and KB.
+- **Why:** With origin/main + A + B (real router and KB) + C + D merged locally, two C tests failed. With no key and no demo mode, B's router correctly writes nothing, because nothing left the device. And without isolation, C tests would make live cloud calls on any machine that has a key set.
+- **Class:** Refines
+- **Plan:** advances M10; I2/I8 hygiene in tests
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** none
+- **Demo impact:** none
+- **Tests:** C alone → exit 0 (51 passed, 1 skipped). A+B+C+D merged → `make test` exit 0, 358 passed (A 4, B 272, C 48, D 30), `check_network.sh` ok, `make eval` exit 0 (simulated backend). With a fake key set, C tests still pass offline. In the merged app, Q18 sends buckets b01 (1248 B) and b05 (959 B) with 0 personal fields, and the UI ledger shows both.
+- **Next:** queue item 7 (demo toggle + offline badge); suggestion chips use D's exact demo texts (Q18 already does)
