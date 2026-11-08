@@ -25,7 +25,7 @@ def _vcf() -> dict[str, tuple[str, str, str]]:
 
 def test_profile_loads_and_matches_p5():
     p = _profile()
-    assert p.genotypes == {"CYP2C19": "*2/*2", "SLCO1B1": "*1/*5", "CYP2D6": "*1/*1",
+    assert p.genotypes == {"CYP2C19": "*2/*2", "SLCO1B1": "*1/*5", "CYP2D6": "not_assessed",
                            "CYP2C9": "*1/*1", "VKORC1": "reference"}
     assert p.phenotypes["CYP2C19"] == "poor_metabolizer"
     assert p.phenotypes["SLCO1B1"] == "decreased_function"
@@ -55,5 +55,5 @@ def test_vcf_agrees_with_profile_genotypes():
     assert v["rs4149056"] == ("SLCO1B1", "*5", "0/1")      # *1/*5
     assert v["rs2306283"][2] == "0/0"                      # 388A>G absent, so *5 not *15
     others = {rs: gt for rs, (_, _, gt) in v.items() if rs not in {"rs4244285", "rs4149056"}}
-    assert set(others.values()) == {"0/0"}                 # CYP2D6, CYP2C9, VKORC1 reference
-    assert {g for g, _, _ in v.values()} == {"CYP2C19", "SLCO1B1", "CYP2D6", "CYP2C9", "VKORC1"}
+    assert set(others.values()) == {"0/0"}                 # CYP2C9, VKORC1 reference
+    assert {g for g, _, _ in v.values()} == {"CYP2C19", "SLCO1B1", "CYP2C9", "VKORC1"}   # no CYP2D6 (D-021)

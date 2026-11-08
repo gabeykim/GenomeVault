@@ -10,6 +10,11 @@ Everything runs on the device and reads only `data/rules/*.json`. Four engines:
 A key that is not in a table produces no flag (I4: no extrapolation between drugs). Every flag comes
 from a `curated` entry, so high-severity flags always have a curated source (I6). Flag ids are the
 PLAN P5 finding ids from `flag_ids.json` (X1..X5); other keys carry their rule id.
+
+Two guards from D-021: genes in `NOT_ASSESSED` (CYP2D6, SNP-uncallable) or with phenotype
+`not_assessed` are never read by any rule; and pairs in `expected_combinations.json` (e.g.
+`aspirin|clopidogrel`, DAPT after a stent) never become Flags; `expected_notes()` returns them as
+informational notes instead.
 """
 from __future__ import annotations
 
@@ -23,6 +28,7 @@ from .contracts import Drug, Flag, Lab, Profile, pair_key
 
 RULES_DIR = pathlib.Path(__file__).resolve().parent.parent / "data" / "rules"
 TABLES = ("gene_drug", "drug_drug", "drug_lab", "class_rules")
+NOT_ASSESSED = frozenset({"CYP2D6"})       # D-021: deletions/duplications not callable from SNPs
 OPS = {">": operator.gt, "<": operator.lt, ">=": operator.ge, "<=": operator.le}
 
 
@@ -33,7 +39,13 @@ def tables() -> dict:
     """All rule tables plus the flag-id map, read once."""
     out = {name: json.loads((RULES_DIR / f"{name}.json").read_text()) for name in TABLES}
     out["flag_ids"] = json.loads((RULES_DIR / "flag_ids.json").read_text())["ids"]
+    out["expected"] = json.loads((RULES_DIR / "expected_combinations.json").read_text())["combinations"]
     return out
+
+
+def expected_keys() -> set[str]:
+    """Pair keys that are expected therapy: never a Flag (D-021)."""
+    return {c["key"] for c in tables()["expected"]}
 
 
 def _num(x: float) -> str:
@@ -73,6 +85,14 @@ def all_keys() -> set[str]:
 
 
 # --- helpers -----------------------------------------------------------------------------------
+
+def _phenotype(profile: Profile, gene: str) -> Optional[str]:
+    """The phenotype a rule may read, or None for unassessed genes (D-021)."""
+    ph = profile.phenotypes.get(gene)
+    if gene in NOT_ASSESSED or ph in (None, "not_assessed"):
+        return None
+    return ph
+
 
 def _g(x: float) -> str:
     return f"{x:g}"
@@ -126,7 +146,7 @@ def _flag(rule: dict, key: str, engine: str, evidence: list[str]) -> Flag:
 def _gene_drug(drug: Drug, profile: Profile) -> list[Flag]:
     out = []
     for r in tables()["gene_drug"]["rules"]:
-        if r["drug"] != drug.ingredient or profile.phenotypes.get(r["gene"]) != r["phenotype"]:
+        if r["drug"] != drug.ingredient or _phenotype(profile, r["gene"]) != r["phenotype"]:
             continue
         evidence = [f"{r['gene']} {r['phenotype'].replace('_', ' ')}"]
         if r["dose"]:
@@ -150,8 +170,9 @@ def _drug_drug(drug: Drug, profile: Profile) -> list[Flag]:
             continue
         evidence = list(r.get("evidence", []))
         ctx = r.get("context_gene")
-        if ctx and profile.phenotypes.get(ctx["gene"]) in ctx["phenotypes"]:
-            evidence.append(f"{ctx['gene']} {profile.phenotypes[ctx['gene']].replace('_', ' ')}")
+        ph = _phenotype(profile, ctx["gene"]) if ctx else None
+        if ph in (ctx or {}).get("phenotypes", []):
+            evidence.append(f"{ctx['gene']} {ph.replace('_', ' ')}")
         out.append(_flag(r, r["key"], "drug_drug", evidence))
     return out
 
@@ -198,11 +219,36 @@ ENGINES = (_gene_drug, _drug_drug, _drug_lab, _class_rules)
 def check(drug: Drug, profile: Profile) -> list[Flag]:
     """Flags for one drug against the profile (contract: CONTRACTS.md `rules.check`). Exact keys only."""
     drug = Drug(ingredient=drug.ingredient.strip().lower(), dose_mg=drug.dose_mg)
+    expected = expected_keys()
     seen: dict[str, Flag] = {}
     for engine in ENGINES:
         for f in engine(drug, profile):
-            seen.setdefault(f.key, f)
+            if f.key not in expected:
+                seen.setdefault(f.key, f)
     return list(seen.values())
+
+
+def expected_notes(drug: Drug, profile: Profile) -> list[dict]:
+    """Informational notes (not Flags) for expected combinations of `drug` with the med list, shown
+    only when the profile has a listed condition. Each note: id, key, text, source (D-021)."""
+    ing = drug.ingredient.strip().lower()
+    others = set(_others(Drug(ingredient=ing), profile))
+    out = []
+    for c in tables()["expected"]:
+        if ing not in c["drugs"] or not set(c["conditions"]) & set(profile.conditions):
+            continue
+        if any(d in others for d in c["drugs"] if d != ing):
+            out.append({k: c[k] for k in ("id", "key", "text", "source")})
+    return out
+
+
+def expected_notes_all(profile: Profile) -> list[dict]:
+    """Expected-combination notes across the whole med list, one per key."""
+    seen: dict[str, dict] = {}
+    for med in profile.meds:
+        for n in expected_notes(med, profile):
+            seen.setdefault(n["key"], n)
+    return sorted(seen.values(), key=lambda n: n["id"])
 
 
 def check_all(profile: Profile) -> list[Flag]:

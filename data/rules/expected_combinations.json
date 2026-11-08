@@ -1,0 +1,15 @@
+{
+  "version": "expected-v1",
+  "note": "Combinations that are expected therapy in a stated clinical context. They never produce a Flag (PLAN P5, D-021); rules.expected_notes() returns them as informational notes for the UI. Keys use contracts.pair_key. A note is shown only when the profile has one of the listed conditions. Listing a pair here does not say the pair is safe (I7).",
+  "combinations": [
+    {
+      "id": "EX-001",
+      "key": "aspirin|clopidogrel",
+      "drugs": ["aspirin", "clopidogrel"],
+      "conditions": ["CAD_post_stent"],
+      "tier": "curated",
+      "source": "ACC/AHA guideline on dual antiplatelet therapy in coronary artery disease (2016 focused update)",
+      "text": "Aspirin with clopidogrel is dual antiplatelet therapy, the usual plan after a coronary stent. It is listed here for information, not as a warning; how long to continue it is a question for the cardiologist."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
-  "genotypes": {"CYP2C19": "*2/*2", "SLCO1B1": "*1/*5", "CYP2D6": "*1/*1", "CYP2C9": "*1/*1", "VKORC1": "reference"},
-  "phenotypes": {"CYP2C19": "poor_metabolizer", "SLCO1B1": "decreased_function", "CYP2D6": "normal_metabolizer", "CYP2C9": "normal_metabolizer", "VKORC1": "normal_sensitivity"},
+  "genotypes": {"CYP2C19": "*2/*2", "SLCO1B1": "*1/*5", "CYP2D6": "not_assessed", "CYP2C9": "*1/*1", "VKORC1": "reference"},
+  "phenotypes": {"CYP2C19": "poor_metabolizer", "SLCO1B1": "decreased_function", "CYP2D6": "not_assessed", "CYP2C9": "normal_metabolizer", "VKORC1": "normal_sensitivity"},
   "meds": [{"ingredient": "aspirin", "dose_mg": 81}, {"ingredient": "clopidogrel", "dose_mg": 75},
            {"ingredient": "omeprazole", "dose_mg": 20}, {"ingredient": "simvastatin", "dose_mg": 40},
            {"ingredient": "lisinopril", "dose_mg": 10}],

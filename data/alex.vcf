@@ -5,15 +5,13 @@
 ##INFO=<ID=GENE,Number=1,Type=String,Description="Pharmacogene">
 ##INFO=<ID=ALLELE,Number=1,Type=String,Description="Star allele defined by the ALT base">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-##comment=SYNTHETIC patient Alex (PLAN P5, invariant I1). Not real health data. Only PGx defining positions for 5 genes are listed; unlisted positions are reference.
+##comment=SYNTHETIC patient Alex (PLAN P5, invariant I1). Not real health data. Only PGx defining positions for CYP2C19, CYP2C9, SLCO1B1 and VKORC1 are listed; unlisted positions are reference. Genotypes are matched by rsID (ID column), never by position. CYP2D6 is not assessed: its deletions/duplications are not callable from SNP data (PLAN P5, D-021).
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	ALEX
 chr10	94761900	rs12248560	C	T	.	PASS	GENE=CYP2C19;ALLELE=*17	GT	0/0
-chr10	94775489	rs4986893	G	A	.	PASS	GENE=CYP2C19;ALLELE=*3	GT	0/0
+chr10	94780653	rs4986893	G	A	.	PASS	GENE=CYP2C19;ALLELE=*3	GT	0/0
 chr10	94781859	rs4244285	G	A	.	PASS	GENE=CYP2C19;ALLELE=*2	GT	1/1
 chr10	94942290	rs1799853	C	T	.	PASS	GENE=CYP2C9;ALLELE=*2	GT	0/0
 chr10	94981296	rs1057910	A	C	.	PASS	GENE=CYP2C9;ALLELE=*3	GT	0/0
 chr12	21176804	rs2306283	A	G	.	PASS	GENE=SLCO1B1;ALLELE=*1B	GT	0/0
 chr12	21178615	rs4149056	T	C	.	PASS	GENE=SLCO1B1;ALLELE=*5	GT	0/1
 chr16	31096368	rs9923231	C	T	.	PASS	GENE=VKORC1;ALLELE=-1639A	GT	0/0
-chr22	42128945	rs3892097	C	T	.	PASS	GENE=CYP2D6;ALLELE=*4	GT	0/0
-chr22	42130692	rs1065852	G	A	.	PASS	GENE=CYP2D6;ALLELE=*10	GT	0/0
