@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PHONE = ROOT / "phone"
 local = TestClient(app_module.app)                                  # host "testclient" = this laptop
 remote = TestClient(app_module.app, client=("192.168.1.50", 50000))  # a phone on the Wi-Fi
-REAL_CAPTURE = app_module.MODES.get("capture.from_image") == "real"
+REAL_CAPTURE = True   # since G2 (D-032)
 
 
 @pytest.fixture(autouse=True)

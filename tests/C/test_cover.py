@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 import app as app_module
 
-REAL_COVER = app_module.start_cover is not None and app_module.MODES["router.route"] == "real"
+REAL_COVER = app_module.start_cover is not None
 
 
 class FakeCover:

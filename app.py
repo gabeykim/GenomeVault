@@ -3,16 +3,16 @@
 Runs on localhost and makes no network calls itself (I2). Any cloud traffic happens inside
 core/cloud.py, behind router.route.
 
-Each dependency is resolved once at startup: the real module is used as soon as it exists on
-main (A at G1, B at G2, C's own merge.py), otherwise the stub from core/interfaces.py
-(coord/CONTRACTS.md). /api/status reports which is which.
+Since G2 (D-032) every contract function comes from the real module on main: A's graph, rules,
+normalize and capture, B's router, ledger and cloud, C's merge. The stand-ins are gone (D-014).
+Non-contract helpers stay optional, so the UI degrades quietly if one is missing.
 """
 from __future__ import annotations
 
 import html
 import importlib
-from contextlib import asynccontextmanager
 import importlib.util
+from contextlib import asynccontextmanager
 import os
 import secrets
 import threading
@@ -27,8 +27,16 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from core import actions, interfaces, merge
-from core.contracts import Answer, Drug, Fact, Flag, LedgerEntry, Profile
+from core import actions, merge
+from core.capture import from_image          # A, D-020: label photo -> drugs
+from core.cloud import status as cloud_status  # contract since D-020; sends nothing (I2)
+from core.contracts import Answer, Drug, Fact, Flag, Profile
+from core.graph import load_profile
+from core.ledger import feed as ledger_feed  # B writes every entry; the app never does
+from core.merge import personalize
+from core.normalize import to_ingredients
+from core.router import route
+from core.rules import check
 
 ROOT = Path(__file__).resolve().parent
 UI_DIR = ROOT / "ui"
@@ -37,61 +45,11 @@ DEMO = os.environ.get("DEMO", "0") == "1"
 DISCLAIMER = "Demo, not medical advice. All patient data is synthetic."
 
 
-# --- stand-ins for contract functions that core/interfaces.py does not stub yet ---------------
-
-class _MockLedger:
-    """Stand-in for B's ledger until G2. Only used while core/ledger.py does not exist."""
-
-    def __init__(self) -> None:
-        self._entries: list[LedgerEntry] = []
-        self._lock = threading.Lock()
-
-    def record(self, kind: str, bytes_out: int = 0, bucket_id: Optional[str] = None) -> None:
-        with self._lock:
-            self._entries.append(LedgerEntry(
-                seq=len(self._entries) + 1, ts=datetime.now(timezone.utc),
-                bucket_id=bucket_id, kind=kind, bytes_out=bytes_out))
-
-    def feed(self, since: int) -> list[LedgerEntry]:
-        with self._lock:
-            return [e for e in self._entries if e.seq > since]
-
-
-_mock_ledger = _MockLedger()
-MOCK_BUCKET_BYTES = 8 * 180  # mock only: 8 generalized questions of ~180 bytes each
-
-
-def _mock_to_ingredients(text: str) -> list[Drug]:
-    """Stand-in for A's normalize.to_ingredients until G1: treats the text as an ingredient name."""
-    name = text.strip().lower()
-    return [Drug(ingredient=name)] if name else []
-
-
-# --- module resolution -------------------------------------------------------------------------
-
-MODES: dict[str, str] = {}
-
-
-def _resolve(module: str, attr: str, fallback: Callable) -> Callable:
-    """core.<module>.<attr> if that module exists, else the mock. A broken real module raises;
-    it never silently falls back to the mock."""
-    name = f"{module}.{attr}"
-    if importlib.util.find_spec(f"core.{module}") is not None:
-        MODES[name] = "real"
-        return getattr(importlib.import_module(f"core.{module}"), attr)
-    MODES[name] = "mock"
-    return fallback
-
-
-load_profile = _resolve("graph", "load_profile", interfaces.load_profile)
-check = _resolve("rules", "check", interfaces.check)
-to_ingredients = _resolve("normalize", "to_ingredients", _mock_to_ingredients)
-from_image = _resolve("capture", "from_image", interfaces.from_image)   # A, D-020: label photo -> drugs
-route = _resolve("router", "route", interfaces.route)
-personalize = _resolve("merge", "personalize", interfaces.personalize)
-ledger_feed = _resolve("ledger", "feed", _mock_ledger.feed)
-cloud_status = _resolve("cloud", "status", interfaces.status)    # contract since D-020; sends nothing (I2)
-LEDGER_IS_MOCK = MODES["ledger.feed"] == "mock"
+# --- contract functions: imported above as module-level names, so tests can monkeypatch them ----
+# All real since G2 (D-032). /api/status keeps its "modules" shape for the team's ?debug view.
+MODES: dict[str, str] = {name: "real" for name in (
+    "graph.load_profile", "rules.check", "normalize.to_ingredients", "capture.from_image",
+    "router.route", "merge.personalize", "ledger.feed", "cloud.status")}   # /api/status shape
 
 EXTRAS: dict[str, bool] = {}
 
@@ -118,12 +76,6 @@ stop_cover = _optional("router", "stop_cover")
 cover_running = _optional("router", "cover_running")
 sync_pack = _optional("router", "sync_pack")                     # B, D-027: whole knowledge pack, same for everyone
 COVER = os.environ.get("GV_COVER", "1") != "0"                   # GV_COVER=0 turns it off for local dev
-
-
-def _note(kind: str, bytes_out: int = 0, bucket_id: Optional[str] = None) -> None:
-    """Record an event in the mock ledger. Once B's ledger is real, B writes every entry itself."""
-    if LEDGER_IS_MOCK:
-        _mock_ledger.record(kind, bytes_out, bucket_id)
 
 
 # --- helpers -----------------------------------------------------------------------------------
@@ -240,7 +192,6 @@ def _check(drugs: list[Drug]) -> dict:
 def check_drug(body: CheckIn) -> dict:
     """Check one typed drug name against the profile (F2 typed input, F3)."""
     result = _check(to_ingredients(body.text))
-    _note("local_only")
     if body.via == "phone" and result["drugs"]:
         _record_capture("typed", result)
     return {"input": body.text, **result}
@@ -248,10 +199,7 @@ def check_drug(body: CheckIn) -> dict:
 
 def _named_drugs(question: str, p: Profile) -> list[Drug]:
     """Drugs the question names that aren't already on the med list (B-025): their local flags go to the
-    router too, so "Can I take ibuprofen?" is covered by X5 like a typed ibuprofen check. Needs A's real
-    normalizer: the mock one treats the whole question as one ingredient."""
-    if MODES["normalize.to_ingredients"] != "real":
-        return []
+    router too, so "Can I take ibuprofen?" is covered by X5 like a typed ibuprofen check."""
     on_list = {m.ingredient for m in p.meds}
     return [d for d in to_ingredients(question) if d.ingredient not in on_list]
 
@@ -263,15 +211,11 @@ def ask(body: AskIn) -> dict:
     current = _flags_for(p.meds + _named_drugs(body.question, p), p)
     answer: Answer = route(body.question, current)
     _asked.append(body.question)
-    if answer.sent_to_cloud:
-        _note("bucket", MOCK_BUCKET_BYTES, "mock-bucket")
-    else:
-        _note("local_only")
     return {
         "state": answer.state,
         "text": personalize(answer, current, p),
         # Same content as "text", as ordered sections, so the UI can lead with the asked pair (C-021).
-        "sections": merge.structure(answer, current, p) if MODES["merge.personalize"] == "real" else None,
+        "sections": merge.structure(answer, current, p),
         "facts": [{**f.model_dump(mode="json"), "label": tier_label(f)} for f in answer.facts],
         "sent_to_cloud": answer.sent_to_cloud,
     }
@@ -301,7 +245,6 @@ def ledger(since: int = 0) -> dict:
         "learned": kb_stats() if kb_stats else None,   # facts the KB holds (F6, E2)
         "cloud": _cloud(),                               # badge state, polled with the ledger
         "cover": _cover_on(),                            # cover traffic running (P6.6)
-        "mock": LEDGER_IS_MOCK,
     }
 
 
@@ -542,7 +485,6 @@ def capture_confirm(body: ConfirmIn) -> dict:
     """The user confirmed the drug read from a label: run the local check and show it on the laptop."""
     drugs = [Drug(ingredient=d.ingredient.strip().lower()[:60], dose_mg=d.dose_mg) for d in body.drugs]
     result = _check(drugs)
-    _note("local_only")
     _record_capture(body.source, result)
     return result
 

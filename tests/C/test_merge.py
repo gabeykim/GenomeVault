@@ -238,7 +238,6 @@ def test_named_drug_flags_reach_the_router(monkeypatch):
     from fastapi.testclient import TestClient
     from core.contracts import Drug
     seen = {}
-    monkeypatch.setitem(app.MODES, "normalize.to_ingredients", "real")
     monkeypatch.setattr(app, "to_ingredients", lambda text: [Drug(ingredient="ibuprofen")] if "ibuprofen" in text else [])
     monkeypatch.setattr(app, "check", lambda d, p: list(X5_FLAGS) if d.ingredient == "ibuprofen" else [])
     monkeypatch.setattr(app, "route", lambda q, flags: seen.setdefault("flags", flags) and Answer(state="known", text="Local."))
