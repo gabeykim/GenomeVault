@@ -360,7 +360,10 @@ function answerMessage(a) {
 
 async function ask(question) {
   const chat = $("chat");
-  chat.querySelector(".suggestion")?.remove();
+  // Demo chips stay put: asking the same one again shows the knowledge-base hit (S6).
+  document.querySelectorAll(`#chips .suggestion`).forEach((b) => {
+    if (b.dataset.q === question) b.classList.add("asked");
+  });
   chat.append(message("You", reveal(question)));
   const pending = message("Vault", "Checking locally first");
   pending.classList.add("pending");
@@ -491,20 +494,55 @@ let lastSeq = 0;
 let polling = false;
 let firstPoll = true;
 
+// The 8 questions that left in one bucket. Only this device can mark which one is the user's.
+async function showOutbound(e, li, toggle) {
+  const open = li.classList.toggle("open");
+  toggle.setAttribute("aria-expanded", String(open));
+  toggle.querySelector(".cells-label").textContent = open ? "Hide" : "See the 8 questions";
+  let box = li.querySelector(".outq");
+  if (!open) { box?.remove(); return; }
+  box = el("div", { class: "outq" }, el("p", { class: "mute" }, "Loading…"));
+  li.append(box);
+  try {
+    const d = await api(`/api/ledger/${e.seq}/outbound`);
+    if (!d.texts.length) {
+      box.replaceChildren(el("p", { class: "mute" },
+        d.available ? "No text was recorded for this entry." : "The exact texts appear once B's ledger is merged."));
+      return;
+    }
+    const mine = new Set(d.mine);
+    box.replaceChildren(
+      el("ol", {}, d.texts.map((t, i) => el("li", { class: mine.has(i) ? "mine" : "" },
+        el("span", { class: "oq-n" }, pad2(i + 1)),
+        el("span", { class: "oq-t" }, t),
+        mine.has(i) ? el("span", { class: "oq-tag" }, "yours") : null))),
+      el("p", { class: "mute" }, mine.size
+        ? `The cloud got all ${d.texts.length} in the same shape. Only this device knows which ${mine.size === 1 ? "one is" : "ones are"} yours.`
+        : `The cloud got all ${d.texts.length} in the same shape.`));
+  } catch (err) {
+    box.replaceChildren(el("p", { class: "mute" }, `Couldn't load: ${err.message}`));
+  }
+}
+
 function ledgerEntry(e) {
   const time = new Date(e.ts).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const leaves = e.kind === "bucket" || e.kind === "cover";
-  return el("li", { class: `entry k-${e.kind}` },
+  const toggle = leaves ? el("button", { class: "cells", type: "button", "aria-expanded": "false" },
+    el("span", { class: "cells-row", "aria-hidden": "true" },
+      Array.from({ length: 8 }, (_, i) => el("i", { style: `--i:${i}` }))),
+    el("span", { class: "cells-label" }, "See the 8 questions")) : null;
+  const li = el("li", { class: `entry k-${e.kind}` },
     el("span", { class: "seq" }, pad2(e.seq)),
     el("span", { class: "desc" },
       el("span", { class: "kind" }, humanize(e.kind)),
       LEDGER_KINDS[e.kind] || e.kind,
-      leaves ? el("span", { class: "cells", title: "8 questions, identical in shape" },
-        Array.from({ length: 8 }, (_, i) => el("i", { style: `--i:${i}` }))) : null),
+      toggle),
     el("span", { class: "bytes" }, formatBytes(e.bytes_out)),
     el("span", { class: "sub" },
       el("span", {}, [time, e.bucket_id].filter(Boolean).join(" · ")),
       el("span", {}, `personal fields ${e.personal_fields_sent}`)));
+  toggle?.addEventListener("click", () => showOutbound(e, li, toggle));
+  return li;
 }
 
 async function pollLedger() {
@@ -530,6 +568,11 @@ async function pollLedger() {
     setTicker($("total-bytes"), formatBytes(t.bytes_out));
     setTicker($("ledger-personal"), String(t.personal_fields_sent));
     setTicker($("total-personal"), String(t.personal_fields_sent));
+    const learned = $("learned");
+    if (data.learned) {
+      learned.hidden = false;
+      setTicker($("learned-n"), String(data.learned.fresh));
+    }
   } catch {
     // server restarting; try again next tick
   } finally {
@@ -566,7 +609,7 @@ function boot() {
   renderActions();
   $("check-form").addEventListener("submit", onCheck);
   $("ask-form").addEventListener("submit", onAsk);
-  $("chat").addEventListener("click", (ev) => {
+  $("chips").addEventListener("click", (ev) => {
     const q = ev.target.closest(".suggestion")?.dataset.q;
     if (q) ask(q);
   });

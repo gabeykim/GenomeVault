@@ -125,11 +125,11 @@ body.ready .wm-rule { transform: none; }
 .num { font-size: 12px; color: var(--mute); font-variant-numeric: tabular-nums; }
 .tag { font-size: 12px; color: var(--mute); text-align: right; display: inline-flex; align-items: center; justify-content: flex-end; }
 .sq { display: inline-block; width: 7px; height: 7px; background: var(--ink); margin-right: 7px; }
-.sec-head, .sec > p, .profile, .index, .line-form, .chat, .totals, .ledger {
+.sec-head, .sec > p, .profile, .index, .line-form, .chat, .chips, .totals, .ledger {
   opacity: 0; transform: translateY(14px); transition: opacity .8s var(--ease-out), transform .9s var(--ease-out); transition-delay: .25s;
 }
 .sec.in .sec-head, .sec.in > p, .sec.in .profile, .sec.in .index, .sec.in .line-form,
-.sec.in .chat, .sec.in .totals, .sec.in .ledger { opacity: 1; transform: none; }
+.sec.in .chat, .sec.in .chips, .sec.in .totals, .sec.in .ledger { opacity: 1; transform: none; }
 
 .lede { font-size: 18px; letter-spacing: -.02em; margin-bottom: 18px; max-width: 640px; }
 
@@ -222,10 +222,20 @@ body.ready .check-result .row { animation-delay: calc(var(--i, 0) * 80ms); }
 
 /* ---------- chat ---------- */
 .chat { display: flex; flex-direction: column; margin-bottom: 12px; border-top: 1px solid var(--ink); }
-.suggestion { align-self: stretch; text-align: left; padding: 14px 10px; font-size: 16px; letter-spacing: -.01em; border-bottom: 1px solid var(--line); }
-.suggestion::before { transform: scaleY(0); transform-origin: bottom; }
+.chat:empty { border-top: 0; margin-bottom: 0; }
+.chips { list-style: none; margin: 0 0 12px; padding: 0; border-top: 1px solid var(--ink); }
+.suggestion {
+  width: 100%; display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 12px; align-items: baseline;
+  text-align: left; padding: 12px 0; font-size: 15px; letter-spacing: -.01em; border-bottom: 1px solid var(--line);
+  transition: color .35s var(--ease), padding .45s var(--ease);
+}
+.suggestion::before { inset: 0 calc(-1 * var(--gutter) / 2); transform: scaleY(0); transform-origin: bottom; }
 .suggestion:hover::before, .suggestion:focus-visible::before { transform: scaleY(1); }
-.suggestion span::before { content: "→ "; }
+.suggestion:hover, .suggestion:focus-visible { padding-left: 10px; }
+.suggestion .qid { font: 11px var(--mono); opacity: .6; }
+.suggestion .qtext::before { content: "→ "; }
+.suggestion .qbeat { font-size: 12px; opacity: .6; }
+.suggestion.asked .qtext::before { content: "↻ "; }
 .msg {
   display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; padding: 14px 0;
   border-bottom: 1px solid var(--line); animation: row-in .7s var(--ease-out) both;
@@ -305,9 +315,39 @@ body.ready .check-result .row { animation-delay: calc(var(--i, 0) * 80ms); }
 .entry .bytes { font: 12px var(--mono); text-align: right; }
 .entry .sub { grid-column: 2 / 4; display: flex; justify-content: space-between; gap: 8px; font: 10.5px var(--mono); color: var(--mute); }
 .entry.k-bucket .bytes, .entry.k-blocked .bytes { font-weight: 600; }
-.cells { display: flex; gap: 3px; margin-top: 7px; }
-.cells i { width: 9px; height: 9px; background: var(--ink); animation: cell .5s var(--ease-out) both; animation-delay: calc(var(--i) * 60ms + .3s); }
+.cells {
+  display: flex; align-items: center; gap: 10px; margin-top: 7px; padding: 0; border: 0; background: none;
+  color: var(--ink); cursor: pointer; font-size: 11px;
+}
+.cells-row { display: flex; gap: 3px; }
+.cells i { display: block; width: 9px; height: 9px; background: var(--ink); animation: cell .5s var(--ease-out) both; animation-delay: calc(var(--i) * 60ms + .3s); }
 @keyframes cell { from { transform: scale(0); } }
+.cells-label { color: var(--mute); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.cells:hover .cells-label, .cells:focus-visible .cells-label { color: var(--ink); text-decoration-color: var(--ink); }
+.cells:focus-visible { outline: none; }
+.entry.open .cells i { animation: none; }
+.entry.open .cells i:nth-child(odd) { transform: translateY(-2px); }
+
+/* the 8 questions that left (S4) */
+.outq { grid-column: 1 / -1; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ink); animation: row-in .6s var(--ease-out) both; }
+.outq ol { list-style: none; margin: 0; padding: 0; }
+.outq li {
+  display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; padding: 6px 0;
+  border-bottom: 1px solid var(--line); font-size: 12px; line-height: 1.35;
+  animation: row-in .5s var(--ease-out) both; animation-delay: calc(var(--n, 0) * 40ms);
+}
+.outq li:nth-child(1) { --n: 0; } .outq li:nth-child(2) { --n: 1; } .outq li:nth-child(3) { --n: 2; }
+.outq li:nth-child(4) { --n: 3; } .outq li:nth-child(5) { --n: 4; } .outq li:nth-child(6) { --n: 5; }
+.outq li:nth-child(7) { --n: 6; } .outq li:nth-child(8) { --n: 7; }
+.oq-n { font: 10.5px var(--mono); color: var(--mute); padding-top: 1px; }
+.outq li.mine { background: var(--ink); color: var(--paper); margin: 0 -10px; padding: 6px 10px; border-bottom-color: var(--ink); }
+.outq li.mine .oq-n { color: var(--paper); opacity: .7; }
+.oq-tag { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; padding-top: 2px; }
+.outq > p { margin: 8px 0 0; font-size: 11.5px; }
+
+/* facts learned on this device (F6) */
+.learned { display: flex; align-items: baseline; gap: 10px; margin: -6px 0 14px; font-size: 12px; color: var(--mute); }
+.learned strong { font-size: 22px; font-weight: 400; color: var(--ink); letter-spacing: -.03em; }
 
 /* animated numbers */
 .ticker { display: inline-grid; overflow: hidden; vertical-align: bottom; }
@@ -350,6 +390,6 @@ body.ready .check-result .row { animation-delay: calc(var(--i, 0) * 80ms); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .ch, .wm-rule, .rule { transform: none; }
-  .sec-head, .sec > p, .profile, .index, .line-form, .chat, .totals, .ledger { opacity: 1; transform: none; }
+  .sec-head, .sec > p, .profile, .index, .line-form, .chat, .chips, .totals, .ledger { opacity: 1; transform: none; }
   .intro { display: none; }
 }

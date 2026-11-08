@@ -87,6 +87,23 @@ personalize = _resolve("merge", "personalize", interfaces.personalize)
 ledger_feed = _resolve("ledger", "feed", _mock_ledger.feed)
 LEDGER_IS_MOCK = MODES["ledger.feed"] == "mock"
 
+EXTRAS: dict[str, bool] = {}
+
+
+def _optional(module: str, attr: str) -> Optional[Callable]:
+    """Non-contract helpers B offered (ledger.outbound, kb.stats, generalize.generalize). Used when
+    present; the UI degrades quietly when they're missing. A broken module still raises on import."""
+    fn = None
+    if importlib.util.find_spec(f"core.{module}") is not None:
+        fn = getattr(importlib.import_module(f"core.{module}"), attr, None)
+    EXTRAS[f"{module}.{attr}"] = fn is not None
+    return fn
+
+
+ledger_outbound = _optional("ledger", "outbound")
+kb_stats = _optional("kb", "stats")
+generalize_flag = _optional("generalize", "generalize")
+
 
 def _note(kind: str, bytes_out: int = 0, bucket_id: Optional[str] = None) -> None:
     """Record an event in the mock ledger. Once B's ledger is real, B writes every entry itself."""
@@ -134,7 +151,7 @@ def index() -> FileResponse:
 
 @app.get("/api/status")
 def status() -> dict:
-    return {"demo": DEMO, "disclaimer": DISCLAIMER, "modules": MODES}
+    return {"demo": DEMO, "disclaimer": DISCLAIMER, "modules": MODES, "extras": EXTRAS}
 
 
 @app.get("/api/profile", response_model=Profile)
@@ -192,8 +209,27 @@ def ledger(since: int = 0) -> dict:
             "bytes_out": sum(e.bytes_out for e in everything),
             "personal_fields_sent": sum(e.personal_fields_sent for e in everything),
         },
+        "learned": kb_stats() if kb_stats else None,   # facts the KB holds (F6, E2)
         "mock": LEDGER_IS_MOCK,
     }
+
+
+@app.get("/api/ledger/{seq}/outbound")
+def ledger_outbound_texts(seq: int) -> dict:
+    """The exact texts that left in one ledger entry (S4). Shown on this device only; `mine` marks
+    which of them came from this user's own flags, something only the device can know."""
+    texts = ledger_outbound(seq) if ledger_outbound else []
+    mine: list[int] = []
+    if texts and generalize_flag:
+        p = load_profile()
+        real = set()
+        for f in _flags_for(p.meds, p):
+            try:
+                real |= {t.text for t in generalize_flag(f)}
+            except ValueError:
+                continue   # a key generalize can't phrase is simply not marked
+        mine = [i for i, t in enumerate(texts) if t in real]
+    return {"seq": seq, "texts": texts, "mine": mine, "available": ledger_outbound is not None}
 
 
 # --- actions (F7): prepared on device, handed to the user; nothing is sent (I2) ----------------

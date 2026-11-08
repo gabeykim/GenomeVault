@@ -82,9 +82,14 @@
           <h2>Ask</h2>
           <span class="tag">Only general questions leave, in decoy groups of 8</span>
         </header>
-        <div class="chat" id="chat" aria-live="polite">
-          <button type="button" class="suggestion" data-q="What should I bring up with my cardiologist?"><span>What should I bring up with my cardiologist?</span></button>
-        </div>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <!-- Demo questions: exact texts from D's eval/queries.json so the eval measures what is shown. -->
+        <ol class="chips" id="chips" aria-label="Demo questions">
+          <li><button type="button" class="suggestion" data-qid="Q18" data-q="What should I bring up with my cardiologist?"><span class="qid">Q18</span><span class="qtext">What should I bring up with my cardiologist?</span><span class="qbeat">Decoy group</span></button></li>
+          <li><button type="button" class="suggestion" data-qid="Q19" data-q="Which of my new prescriptions should I ask my pharmacist about first?"><span class="qid">Q19</span><span class="qtext">Which of my new prescriptions should I ask my pharmacist about first?</span><span class="qbeat">Learns</span></button></li>
+          <li><button type="button" class="suggestion" data-qid="Q07" data-q="Could pantoprazole work instead of omeprazole with my clopidogrel?"><span class="qid">Q07</span><span class="qtext">Could pantoprazole work instead of omeprazole with my clopidogrel?</span><span class="qbeat">No guessing</span></button></li>
+          <li><button type="button" class="suggestion" data-qid="Q15" data-q="Can I take ibuprofen for a headache?"><span class="qid">Q15</span><span class="qtext">Can I take ibuprofen for a headache?</span><span class="qbeat">Offline</span></button></li>
+        </ol>
         <form class="line-form" id="ask-form" autocomplete="off">
           <label for="ask-input" class="sr-only">Ask a question</label>
           <input id="ask-input" type="text" placeholder="Ask about your medications" maxlength="500">
@@ -117,6 +122,10 @@
           <div><span class="mute">Bytes out</span><strong class="ticker" id="ledger-bytes"><span class="tick">0 B</span></strong></div>
           <div><span class="mute">Personal fields</span><strong class="ticker" id="ledger-personal"><span class="tick">0</span></strong></div>
         </div>
+        <p class="learned" id="learned" hidden>
+          <strong class="ticker" id="learned-n"><span class="tick">0</span></strong>
+          <span>facts learned on this device. Each one is a question that never has to leave again.</span>
+        </p>
         <ol class="ledger" id="ledger">
           <li class="ledger-empty">Nothing has left this device.</li>
         </ol>
