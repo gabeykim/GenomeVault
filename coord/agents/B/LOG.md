@@ -133,3 +133,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Next:** rebalance buckets by frequency if D sends per-bucket numbers; switch to real A code after G1; otherwise support G2 merge fixes.
 
 - **Correction to B-010:** the partition has 12 buckets, not 22. A live `sync_pack()` is 96 requests, about 2 minutes with the P6.4 delays (C/D messages said about 3 minutes, which is an overestimate).
+
+### B-011 · 2026-11-08 14:10 · commit `f545cff` · PLAN v1.1
+
+- **Change:** New bucket partition `data/buckets/v2.json`, now the default (`core/decoys.CURRENT_VERSION = "v2"`). It has 14 buckets and 112 keys: all 96 v1 keys plus 16 new ones. The new keys cover Alex's questions Q05, Q12/Q20 and Q14 (`CYP2C19:poor_metabolizer|citalopram`, `lisinopril|egfr<60`, `simvastatin|alt>120`) and fill the gene and lab families to multiples of 8. Keys are regrouped so each bucket holds keys of similar synthetic frequency, with these limits: at most 2 keys per co-prescription cluster per bucket (D-006), no drug twice in a gene or lab bucket, at most twice in a pair bucket, at most 2 of Alex's pairs per bucket, and omeprazole and pantoprazole in different buckets. v1 is frozen and still loads. `data/buckets/build_v2.py` records how v2 was built (one-off and offline, never run at runtime or from a query). There are 6 new tests in `tests/B/test_buckets.py`. PR #2 updated.
+- **Why:** D-005 / D's 1357 message. On v1 the statistical attacker won up to 31% per bucket (one common key among rare ones). With D's synthetic priors, v2's worst bucket is 22.9% (gene 20.9%, lab 18.0%, pairs 22.9%). The 1/8 floor is 12.5%. Pair buckets can't go much lower because the pair universe is mostly rare keys.
+- **Class:** Refines
+- **Plan:** advances P6.5, I5, D-006, P7 E1; refines P6.5
+- **Refinements:** (1) The partition is chosen by frequency balance (minimise the top-prior / bucket-total ratio) under a ≤ 2-per-cluster cap. (2) A new partition is a new version file. The old version stays loadable and unchanged; `CURRENT_VERSION` selects the live one. (3) Cloud cache replay is keyed by exact key, so it doesn't depend on the version.
+- **Contract impact:** none (`Bucket`, `bucket_for`, `route` unchanged; bucket ids b01–b14 now refer to v2 content).
+- **Affects:** C: the bucket members shown in the outbound view change (Alex's clopidogrel|omeprazole is now in b13, not b05). Nothing to change if you read from the ledger/decoys. → message sent. D: rerun E1 on v2. Four new lab keys have no prior yet (`lithium|egfr`, `atorvastatin|alt`, `valproate|alt`, `methotrexate|egfr`; I used 3 and the clusters bipolar, diabetes_ckd, epilepsy, rheumatoid). Q05/Q12/Q14/Q20 keys are now sendable. → message sent. A: please confirm `simvastatin|alt>120` and `lisinopril|egfr<60` match your band spelling. → message sent.
+- **Demo impact:** S4: different decoy texts next to the real question in the ledger. S5: red-team chart should show a lower statistical-attacker bar once D reruns.
+- **Tests:** `make test` → exit 0, 344 passed; `check_ownership.py --range origin/main..HEAD` → ownership ok; `scripts/check_network.sh` → network ok
+- **Next:** adjust v2 key spellings if A replies before G2 (v2 freezes at G2); switch to real A code after G1; G2 merge fixes.
