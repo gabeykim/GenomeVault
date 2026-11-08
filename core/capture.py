@@ -50,6 +50,13 @@ OCR_TIMEOUT_S = 30
 _PNG_SIG = b"\x89PNG\r\n\x1a\n"
 _TEXT_CAP = 20_000                     # characters of label text passed to normalize
 _SENTENCE_END = re.compile(r"(?<=[.;!?])\s+")   # "12.5" has no space after the dot, so it stays whole
+# Words that open a label warning or direction about *other* drugs ("Do not take aspirin", "Avoid
+# omeprazole", "Tell your doctor if you take clopidogrel"). A piece where one comes before any drug
+# name is a warning, never the product line.
+_WARNING_CUE = re.compile(
+    r"\b(?:do not|don'?t|never|avoid|unless|without|except|caution|warnings?|consult|"
+    r"ask (?:a|your)|tell your|if you|such as|interact\w*|stop (?:use|taking)|allerg\w*|"
+    r"may (?:cause|increase))\b", re.IGNORECASE)
 
 
 _VLM_PROMPT = (
@@ -97,11 +104,15 @@ def label_drugs(text: str) -> list[Drug]:
     counts (labels print the product before warnings). A combination pill stays whole, because both
     names sit in that one piece. If that piece has no strength, the strength comes from a later piece
     naming exactly the same ingredients ("PLAVIX" ... "clopidogrel 75 mg"), or from the very next
-    piece when name and strength were split across lines ("LISINOPRIL-HCTZ" / "20-12.5 MG")."""
+    piece when name and strength were split across lines ("LISINOPRIL-HCTZ" / "20-12.5 MG").
+
+    Warning pieces never count (`_is_warning`). Without this, a label whose product line could not be
+    read (an OCR misread "PLAVLX") would be taken for the drug in its warning ("Avoid omeprazole"),
+    and C's confirm step would offer a drug the user does not take. Such a label gives `[]` (I4)."""
     pieces = [p.strip() for line in (text or "")[:_TEXT_CAP].splitlines()
               for p in _SENTENCE_END.split(line) if p.strip()]
     named = [(i, to_ingredients(p)) for i, p in enumerate(pieces)]
-    named = [(i, d) for i, d in named if d]
+    named = [(i, d) for i, d in named if d and not _is_warning(pieces[i])]
     if not named:
         return []
     first, drugs = named[0]
@@ -116,6 +127,13 @@ def label_drugs(text: str) -> list[Drug]:
         if {d.ingredient for d in joined} == names:
             return joined
     return drugs
+
+
+def _is_warning(piece: str) -> bool:
+    """True if a warning cue comes before any drug name in this piece ("Do not take aspirin"), so
+    "CLOPIDOGREL 75 MG - do not crush" is still a product line."""
+    cue = _WARNING_CUE.search(piece)
+    return bool(cue) and not to_ingredients(piece[:cue.start()])
 
 
 def read_text(data: bytes, mime: str) -> str:
