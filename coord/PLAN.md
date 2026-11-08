@@ -1,4 +1,4 @@
-# GenomeVault PLAN — v1.3
+# GenomeVault PLAN — v1.3.1
 
 Source of truth for the idea. Edited only by the integrator, through accepted proposals (see AGENTS.md §5, §12). Cite these IDs in every commit, report and proposal.
 
@@ -119,3 +119,4 @@ S1 Hook · S2 Capture on phone · S3 Local flags X1–X4, "0 bytes sent" · S4 H
 - v1.2 — P5 PGx corrections: CYP2D6 not_assessed (SNP-uncallable); `aspirin|clopidogrel` expected DAPT shown as an informational note, not a Flag; genotypes matched by rsID on GRCh38. CONTRACTS +`capture.from_image` (A) +`cloud.status` (B). `anthropic` added for the eval LLM client. Backup-integrator pass (D-014…D-021).
 - v1.2.1 — G1 passed: A merged (PR #1, merge commit 7af15bf); real `rules.check` fires X1–X4 on Alex's discharge meds and X5 for ibuprofen (D-022).
 - v1.3 — P9 gates compressed to the 19:00 draft deadline (D-025); cloud thinking/max_tokens bug and fix (D-026); knowledge pack over partition v5, v5 frozen (D-027); local text model with thinking off (D-028); local vision model for label photos (D-029).
+- v1.3.1 — G2 passed: B (PR #2, merge 9d04dcc) and C (PR #3, merge be95c0e) merged; real `router.route` + `ledger` + cloud cache replay + FastAPI UI on main (D-032).
