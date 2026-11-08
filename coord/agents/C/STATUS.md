@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (C-012 pushed; PR #3 updated)
+current_task: none (C-013 pushed; PR #3 updated)
 branch: agent/C-app-ui
-last_commit: 9a4439a
+last_commit: 0b8e157
 last_seen:
   plan_version: "1.2"
   decisions: D-021
-  logs: {A: 4, B: 13, C: 12, D: 7}
+  logs: {A: 5, B: 13, C: 13, D: 7}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -27,5 +27,6 @@ handled_messages:
   - 20261108-1404-from-integrator-contracts-and-dapt.md
   - 20261108-1408-from-B-buckets-v3.md
   - 20261108-1415-from-B-i7-filter.md
+  - 20261108-1417-from-A-cyp2d6-dapt-note.md
 blocked_on: none
-next: D-020 wiring (capture endpoint + phone page, cloud.status offline badge + Wi-Fi-off toggle), drop stand-ins (D-014), cover traffic at startup (G3)
+next: cover traffic at startup (G3), then queue 5 phone/ + POST /api/capture (D-020), drop stand-ins (D-014)
