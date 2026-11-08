@@ -105,3 +105,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S4 (open the ledger row: 8 questions, "yours" marked), S6 (re-ask Q18 → kb_hit 0 B, "Answered on device", learned counter)
 - **Tests:** C alone → `make test` exit 0 (55 passed, 3 skipped). origin/main + A + B + C + D merged → exit 0, 409 passed, 0 skipped, including the full S4 → S6 test (bucket of 8, nothing personal in the texts, ≥8 facts learned, repeat ask is kb_hit 0 B). Checked by hand in the merged app with a placeholder cache.
 - **Next:** queue item 7 (offline badge + "Wi-Fi off" toggle using B's `cloud.status`/`set_offline`, DEMO fallback), then 5 (`phone/`)
+
+### C-009 · 2026-11-08 14:01 · commit `4e2ff03` · PLAN v1.1
+
+- **Change:** Simplified the UI. The left side is now four tabs (Medications, Ask, Actions, My data) with one panel showing at a time, a slide-in, arrow-key navigation, and deep links `#ask`, `#actions` and `#data`. Removed the header meta lines, the duplicate personal-fields counter in the header, the per-row pixel glyphs, the engine column, key codes, Q-number and beat labels on the chips, the ledger event count and per-row sub-lines (now a hover title), and the mocks footer (shown only with `?debug`). The wordmark is smaller. `/api/flags` (page load) no longer adds a mock `local_only` ledger row.
+- **Why:** Human owner said the page felt cluttered, with too much information on screen.
+- **Class:** Refines
+- **Plan:** advances M10, S1, S3, S4, S6; refines M10 (layout)
+- **Refinements:** tabs replace the stacked sections; demo deep links are `#ask`, `#actions`, `#data` (Medications is the default).
+- **Contract impact:** none
+- **Affects:** D: the demo script and screenshots now switch tabs instead of scrolling; `/#ask` opens Ask directly → update S4/S6 steps if they mention scrolling.
+- **Demo impact:** S1 (hero shorter), S3 (Medications tab, default), S4 (Ask tab + ledger), S6 (Actions tab)
+- **Tests:** C alone → exit 0 (55 passed, 3 skipped); A+B+C+D merged → exit 0 (409 passed). Checked by hand at 1440×900 and 375×812: tabs, deep links, ask, ledger, no horizontal scroll.
+- **Next:** queue item 7 (offline badge + Wi-Fi-off toggle), cover traffic at startup (G3), then 5 (`phone/`)
