@@ -126,3 +126,64 @@ def test_alias_variant_gets_member_answer_from_the_same_bucket():
     b = router.route("Does my genetics change how clopidogrel works for me?", [X1])
     assert b.state == "known" and not b.sent_to_cloud
     assert a.facts[0].text == b.facts[0].text
+
+
+# I4: a question no flag covers is never "checked, nothing found" (D, 20261108-1438) -------------------
+
+CR = Flag(id="CR-001", key="aspirin|naproxen", severity="high", engine="class_rule",
+          evidence=["NSAID + antiplatelet"], needs_cloud=False)
+
+
+@pytest.fixture
+def cache_all(tmp_path, monkeypatch):
+    from core.decoys import load_buckets
+    d = tmp_path / "all"
+    d.mkdir()
+    for b in load_buckets():
+        (d / f"{b.id}.json").write_text(json.dumps({k: f"General fact about {k}." for k in b.keys}))
+    monkeypatch.setenv("GV_CLOUD_CACHE", str(d))
+
+
+def test_no_flag_out_of_partition_is_no_data():
+    a = router.route("Can I take St. John's wort with my medications?", [])
+    assert a.state == "no_data" and not a.sent_to_cloud and a.facts == []
+    assert [e.kind for e in ledger.feed(0)] == ["local_only"]
+
+
+def test_gene_question_without_flag_is_sent_online(cache_all):
+    a = router.route("Would my genes matter if I ever needed warfarin?", [])
+    assert a.state == "known" and a.sent_to_cloud
+    assert {f.key for f in a.facts} == {"CYP2C9:poor_metabolizer|warfarin", "VKORC1:high_sensitivity|warfarin"}
+    assert all(e.personal_fields_sent == 0 for e in ledger.feed(0))
+
+
+def test_gene_question_without_flag_offline_is_no_data(monkeypatch):
+    monkeypatch.delenv("DEMO")
+    a = router.route("If I'm prescribed citalopram for anxiety, could my genes affect it?", [])
+    assert a.state == "no_data" and not a.sent_to_cloud and a.text == router.OFFLINE_TEXT
+
+
+def test_unassessed_gene_drug_is_no_data():
+    a = router.route("Would my genes affect codeine?", [])     # CYP2D6 not_assessed, out of partition (D-021)
+    assert a.state == "no_data" and not a.sent_to_cloud
+
+
+def test_lab_question_uses_flag_drug_and_is_not_covered_by_x3(cache_all, monkeypatch):
+    a = router.route("Are my liver tests a problem for my statin?", [X3])
+    assert a.state == "known" and [f.key for f in a.facts] == ["simvastatin|alt>120"]
+    ledger.reset()
+    kb.reset()
+    monkeypatch.delenv("DEMO")
+    b = router.route("Does my CK level matter for my simvastatin?", [X3])
+    assert b.state == "no_data" and not b.sent_to_cloud      # X3 is shown, but the CK topic itself is open
+
+
+def test_covering_class_rule_flag_is_known_even_with_out_of_partition_pair(monkeypatch):
+    monkeypatch.delenv("DEMO")
+    a = router.route("What about naproxen instead of ibuprofen?", [CR])
+    assert a.state == "known" and a.text == router.LOCAL_TEXT and not a.sent_to_cloud
+
+
+def test_flag_for_another_drug_does_not_cover_the_question():
+    a = router.route("Can I take zolpidem?", [X3])            # names zolpidem only: X3 says nothing about it
+    assert a.state == "no_data" and not a.sent_to_cloud

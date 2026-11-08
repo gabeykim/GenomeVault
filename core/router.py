@@ -26,8 +26,12 @@ Offline (F8): when cloud.offline() is forced, steps 3-8 are skipped entirely: no
 ledger entry, 0 bytes. KB and local answers still work; anything else is `no_data` with OFFLINE_TEXT.
 If a send fails mid-question (network down), the remaining buckets are not tried.
 
-Answer state: `known` if at least one asked key has a fact, else `no_data`. (`none_listed` needs
-a curated "no interaction" entry, which comes from A's curated tables via the KB.)
+Answer state (I4, missing = no_data): `known` if at least one asked key has a fact, or if a local flag
+covers the question (it shares a drug the question names, or the question names none) and no key that
+the cloud or the partition could answer is left open. Anything else is `no_data`: a question no flag
+covers is never "checked, nothing found". The question's own subject is parsed locally
+(`_subject_keys`): named drug pairs, gene-drug keys when it mentions genes, drug-lab keys when it names a
+lab test. (`none_listed` needs a curated "no interaction" entry from A's tables via the KB.)
 """
 from __future__ import annotations
 
@@ -40,7 +44,7 @@ from typing import Optional
 
 from . import cloud, kb, ledger
 from .contracts import Answer, Fact, Flag, LedgerEntry, Profile, Topic, pair_key
-from .decoys import aliases_of, bucket_for, load_buckets, universe
+from .decoys import aliases_of, bucket_for, load_aliases, load_buckets, universe
 from .generalize import generalize, topic_for_key
 from .validator import _key_drugs, leaks
 
@@ -62,14 +66,86 @@ def _profile() -> Profile:
     return load_profile()
 
 
+def _vocab() -> set[str]:
+    vocab: set[str] = set()
+    for k in universe():
+        vocab |= _key_drugs(k)
+    return vocab
+
+
+def _named_drugs(question: str) -> list[str]:
+    """Drugs of the bucket universe the user names in the question (local parse, never sent)."""
+    vocab = _vocab()
+    return sorted({w for w in _WORD_RE.findall(question.lower()) if w in vocab})
+
+
 def _question_keys(question: str) -> list[str]:
     """Exact drug-drug keys for pairs of known drugs the user names in the question (local parse)."""
-    vocab: set[str] = set()
-    keys = set(universe())
-    for k in keys:
-        vocab |= _key_drugs(k)
-    named = sorted({w for w in _WORD_RE.findall(question.lower()) if w in vocab})
+    named = _named_drugs(question)
     return [pair_key(a, b) for i, a in enumerate(named) for b in named[i + 1:]]
+
+
+# Words that put a gene or a lab test in the question's subject (local parse only).
+_GENE_WORDS = {"gene", "genes", "genetic", "genetics", "genotype", "genotypes", "genome", "dna", "pgx"}
+_LAB_WORDS = {
+    "ck": "ck", "cpk": "ck", "kinase": "ck",
+    "alt": "alt", "liver": "alt",
+    "egfr": "egfr", "kidney": "egfr", "kidneys": "egfr", "renal": "egfr",
+    "potassium": "potassium", "sodium": "sodium", "magnesium": "magnesium",
+    "glucose": "glucose", "sugar": "glucose", "inr": "inr", "tsh": "tsh", "thyroid": "tsh",
+}
+_LAB_PART_RE = re.compile(r"^([a-z0-9]+)\s*[<>]")
+
+
+def _key_gene(key: str) -> Optional[str]:
+    head = key.split("|", 1)[0]
+    return head.split(":", 1)[0].upper() if ":" in head else None
+
+
+def _key_lab(key: str) -> Optional[str]:
+    for part in key.lower().split("|"):
+        m = _LAB_PART_RE.match(part.strip())
+        if m and not part.strip().startswith("dose"):
+            return m.group(1)
+    return None
+
+
+def _subject_keys(question: str, flags: list[Flag], profile: Optional[Profile]) -> tuple[list[str], list[str]]:
+    """The exact keys the question itself asks about, and the drugs it names (I4).
+
+    - pairs of named drugs (`_question_keys`);
+    - gene-drug keys of the partition for a named drug, when the question mentions genes and the gene is
+      assessed in the profile (the topic sent covers every phenotype, P6.3);
+    - drug-lab keys of the partition when the question names a lab test, for the named drugs, or for the
+      drugs of the caller's flags when it names none ("my liver tests and my statin").
+    A gene-drug or drug-lab key is skipped when a flag already covers that same gene or lab for that drug:
+    the flag carries the person's own phenotype or band.
+    """
+    named = _named_drugs(question)
+    keys = _question_keys(question)
+    words = set(_WORD_RE.findall(question.lower()))
+    flag_drugs: set[str] = set()
+    for f in flags:
+        flag_drugs |= _key_drugs(f.key)
+    covered = {(_key_gene(f.key) or _key_lab(f.key), d) for f in flags for d in _key_drugs(f.key)}
+    space = list(universe()) + list(load_aliases())
+    if profile is not None and named:
+        assessed = {g.upper() for g, v in profile.genotypes.items() if v and v != "not_assessed"}
+        genes_named = bool(words & _GENE_WORDS) or bool({w.upper() for w in words} & assessed)
+        if genes_named:
+            for k in space:
+                g = _key_gene(k)
+                if g in assessed and any(d in named and (g, d) not in covered for d in _key_drugs(k)):
+                    keys.append(k)
+    labs = {_LAB_WORDS[w] for w in words if w in _LAB_WORDS}
+    lab_drugs = set(named) or flag_drugs
+    if labs and lab_drugs:
+        for k in space:
+            lab = _key_lab(k)
+            if lab in labs and _key_gene(k) is None and any(d in lab_drugs and (lab, d) not in covered
+                                                            for d in _key_drugs(k)):
+                keys.append(k)
+    return list(dict.fromkeys(keys)), named
 
 
 def _kb_get(key: str, today: date) -> Optional[Fact]:
@@ -111,13 +187,25 @@ def route(question: str, flags: list[Flag]) -> Answer:
     for f in flags:
         if f.needs_cloud and generalize(f):
             wanted.append(f.key)
-    for k in _question_keys(question):
+    me = _profile()
+    asked, named = _subject_keys(question, flags, me)
+    flag_keys = {f.key for f in flags}
+    asked = [k for k in asked if k not in flag_keys]
+    for k in asked:
         if k not in wanted:
             wanted.append(k)
+    # P6.1 / I4: local flags answer the question only when one covers it: it shares a drug the question
+    # names, or the question names no drug at all (the flags are then the caller's context).
+    flag_covers = any(not named or (_key_drugs(f.key) & set(named)) for f in flags)
+    # A flag that asks the cloud, or an asked key the partition can answer, left unanswered keeps the
+    # answer at no_data (I4). Asked keys outside the partition are never sent and do not hold it back.
+    open_keys = [k for k in wanted if k not in asked or bucket_for(k) is not None]
 
-    if not wanted:  # P6.1: local rules answer it
+    if not wanted:  # P6.1: nothing to look up
         ledger.record("local_only")
-        return Answer(state="known", text=LOCAL_TEXT, facts=[], sent_to_cloud=False)
+        if flag_covers:
+            return Answer(state="known", text=LOCAL_TEXT, facts=[], sent_to_cloud=False)
+        return Answer(state="no_data", text=NO_DATA_TEXT, facts=[], sent_to_cloud=False)
 
     found: dict[str, Fact] = {}
     missing: list[str] = []
@@ -133,7 +221,7 @@ def route(question: str, flags: list[Flag]) -> Answer:
     is_offline = bool(missing) and cloud.offline()
     if is_offline:  # F8: steps 1-2 only
         missing = []
-    profile = _profile() if missing else None
+    profile = me
     sent = False
     done: set[str] = set()
     for k in missing:  # P6.3-5, 7, 8
@@ -154,6 +242,8 @@ def route(question: str, flags: list[Flag]) -> Answer:
 
     facts = [found[k] for k in wanted if k in found]
     if not facts:
+        if flag_covers and not any(k not in found for k in open_keys):
+            return Answer(state="known", text=LOCAL_TEXT, facts=[], sent_to_cloud=sent)
         text = OFFLINE_TEXT if is_offline else NO_DATA_TEXT
         return Answer(state="no_data", text=text, facts=[], sent_to_cloud=sent)
     text = "\n\n".join(f.text for f in facts)
