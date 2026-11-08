@@ -221,3 +221,43 @@ def stop_cover(timeout: float = 5.0) -> None:
 
 def cover_running() -> bool:
     return _cover_thread is not None and _cover_thread.is_alive()
+
+
+# Stretch: bulk knowledge-pack sync (F6, F8, E4) ------------------------------------------------
+
+def sync_pack(skip_fresh: bool = True, today: Optional[date] = None) -> dict:
+    """Fetch the whole fixed partition into the KB while online, so later questions (and offline
+    ones, F8) are answered on-device with 0 bytes.
+
+    Privacy: the set of buckets is the entire partition, the same for every user, and the order is
+    shuffled; nothing about a question, flag or profile chooses what is sent (I5). Each bucket goes
+    through the normal leakage check (I3) and is logged as a `cover` entry, since it is
+    query-independent traffic. With `skip_fresh`, a bucket whose 8 keys are all fresh in the KB is
+    not re-sent; the KB only holds answers of buckets already sent whole (or same-for-everyone
+    curated facts), so skipping reveals nothing new.
+
+    Returns counts: `sent`, `blocked`, `skipped`, `facts` stored, and `offline` (True if the cloud
+    was or became unreachable; the remaining buckets are not tried)."""
+    today = today or date.today()
+    out = {"sent": 0, "blocked": 0, "skipped": 0, "facts": 0, "offline": False}
+    if cloud.offline():
+        out["offline"] = True
+        return out
+    buckets = list(load_buckets())
+    _cover_rng.shuffle(buckets)
+    profile = _profile()
+    for b in buckets:
+        if skip_fresh and all(kb.get(k, today) is not None for k in b.keys):
+            out["skipped"] += 1
+            continue
+        try:
+            facts, entry = _send_bucket(b.id, profile, kind="cover")
+        except _Offline:
+            out["offline"] = True
+            break
+        if entry.kind == "blocked":
+            out["blocked"] += 1
+            continue
+        out["sent"] += 1
+        out["facts"] += kb.put_many(facts)
+    return out
