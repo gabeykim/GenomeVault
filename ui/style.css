@@ -1,22 +1,22 @@
 /* GenomeVault UI. One palette, three colors, on a dark canvas:
-   - midnight black #0a1020: the canvas and raised surfaces (main)
-   - electric blue  #1f4bff: structure and motion: section bars, the shield, hover fills, data blocks (secondary)
-   - cantaloupe     #ffa177: the spark: wordmark bar, active tab, packets, "yours", medium severity (third)
-   Text is a warm white; red and green stay as status colors, always next to a word. Every text pair meets
-   WCAG AA on the surface it sits on. No external assets (I8). */
+   - midnight black #02070A: the canvas and raised surfaces (main)
+   - electric blue  #0297DE: structure and motion: section bars, the shield, hover fills, data blocks (secondary)
+   - cantaloupe     #FC734D: the spark: wordmark bar, active tab, packets, "yours", medium severity (third)
+   Text is a warm white on midnight, and midnight on blue or cantaloupe fills (white fails AA on both).
+   Red and green stay as status colors, always next to a word. No external assets (I8). */
 :root {
-  --paper: #0a1020;          /* midnight black canvas */
-  --paper-2: #121b33;        /* raised midnight surface */
+  --paper: #02070A;          /* midnight black canvas */
+  --paper-2: #0b161d;        /* raised midnight surface */
   --ink: #f2ede4;            /* warm white text */
-  --mute: #8d97b3;           /* muted midnight-blue text */
-  --line: #232d48;           /* hairlines */
-  --strand: #2b3a63;         /* DNA barcode bars */
-  --blue: #1f4bff;  --blue-text: #7d97ff;      /* electric blue: fills / as text */
-  --melon: #ffa177; --melon-text: #ffa177;     /* cantaloupe: fills and text both read on midnight */
-  --bad: #ff5470;   --good: #5fd38b;           /* status, tuned for midnight (red kept 30° of hue from cantaloupe) */
+  --mute: #8d9ca6;           /* muted text */
+  --line: #17252e;           /* hairlines */
+  --strand: #1c3442;         /* DNA barcode bars */
+  --blue: #0297DE;  --blue-text: #0297DE;      /* electric blue: fills and text both read on midnight */
+  --melon: #FC734D; --melon-text: #FC734D;     /* cantaloupe: fills and text both read on midnight */
+  --bad: #ff4f8b;   --good: #5fd38b;           /* status, tuned for midnight (red kept 33° of hue from cantaloupe) */
   --warn: var(--melon);
-  --bad-on-ink: var(--ink); --warn-on-ink: var(--ink); --good-on-ink: var(--ink);  /* text on blue hover fills */
-  --blue-on-ink: var(--ink);
+  --bad-on-ink: var(--paper); --warn-on-ink: var(--paper); --good-on-ink: var(--paper);  /* text on blue hover fills */
+  --blue-on-ink: var(--paper);
   --ease: cubic-bezier(.76, 0, .24, 1);
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -561,7 +561,7 @@ body.offline .strand { opacity: .45; transition: opacity .6s var(--ease); }
 
 /* brand: blue shield, warm-white helix */
 .logo svg, .intro-mark { color: var(--blue); }
-.logo svg path:last-child, .intro-mark path:last-child { stroke: var(--ink); }
+.logo svg path:last-child, .intro-mark path:last-child { stroke: var(--paper); }
 
 /* intro lanes: midnight, raised midnight, electric blue, cantaloupe */
 .intro-col i.b { background: var(--paper-2); }
@@ -581,15 +581,17 @@ body.offline .strand { opacity: .45; transition: opacity .6s var(--ease); }
 .tab[aria-selected="true"], .tab[aria-selected="true"]:hover { color: var(--ink); }
 .sq { background: var(--melon); }
 
-/* hover / open fills: electric blue with warm-white text (5.1:1) */
+/* hover / open fills: electric blue with midnight text (6.3:1) */
 .row-btn::before, .suggestion::before, .line-form button::before, .line-btn::before { background: var(--blue); }
 .row-btn:hover, .row-btn:focus-visible, .row.open .row-btn,
 .suggestion:hover, .suggestion:focus-visible,
 .line-form button:hover, .line-form button:focus-visible,
-.line-btn:hover, .line-btn:focus-visible { color: var(--ink); }
+.line-btn:hover, .line-btn:focus-visible { color: var(--paper); }
 .row[class*="sev-"] .row-btn:hover .r-sev, .row[class*="sev-"] .row-btn:focus-visible .r-sev, .row[class*="sev-"].open .r-sev,
-.row[class*="sev-"] .row-btn:hover .r-id, .row[class*="sev-"] .row-btn:focus-visible .r-id, .row[class*="sev-"].open .r-id { color: var(--ink); }
-.row[class*="sev-"] .row-btn:hover::after, .row[class*="sev-"].open .row-btn::after { background: var(--melon); }
+.row[class*="sev-"] .row-btn:hover .r-id, .row[class*="sev-"] .row-btn:focus-visible .r-id, .row[class*="sev-"].open .r-id { color: var(--paper); }
+.row[class*="sev-"] .row-btn:hover::after, .row[class*="sev-"].open .row-btn::after { background: var(--paper); }
+.row-btn:hover .sev-bar i, .row.open .sev-bar i { border-color: var(--paper); }
+.row-btn:hover .sev-bar i.on, .row.open .sev-bar i.on { background: var(--paper); }
 .row.sev-medium .sev-bar i.on { background: var(--melon); border-color: var(--melon); }
 .line-btn { border-color: var(--mute); }
 .line-form { border-bottom-color: var(--mute); }
@@ -599,7 +601,7 @@ body.offline .strand { opacity: .45; transition: opacity .6s var(--ease); }
 
 /* chips */
 .chip { border-color: var(--mute); }
-.chip.solid { background: var(--blue); border-color: var(--blue); color: var(--ink); }
+.chip.solid { background: var(--blue); border-color: var(--blue); color: var(--paper); }
 .chip.warn { background: var(--melon); border-color: var(--melon); color: var(--paper); }
 .chip.good { border-color: var(--good); color: var(--good); }
 

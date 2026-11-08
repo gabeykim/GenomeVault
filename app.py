@@ -343,9 +343,9 @@ def reminders_ics() -> Response:
 
 
 SUMMARY_CSS = """
-:root { --paper:#fff; --ink:#0a1020; --blue:#1f4bff; --melon:#ffa177; --mute:#6b6b67; --line:#c3c3be; }
+:root { --paper:#fff; --ink:#02070A; --blue:#0297DE; --melon:#FC734D; --mute:#6b6b67; --line:#c3c3be; }
 * { box-sizing: border-box; }
-body { margin: 0; background: #0a1020; color: var(--ink); font: 13px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+body { margin: 0; background: #02070A; color: var(--ink); font: 13px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .page { max-width: 780px; margin: 24px auto; padding: 40px 48px; background: var(--paper); }
 .top { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 8px solid var(--blue); padding-bottom: 10px; }
 h1 { margin: 0; font-size: 34px; font-weight: 500; letter-spacing: -.04em; }
@@ -357,7 +357,7 @@ li { padding: 2px 0; }
 .note { margin-top: 16px; color: var(--mute); font-size: 11.5px; }
 .bar { max-width: 780px; margin: 16px auto 0; display: flex; justify-content: space-between; font-size: 12px; }
 .bar a:hover, .bar button:hover { border-color: var(--melon); color: var(--melon); }
-.bar a, .bar button { color: #f2ede4; background: none; border: 1px solid #8d97b3; padding: 6px 12px; font: inherit; cursor: pointer; text-decoration: none; }
+.bar a, .bar button { color: #f2ede4; background: none; border: 1px solid #8d9ca6; padding: 6px 12px; font: inherit; cursor: pointer; text-decoration: none; }
 @media print { body { background: #fff; } .bar { display: none; } .page { margin: 0; padding: 0; max-width: none; } }
 @media (max-width: 640px) { .page { padding: 24px 16px; margin: 0; } section { grid-template-columns: 1fr; gap: 4px; } }
 """

@@ -4,7 +4,7 @@ keyword gv:label (A's capture.py embedded-text format). Pure stdlib. Synthetic t
 import struct, sys, zlib
 
 W, H = 160, 104
-MID, RAISED, WHITE, BLUE, MELON, LINE = (10, 16, 32), (18, 27, 51), (242, 237, 228), (31, 75, 255), (255, 161, 119), (190, 186, 178)
+MID, RAISED, WHITE, BLUE, MELON, LINE = (2, 7, 10), (11, 22, 29), (242, 237, 228), (2, 151, 222), (252, 115, 77), (190, 186, 178)
 
 def draw(accent, lines):
     px = [[MID] * W for _ in range(H)]
