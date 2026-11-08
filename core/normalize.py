@@ -30,10 +30,16 @@ def _lexicon() -> tuple[dict[tuple[str, ...], tuple[str, ...]], int]:
     raw = json.loads(NAMES_PATH.read_text())["names"]
     lex: dict[tuple[str, ...], tuple[str, ...]] = {}
     for name, ingredients in raw.items():
-        lex[tuple(name.lower().split())] = tuple(i.lower() for i in ingredients)
+        lex[_name_key(name)] = tuple(i.lower() for i in ingredients)
         for ing in ingredients:                      # every ingredient is known under its own name
-            lex.setdefault(tuple(ing.lower().split()), (ing.lower(),))
+            lex.setdefault(_name_key(ing), (ing.lower(),))
     return lex, max(len(k) for k in lex)
+
+
+def _name_key(name: str) -> tuple[str, ...]:
+    """A table name as the word tokens the text would produce: "St. John's wort" and the
+    ingredient id "st_johns_wort" both become words, the same way `_tokens` splits input."""
+    return tuple(_WORD.findall(name.lower().replace("_", " ")))
 
 
 def _tokens(text: str) -> list[tuple[str, int, int]]:
