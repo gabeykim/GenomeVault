@@ -1,6 +1,6 @@
 {
  "summary": {
-  "PASS": 13,
+  "PASS": 14,
   "WARN": 3,
   "FAIL": 0
  },
@@ -94,6 +94,12 @@
    "claim": "Offline answers are the honest expected states",
    "status": "PASS",
    "value": "20/20"
+  },
+  {
+   "id": "I4",
+   "claim": "No answer claims knowledge it doesn't have (missing = no_data)",
+   "status": "PASS",
+   "value": "none"
   },
   {
    "id": "I7a",
