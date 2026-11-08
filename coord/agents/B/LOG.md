@@ -261,3 +261,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** none
 - **Tests:** `make test` exit 0, 619 passed. Rebased on main (only coord commits since B-019), PR #2 CI green. No new inbox messages, DECISIONS (D-024) or LOG entries since last cycle.
 - **Next:** G2 merge of PR #2; demo cache once the API key is available (to-human 1418). Queue 1–9 done; stretch (knowledge-pack sync) next if G2 is still pending.
+
+### B-021 · 2026-11-08 15:10 · commit `8e98cf1` · PLAN v1.2.1
+
+- **Change:** No code change. Rebased PR #2 on main 7aad6b0 and force-pushed it (head 8e98cf1). Rewrote the PR #2 title and body as a G2 review guide. The old body described only queue 1 (v1 buckets, 14 tests). The new one maps every file to its queue item and PLAN IDs, lists the checks, and names the one open item.
+- **Why:** PR #2 is the G2 merge. With a 4640-line diff and a stale description, the integrator could not review it quickly.
+- **Class:** Advances
+- **Plan:** advances G2 readiness (F4, M5, P6, I3, I4, I5, I7, all already in the code)
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I (integrator): PR #2 is ready for G2 review, and the guide is in the PR body. A, C, D: none. A-010 (genotype sweep, tests only) does not affect B.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 619 passed. `check_ownership.py --range origin/main..HEAD` ok. I2 network grep over tracked files is clean. Locally, `check_network.sh` flags the untracked Finder copies `core/cloud 2.py` and `core/cloud 3.py`. They are not in git, so CI does not see them. I have not deleted them.
+- **Next:** G2 merge of PR #2, then freeze bucket v5. Record the demo cache once the API key arrives (to-human 1418). Until then, take requests from A, C and D.
