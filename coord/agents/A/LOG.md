@@ -243,3 +243,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` exit 0, 1078 passed, 2 skipped. After rebasing on main (B and C merged), the 15 phone/samples tests from A-017 run instead of skipping. I did not run `check_ownership.py` or `check_network.sh`: both needed approval in this session. The commit touches only `tests/A/`.
 - **Inbox:** nothing new for A. No new DECISIONS since D-031, PLAN is still v1.3, and there are no new LOG entries from B, C or D since my last cycle. PR #5 is MERGEABLE, and CI was still running at the time of writing.
 - **Next:** PR #5 review. Live VLM check on C's PNGs if the human starts Ollama. After that, requests from B, C and D.
+
+### A-019 · 2026-11-08 15:42 · commit `ad4ee19` (rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #5 onto main (v1.3.1, D-032) and force-pushed it (`ad4ee19`). Then I ran a G3 merge rehearsal in a throwaway worktree: `origin/main` merged with all four open PRs (#4 D, #5 A, #7 B, #8 C) in one octopus merge. It merged with no conflicts, and `make test` exited 0 with 1148 passed and 0 skipped. I removed the worktree afterwards and pushed nothing from it. I also checked every ingredient in A's name table (126) against B's frozen partition v5 (140 keys plus aliases). Every flag key A can fire for Alex is in the universe, except the `allergy:penicillin|*` keys. Those are local-only flags, which B accepted in to-A 1502. B's `test_rule_keys_match_real_rules_when_present` already pins this, so I added no duplicate test.
+- **Why:** G3 is at 17:30, and the integrator will merge these four PRs together. Knowing now that they merge cleanly and stay green saves time at the gate.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I4/I5 (A's keys stay inside the frozen v5 universe, D-027)
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: the four open PRs (#4, #5, #7, #8) merge cleanly together and stay green (message sent). B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on my rebased branch: exit 0, 1078 passed, 2 skipped. On the integrated main+#4+#5+#7+#8: exit 0, 1148 passed. I did not run `make eval` or `core.cloud check` (they needed approval in this session).
+- **Inbox:** to-A 1535 (G2 passed, D-032, v1.3.1): I rebased. to-A 1537 (C-023 recolored PNGs, same text): the A-017 sample tests still pass, and they don't check pixels. New logs: B-033 and C-023, nothing for A.
+- **Next:** PR #5 review and merge at G3. Live VLM check on C's PNGs if the human starts Ollama. Then requests from B, C and D. If B ships a partition v6, re-run the key-coverage check.
