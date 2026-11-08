@@ -300,3 +300,15 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S4 (the ledger shows the user's group plus one "Background decoys" line), S6 ("Knowledge pack · N groups" after Sync), S2 (phone look)
 - **Tests:** C branch with main merged → `make test` exit 0 (789 passed, 3 skipped). Integrated (main + all open PRs) → exit 0, 961 passed. Checked in the browser at 1440 px and 375 px: Q18 lists 1 user group, decoys are grouped, Sync shows "Knowledge pack 14 groups · 14 KB", `/summary` and `/phone` render.
 - **Next:** G2 follow-up (D-032): drop the mock fallbacks for ledger and route and run one question end to end on main; then rehearsal by G3 (17:30).
+
+### C-024 · 2026-11-08 15:42 · commit `4ab163f` (PR #8) · PLAN v1.3.1
+
+- **Change:** `app.py` now imports the real contract functions directly: A's `graph.load_profile`, `rules.check`, `normalize.to_ingredients` and `capture.from_image`; B's `router.route`, `ledger.feed` and `cloud.status`; C's `merge.personalize`. Removed: `_MockLedger` and the app's own ledger writes, the mock normalizer, `_resolve`, `LEDGER_IS_MOCK`, and the `mock` field in `/api/ledger`. B's router is the only ledger writer. `/api/status` keeps its `modules` shape (all `real`). Non-contract helpers stay optional. C's tests now assert there are no stand-ins.
+- **Why:** D-014 (drop the stand-ins after G2) and D-032 (G2 passed).
+- **Class:** Advances
+- **Plan:** advances G2 follow-up, F5, M10
+- **Contract impact:** none (`/api/ledger` loses `mock`, which only C read)
+- **Affects:** none
+- **Demo impact:** none. End to end on main + C, with the real router, ledger and cloud: cold Q18 → `known`, 2 bucket rows (1171 + 944 B), 0 personal fields; the same question again → `kb_hit`, 0 B. The UI with ?debug shows "All modules live", with no console errors.
+- **Tests:** `make test` exit 0 (790 passed, 3 skipped: the skips wait on PR #5 allergy engine and PR #4 queries.json); `check_network.sh` ok.
+- **Next:** rehearsal by G3 (17:30): 2× demo mode + 1× live, timings to D.

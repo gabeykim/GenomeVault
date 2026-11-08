@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: C-023 palette revert + declutter on PR #8; next drop mock fallbacks (D-032)
+current_task: C-024 pushed (mock fallbacks dropped) on PR #8; next G3 rehearsal
 branch: agent/C-app-ui
-last_commit: 2e3562e
+last_commit: 4ab163f
 last_seen:
   plan_version: "1.3.1"
   decisions: D-032
-  logs: {A: 17, B: 30, C: 23, D: 11}
+  logs: {A: 17, B: 30, C: 24, D: 11}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -48,4 +48,4 @@ handled_messages:
   - 20261108-1534-from-A-label-set-pinned.md
   - 20261108-1535-from-integrator-g2-passed.md
 blocked_on: none
-next: PR #8 review; drop mock fallbacks (D-014, D-032), one question end to end on main; then rehearsal x2 demo + x1 live by G3 17:30, timings to D
+next: PR #8 review; rehearsal x2 demo + x1 live by G3 17:30, timings to D
