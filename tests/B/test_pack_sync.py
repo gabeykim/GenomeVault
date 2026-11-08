@@ -5,7 +5,7 @@ import pytest
 
 from core import cloud, kb, ledger, router
 from core.contracts import Flag
-from core.decoys import load_buckets
+from core.decoys import load_aliases, load_buckets
 from core.generalize import topic_for_key
 
 X5 = Flag(id="X5", key="ibuprofen|lisinopril", severity="high", engine="drug_drug",
@@ -36,7 +36,7 @@ def test_sync_fetches_whole_partition_as_cover():
     buckets = load_buckets()
     r = router.sync_pack()
     assert r == {"sent": len(buckets), "blocked": 0, "skipped": 0,
-                 "facts": 8 * len(buckets), "offline": False}
+                 "facts": 8 * len(buckets) + len(load_aliases()), "offline": False}  # + alias copies (v5)
     entries = ledger.feed(0)
     assert [e.kind for e in entries] == ["cover"] * len(buckets)
     assert {e.bucket_id for e in entries} == {b.id for b in buckets}   # every bucket exactly once

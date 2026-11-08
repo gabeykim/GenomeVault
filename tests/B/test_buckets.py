@@ -2,7 +2,9 @@
 import json
 
 from core.contracts import pair_key
-from core.decoys import BUCKET_DIR, CURRENT_VERSION, bucket_for, kind_of, load_buckets, universe
+from core.decoys import (BUCKET_DIR, CURRENT_VERSION, aliases_of, bucket_for, canonical, kind_of, load_aliases,
+                         load_buckets, universe)
+from core.generalize import topic_for_key
 
 # Alex's flag keys (mocks/flags.json, P5 X1-X4) plus the drug pairs the demo can ask about.
 ALEX_KEYS = [
@@ -18,15 +20,15 @@ ALEX_KEYS = [
 
 
 def test_file_is_valid_and_versioned():
-    for v in ("v1", "v2", "v3", "v4"):
+    for v in ("v1", "v2", "v3", "v4", "v5"):
         raw = json.loads((BUCKET_DIR / f"{v}.json").read_text())
         assert raw["version"] == v and raw["k"] == 8
         assert all(len(b.keys) == 8 and b.version == v for b in load_buckets(v))
 
 
-def test_current_version_is_v4():
-    assert CURRENT_VERSION == "v4"
-    assert {b.version for b in load_buckets()} == {"v4"}
+def test_current_version_is_v5():
+    assert CURRENT_VERSION == "v5"
+    assert {b.version for b in load_buckets()} == {"v5"}
 
 
 def test_old_versions_still_load_unchanged():
@@ -34,6 +36,7 @@ def test_old_versions_still_load_unchanged():
     assert len(load_buckets("v1")) == 12 and len(universe("v1")) == 96
     assert len(load_buckets("v2")) == 14 and len(universe("v2")) == 112
     assert len(load_buckets("v3")) == 17 and len(universe("v3")) == 136
+    assert len(load_buckets("v4")) == 17 and len(universe("v4")) == 136 and load_aliases("v4") == {}
 
 
 # Every exact key A's rule tables can emit (rules.all_keys() on PR #1 @ 6e484af, A-003).
@@ -168,3 +171,52 @@ def test_at_most_two_alex_drug_pairs_per_bucket():
     for b in load_buckets():
         alex = [k for k in b.keys if kind_of(k) == "drug_drug" and set(k.split("|")) <= meds]
         assert len(alex) <= 2, (b.id, alex)
+
+
+def _generalized(key):
+    # Same grouping as generalize.topic_for_key's text: gene + drug, drug + lab, drug pair; no phenotype/dose/band.
+    parts = [p for p in key.split("|") if not p.startswith("dose")]
+    if kind_of(key) == "gene_drug":
+        return parts[0].split(":")[0] + "|" + parts[1]
+    return "|".join(sorted(p.split("<")[0].split(">")[0] for p in parts))
+
+
+def test_v5_one_bucket_per_generalized_topic():
+    # D-007 finding (I3): variants of one topic in different buckets let the bucket that leaves reveal the
+    # genotype. In v5 every member and alias of a generalized topic resolves to one bucket, and a topic
+    # has exactly one member, so the 8 texts of a bucket are 8 distinct topics (I5).
+    where = {}
+    for k in universe() + list(load_aliases()):
+        where.setdefault(_generalized(k), set()).add(bucket_for(k).id)
+    assert {t: ids for t, ids in where.items() if len(ids) > 1} == {}
+    members = [_generalized(k) for k in universe()]
+    assert len(members) == len(set(members))
+    for b in load_buckets():
+        assert len({topic_for_key(k).text for k in b.keys}) == 8, b.id
+
+
+def test_v4_split_is_what_v5_fixes():
+    ids = {bucket_for(k, "v4").id for k in ("CYP2C19:poor_metabolizer|clopidogrel",
+                                             "CYP2C19:intermediate_metabolizer|clopidogrel")}
+    assert len(ids) == 2
+
+
+def test_v5_aliases_resolve_to_their_member():
+    al = load_aliases()
+    assert al["CYP2C19:intermediate_metabolizer|clopidogrel"] == "CYP2C19:poor_metabolizer|clopidogrel"
+    assert al["SLCO1B1:poor_function|simvastatin"] == "SLCO1B1:decreased_function|simvastatin|dose>20mg"
+    for a, m in al.items():
+        assert a not in universe() and m in universe()
+        assert bucket_for(a) is bucket_for(m) and canonical(a) == m and a in aliases_of(m)
+        assert _generalized(a) == _generalized(m) and kind_of(a) == "gene_drug"
+    assert canonical("aspirin|ibuprofen") == "aspirin|ibuprofen" and aliases_of("aspirin|ibuprofen") == []
+
+
+def test_v5_changes_only_gene_buckets_and_has_no_not_assessed_gene():
+    v4, v5 = load_buckets("v4"), load_buckets("v5")
+    assert [b.id for b in v4] == [b.id for b in v5]
+    for a, b in zip(v4, v5):
+        if kind_of(a.keys[0]) != "gene_drug":
+            assert a.keys == b.keys, a.id
+    assert not [k for k in universe() + list(load_aliases()) if k.startswith("CYP2D6:")]
+    assert set(universe("v4")) <= set(universe()) | set(load_aliases())

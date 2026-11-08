@@ -40,7 +40,7 @@ from typing import Optional
 
 from . import cloud, kb, ledger
 from .contracts import Answer, Fact, Flag, LedgerEntry, Profile, Topic, pair_key
-from .decoys import bucket_for, load_buckets, universe
+from .decoys import aliases_of, bucket_for, load_buckets, universe
 from .generalize import generalize, topic_for_key
 from .validator import _key_drugs, leaks
 
@@ -99,6 +99,9 @@ def _send_bucket(bucket_id: str, profile: Profile, kind: str = "bucket") -> tupl
         facts = cloud.ask_bucket(bucket, topics)
     except cloud.CloudUnavailable as e:
         raise _Offline() from e
+    # A variant of a member's topic (other phenotype / dose band, decoys.load_aliases) gets the member's
+    # answer under its own key: the text asked covers every variant, and nothing extra is sent (I3, I5).
+    facts = facts + [f.model_copy(update={"key": a}) for f in facts for a in aliases_of(f.key)]
     return facts, ledger.record(kind, bucket_id=bucket.id, texts=texts)
 
 

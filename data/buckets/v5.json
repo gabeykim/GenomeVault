@@ -1,0 +1,251 @@
+{
+  "version": "v5",
+  "k": 8,
+  "note": "Fixed partition (I5, D-003). Never regenerate from a query; a new partition is a new version file. v5 = v4 with one member per generalized topic (I3): other phenotype / dose variants of a member are `aliases` that map to its bucket and share its answer, so the bucket that leaves never depends on the genotype. 4 freed gene slots hold decoys on SNP-callable genes; only the 4 gene buckets are regrouped (v2 method, D-006); the 13 lab and pair buckets are v4's, unchanged. Built once by data/buckets/build_v5.py from D's synthetic priors (eval/fixtures/universe_v1.json @ f69dc14).",
+  "buckets": [
+    {
+      "id": "b01",
+      "version": "v5",
+      "keys": [
+        "CYP2B6:poor_metabolizer|efavirenz",
+        "CYP2C19:poor_metabolizer|escitalopram",
+        "CYP2C19:poor_metabolizer|omeprazole",
+        "CYP2C9:poor_metabolizer|celecoxib",
+        "CYP2C9:poor_metabolizer|meloxicam",
+        "CYP2C9:poor_metabolizer|warfarin",
+        "CYP3A5:normal_metabolizer|tacrolimus",
+        "HLA-A:3101_positive|carbamazepine"
+      ]
+    },
+    {
+      "id": "b02",
+      "version": "v5",
+      "keys": [
+        "CYP2C19:poor_metabolizer|amitriptyline",
+        "CYP2C19:poor_metabolizer|citalopram",
+        "CYP2C9:poor_metabolizer|ibuprofen",
+        "DPYD:poor_metabolizer|capecitabine",
+        "NUDT15:poor_metabolizer|mercaptopurine",
+        "SLCO1B1:poor_function|atorvastatin",
+        "SLCO1B1:poor_function|rosuvastatin",
+        "TPMT:poor_metabolizer|thioguanine"
+      ]
+    },
+    {
+      "id": "b03",
+      "version": "v5",
+      "keys": [
+        "CYP2C19:poor_metabolizer|clopidogrel",
+        "CYP2C19:poor_metabolizer|sertraline",
+        "CYP2C9:poor_metabolizer|piroxicam",
+        "DPYD:poor_metabolizer|fluorouracil",
+        "HLA-B:5701_positive|abacavir",
+        "HLA-B:5801_positive|allopurinol",
+        "SLCO1B1:decreased_function|simvastatin|dose>20mg",
+        "VKORC1:high_sensitivity|warfarin"
+      ]
+    },
+    {
+      "id": "b04",
+      "version": "v5",
+      "keys": [
+        "CYP2C19:poor_metabolizer|voriconazole",
+        "CYP2C9:poor_metabolizer|phenytoin",
+        "G6PD:deficient|rasburicase",
+        "HLA-B:1502_positive|carbamazepine",
+        "TPMT:poor_metabolizer|azathioprine",
+        "TPMT:poor_metabolizer|mercaptopurine",
+        "UGT1A1:poor_metabolizer|atazanavir",
+        "UGT1A1:poor_metabolizer|irinotecan"
+      ]
+    },
+    {
+      "id": "b05",
+      "version": "v5",
+      "keys": [
+        "acetaminophen|alt>120",
+        "apixaban|egfr<30",
+        "glipizide|glucose<70",
+        "levothyroxine|tsh>4.5",
+        "lisinopril|potassium>5.0",
+        "metformin|egfr<30",
+        "simvastatin|ck>1000",
+        "spironolactone|potassium>5.0"
+      ]
+    },
+    {
+      "id": "b06",
+      "version": "v5",
+      "keys": [
+        "allopurinol|egfr<30",
+        "amiodarone|tsh>4.5",
+        "atorvastatin|alt>120",
+        "ibuprofen|egfr<60",
+        "lisinopril|egfr<60",
+        "lithium|egfr<60",
+        "methotrexate|alt>120",
+        "warfarin|inr>3.0"
+      ]
+    },
+    {
+      "id": "b07",
+      "version": "v5",
+      "keys": [
+        "digoxin|potassium<3.5",
+        "enoxaparin|egfr<30",
+        "gabapentin|egfr<30",
+        "lithium|sodium<135",
+        "methotrexate|egfr<60",
+        "simvastatin|alt>120",
+        "sotalol|magnesium<1.7",
+        "valproate|alt>120"
+      ]
+    },
+    {
+      "id": "b08",
+      "version": "v5",
+      "keys": [
+        "acetaminophen|warfarin",
+        "amiodarone|digoxin",
+        "aspirin|omeprazole",
+        "aspirin|simvastatin",
+        "clarithromycin|colchicine",
+        "clopidogrel|naproxen",
+        "fluconazole|warfarin",
+        "methotrexate|trimethoprim"
+      ]
+    },
+    {
+      "id": "b09",
+      "version": "v5",
+      "keys": [
+        "albuterol|propranolol",
+        "aspirin|naproxen",
+        "celecoxib|warfarin",
+        "ciprofloxacin|theophylline",
+        "furosemide|gentamicin",
+        "levonorgestrel|rifampin",
+        "naltrexone|oxycodone",
+        "naproxen|warfarin"
+      ]
+    },
+    {
+      "id": "b10",
+      "version": "v5",
+      "keys": [
+        "allopurinol|azathioprine",
+        "alprazolam|ketoconazole",
+        "atorvastatin|clarithromycin",
+        "carbamazepine|levonorgestrel",
+        "celecoxib|clopidogrel",
+        "fluconazole|tacrolimus",
+        "linezolid|pseudoephedrine",
+        "naproxen|prasugrel"
+      ]
+    },
+    {
+      "id": "b11",
+      "version": "v5",
+      "keys": [
+        "amlodipine|simvastatin",
+        "apixaban|diltiazem",
+        "bupropion|tamoxifen",
+        "clopidogrel|lisinopril",
+        "doxycycline|isotretinoin",
+        "ibuprofen|omeprazole",
+        "methadone|quetiapine",
+        "phenelzine|sumatriptan"
+      ]
+    },
+    {
+      "id": "b12",
+      "version": "v5",
+      "keys": [
+        "aspirin|celecoxib",
+        "celecoxib|lisinopril",
+        "clopidogrel|simvastatin",
+        "ibuprofen|prasugrel",
+        "ibuprofen|warfarin",
+        "iohexol|metformin",
+        "linezolid|sertraline",
+        "omeprazole|simvastatin"
+      ]
+    },
+    {
+      "id": "b13",
+      "version": "v5",
+      "keys": [
+        "aspirin|clopidogrel",
+        "aspirin|ibuprofen",
+        "clonidine|metoprolol",
+        "clopidogrel|esomeprazole",
+        "lamotrigine|valproate",
+        "naproxen|prednisone",
+        "nitroglycerin|sildenafil",
+        "tramadol|venlafaxine"
+      ]
+    },
+    {
+      "id": "b14",
+      "version": "v5",
+      "keys": [
+        "aspirin|lisinopril",
+        "aspirin|methotrexate",
+        "celecoxib|ticagrelor",
+        "citalopram|ondansetron",
+        "clopidogrel|omeprazole",
+        "fluoxetine|trazodone",
+        "lisinopril|naproxen",
+        "spironolactone|trimethoprim"
+      ]
+    },
+    {
+      "id": "b15",
+      "version": "v5",
+      "keys": [
+        "azithromycin|hydroxychloroquine",
+        "ciprofloxacin|tizanidine",
+        "clopidogrel|pantoprazole",
+        "escitalopram|sumatriptan",
+        "ibuprofen|simvastatin",
+        "ibuprofen|ticagrelor",
+        "methotrexate|omeprazole",
+        "naproxen|ticagrelor"
+      ]
+    },
+    {
+      "id": "b16",
+      "version": "v5",
+      "keys": [
+        "celecoxib|prasugrel",
+        "clopidogrel|ibuprofen",
+        "donepezil|oxybutynin",
+        "fluconazole|glipizide",
+        "fluconazole|methadone",
+        "levofloxacin|prednisone",
+        "lisinopril|omeprazole",
+        "metronidazole|warfarin"
+      ]
+    },
+    {
+      "id": "b17",
+      "version": "v5",
+      "keys": [
+        "diphenhydramine|zolpidem",
+        "gabapentin|oxycodone",
+        "hydrochlorothiazide|lithium",
+        "ibuprofen|lisinopril",
+        "isosorbide|tadalafil",
+        "lisinopril|simvastatin",
+        "phenytoin|valproate",
+        "sildenafil|tamsulosin"
+      ]
+    }
+  ],
+  "aliases": {
+    "CYP2C19:intermediate_metabolizer|clopidogrel": "CYP2C19:poor_metabolizer|clopidogrel",
+    "CYP2C19:ultrarapid_metabolizer|escitalopram": "CYP2C19:poor_metabolizer|escitalopram",
+    "SLCO1B1:decreased_function|atorvastatin": "SLCO1B1:poor_function|atorvastatin",
+    "SLCO1B1:poor_function|simvastatin": "SLCO1B1:decreased_function|simvastatin|dose>20mg"
+  }
+}

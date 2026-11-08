@@ -112,3 +112,17 @@ def test_same_bucket_sent_once():
     a = router.route("?", [X1, f2])
     assert [e.kind for e in ledger.feed(0)] == ["bucket"]
     assert {f.key for f in a.facts} == {X1.key, other}
+
+
+def test_alias_variant_gets_member_answer_from_the_same_bucket():
+    # I3 (v5): the intermediate-metabolizer variant leaves in the same bucket as the poor-metabolizer one,
+    # with the same 8 texts, and its answer is stored under its own key. A later poor-metabolizer
+    # question is then a KB hit and nothing is sent.
+    im = X1.model_copy(update={"id": "X1b", "key": "CYP2C19:intermediate_metabolizer|clopidogrel"})
+    a = router.route("Does my genetics change how clopidogrel works for me?", [im])
+    assert a.state == "known" and a.sent_to_cloud and [f.key for f in a.facts] == [im.key]
+    [e] = ledger.feed(0)
+    assert e.bucket_id == bucket_for(X1.key).id and len(ledger.outbound(e.seq)) == 8
+    b = router.route("Does my genetics change how clopidogrel works for me?", [X1])
+    assert b.state == "known" and not b.sent_to_cloud
+    assert a.facts[0].text == b.facts[0].text

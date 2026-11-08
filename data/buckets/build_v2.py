@@ -157,7 +157,7 @@ def partition(keys: list[str], prior: dict[str, int], clusters: dict[str, set[st
     return out, p
 
 
-def emit(version: str, out: list[list[str]], p: dict, note: str) -> None:
+def emit(version: str, out: list[list[str]], p: dict, note: str, extra: dict | None = None) -> None:
     for i, b in enumerate(out, 1):
         r = max(p[k] for k in b) / sum(p[k] for k in b)
         print(f"b{i:02d} {r:.1%} " + " ".join(f"{topic(k)}({p[k]})" for k in b), file=sys.stderr)
@@ -166,6 +166,7 @@ def emit(version: str, out: list[list[str]], p: dict, note: str) -> None:
         "k": K,
         "note": note,
         "buckets": [{"id": f"b{i:02d}", "version": version, "keys": b} for i, b in enumerate(out, 1)],
+        **(extra or {}),
     }
     print(json.dumps(doc, indent=2))
 
