@@ -53,3 +53,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** none. Between those two merges the UI ledger shows "Nothing has left this device."
 - **Tests:** `make test` → exit 0 (38 passed, 1 skipped). origin/main + A + B + C merged locally → `make test` exit 0 (260 passed, 2 skipped)
 - **Next:** queue item 6 `actions.py`. After B's PR merges, show `ledger.outbound(seq)` (the 8 questions that left) in the ledger for S4.
+
+### C-005 · 2026-11-08 13:39 · commit `72cde39` · PLAN v1.1
+
+- **Change:** Added `core/actions.py` with three functions. `pharmacist_draft(flags, profile) -> str` is a message to copy that lists meds, allergies and each flag as a question, high severity first, and says "I haven't changed anything I take." `visit_summary(flags, profile, questions=None, today=None) -> dict` returns sections for meds, conditions and allergies, pharmacogenomics, labs, things to discuss, and questions asked; `summary_text` renders it, and `/summary` is a printable HTML page. `reminders(flags, profile, today=None) -> list[dict]` returns reminders to call the pharmacist (high flags, next day), ask about labs (drug–lab flags, 3 days), update old labs (stale labs) and bring the summary (7 days); `reminders_ics` turns them into a calendar file. App endpoints: `GET /api/actions/pharmacist`, `/api/actions/summary`, `/api/actions/reminders`, `/api/actions/reminders.ics`, `/summary`. The UI gets a "05 Actions" section of expandable rows. Added `tests/C/test_actions.py` (11 tests).
+- **Why:** BRIEF C queue item 6.
+- **Class:** Refines
+- **Plan:** advances F7, M9, M10, S6; refines CONTRACTS `actions.*`
+- **Refinements:** (1) The signatures above are for CONTRACTS, which lists only the names. (2) Nothing is sent for the user (I2). They copy, print or import each item themselves. (3) The calendar file has no drug, gene, condition, lab value or flag ID, only "GenomeVault: <generic title>". Calendars sync to iCloud or Google, so the detail stays in the app. (4) Reminders only prompt the user to talk to someone, never to take, stop or change a medicine (I7). Due offsets are UI choices, not clinical intervals. (5) The app keeps the last 10 asked questions in memory only, for the summary.
+- **Contract impact:** none (C-owned functions; please fold the signatures into CONTRACTS)
+- **Affects:** D: the S6 script can show the three actions, and `/summary` makes a good printed handout → none. I: fold the signatures above into CONTRACTS → optional.
+- **Demo impact:** S6 (actions: pharmacist draft, printable summary, reminders to the phone via the calendar file until `phone/` exists)
+- **Tests:** `make test` → exit 0 (48 passed, 1 skipped). origin/main + A + B (with B's real validator and cloud) + C merged locally → `make test` exit 0 (306 passed, 2 skipped), and the merged answer passes B's `check_output`. Checked by hand in the browser (draft, summary, printable page, reminders, calendar file).
+- **Next:** queue item 7, demo mode toggle and offline badge. Queue 5 `phone/` waits on the capture proposal ruling.
