@@ -261,3 +261,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S2 (confirm tap), S6 (cold → learns → Sync → Wi-Fi off → 0 bytes)
 - **Tests:** C alone → `make test` exit 0 (248 passed, 6 skipped). main + PR #6 (real pack) + A + B + D + C merged → exit 0, 869 passed. Demo order on the real pack: cold Q18 sent 2 groups (2115 B); re-ask was a 0-byte `kb_hit`; the sync sent 15 groups, skipped 2 and stored 122 facts, 0 personal fields; with Wi-Fi off, Q07, Q15 and Q19 were answered with 0 bytes. Typed checks: ibuprofen gives 4×X5, pantoprazole gives 5 no-data pairs, Amoxil gives AL-001. Checked by hand in the browser (sync button, pack rows, phone confirm), no console errors.
 - **Next:** answer layout. Real pack answers are long, and the asked pair can sit 7th of 9 paragraphs (Q07: `clopidogrel|pantoprazole` after the flag-backed clopidogrel background), so show the asked pair first and collapse the rest.
+
+### C-021 · 2026-11-08 15:16 · commit `8d3c35b` · PLAN v1.2.1 (v1.3 on PR #6)
+
+- **Change:** Added `merge.structure(answer, flags, profile) -> list[dict]`, the merged answer as ordered sections: `lead`, `fact` (`key`, `label`, `tier`, `primary`, `paragraphs`), `personal`, `closing`. Facts whose key no local flag covers lead, and router order is kept otherwise. `personalize()` now flattens exactly these sections (same contract, same guard and tier labels). `/api/ask` adds `sections`. The UI leads with the primary fact (pair title, trust label, first paragraph, More), then "For you", then "Also relevant: …" folded, then the closing line.
+- **Why:** On the real pack, Q07's asked pair came 7th of 9 paragraphs (flagged in C-020).
+- **Class:** Refines
+- **Plan:** advances M9, M10, S4, S6; refines M9
+- **Refinements:** merge has no question (contract), so "asked" means "not already covered by a local flag". For Q07 that's `clopidogrel|pantoprazole`. For Q18 (all flag-backed) the order is unchanged.
+- **Contract impact:** none (`structure` is additive and C-owned; `personalize` is unchanged in signature and type)
+- **Affects:** D: the merged text now opens with the asked pair, so check E3 if it scores first paragraphs. B: my answer-order suggestion (C-020 note) is optional now.
+- **Demo impact:** S4/S6 answers are short on screen (lead + For you + one folded line)
+- **Tests:** C alone → `make test` exit 0 (255 passed, 6 skipped; 7 new structure tests). main + PR #6 (real pack) + A + B + D + C merged → exit 0, 876 passed. On the real pack, Q07 leads with Clopidogrel × Pantoprazole, and the other two facts fold under "Also relevant". Checked by hand in the browser, no console errors.
+- **Next:** drop the stand-ins (D-014); rehearsal with D's script after the merges; optional Amoxil sample label

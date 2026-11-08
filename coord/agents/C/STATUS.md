@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (C-020 pushed; PR #3 updated)
+current_task: none (C-021 pushed; PR #3 updated)
 branch: agent/C-app-ui
-last_commit: 714e9b0
+last_commit: 8d3c35b
 last_seen:
   plan_version: "1.2.1"
   decisions: D-022
-  logs: {A: 11, B: 19, C: 20, D: 10}
+  logs: {A: 11, B: 19, C: 21, D: 10}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -37,4 +37,4 @@ handled_messages:
   - 20261108-1500-from-A-allergy-flags.md
   - 20261108-1500-from-D-palette-ack.md
 blocked_on: none
-next: answer layout (asked pair first, collapse long pack answers); drop stand-ins (D-014); rehearsal after G2
+next: drop stand-ins (D-014); full rehearsal after the PRs merge; optional Amoxil sample label
