@@ -271,3 +271,22 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` on my rebased branch: exit 0, 1078 passed, 2 skipped (the 2 skips wait on PR #4 queries.json and C's app path, both fine on the integrated tree). Integrated main + #4/#5/#7/#8: exit 0, 1154 passed, 0 skipped.
 - **Inbox:** to-A 1543 (C-024 ack): I noted that `_named_drugs` no longer checks for a mock normalizer, and A's tests don't rely on that. D-033 (Gabe is integrator, backup Dhiaa): noted, nothing for A. New logs: B-034, B-035 and C-024, nothing for A. B-035 confirms Q03 (`CYP2D6:not_assessed|codeine`) stays no_data offline, as A's rules intend (D-021).
 - **Next:** PR #5 review and merge at G3. Live VLM check on C's PNGs if the human starts Ollama. Then requests from B, C and D. If B ships partition v6, re-run the key-coverage check.
+
+### A-021 · 2026-11-08 15:50 · commit `d81a2b0` (rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #5 onto main `aa30bbf` (D-034) and force-pushed it (`d81a2b0`). Then I closed the gap the integrator flagged in to-human 1546: the G3 rehearsal had never run `make eval` or `python -m core.cloud check` on the integrated tree. On a local throwaway branch (never pushed, deleted afterwards) I octopus-merged `origin/main` with the current heads #4 D `5112526`, #5 A `d81a2b0`, #7 B `f3a4abc` (B-036) and #8 C `ff5a93c`. There were no conflicts. Results on the integrated tree:
+  - `make test`: exit 0, 1156 passed, 0 skipped.
+  - `python -m core.cloud check`: 136/136 keys usable, 0 missing, 0 rejected (I7), 0 outside the partition.
+  - `make eval DEMO=1` (EVAL_LLM unset, so no API spend): partition `real:data/buckets/v5.json`, backend `live`.
+  - `python -m eval.gate`: **20 pass, 0 warn, 0 fail**.
+- **Finding for D:** the `slides/numbers.md`, `docs/results.md` and `eval/results/*` committed on PR #4 come from the stand-in partition and the simulated backend. On the integrated build several figures change: random decoys 95%→99%, fixed-bucket repeat-ask 15%→11%, statistical 17%→22% (ceiling 19%→20%), one-session condition guess 75%→72%, separate+cover 29%→34%, blind 27%→26%, **cloud calls 6→11**, **on-device share 75%→50%**, warm offline 17/20→18/20, and a new row: wording filter 25/25. `slides/pitch.md:12` still has the bracketed "[6] cloud calls … [75%] answered on device". Line 10 has "[95%]" and "[14%]". All 20 gate claims still pass. Only the quoted numbers need regenerating after the merge. I discarded my regenerated files and pushed none of them.
+- **Why:** G3 is at 17:30. P8 requires every quoted figure to match the merged build (D-034). The rehearsal had not yet checked the eval suite or the demo cache.
+- **Class:** Advances
+- **Plan:** advances G3/G4 (P9) prep; checks P8 claims, I3, I4, I7, I8 on the integrated build
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** D: re-run `DEMO=1 make eval` after #4 merges with the others and refresh the bracketed pitch numbers (message sent). I: the full G3 sequence (test, cloud check, eval, gate) is green on the current heads (message sent). B, C: nothing to do.
+- **Demo impact:** none to the beats. The pitch figures on the learning slide change (S-pitch numbers only).
+- **Tests:** `make test` on my rebased branch: exit 0, 1078 passed, 2 skipped. Integrated: as above.
+- **Inbox:** no new to-A messages. D-034 (submission accepted, personalization described as rule-based): consistent with A's code, since only `core/capture.py` calls a local model. New log B-036: nothing for A.
+- **Next:** PR #5 review and merge at G3. After the merge, re-run A's suite on main. Live VLM check if the human starts Ollama. Then requests from B, C and D.
