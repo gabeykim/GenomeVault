@@ -69,6 +69,7 @@ const LEDGER_KINDS = {
   blocked: "Blocked by leakage check",
 };
 const SEV_LEVEL = { high: 3, medium: 2, low: 1 };
+const LAB_NAMES = { egfr: "eGFR", alt: "ALT", ast: "AST", ck: "CK", ldl: "LDL", inr: "INR" };
 
 function formatBytes(n) {
   if (n < 1024) return `${n} B`;
@@ -87,7 +88,8 @@ function flagTitle(key) {
       const [gene, pheno] = part.split(":");
       context.push(`${gene} ${humanize(pheno)}`);
     } else if (/[<>]/.test(part)) {
-      const cond = part.replace(/\s*([<>]=?)\s*/, " $1 ");
+      // Keys use lowercase lab tokens (A's format: "egfr<60"); show them as labs are usually written.
+      const cond = part.replace(/^[a-z0-9]+/, (t) => LAB_NAMES[t] || t).replace(/\s*([<>]=?)\s*/, " $1 ");
       (part.startsWith("dose") ? conditions : context).push(cond);
     } else {
       drugs.push(cap(part));

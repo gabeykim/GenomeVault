@@ -114,11 +114,14 @@ def _note(kind: str, bytes_out: int = 0, bucket_id: Optional[str] = None) -> Non
 # --- helpers -----------------------------------------------------------------------------------
 
 def _flags_for(drugs: list[Drug], profile: Profile) -> list[Flag]:
+    """One flag per exact key. A finding can span several keys under one id (X5 is four flags:
+    aspirin|ibuprofen, clopidogrel|ibuprofen, ibuprofen|lisinopril, ibuprofen|egfr<60), so dedupe by
+    key, never by id. The same pair reached from both drugs (X2) still appears once."""
     seen: dict[str, Flag] = {}
     for drug in drugs:
         for flag in check(drug, profile):
-            seen.setdefault(flag.id, flag)
-    return sorted(seen.values(), key=lambda f: f.id)
+            seen.setdefault(flag.key, flag)
+    return sorted(seen.values(), key=lambda f: (f.id, f.key))
 
 
 def tier_label(fact: Fact) -> str:

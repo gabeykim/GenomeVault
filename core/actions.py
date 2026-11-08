@@ -10,6 +10,7 @@ pharmacist draft, prints the summary, and imports reminders into their own calen
 """
 from __future__ import annotations
 
+import re
 from datetime import date, datetime, timedelta, timezone
 
 from .contracts import Flag, Profile
@@ -28,7 +29,23 @@ CONDITION_NAMES = {
 
 
 def _sorted(flags: list[Flag]) -> list[Flag]:
-    return sorted(flags, key=lambda f: (_ORDER[f.severity], f.id))
+    return sorted(flags, key=lambda f: (_ORDER[f.severity], f.id, f.key))
+
+
+def _ids(flags: list[Flag]) -> list[str]:
+    """Finding ids in order, once each: one id can cover several keys (X5 is four flags)."""
+    return list(dict.fromkeys(f.id for f in flags))
+
+
+def _lab_names(flag: Flag, profile: Profile) -> list[str]:
+    """Labs a flag is about, spelled as in the profile (keys use lowercase tokens, e.g. egfr<60)."""
+    _, _, conds = _key_parts(flag.key)
+    wanted = [re.split(r"[<>]", c, maxsplit=1)[0] for c in conds if not c.startswith("dose")]
+    evidence = " ".join(flag.evidence)
+    tests = list(dict.fromkeys(l.test for l in profile.labs))
+    in_key = [t for w in wanted for t in tests if t.lower() == w.lower()]          # the rule's subject first
+    in_evidence = [t for t in tests if re.search(rf"\b{re.escape(t)}\b", evidence, re.I)]
+    return list(dict.fromkeys(in_key + in_evidence))
 
 
 def _dose(profile: Profile, drug: str) -> str:
@@ -61,16 +78,14 @@ def question_for(flag: Flag, profile: Profile) -> str:
         why = f", given my {_gene_phrase(profile, extra[0])}" if extra else ""
         q = f"I take {meds[0]} and {meds[1]}. Is that combination something we should review{why}?"
     elif flag.engine == "drug_lab":
-        labs = [c.split(">")[0].split("<")[0] for c in conds]
-        labs += [l.test for l in profile.labs if l.test not in labs and l.test.lower() in " ".join(flag.evidence).lower()]
-        trends = [t for t in (_lab_trend(profile, l) for l in dict.fromkeys(labs)) if t]
+        trends = [t for t in (_lab_trend(profile, l) for l in _lab_names(flag, profile)) if t]
         q = (f"My recent labs show {' and '.join(trends) if trends else 'a change'}. "
              f"Does that matter for {meds[0] if meds else 'my medicines'}?")
     elif flag.engine == "allergy":
         allergy = profile.allergies[0] if profile.allergies else "an allergy"
         q = f"I'm allergic to {allergy}. Does {meds[0] if meds else 'this medicine'} relate to that allergy?"
     else:
-        q = f"Should we review {', '.join(meds) if meds else flag.key} together?"
+        q = f"Should we review {' and '.join(meds) if meds else flag.key} together?"
     return guard(q) or f"Could we review {flag.id}?"
 
 
@@ -162,23 +177,18 @@ def reminders(flags: list[Flag], profile: Profile, today: date | None = None) ->
     Each: {id, due (ISO date), title, detail (on-device only), flags}."""
     today = today or date.today()
     out: list[dict] = []
-    high = [f.id for f in _sorted(flags) if f.severity == "high"]
+    high = _ids([f for f in _sorted(flags) if f.severity == "high"])
     if high:
         out.append({"id": "r-pharmacist", "due": (today + timedelta(days=1)).isoformat(),
                     "title": "Call your pharmacist",
                     "detail": f"Go over {', '.join(high)} using the pharmacist draft.", "flags": high})
     lab_flags = [f for f in _sorted(flags) if f.engine == "drug_lab"]
     if lab_flags:
-        tests = []
-        for f in lab_flags:
-            _, _, conds = _key_parts(f.key)
-            tests += [c.split(">")[0].split("<")[0] for c in conds]
-            tests += [l.test for l in profile.labs if l.test.lower() in " ".join(f.evidence).lower()]
-        tests = list(dict.fromkeys(tests))
+        tests = list(dict.fromkeys(t for f in lab_flags for t in _lab_names(f, profile)))
         out.append({"id": "r-labs", "due": (today + timedelta(days=3)).isoformat(),
                     "title": "Ask about your recent labs",
                     "detail": f"Ask your doctor whether your {' and '.join(tests)} should be rechecked, and when.",
-                    "flags": [f.id for f in lab_flags]})
+                    "flags": _ids(lab_flags)})
     stale = sorted({l.test for l in profile.labs if l.stale})
     if stale:
         out.append({"id": "r-stale", "due": (today + timedelta(days=7)).isoformat(),
@@ -188,7 +198,7 @@ def reminders(flags: list[Flag], profile: Profile, today: date | None = None) ->
         out.append({"id": "r-visit", "due": (today + timedelta(days=7)).isoformat(),
                     "title": "Bring your visit summary to your next appointment",
                     "detail": "Print the one-page summary or show it on your phone.",
-                    "flags": [f.id for f in _sorted(flags)]})
+                    "flags": _ids(_sorted(flags))})
     for r in out:
         r["title"], r["detail"] = guard(r["title"]), guard(r["detail"])
     return out

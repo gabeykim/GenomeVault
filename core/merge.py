@@ -202,7 +202,7 @@ def personalize(answer: Answer, flags: list[Flag], profile: Profile) -> str:
     if mine:
         paragraphs.append("For you: " + " ".join(describe(f, profile) for f in mine))
     else:
-        high = [f.id for f in flags if f.severity == "high"]
+        high = list(dict.fromkeys(f.id for f in flags if f.severity == "high"))   # X5 spans 4 keys
         if high:
             ids = high[0] if len(high) == 1 else ", ".join(high[:-1]) + " and " + high[-1]
             paragraphs.append(f"Separately, your flagged item{'' if len(high) == 1 else 's'} {ids} "
