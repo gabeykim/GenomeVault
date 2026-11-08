@@ -339,13 +339,23 @@ function message(who, body, extra = []) {
     el("div", { class: "msg-body" }, body, ...extra));
 }
 
+// merge.personalize returns paragraphs separated by blank lines; known lead-ins get emphasis.
+const LEADS = /^(In general|For you|AI-summarized, verify|Curated \([^)]*\)|Separately):\s*/;
+
+function answerParagraph(text, i) {
+  const m = text.match(LEADS);
+  const inner = m
+    ? el("span", { style: `animation-delay:${i * 110}ms` }, el("strong", {}, `${m[1]}:`), " ", text.slice(m[0].length))
+    : el("span", { style: `animation-delay:${i * 110}ms` }, text);
+  return el("span", { class: `reveal para${i === 0 ? "" : " later"}` }, inner);
+}
+
 function answerMessage(a) {
-  const facts = a.facts.length ? el("ul", { class: "facts" }, a.facts.map((f) =>
-    el("li", {}, el("span", { class: "tier" }, f.label), " · ", f.text))) : null;
+  // Facts and their trust tiers (I6) are already written into the merged text.
   const meta = el("div", { class: "msg-meta" },
     el("span", { class: "chip solid" }, STATES[a.state] || a.state),
     el("span", { class: "chip" }, a.sent_to_cloud ? "Asked privately · decoy group of 8" : "Answered on device"));
-  return message("Vault", reveal(a.text), [facts, meta]);
+  return message("Vault", a.text.split(/\n{2,}/).map(answerParagraph), [meta]);
 }
 
 async function ask(question) {

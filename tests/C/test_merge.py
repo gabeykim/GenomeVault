@@ -1,0 +1,107 @@
+"""Agent C: merge.personalize (BRIEF C queue 2, M9). Never 'safe', no start/stop (I7); tiers (I6)."""
+import json
+import re
+from datetime import date
+from pathlib import Path
+
+import pytest
+
+from core import merge
+from core.contracts import Answer, Fact, Flag
+from core.interfaces import load_profile
+
+MOCKS = Path(__file__).resolve().parents[2] / "mocks"
+PROFILE = load_profile()
+FLAGS = [Flag.model_validate(f) for f in json.loads((MOCKS / "flags.json").read_text())]
+TODAY = date(2026, 11, 8)
+
+BANNED = re.compile(r"\bsafe(r|st|ly)?\b|\b(stop|start|quit|discontinue)\s+taking\b|\bswitch to\b", re.I)
+
+
+def fact(key="clopidogrel|omeprazole", text="Omeprazole reduces clopidogrel activation.", tier="cloud", source="cloud"):
+    return Fact(key=key, text=text, tier=tier, source=source, fetched=TODAY, expires=TODAY)
+
+
+def test_known_answer_is_personalized_with_relevant_flags():
+    a = Answer(state="known", text="Clopidogrel response differs by CYP2C19 metabolizer type.", sent_to_cloud=True)
+    out = merge.personalize(a, FLAGS, PROFILE)
+    assert out.startswith("In general: Clopidogrel response differs")
+    assert "For you:" in out
+    assert "X1 (high)" in out and "X2 (high)" in out
+    assert "*2/*2" in out and "75 mg" in out          # the user's own genotype and dose, locally
+    assert "X3" not in out and "X4" not in out        # unrelated flags stay out
+
+
+def test_flag_description_uses_profile_labs_and_trend():
+    x4 = next(f for f in FLAGS if f.id == "X4")
+    s = merge.describe(x4, PROFILE)
+    assert "lisinopril 10 mg" in s and "potassium 5.2" in s and "eGFR 62 → 48" in s
+
+
+def test_lab_names_match_whole_words_only():
+    flag = Flag(id="T1", key="aspirin|clopidogrel", severity="low", engine="drug_drug",
+                evidence=["discuss alternatives"])  # "alternatives" must not pull in the ALT lab
+    assert "ALT" not in merge.describe(flag, PROFILE)
+
+
+def test_cloud_text_and_facts_are_labeled_verify():  # I6
+    a = Answer(state="known", text="PPIs differ in CYP2C19 inhibition.", facts=[fact()], sent_to_cloud=True)
+    out = merge.personalize(a, FLAGS, PROFILE)
+    assert "(AI-summarized, verify.)" in out
+    assert "AI-summarized, verify: Omeprazole reduces clopidogrel activation." in out
+
+
+def test_curated_facts_name_their_source():
+    a = Answer(state="known", text="", facts=[fact(tier="curated", source="CPIC 2022")])
+    assert "Curated (CPIC 2022):" in merge.personalize(a, FLAGS, PROFILE)
+
+
+def test_no_data_never_implies_no_interaction():
+    out = merge.personalize(Answer(state="no_data", text=""), FLAGS, PROFILE)
+    assert "no data" in out.lower()
+    assert "does not mean there is no interaction" in out
+    assert "X1 and X2 are still worth raising" in out
+
+
+def test_none_listed_names_source_and_is_not_a_guarantee():
+    a = Answer(state="none_listed", text="", facts=[fact(key="aspirin|lisinopril", text="No interaction listed.",
+                                                         tier="curated", source="DrugBank")])
+    out = merge.personalize(a, FLAGS, PROFILE)
+    assert "No interaction is listed for this in DrugBank" in out
+    assert "not a guarantee" in out
+
+
+@pytest.mark.parametrize("bad", [
+    "Pantoprazole is a safe alternative.",
+    "Pantoprazole is safer.",
+    "It is safe to take both.",
+    "You should stop taking omeprazole.",
+    "Start taking pantoprazole instead.",
+    "Switch to pantoprazole.",
+    "Discontinue simvastatin.",
+    "Lower your dose of simvastatin.",
+])
+def test_guard_removes_unsafe_wording_from_cloud_text(bad):  # I7
+    a = Answer(state="known", text=f"PPIs differ in CYP2C19 inhibition. {bad}", facts=[fact(text=bad)],
+               sent_to_cloud=True)
+    out = merge.personalize(a, FLAGS, PROFILE)
+    assert not BANNED.search(out), out
+    assert "PPIs differ in CYP2C19 inhibition." in out
+    assert out.startswith("In general:")
+
+
+def test_every_output_ends_with_pharmacist_closing():
+    for state in ("known", "none_listed", "no_data"):
+        out = merge.personalize(Answer(state=state, text="General text."), FLAGS, PROFILE)
+        assert out.endswith(merge.CLOSING)
+
+
+def test_all_banned_text_still_returns_something():
+    a = Answer(state="known", text="It is safe.", sent_to_cloud=True)
+    out = merge.personalize(a, [], PROFILE)
+    assert out == merge.CLOSING
+
+
+def test_app_uses_real_merge():
+    import app
+    assert app.MODES["merge.personalize"] == "real"

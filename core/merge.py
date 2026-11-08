@@ -1,0 +1,178 @@
+"""Merge (Agent C, M9): turn a general Answer plus local flags into an answer about this user.
+
+Runs entirely on device. The Answer from the router is generalized (it never saw the profile); this
+module is where it meets the private Profile, so its output is shown on screen and never sent anywhere.
+
+Deterministic on purpose (no model call): the wording rules below are guaranteed by code, and it works
+offline in demo mode (I8).
+
+- I4: only flags the rules engine produced are personalized; nothing is inferred between drugs.
+- I6: cloud facts are labeled "AI-summarized, verify"; serious wording comes only from flags
+  (curated rule tables), never from cloud text.
+- I7: never says a drug or combination is s-a-f-e and never tells the user to start or stop anything.
+  `guard` enforces this on every string this module returns.
+
+Output is plain text; paragraphs are separated by a blank line.
+"""
+from __future__ import annotations
+
+import re
+
+from .contracts import Answer, Fact, Flag, Profile
+
+CLOSING = ("Bring this to your pharmacist or doctor. GenomeVault prepares you for that conversation; "
+           "it never tells you to start or stop a medication.")
+CLOUD_LABEL = "AI-summarized, verify"
+
+# I7 guard. Whole-sentence removal keeps the remaining text readable and honest.
+_BANNED = [
+    re.compile(r"\bsafe(r|st|ly)?\b", re.I),
+    re.compile(r"\bno (risk|danger)\b", re.I),
+    re.compile(r"\b(stop|start|quit|discontinue|resume)\s+(taking|using|your|the|it|this)\b", re.I),
+    re.compile(r"\b(discontinue|switch to|switch from)\b", re.I),
+    re.compile(r"\byou (should|must|need to) (take|stop|start|switch|avoid)\b", re.I),
+    re.compile(r"\b(double|halve|increase|decrease|lower|raise) (your|the) dose\b", re.I),
+]
+_SENTENCE = re.compile(r"(?<=[.!?])\s+")
+
+
+def _violates(sentence: str) -> bool:
+    return any(p.search(sentence) for p in _BANNED)
+
+
+def guard(text: str) -> str:
+    """Drop any sentence that calls something s-a-f-e or gives a start/stop/dose instruction (I7)."""
+    paragraphs = []
+    for para in text.split("\n\n"):
+        kept = [s for s in _SENTENCE.split(para.strip()) if s and not _violates(s)]
+        if kept:
+            paragraphs.append(" ".join(kept))
+    return "\n\n".join(paragraphs)
+
+
+# ---------- describing a flag in the user's own terms (local only) ----------
+
+def _human(s: str) -> str:
+    return s.replace("_", " ")
+
+
+def _key_parts(key: str) -> tuple[list[str], list[str], list[str]]:
+    """Split an exact key into (drugs, genes, lab/dose conditions)."""
+    drugs, genes, conds = [], [], []
+    for part in key.split("|"):
+        if ":" in part:
+            genes.append(part.split(":", 1)[0])
+        elif re.search(r"[<>]", part):
+            conds.append(part)
+        else:
+            drugs.append(part)
+    return drugs, genes, conds
+
+
+def _lab_trend(profile: Profile, test: str) -> str | None:
+    rows = sorted((l for l in profile.labs if l.test.lower() == test.lower()), key=lambda l: l.date)
+    if not rows:
+        return None
+    if len(rows) > 1:
+        return f"{test} {rows[-2].value:g} → {rows[-1].value:g} {rows[-1].unit}"
+    return f"{test} {rows[-1].value:g} {rows[-1].unit}"
+
+
+def describe(flag: Flag, profile: Profile) -> str:
+    """One sentence tying a flag to this user's genes, doses and labs."""
+    drugs, genes, conds = _key_parts(flag.key)
+    doses = {d.ingredient: d.dose_mg for d in profile.meds}
+    bits = []
+    for d in drugs:
+        dose = doses.get(d)
+        bits.append(f"{d} {dose:g} mg" if dose is not None else d)
+    for g in genes:
+        gt = profile.genotypes.get(g)
+        ph = profile.phenotypes.get(g)
+        if gt and ph:
+            bits.append(f"your {g} result {gt} ({_human(ph)})")
+        elif ph:
+            bits.append(f"your {g} result ({_human(ph)})")
+    for c in conds:
+        test = re.split(r"[<>]", c, maxsplit=1)[0]
+        if test == "dose":
+            continue  # already expressed by the drug dose
+        trend = _lab_trend(profile, test)
+        if trend:
+            bits.append(f"your {trend}")
+    # Genes and labs named in the evidence but not in the key
+    # (e.g. CYP2C19 behind the omeprazole pair, an eGFR trend behind a potassium rule).
+    for g in sorted(profile.phenotypes):
+        named = re.compile(rf"\b{re.escape(g)}\b", re.I)
+        if g not in genes and any(named.search(e) for e in flag.evidence):
+            bits.append(f"your {g} result {profile.genotypes.get(g, '')} ({_human(profile.phenotypes[g])})".replace("  ", " "))
+    for lab in sorted({l.test for l in profile.labs}):
+        named = re.compile(rf"\b{re.escape(lab)}\b", re.I)
+        if not named.search(" ".join(bits)) and any(named.search(e) for e in flag.evidence):
+            trend = _lab_trend(profile, lab)
+            if trend:
+                bits.append(f"your {trend}")
+    if not bits:
+        joined = flag.key
+    elif len(bits) == 1:
+        joined = bits[0]
+    else:
+        joined = ", ".join(bits[:-1]) + " and " + bits[-1]
+    return f"{flag.id} ({flag.severity}): {joined}."
+
+
+def _mentions(flag: Flag, haystack: str) -> bool:
+    drugs, genes, _ = _key_parts(flag.key)
+    return any(re.search(rf"\b{re.escape(t)}\b", haystack, re.I) for t in drugs + genes)
+
+
+def relevant_flags(answer: Answer, flags: list[Flag]) -> list[Flag]:
+    """Flags whose drugs or genes the answer (text or fact keys) talks about."""
+    haystack = " ".join([answer.text, *(f.key for f in answer.facts), *(f.text for f in answer.facts)])
+    order = {"high": 0, "medium": 1, "low": 2}
+    hits = [f for f in flags if _mentions(f, haystack)]
+    return sorted(hits, key=lambda f: (order[f.severity], f.id))
+
+
+# ---------- the answer ----------
+
+def _sources(facts: list[Fact]) -> str:
+    names = sorted({f.source for f in facts if f.tier == "curated"})
+    return ", ".join(names) if names else "the curated tables"
+
+
+def _lead(answer: Answer) -> str:
+    if answer.state == "no_data":
+        return ("GenomeVault has no data on this, on this device or from a curated source. "
+                "A missing entry does not mean there is no interaction.")
+    if answer.state == "none_listed":
+        return (f"No interaction is listed for this in {_sources(answer.facts)}. "
+                "That only means the source lists none; it is not a guarantee.")
+    text = guard(answer.text.strip())
+    if not text:
+        return ""
+    cloud = answer.sent_to_cloud or any(f.tier == "cloud" for f in answer.facts)
+    return f"In general: {text}" + (f" ({CLOUD_LABEL}.)" if cloud else "")
+
+
+def personalize(answer: Answer, flags: list[Flag], profile: Profile) -> str:
+    """Contract: merge.personalize(answer, flags, profile) -> str (coord/CONTRACTS.md)."""
+    paragraphs = [_lead(answer)]
+
+    for fact in answer.facts:  # every fact carries its trust tier (I6)
+        label = CLOUD_LABEL if fact.tier == "cloud" else f"Curated ({fact.source})"
+        paragraphs.append(f"{label}: {guard(fact.text)}" if guard(fact.text) else "")
+
+    mine = relevant_flags(answer, flags)
+    if mine:
+        paragraphs.append("For you: " + " ".join(describe(f, profile) for f in mine))
+    else:
+        high = [f.id for f in flags if f.severity == "high"]
+        if high:
+            ids = high[0] if len(high) == 1 else ", ".join(high[:-1]) + " and " + high[-1]
+            paragraphs.append(f"Separately, your flagged item{'' if len(high) == 1 else 's'} {ids} "
+                              f"{'is' if len(high) == 1 else 'are'} still worth raising.")
+
+    paragraphs.append(CLOSING)
+    out = guard("\n\n".join(p for p in paragraphs if p))
+    return out or CLOSING
