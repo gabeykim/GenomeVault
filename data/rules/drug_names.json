@@ -1,5 +1,6 @@
 {
-  "version": "3",
+  "version": "4",
+  "v4": "Adds the pharmacy-label abbreviations amox-clav / amoxicillin-clav (Augmentin generics). Names only, no new rules.",
   "v3": "Adds the penicillin-class and sulfonamide-antibiotic members of data/rules/allergy.json (brands and generics) so an allergy check can be reached from a typed or photographed label. Names only for combination partners (clavulanate, sulbactam, tazobactam): no rule covers them.",
   "v2": "Adds every drug named in the router's bucket universe (B, data/buckets/v5) plus codeine and St. John's wort, so a typed or photographed name reaches the router. Multi-word ingredient ids use underscores (st_johns_wort). Salt forms collapse to the universe's id: isosorbide mononitrate/dinitrate -> isosorbide; valproic acid/divalproex -> valproate. Names only: no new rules, so no new flags (I4).",
   "source": "Authored for the demo from US brand/generic names (FDA Orange Book / DailyMed listings). Synthetic project; not a complete formulary.",
@@ -48,6 +49,8 @@
     "amoxil": ["amoxicillin"],
     "augmentin": ["amoxicillin", "clavulanate"],
     "amoxicillin clavulanate": ["amoxicillin", "clavulanate"],
+    "amoxicillin clav": ["amoxicillin", "clavulanate"],
+    "amox clav": ["amoxicillin", "clavulanate"],
     "principen": ["ampicillin"],
     "unasyn": ["ampicillin", "sulbactam"],
     "penicillin v": ["penicillin_v"],
