@@ -209,3 +209,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** visual only (S1 intro lanes now carry a few blue and cantaloupe blocks)
 - **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Checked in the merged preview at desktop and phone sizes, no console errors.
 - **Next:** drop the stand-ins (D-014); show A's no_data marker when PR #5 lands; rehearsal after G2
+
+### C-017 · 2026-11-08 14:52 · commit `049d9cb` · PLAN v1.2.1
+
+- **Change:** The whole UI now uses the three-color palette on a dark canvas, replacing C-016's bone background. Midnight `#0a1020` is the canvas (raised `#121b33`), with warm-white `#f2ede4` text. Electric blue `#1f4bff` carries structure and motion: section bars, the shield logo, hover fills, ledger blocks, the Online switch, the Known chip, the camera button. Cantaloupe `#ffa177` is the spark: the wordmark bar, active tab, strand packets, "yours" in the 8-question view, the Offline pill, medium severity, selection and focus. Status red is `#ff5470` (30° of hue from cantaloupe) and green is `#5fd38b`. The printable `/summary` stays a white sheet on the midnight canvas. The sample labels are redrawn as small palette-colored pharmacy labels (`phone/make_samples.py`) with the same embedded `gv:label` text.
+- **Why:** Human owner asked for the entire design in these colors.
+- **Class:** Refines
+- **Plan:** advances M10, S1, S2
+- **Refinements:** a dark theme by design, and the print view stays light. AA contrast on every text pair: text on midnight 16.3, muted 6.5, blue text `#7d97ff` 7.0, white on blue fill 5.1, cantaloupe 9.6, red 6.1, green 10.1.
+- **Contract impact:** none
+- **Affects:** D: slides and screenshots should use the dark theme → retake. A: sample PNGs still use your `gv:label` iTXt format and read correctly with `capture.from_image` → none.
+- **Demo impact:** visual only (all beats)
+- **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Both new samples read with A's reader (clopidogrel 75, ibuprofen 200). Checked in the merged preview at desktop and phone sizes (laptop, phone, `/summary`), no console errors.
+- **Next:** drop the stand-ins (D-014); A's no_data marker (PR #5); rehearsal after G2
