@@ -19,8 +19,9 @@ ALLERGY = Flag(id="A1", key="penicillin|amoxicillin", severity="high", engine="a
 @pytest.fixture(autouse=True)
 def demo_cache(tmp_path, monkeypatch):
     """DEMO=1 replay from a cache that answers every key of X1's bucket."""
-    for v in ("ANTHROPIC_API_KEY", "GV_LEDGER_PATH", "GV_KB_PATH"):
+    for v in ("ANTHROPIC_API_KEY", "GV_LEDGER_PATH", "GV_KB_PATH", "GV_OFFLINE"):
         monkeypatch.delenv(v, raising=False)
+    monkeypatch.setattr(router.cloud, "_forced", None)
     b = bucket_for(X1.key)
     (tmp_path / f"{b.id}.json").write_text(json.dumps({k: f"General fact about {k}." for k in b.keys}))
     monkeypatch.setenv("DEMO", "1")

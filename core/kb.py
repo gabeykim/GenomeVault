@@ -129,3 +129,14 @@ def reset() -> None:
     with _lock:
         _facts.clear()
         _loaded = False
+
+
+def clear() -> None:
+    """Empty the KB, including the `GV_KB_PATH` file (cold runs for E2/E4, demo reset)."""
+    global _loaded
+    with _lock:
+        _facts.clear()
+        _loaded = True
+        p = _path()
+        if p and p.exists():
+            p.unlink()

@@ -12,9 +12,12 @@ from core.contracts import Topic
 
 @pytest.fixture(autouse=True)
 def clean_env(monkeypatch):
-    for v in ("DEMO", "ANTHROPIC_API_KEY", "GV_CLOUD_MODEL", "GV_CLOUD_URL", "GV_CLOUD_TTL_DAYS", "GV_CLOUD_CACHE"):
+    for v in ("DEMO", "ANTHROPIC_API_KEY", "GV_CLOUD_MODEL", "GV_CLOUD_URL", "GV_CLOUD_TTL_DAYS", "GV_CLOUD_CACHE",
+              "GV_OFFLINE"):
         monkeypatch.delenv(v, raising=False)
     monkeypatch.setattr(cloud, "_transport", None)
+    monkeypatch.setattr(cloud, "_forced", None)
+    monkeypatch.setattr(cloud, "_last_failure", None)
 
 
 def _bucket():

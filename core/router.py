@@ -15,6 +15,10 @@ The question text itself never leaves the device. It is read locally only, to fi
 user names directly (e.g. "clopidogrel and pantoprazole") so they can be answered by exact key.
 A key outside the bucket universe is never sent and gets no fact (I4/I5: `no_data`).
 
+Offline (F8): when cloud.offline() is forced, steps 3-8 are skipped entirely: no generalizing, no
+ledger entry, 0 bytes. KB and local answers still work; anything else is `no_data` with OFFLINE_TEXT.
+If a send fails mid-question (network down), the remaining buckets are not tried.
+
 Answer state: `known` if at least one asked key has a fact, else `no_data`. (`none_listed` needs
 a curated "no interaction" entry, which comes from A's curated tables via the KB.)
 """
@@ -34,6 +38,8 @@ _WORD_RE = re.compile(r"[a-z][a-z0-9-]*")
 
 NO_DATA_TEXT = ("No entry was found for this exact question. A missing entry does not mean there "
                 "is no interaction; ask your pharmacist.")
+OFFLINE_TEXT = ("You are offline, and this exact question is not stored on your device yet. Nothing "
+                "was sent. A missing entry does not mean there is no interaction; ask your pharmacist.")
 LOCAL_TEXT = "This was checked on your device against your own records. Nothing was sent."
 
 
@@ -64,8 +70,13 @@ def _kb_put(facts: list[Fact]) -> None:
     kb.put_many(facts)
 
 
+class _Offline(Exception):
+    pass
+
+
 def _send_bucket(bucket_id: str, profile: Profile) -> tuple[list[Fact], bool]:
-    """Send one whole fixed bucket. Returns (facts, sent). Blocked or offline sends return no facts."""
+    """Send one whole fixed bucket. Returns (facts, sent). Blocked sends return no facts; raises
+    _Offline if the cloud is unreachable (nothing left the device, no ledger entry)."""
     from .decoys import load_buckets
 
     bucket = next(b for b in load_buckets() if b.id == bucket_id)
@@ -79,8 +90,8 @@ def _send_bucket(bucket_id: str, profile: Profile) -> tuple[list[Fact], bool]:
         return [], False
     try:
         facts = cloud.ask_bucket(bucket, topics)
-    except cloud.CloudUnavailable:
-        return [], False  # offline: nothing left the device (queue 9 refines the fallback)
+    except cloud.CloudUnavailable as e:
+        raise _Offline() from e
     ledger.record("bucket", bucket_id=bucket.id, texts=texts)
     return facts, True
 
@@ -110,6 +121,9 @@ def route(question: str, flags: list[Flag]) -> Answer:
     if found:
         ledger.record("kb_hit")
 
+    is_offline = bool(missing) and cloud.offline()
+    if is_offline:  # F8: steps 1-2 only
+        missing = []
     profile = _profile() if missing else None
     sent = False
     done: set[str] = set()
@@ -118,7 +132,11 @@ def route(question: str, flags: list[Flag]) -> Answer:
         if b is None or b.id in done:
             continue
         done.add(b.id)
-        facts, ok = _send_bucket(b.id, profile)
+        try:
+            facts, ok = _send_bucket(b.id, profile)
+        except _Offline:
+            is_offline = True
+            break
         sent = sent or ok
         _kb_put(facts)  # store all 8 answers
         for f in facts:
@@ -127,6 +145,7 @@ def route(question: str, flags: list[Flag]) -> Answer:
 
     facts = [found[k] for k in wanted if k in found]
     if not facts:
-        return Answer(state="no_data", text=NO_DATA_TEXT, facts=[], sent_to_cloud=sent)
+        text = OFFLINE_TEXT if is_offline else NO_DATA_TEXT
+        return Answer(state="no_data", text=text, facts=[], sent_to_cloud=sent)
     text = "\n\n".join(f.text for f in facts)
     return Answer(state="known", text=text, facts=facts, sent_to_cloud=sent)

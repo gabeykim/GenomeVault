@@ -17,6 +17,13 @@ Configuration (environment only, never in the repo, AGENTS.md §10):
 - `GV_CLOUD_TTL_DAYS` cloud fact lifetime in days (default 30)
 - `DEMO=1`           replay `mocks/cloud_cache/` instead of the network (I8)
 - `GV_CLOUD_CACHE`   alternative cache directory (tests, recording)
+- `GV_OFFLINE=1`     force offline mode (F8, E4): nothing is sent, not even demo replay
+
+Offline mode (F8, queue 9): `offline()` is True when forced (`GV_OFFLINE=1` or `set_offline(True)`).
+Forced offline wins over `DEMO=1`, so the offline demo beat (S6, ibuprofen X5) runs with demo mode on
+and Wi-Fi "off". `status()` reports what this module already knows and never sends anything:
+`online` is False when forced offline, when live mode has no API key, or when the last live call
+failed (it turns True again after the next successful call).
 
 Cache format (demo replay): any number of `*.json` files in the cache dir, each a JSON object
 `{"<exact key>": "<answer text>", ...}`. A key missing from the cache gets no Fact, which the
@@ -56,11 +63,46 @@ SYSTEM_PROMPT = (
 
 
 class CloudUnavailable(RuntimeError):
-    """No network, no API key, or the provider failed. The router falls back (queue 9)."""
+    """Forced offline, no network, no API key, or the provider failed. The router falls back to
+    P6 steps 1-2 only (F8)."""
+
+
+_forced: Optional[bool] = None        # set_offline() override; None = follow GV_OFFLINE
+_last_failure: Optional[str] = None   # reason the last live call failed; None after a success
+
+
+def _truthy(v: str) -> bool:
+    return v not in ("", "0", "false", "False")
+
+
+def set_offline(value: Optional[bool]) -> None:
+    """Force offline on/off at runtime (UI toggle, eval cold/warm runs). None = follow GV_OFFLINE."""
+    global _forced
+    _forced = value
+
+
+def offline() -> bool:
+    """True when offline mode is forced. The router then sends nothing (P6 steps 1-2 only)."""
+    if _forced is not None:
+        return _forced
+    return _truthy(os.environ.get("GV_OFFLINE", ""))
+
+
+def status() -> dict:
+    """`{"online": bool, "demo": bool, "forced_offline": bool}`. Never touches the network."""
+    forced = offline()
+    demo = demo_mode()
+    if forced:
+        online = False
+    elif demo:
+        online = True                                   # replay always answers (I8)
+    else:
+        online = bool(os.environ.get("ANTHROPIC_API_KEY")) and _last_failure is None
+    return {"online": online, "demo": demo, "forced_offline": forced}
 
 
 def demo_mode() -> bool:
-    return os.environ.get("DEMO", "") not in ("", "0", "false", "False")
+    return _truthy(os.environ.get("DEMO", ""))
 
 
 def model() -> str:
@@ -118,6 +160,8 @@ def ask_bucket(bucket: Bucket, topics: Iterable[Topic]) -> list[Fact]:
     if stray:
         raise ValueError(f"topics outside bucket {bucket.id}: {stray}")
 
+    if offline():
+        raise CloudUnavailable("offline mode")
     if demo_mode():
         cache = load_cache()
         source = f"cloud-cache:{bucket.version}"
@@ -126,6 +170,7 @@ def ask_bucket(bucket: Bucket, topics: Iterable[Topic]) -> list[Fact]:
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
         raise CloudUnavailable("ANTHROPIC_API_KEY not set")
+    global _last_failure
     facts: list[Fact] = []
     source = f"cloud:{model()}"
     try:
@@ -135,7 +180,9 @@ def ask_bucket(bucket: Bucket, topics: Iterable[Topic]) -> list[Fact]:
                 if text.strip():
                     facts.append(_fact(t.key, text, source))
     except httpx.HTTPError as e:
+        _last_failure = type(e).__name__
         raise CloudUnavailable(f"cloud call failed: {type(e).__name__}") from e
+    _last_failure = None
     return facts
 
 
