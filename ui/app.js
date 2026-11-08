@@ -70,6 +70,7 @@ const LEDGER_KINDS = {
 };
 const SEV_LEVEL = { high: 3, medium: 2, low: 1 };
 const LAB_NAMES = { egfr: "eGFR", alt: "ALT", ast: "AST", ck: "CK", ldl: "LDL", inr: "INR" };
+const NOT_ASSESSED = /^(not_assessed|indeterminate|unknown|no_call)$/i;
 
 function formatBytes(n) {
   if (n < 1024) return `${n} B`;
@@ -222,6 +223,12 @@ function renderProfile(p) {
   const genes = plist(Object.entries(p.genotypes).map(([gene, gt]) => {
     const pheno = p.phenotypes[gene] || "";
     // Status colors (red / green) always sit next to the words, never instead of them.
+    // "Not assessed" (D-021: e.g. CYP2D6 can't be called from SNP data) is neutral: no result, not a bad one.
+    if (NOT_ASSESSED.test(pheno) || NOT_ASSESSED.test(gt)) {
+      return el("li", { title: "This kind of test can't read this gene reliably, so no result is shown." },
+        el("span", { class: "k" }, gene),
+        el("span", { class: "v hot na" }, "not assessed"));
+    }
     const notable = pheno && !/^(normal|reference)/.test(pheno);
     return el("li", {}, el("span", { class: "k" }, gene, el("code", {}, gt)),
       el("span", { class: notable ? "v hot bad" : "v hot good" }, humanize(pheno)));
@@ -299,7 +306,22 @@ function renderFlags(data) {
     : [el("strong", { class: "count good" }, "No flags"),
        " from the local tables. A missing entry is not the same as no interaction; ask your pharmacist."]));
   $("flags").replaceChildren(...data.flags.map(flagRow));
+  $("notes").replaceChildren(...noteItems(data.notes || []));
   markFlaggedLabs(data.flags);
+}
+
+// Expected combinations (D-021), e.g. aspirin + clopidogrel after a stent: information, never a warning.
+// Neutral styling on purpose: no red, no severity, labeled "For information".
+function noteItems(notes) {
+  return notes.map((n) => el("li", { class: "info-note", title: n.source ? `Source: ${n.source}` : null },
+    el("span", { class: "info-mark", "aria-hidden": "true" }, "i"),
+    el("span", {},
+      el("span", { class: "info-label" }, `For information · ${flagTitle(n.key)}`),
+      el("span", { class: "info-text" }, n.text))));
+}
+
+function noteList(notes) {
+  return el("ul", { class: "notes" }, noteItems(notes));
 }
 
 async function onCheck(ev) {
@@ -323,6 +345,7 @@ async function onCheck(ev) {
       out.querySelector(".index").style.opacity = 1;
       out.querySelector(".index").style.transform = "none";
     }
+    if (data.notes?.length) out.append(noteList(data.notes));
     input.value = "";
   } catch (err) {
     out.replaceChildren(el("p", { class: "note" }, `Check failed: ${err.message}`));

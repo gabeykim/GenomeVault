@@ -20,6 +20,12 @@ DEMO_NOTE = "Demo, not medical advice. All data is synthetic."
 CLOSING = ("GenomeVault prepares you for this conversation; it never tells you to start or stop a "
            "medication.")
 _ORDER = {"high": 0, "medium": 1, "low": 2}
+_NOT_ASSESSED = {"not_assessed", "indeterminate", "unknown", "no_call"}
+
+
+def not_assessed(value: str | None) -> bool:
+    """A gene this kind of test can't call (D-021: CYP2D6 from SNP data). Neutral, never 'notable'."""
+    return (value or "").strip().lower() in _NOT_ASSESSED
 CONDITION_NAMES = {
     "CAD_post_stent": "Coronary artery disease, post-stent",
     "hypertension": "High blood pressure",
@@ -125,12 +131,16 @@ def pharmacist_draft(flags: list[Flag], profile: Profile) -> str:
 # ---------- visit summary ----------
 
 def visit_summary(flags: list[Flag], profile: Profile, questions: list[str] | None = None,
-                  today: date | None = None) -> dict:
-    """A one-page summary to print or show at a visit. Returns {title, prepared, note, sections}."""
+                  today: date | None = None, notes: list[dict] | None = None) -> dict:
+    """A one-page summary to print or show at a visit. Returns {title, prepared, note, sections}.
+    `notes` are A's informational expected-combination notes (D-021), shown as information only."""
     today = today or date.today()
     genes = []
     for g in sorted(profile.genotypes):
         ph = profile.phenotypes.get(g, "")
+        if not_assessed(ph) or not_assessed(profile.genotypes[g]):
+            genes.append(f"{g}: not assessed by this test")   # D-021: no result, not a bad one
+            continue
         notable = ph and not ph.startswith(("normal", "reference"))
         genes.append(f"{g} {profile.genotypes[g]}: {_human(ph)}" + (" (notable)" if notable else ""))
     labs = []
@@ -153,6 +163,9 @@ def visit_summary(flags: list[Flag], profile: Profile, questions: list[str] | No
          "items": [f"{f.id} ({f.severity}): {question_for(f, profile)}" for f in _sorted(flags)]
                   or ["No flags from the local tables."]},
     ]
+    info = [guard(n.get("text", "")) for n in (notes or []) if guard(n.get("text", ""))]
+    if info:
+        sections.append({"heading": "For information (not a warning)", "items": info})
     asked = [guard(q) for q in (questions or []) if guard(q)]
     if asked:
         sections.append({"heading": "Questions I asked GenomeVault", "items": asked})

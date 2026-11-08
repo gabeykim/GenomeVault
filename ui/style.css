@@ -459,3 +459,18 @@ body.ready .check-result .row { animation-delay: calc(var(--i, 0) * 80ms); }
 .chip.good { border-color: var(--good); color: var(--good); }
 .chip.warn { border-color: var(--warn); color: var(--warn); background: none; }
 .outq li.mine .oq-tag { color: var(--good-on-ink); }
+
+/* ---------- informational notes (D-021): neutral, never a warning ---------- */
+.notes { list-style: none; margin: -8px 0 24px; padding: 0; }
+.notes:empty { display: none; }
+.info-note { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.info-mark {
+  width: 18px; height: 18px; border: 1px solid var(--mute); border-radius: 50%; color: var(--mute);
+  font: italic 600 11px/16px Georgia, serif; text-align: center;
+}
+.info-label { display: block; font-size: 12px; color: var(--mute); margin-bottom: 2px; }
+.info-text { font-size: 14px; color: var(--ink); max-width: 620px; display: block; }
+#check-result .notes { margin-top: 12px; }
+.plist .v.hot.na { color: var(--mute); }
+.plist .v.hot.na::before { background: none; border: 1px solid var(--mute); width: 5px; height: 5px; }
+@media (max-width: 640px) { .info-note { grid-template-columns: 30px minmax(0, 1fr); } }

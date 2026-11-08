@@ -51,7 +51,8 @@ def test_outbound_endpoint_shape():
 
 def test_status_reports_extras():
     extras = client.get("/api/status").json()["extras"]
-    assert set(extras) == {"ledger.outbound", "kb.stats", "generalize.generalize"}
+    assert set(extras) == {"ledger.outbound", "kb.stats", "generalize.generalize",
+                           "rules.expected_notes", "rules.expected_notes_all"}
 
 
 def test_learned_is_null_without_kb_and_counts_with_it():

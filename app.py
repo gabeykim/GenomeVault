@@ -24,7 +24,7 @@ from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from core import actions, interfaces
+from core import actions, interfaces, merge
 from core.contracts import Answer, Drug, Fact, Flag, LedgerEntry, Profile
 
 ROOT = Path(__file__).resolve().parent
@@ -103,6 +103,8 @@ def _optional(module: str, attr: str) -> Optional[Callable]:
 ledger_outbound = _optional("ledger", "outbound")
 kb_stats = _optional("kb", "stats")
 generalize_flag = _optional("generalize", "generalize")
+expected_notes_all = _optional("rules", "expected_notes_all")   # A, D-021: informational, never a Flag
+expected_notes = _optional("rules", "expected_notes")
 
 
 def _note(kind: str, bytes_out: int = 0, bucket_id: Optional[str] = None) -> None:
@@ -122,6 +124,16 @@ def _flags_for(drugs: list[Drug], profile: Profile) -> list[Flag]:
         for flag in check(drug, profile):
             seen.setdefault(flag.key, flag)
     return sorted(seen.values(), key=lambda f: (f.id, f.key))
+
+
+def _notes(raw: list[dict]) -> list[dict]:
+    """Expected-combination notes from A (D-021): one per key, text passed through the I7 guard."""
+    out: dict[str, dict] = {}
+    for n in raw:
+        text = merge.guard(n.get("text", ""))
+        if text and n.get("key") not in out:
+            out[n.get("key")] = {"id": n.get("id"), "key": n.get("key"), "text": text, "source": n.get("source", "")}
+    return list(out.values())
 
 
 def tier_label(fact: Fact) -> str:
@@ -168,7 +180,8 @@ def flags() -> dict:
     loads this on every visit, and nothing leaves (keeps the ledger to things the user did)."""
     p = load_profile()
     result = _flags_for(p.meds, p)
-    return {"checked": [d.ingredient for d in p.meds], "flags": [f.model_dump() for f in result]}
+    return {"checked": [d.ingredient for d in p.meds], "flags": [f.model_dump() for f in result],
+            "notes": _notes(expected_notes_all(p) if expected_notes_all else [])}
 
 
 @app.post("/api/check")
@@ -178,8 +191,9 @@ def check_drug(body: CheckIn) -> dict:
     drugs = to_ingredients(body.text)
     result = _flags_for(drugs, p)
     _note("local_only")
+    notes = [n for d in drugs for n in (expected_notes(d, p) if expected_notes else [])]
     return {"input": body.text, "drugs": [d.model_dump() for d in drugs],
-            "flags": [f.model_dump() for f in result]}
+            "flags": [f.model_dump() for f in result], "notes": _notes(notes)}
 
 
 @app.post("/api/ask")
@@ -251,7 +265,8 @@ def pharmacist() -> dict:
 @app.get("/api/actions/summary")
 def summary() -> dict:
     flags_now, p = _current()
-    s = actions.visit_summary(flags_now, p, list(_asked))
+    s = actions.visit_summary(flags_now, p, list(_asked),
+                              notes=_notes(expected_notes_all(p) if expected_notes_all else []))
     return {**s, "text": actions.summary_text(s)}
 
 
