@@ -24,7 +24,7 @@ def test_pantoprazole_never_borrows_omeprazole():   # I4, S6
 
 
 def test_hybrid_sends_no_personal_fields():         # E3, I3
-    m = latency_cost.run(write=False)["modes"]
+    m = latency_cost.run(write=False, live=False)["modes"]
     assert m["hybrid"]["personal_fields_sent"] == 0 < m["cloud_only"]["personal_fields_sent"]
     assert m["hybrid"]["cloud_calls"] < m["cloud_only"]["cloud_calls"]
     assert m["local_only"]["cloud_calls"] == 0

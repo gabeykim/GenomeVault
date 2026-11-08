@@ -10,7 +10,7 @@ import datetime as dt
 import json
 import os
 
-from eval import latency_cost, learning_curve, offline, redteam
+from eval import latency_cost, learning_curve, offline, redteam, wording
 from eval.backends import BYTES_PER_BUCKET, MS, TOKENS, LiveBackend
 from eval.universe import ROOT
 
@@ -21,7 +21,7 @@ def pct(x: float) -> str:
     return f"{x * 100:.0f}%"
 
 
-def write_results(rt: dict, lc: dict, lat: dict, off: dict) -> str:
+def write_results(rt: dict, lc: dict, lat: dict, off: dict, wd: dict | None = None) -> str:
     st, j, bd = rt["single_topic"], rt["joint"], rt["bucket_design"]
     live = lc["backend"].startswith("live")
     L = []
@@ -112,11 +112,39 @@ def write_results(rt: dict, lc: dict, lat: dict, off: dict) -> str:
              f"{BYTES_PER_BUCKET} bytes per bucket). Coverage is the share of questions reaching their expected answer state, "
              f"not graded quality: {lat['quality']}. Note the honest trade-off: hybrid makes far fewer calls, but each bucket carries 8 "
              "questions, so token savings are smaller than call savings.\n")
+    lv = lat.get("live")
+    if lv:
+        nd, dd = lv["no_delay"], lv["default_delay"]
+        L.append(f"**Live hybrid ({nd['backend']}).** No delays: median {nd['median_latency_ms']:.0f} ms per question"
+                 + (f", {nd['median_latency_ms_when_sent']:.0f} ms when buckets are sent" if nd["median_latency_ms_when_sent"] is not None else "")
+                 + f"; {nd['cloud_calls']} cloud calls, {nd['bytes_out']:,} bytes, {nd['personal_fields_sent']} personal fields.")
+        if isinstance(dd, dict):
+            L.append(f" With B's default P6.4 delays (`GV_DELAY_S={dd['GV_DELAY_S']}`): median {dd['median_latency_ms']:.0f} ms"
+                     + (f", {dd['median_latency_ms_when_sent']:.0f} ms when sent" if dd["median_latency_ms_when_sent"] is not None else "")
+                     + f"; the whole script took {dd['wall_s']:.0f} s vs {nd['wall_s']:.1f} s.")
+        else:
+            L.append(f" With delays: {dd}.")
+        L.append(" Demo mode replays the cache, so these times exclude real cloud round trips.\n")
     L.append("## E4 · Offline\n")
     L.append("![offline](charts/offline.svg)\n")
     L.append(f"Wi-Fi off: **{off['cold_answered']}/20** answered with content on a cold device, **{off['warm_answered']}/20** after one "
              f"online session{', **' + str(off['synced_answered']) + '/20** after a full knowledge-pack sync (B-010)' if off.get('synced_answered') is not None else ''}. Every other question gets an honest \"no data for this combination; ask your pharmacist\" "
              f"({off['matches_offline_state_cold']}/20 cold answers match the predicted state). Nothing is sent offline.\n")
+    L.append("## I7 wording filter red team\n")
+    if wd and wd.get("status") == "ran":
+        L.append(f"D's adversarial cases (`eval/fixtures/wording_cases.json`) against B's `wording_problems` (B-013): "
+                 f"**{wd['caught']}/{wd['should_reject']}** texts that break I7 were rejected; "
+                 f"{wd['false_alarms']}/{wd['should_accept']} neutral texts were wrongly rejected "
+                 f"(plus {wd['by_design_rejected']} rejected by design for containing the four letters s-a-f-e).\n")
+        L.append("| Family | Caught |")
+        L.append("| --- | --- |")
+        for fam, v in wd["by_family"].items():
+            L.append(f"| {fam.replace('_', ' ')} | {v['caught']}/{v['of']} |")
+        L.append("\nThese are hand-written adversarial texts, not measured cloud output: they show where the last-line filter "
+                 "has gaps, not how often real answers fall into them. A miss would let an answer that breaks I7 become a "
+                 "stored fact; a false alarm only turns that key into `no_data`.\n")
+    else:
+        L.append(f"Not run: {(wd or {}).get('status', 'not requested')}. It runs once B's validator is in the build.\n")
     L.append("## Method and limits\n")
     L.append("- Synthetic priors, domains and clusters: `eval/fixtures/universe_v1.json` (illustrative, not real prescription data).\n"
              "- Attackers see only outbound traffic plus public knowledge (partition, priors, clusters, cover rate).\n"
@@ -131,8 +159,9 @@ def main():
     lc = learning_curve.run(be)
     lat = latency_cost.run()
     off = offline.run()
+    wd = wording.run()
     DOCS.mkdir(exist_ok=True)
-    (DOCS / "results.md").write_text(write_results(rt, lc, lat, off))
+    (DOCS / "results.md").write_text(write_results(rt, lc, lat, off, wd))
     print(f"wrote docs/results.md and docs/charts/*.svg (partition {rt['partition']}, backend {lc['backend']})")
 
 

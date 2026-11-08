@@ -65,6 +65,10 @@ Latency and tokens are **modelled** (constants: {"rules": 5, "kb": 20, "local_ll
 
 Wi-Fi off: **10/20** answered with content on a cold device, **18/20** after one online session, **18/20** after a full knowledge-pack sync (B-010). Every other question gets an honest "no data for this combination; ask your pharmacist" (20/20 cold answers match the predicted state). Nothing is sent offline.
 
+## I7 wording filter red team
+
+Not run: skipped: core.validator.wording_problems not in this build (B-013, PR #2). It runs once B's validator is in the build.
+
 ## Method and limits
 
 - Synthetic priors, domains and clusters: `eval/fixtures/universe_v1.json` (illustrative, not real prescription data).

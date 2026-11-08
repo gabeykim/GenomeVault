@@ -2,6 +2,8 @@
 
 The app has four tabs (C-009): Medications (S3, S6 ibuprofen), Ask (S4, S6 Q19/Q07), Actions (S6), My data (S2). The ledger stays on the right. Chips show the question text only (no Q-numbers), still exactly the texts in `eval/queries.json`. Screenshots from before C-009/C-010 are out of date.
 
+Live delays: keep demo mode for the stage run. With B's default P6.4 delays (`GV_DELAY_S=0.3,2.0`), each bucket is 8 requests paused one after another, so a question that sends buckets took a median of 18.8 s on the merged build (D-008); demo mode defaults to no delay.
+
 Stage rules: pre-load everything, keep the demo-mode toggle ready (I8: the full demo runs with no network), and never improvise a question. Every question below is in `eval/queries.json`, so the eval has measured it.
 
 | Beat | Time | Say | Do / show | Query |

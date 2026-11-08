@@ -48,11 +48,14 @@ def test_topic_keys_hold_nothing_personal():
             assert ">" not in t and "<" not in t and ":" not in t, t
 
 
-def test_never_safe_never_start_stop():                     # I7
+def test_never_safe_never_start_stop():                     # I7, same blunt rule as B's check_wording (B-013)
+    import re
+    instruction = re.compile(r"(?:^|[.!?;]\s+)(?:do\s+not|don't|never|please)?\s*(?:stop|start|change|switch|take|avoid)\b", re.I)
     for q in QUERIES:
-        r = q["reference"].lower()
-        assert " safe" not in f" {r}", q["id"]
-        assert "stop taking" not in r and "start taking" not in r, q["id"]
+        r = q["reference"]
+        assert not re.search(r"[a-z]*safe[a-z]*", r, re.I), q["id"]
+        assert not instruction.search(r), q["id"]
+        assert "stop taking" not in r.lower() and "start taking" not in r.lower(), q["id"]
 
 
 def test_demo_beats_covered():
