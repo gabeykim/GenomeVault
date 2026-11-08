@@ -15,11 +15,12 @@ from core.decoys import load_buckets
 from core.graph import load_profile
 from core.validator import _key_drugs, check_outbound
 
-pytestmark = pytest.mark.skipif(
-    not (app_module.MODES.get("router.route") == "real" and not app_module.LEDGER_IS_MOCK
-         and app_module.sync_pack is not None),
-    reason="needs B's router, ledger and sync_pack merged into the app",
-)
+def test_app_uses_real_router_ledger_and_pack():
+    # Real on main since D-032; fail loudly instead of skipping if the app falls back.
+    assert app_module.MODES.get("router.route") == "real"
+    assert not getattr(app_module, "LEDGER_IS_MOCK", False)
+    assert app_module.sync_pack is not None
+
 
 client = TestClient(app_module.app)
 

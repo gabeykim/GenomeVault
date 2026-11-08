@@ -14,10 +14,13 @@ from core.decoys import load_buckets
 from core.graph import load_profile
 from core.validator import _key_drugs, check_outbound, wording_problems
 
-pytestmark = pytest.mark.skipif(
-    not (app_module.MODES.get("router.route") == "real" and not app_module.LEDGER_IS_MOCK),
-    reason="needs B's router and ledger merged into the app",
-)
+def test_app_uses_real_router_and_ledger():
+    # PR #2 + #3 are on main (D-032): a silent skip here would hide a regression to stand-ins.
+    # LEDGER_IS_MOCK is read with getattr because C may drop it (PR #8 keeps it as False).
+    assert app_module.MODES.get("router.route") == "real"
+    assert not getattr(app_module, "LEDGER_IS_MOCK", False)
+    assert "mock" not in app_module.MODES.values()
+
 
 client = TestClient(app_module.app)
 
