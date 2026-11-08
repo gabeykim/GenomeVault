@@ -131,3 +131,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S3 (severity readable at a glance), S4 (green 0 personal fields)
 - **Tests:** C alone → exit 0 (55 passed, 3 skipped); A+B+C+D merged → exit 0 (409 passed). Checked in the browser, no console errors.
 - **Next:** dedupe flags by key so all four X5 flags show (A's 20261108-1359 request) before G1, then queue 7
+
+### C-011 · 2026-11-08 14:14 · commit `2a00181` · PLAN v1.1
+
+- **Change:** `app._flags_for` now dedupes by `flag.key`, not `flag.id`, and sorts by `(id, key)`. Typing "ibuprofen" shows all four X5 flags: `aspirin|ibuprofen`, `clopidogrel|ibuprofen`, `ibuprofen|egfr<60`, `ibuprofen|lisinopril`. Before, it showed only the eGFR flag and hid both bleeding-risk pairs. Changes that follow from shared ids: reminders and merge's "Separately" line name an id once; labs match the profile case-insensitively (key token `egfr` matches `eGFR`), with the key's own lab listed first; drug-class questions read "aspirin 81 mg and ibuprofen"; flag titles show "eGFR < 60". Added `tests/C/test_shared_ids.py` (5 tests) using A's exact X5 flags.
+- **Why:** Bug reported by A (20261108-1359) and D (20261108-1405).
+- **Class:** Advances
+- **Plan:** advances F3 view, M9, M10, S6
+- **Refinements:** a finding id can span several keys; the UI shows one row per key, all labeled with the same id.
+- **Contract impact:** none
+- **Affects:** A: none. D: the S6 ibuprofen check now shows four X5 rows → the script can name the bleeding-risk pairs.
+- **Demo impact:** S6 (offline ibuprofen shows the full X5)
+- **Tests:** C alone → `make test` exit 0 (60 passed, 3 skipped). origin/main + A + B + C + D merged → exit 0, 550 passed. With A's real `rules.check`, `POST /api/check ibuprofen` → 4 X5 flags, and current meds still give X1–X4. Checked by hand in the merged UI.
+- **Next:** queue 7 (offline badge + Wi-Fi-off toggle), cover traffic at startup (G3), then 5 (`phone/`)
