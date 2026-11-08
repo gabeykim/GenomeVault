@@ -231,3 +231,20 @@ def test_unrelated_cloud_flag_already_in_kb_is_not_quoted():
 def test_question_naming_no_drug_still_uses_every_flag():
     a = router.route("Anything I should ask my pharmacist about?", [X1, X3])
     assert a.state == "known" and [f.key for f in a.facts] == [X1.key]
+
+
+# Answer order: the pair the question names comes first (C, 20261108-1510) --------------------------
+
+def test_asked_pair_leads_the_answer(cache_all):
+    # Q07: X1 (clopidogrel) covers the question, but the user asked about pantoprazole with clopidogrel.
+    a = router.route("Can I take pantoprazole with clopidogrel instead?", [X1])
+    assert a.state == "known"
+    keys = [f.key for f in a.facts]
+    assert keys[0] == "clopidogrel|pantoprazole" and X1.key in keys
+    assert a.text.startswith(a.facts[0].text)
+
+
+def test_order_only_flags_first_when_no_pair_is_named(cache_all):
+    # No pair named: the flag's own key still leads, as before.
+    a = router.route("Does my genetics change how clopidogrel works for me?", [X1])
+    assert [f.key for f in a.facts][0] == X1.key

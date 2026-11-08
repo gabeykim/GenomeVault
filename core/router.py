@@ -258,7 +258,11 @@ def route(question: str, flags: list[Flag]) -> Answer:
             if f.key in missing:
                 found[f.key] = f
 
-    facts = [found[k] for k in wanted if k in found]
+    # Lead with the pair the user asked about ("pantoprazole with clopidogrel"), then the flags' context
+    # and the other subject keys in their usual order. Order only: what was sent is unchanged.
+    pairs = set(_question_keys(question))
+    order = [k for k in wanted if k in pairs] + [k for k in wanted if k not in pairs]
+    facts = [found[k] for k in order if k in found]
     if not facts:
         if flag_covers and not any(k not in found for k in open_keys):
             return Answer(state="known", text=LOCAL_TEXT, facts=[], sent_to_cloud=sent)
