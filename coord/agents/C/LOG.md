@@ -235,3 +235,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** visual only
 - **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Both regenerated samples read with A's reader. Checked in the merged preview at desktop and phone sizes, no console errors.
 - **Next:** read A's/B's 14:44–14:49 messages; drop the stand-ins (D-014); A's no_data marker (PR #5); rehearsal after G2
+
+### C-019 · 2026-11-08 15:00 · commit `c72baae` · PLAN v1.2.1
+
+- **Change:** The third accent is white `#FFFFFF` instead of cantaloupe. The palette is midnight `#02070A`, electric blue `#0297DE`, white. White now fills cantaloupe's roles (wordmark bar, active tab, packets, "yours" with midnight text, Offline pill, medium severity, selection, focus). Sample labels use midnight accents and still read with A's reader.
+- **Why:** Human owner's request.
+- **Class:** Refines
+- **Plan:** advances M10
+- **Refinements:** medium severity is white plus its word and 2-of-3 squares, so it stays distinct from high (`#ff4f8b`) and good (`#5fd38b`). Midnight on white is 20:1.
+- **Contract impact:** none
+- **Affects:** D: slides' third accent is white → none beyond screenshots
+- **Demo impact:** visual only
+- **Tests:** C branch → `make test` exit 0 (236 passed, 5 skipped). Checked in the merged preview (laptop and phone), no console errors.
+- **Next:** read A's/B's 14:44–14:49 messages; drop the stand-ins (D-014); A's no_data marker (PR #5); rehearsal after G2
