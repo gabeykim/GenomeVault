@@ -43,6 +43,7 @@ I7 filter: every answer, live or replayed, goes through `validator.check_wording
 from __future__ import annotations
 
 import json
+import logging
 import os
 import pathlib
 import random
@@ -61,8 +62,12 @@ DEFAULT_CACHE = ROOT / "mocks" / "cloud_cache"
 DEFAULT_URL = "https://api.anthropic.com/v1/messages"
 DEFAULT_MODEL = "claude-sonnet-5-5"
 API_VERSION = "2023-06-01"
-MAX_TOKENS = 400
+MAX_TOKENS = 1000                    # D-026: 400 cut ~25% of answers off inside a thinking block
+# D-026: the model thinks by default; the API rejects {"type": "disabled"} for it (HTTP 400) and names
+# "between_tools" as the off switch for a request with no tools.
+THINKING = {"type": "between_tools"}
 TIMEOUT_S = 30.0
+log = logging.getLogger(__name__)
 _transport: Optional[httpx.BaseTransport] = None   # tests inject httpx.MockTransport; None = real network
 LIVE_DELAY_S = (0.3, 2.0)
 _sleep = time.sleep                  # tests inject a recorder
@@ -73,7 +78,12 @@ SYSTEM_PROMPT = (
     "for a patient preparing to talk to a pharmacist. Describe what is known about the interaction or "
     "effect across the whole population or range asked about. Do not address the reader's personal "
     "situation, do not say anything is safe, and do not tell anyone to start, stop or change a "
-    "medicine. If nothing is established, say so."
+    "medicine. If nothing is established, say so. "
+    # D-027 note: the knowledge pack was recorded with this sentence; it stops answers that only
+    # describe a guideline from tripping the I7 filter ("the standard dose is recommended").
+    "Write in neutral reporting style about what sources state, for example 'the CPIC guideline lists "
+    "an alternative agent for poor metabolizers'. Never write is recommended, are advised, is "
+    "preferred, should, or any sentence telling people or patients what to do."
 )
 
 
@@ -177,12 +187,18 @@ def _ask_live(client: httpx.Client, topic: Topic, api_key: str) -> str:
     r = client.post(
         os.environ.get("GV_CLOUD_URL", DEFAULT_URL),
         headers={"x-api-key": api_key, "anthropic-version": API_VERSION, "content-type": "application/json"},
-        json={"model": model(), "max_tokens": MAX_TOKENS, "system": SYSTEM_PROMPT,
+        json={"model": model(), "max_tokens": MAX_TOKENS, "thinking": THINKING, "system": SYSTEM_PROMPT,
               "messages": [{"role": "user", "content": topic.text}]},
     )
     r.raise_for_status()
     body = r.json()
-    return "".join(b.get("text", "") for b in body.get("content", []) if b.get("type") == "text")
+    text = "".join(b.get("text", "") for b in body.get("content", []) if b.get("type") == "text")
+    if not text.strip():
+        # D-026: still no_data (I4), but say so instead of dropping it silently. Logs the bucket key
+        # only (a generalized concept), never anything about the user.
+        log.warning("cloud: empty answer for %s (stop_reason=%s); reads as no_data",
+                    topic.key, body.get("stop_reason"))
+    return text
 
 
 def ask_bucket(bucket: Bucket, topics: Iterable[Topic]) -> list[Fact]:

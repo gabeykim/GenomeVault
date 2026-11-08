@@ -151,6 +151,41 @@ def test_system_prompt_respects_I7():
     assert "do not say anything is safe" in p and "start, stop" in p
 
 
+def test_live_request_turns_thinking_off_and_has_room_to_answer(monkeypatch):
+    """D-026: thinking off via `between_tools` (the API rejects `disabled`), 1000 output tokens."""
+    rec = Recorder()
+    monkeypatch.setattr(cloud, "_transport", httpx.MockTransport(rec))
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    b = _bucket()
+    cloud.ask_bucket(b, _topics(b)[:1])
+    body = json.loads(rec.requests[0].content)
+    assert body["thinking"] == {"type": "between_tools"}
+    assert body["max_tokens"] == 1000
+
+
+def test_empty_max_tokens_reply_is_logged_not_silent(monkeypatch, caplog):
+    """D-026: a reply holding only an empty thinking block reads as no_data (I4) and is logged."""
+    def thinking_only(request):
+        return httpx.Response(200, json={"content": [{"type": "thinking", "thinking": ""}],
+                                         "stop_reason": "max_tokens"})
+    monkeypatch.setattr(cloud, "_transport", httpx.MockTransport(thinking_only))
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    b = _bucket()
+    t = _topics(b)[0]
+    with caplog.at_level("WARNING", logger="core.cloud"):
+        facts = cloud.ask_bucket(b, [t])
+    assert facts == []
+    msgs = [r.getMessage() for r in caplog.records if r.name == "core.cloud"]
+    assert len(msgs) == 1 and t.key in msgs[0] and "max_tokens" in msgs[0]
+
+
+def test_system_prompt_asks_for_neutral_reporting_style():
+    """D-027 note: the pack was recorded with this sentence so guideline descriptions pass I7."""
+    p = cloud.SYSTEM_PROMPT
+    assert "neutral reporting style" in p
+    assert "Never write is recommended, are advised, is preferred, should" in p
+
+
 def test_only_topics_accepted_no_profile_parameter():
     import inspect
     assert list(inspect.signature(cloud.ask_bucket).parameters) == ["bucket", "topics"]
