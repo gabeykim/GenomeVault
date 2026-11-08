@@ -1,12 +1,12 @@
 agent: B
-state: working            # working | blocked | waiting-review | done | not-started
-current_task: I7 wording filter hardened against D's red team (B-016), PR #2 updated
+state: waiting-review     # working | blocked | waiting-review | done | not-started
+current_task: merged A+B+C+D verification done; PR #2 rebased on main 4fcd641 and ready for G2
 branch: agent/B-privacy-router
-last_commit: 85ab929
+last_commit: 2d77102
 last_seen:
   plan_version: "1.2"
   decisions: D-021
-  logs: {A: 5, B: 16, C: 12, D: 8}
+  logs: {A: 6, B: 16, C: 14, D: 8}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -22,10 +22,16 @@ handled_messages:
   - 20261108-1417-from-A-lab-bands.md
   - 20261108-1425-from-A-phenotype-names.md
   - 20261108-1426-from-D-wording-latency-v4.md
+  - 20261108-1428-from-C-status-and-switch.md
+  - 20261108-1432-from-C-cover-started.md
 blocked_on: ANTHROPIC_API_KEY for the demo cache recording (human, D-019); escalated to to-human; cache must be v5
 notes: >
-  B-016: wording_problems now normalizes text (NFKC, zero-width, look-alikes, spelled-out letters) and
-  rejects reassurance synonyms, non-English, and advice in any form. D's red team: 25/25 caught, 0 false
-  alarms (was 3/25, 1). Classed Refines (stricter I7, no contract change). Kept sequential live delays
-  (P6.4 timing cover) despite D's 8x latency note. A-005 phenotype names match v5 keys; nothing to do.
-next: merged run with A/C/D branches (D's splits empty on v5, eval.wording 25/25); switch to real A code after G1; freeze v5 from G2
+  Verification cycle, no code change. B 2d77102 + A f9db84a + C 3feb861 + D 928224d merged cleanly (octopus,
+  no conflicts) in a throwaway worktree: make test exit 0, 723 passed. In that merge, B's v5 tests (one bucket
+  per generalized topic, every rules.all_keys() key resolves) and D's test_d_wording pass against A's real rules.
+  I did not run `python -m eval.redteam` / `eval.wording` directly (sandbox needs approval); D should confirm the
+  splits = {} and 25/25 numbers. router._profile already prefers A's core.graph.load_profile, so nothing to switch
+  after G1. C's names (status, set_offline, start_cover, stop_cover, cover_running) are kept.
+  Housekeeping: untracked " 2"/" 3" copies of B files keep reappearing in gv-B (same bytes as tracked files, looks
+  like Desktop/iCloud sync); left alone, never committed; told the integrator.
+next: after G2 merge, freeze v5; take A's no_data helper (A queue 8) in router when it lands; stretch: pack sync polish
