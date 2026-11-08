@@ -2,7 +2,7 @@ agent: C
 state: working            # working | blocked | waiting-review | done | not-started
 current_task: C-024 pushed (mock fallbacks dropped) on PR #8; next G3 rehearsal
 branch: agent/C-app-ui
-last_commit: 4ab163f
+last_commit: ff5a93c
 last_seen:
   plan_version: "1.3.1"
   decisions: D-032
@@ -47,5 +47,8 @@ handled_messages:
   - 20261108-1523-from-A-warning-lines.md
   - 20261108-1534-from-A-label-set-pinned.md
   - 20261108-1535-from-integrator-g2-passed.md
+  - 20261108-1536-from-B-app-path-pinned.md
+  - 20261108-1537-from-A-app-real-path.md
+  - 20261108-1540-from-B-pack-path-pinned.md
 blocked_on: none
 next: PR #8 review; rehearsal x2 demo + x1 live by G3 17:30, timings to D
