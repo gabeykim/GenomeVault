@@ -39,8 +39,14 @@ class Result:
 
 
 def sendable(q: dict, part: Partition) -> list[str]:
-    """Topic keys of q that have a fixed bucket in this partition (the rest take the no-data path, I5)."""
-    return [t for t in q["topic_keys"] if part.bucket_for(t) is not None]
+    """Partition keys q would send: one per topic that has a fixed bucket (the rest take the no-data path, I5).
+    The exact local key picks the bucket when a topic's variants sit in different buckets."""
+    out = []
+    for local, topic in zip(q["keys"], q["topic_keys"]):
+        vk = part.view_key(local, topic)
+        if vk is not None and vk not in out:
+            out.append(vk)
+    return out
 
 
 def flagged(q: dict) -> bool:

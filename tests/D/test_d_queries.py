@@ -150,3 +150,42 @@ def test_expected_state_follows_loaded_partition(tmp_path):
     f.write_text(json.dumps(raw))
     part = load_partition(path=f)
     assert expected_state(q09, part) == "known" and SimBackend(part).ask(q09).cloud_calls == 1
+
+
+def test_priors_cover_every_key_in_bs_v2_and_v3_partitions():   # B-011, B-012
+    import json, pathlib
+    u = load_universe()
+    for name, n in (("b_v2_keys.json", 112), ("b_v3_keys.json", 136)):
+        keys = json.loads((pathlib.Path(__file__).parent / name).read_text())
+        assert len(keys) == n and all(generalize_key(k) in u.keys for k in keys), name
+
+
+def test_loader_follows_current_version_not_v1(tmp_path, monkeypatch):
+    import sys
+    from eval import universe
+    monkeypatch.setattr(universe, "BUCKET_DIR", tmp_path)
+    monkeypatch.setitem(sys.modules, "core.decoys", None)      # B's module absent: highest vN.json wins
+    for v in ("v1", "v2", "v10"):
+        (tmp_path / f"{v}.json").write_text("[]")
+    assert universe.current_real_buckets().name == "v10.json"
+    monkeypatch.setitem(sys.modules, "core.decoys", type(sys)("core.decoys"))
+    sys.modules["core.decoys"].CURRENT_VERSION = "v2"            # B's module present: its CURRENT_VERSION wins
+    assert universe.current_real_buckets().name == "v2.json"
+
+
+def test_phenotype_variants_in_different_buckets_are_reported(tmp_path):   # B-012 v3 shape
+    import json
+    from eval.backends import SimBackend
+    fixture = load_partition(prefer_real=False)
+    raw = [{"id": b.id, "keys": [_localize(k) for k in b.keys]} for b in fixture.buckets]
+    b_pm = fixture.bucket_for("CYP2C19|clopidogrel").id
+    other = next(b for b in raw if b["id"] != b_pm)
+    other["keys"][0] = "CYP2C19:intermediate_metabolizer|clopidogrel"     # a second variant, elsewhere
+    f = tmp_path / "v3.json"
+    f.write_text(json.dumps(raw))
+    part = load_partition(path=f)
+    assert sorted(part.splits["CYP2C19|clopidogrel"]) == sorted([b_pm, other["id"]])
+    q01 = next(q for q in QUERIES if q["id"] == "Q01")                  # Alex: poor metabolizer
+    be = SimBackend(part)
+    assert be.ask(q01).cloud_calls == 1
+    assert part.bucket_for(part.view_key(q01["keys"][0])).id == b_pm   # the PM variant's bucket, not the other

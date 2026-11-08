@@ -42,6 +42,13 @@ def write_results(rt: dict, lc: dict, lat: dict, off: dict) -> str:
         L.append(f"> **Coverage warning.** {ps['partition_keys_without_prior']} of {ps['raw_keys']} partition keys have no synthetic prior "
                  "and get the median. Synthetic patients only ask about keys with priors, which inflates the statistical attacker. "
                  "Extend `eval/fixtures/universe_v1.json` to every partition key before quoting E1 statistical numbers.\n")
+    if ps.get("phenotype_split_topics"):
+        fb = rt["single_topic"]["fixed_buckets"]
+        splits = "; ".join(f"`{g}` in {', '.join(ids)}" for g, ids in ps["phenotype_split_topics"].items())
+        L.append(f"> **Bucket-identity leak.** Phenotype variants of the same topic sit in different buckets ({splits}). "
+                 "Their outbound text is identical, but which bucket leaves tells an observer which variant applies, so "
+                 f"guessing the topic also reveals the genotype (I3). Measured: {pct(fb.get('phenotype_via_bucket', 0))} of "
+                 "synthetic patients. Keeping every variant of a topic in one bucket closes it.\n")
     if ps.get("raw_keys_with_phenotype"):
         L.append(f"> **Key detail.** {ps['raw_keys_with_phenotype']} of {ps['raw_keys']} partition keys name a phenotype and "
                  f"{ps['raw_keys_with_threshold_or_dose']} a lab threshold or dose. Evals measure generalized topics; whether those raw "

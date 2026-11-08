@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from core.interfaces import load_profile
 from eval.universe import LABS, Partition, Universe
 
-GENES = {"CYP2C19": ["*1/*1", "*1/*2", "*2/*2", "*1/*17"], "CYP2D6": ["*1/*1", "*1/*4", "*4/*4", "*1/*2xN"],
+GENES = {"CYP2C19": ["*1/*1", "*1/*2", "*2/*2", "*1/*17"], "CYP2D6": ["not_assessed"],   # D-021: SNP arrays cannot call CYP2D6
          "CYP2C9": ["*1/*1", "*1/*2", "*1/*3"], "SLCO1B1": ["*1/*1", "*1/*5", "*5/*5"], "VKORC1": ["reference", "-1639G>A het"]}
 
 

@@ -35,7 +35,8 @@ def bucket_design_report(part, u, priors) -> dict:
         stat += max(ps) / total
         rows.append({"bucket": b.id, "prior_mass": round(sum(ps) / total, 4), "top_key_share": round(max(ps) / sum(ps), 3),
                      "dominant_domain": dom, "dominant_domain_share": round(cnt / 8, 3)})
-    return {"stat_attacker_ceiling": round(stat, 4), "uniform_floor": 0.125, "buckets": rows}
+    return {"stat_attacker_ceiling": round(stat, 4), "uniform_floor": 0.125, "buckets": rows,
+            "phenotype_split_topics": part.splits}
 
 
 def run_single_topic(n: int, asks: int, seed: int, part, u, priors) -> dict:
@@ -59,6 +60,8 @@ def run_single_topic(n: int, asks: int, seed: int, part, u, priors) -> dict:
             m["domain"] += A.domain_guess(t, priors, u) == u.keys[real]["domain"]
             m["med_inferred"] += bool(gs) and all(d in p.meds for d in drugs_in(gs))
             m["genotype_leaked"] += A.attributes_recovered(t)["genotypes"]
+            # a topic whose phenotype variants sit in different buckets: guessing the topic also reveals the variant
+            m["phenotype_via_bucket"] += name.startswith("fixed") and gs == real and real in part.splits
         out[name] = {k: round(v / n, 3) for k, v in m.items()}
     dom_prior = Counter()
     for p in patients:

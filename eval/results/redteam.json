@@ -2,7 +2,7 @@
  "partition": "fixture:eval/fixtures/buckets_v1.json",
  "partition_version": "fixture-v1",
  "partition_stats": {},
- "universe": "eval-fixture-v2",
+ "universe": "eval-fixture-v4",
  "trials": 500,
  "asks": 3,
  "seed": 7,
@@ -13,28 +13,32 @@
    "statistical": 1.0,
    "domain": 1.0,
    "med_inferred": 1.0,
-   "genotype_leaked": 1.0
+   "genotype_leaked": 1.0,
+   "phenotype_via_bucket": 0.0
   },
   "random_decoys": {
    "intersection": 0.952,
    "statistical": 0.974,
    "domain": 0.978,
    "med_inferred": 0.98,
-   "genotype_leaked": 0.0
+   "genotype_leaked": 0.0,
+   "phenotype_via_bucket": 0.0
   },
   "random_decoys_1ask": {
    "intersection": 0.13,
    "statistical": 0.21,
    "domain": 0.406,
-   "med_inferred": 0.358,
-   "genotype_leaked": 0.0
+   "med_inferred": 0.37,
+   "genotype_leaked": 0.0,
+   "phenotype_via_bucket": 0.0
   },
   "fixed_buckets": {
    "intersection": 0.144,
    "statistical": 0.166,
    "domain": 0.328,
-   "med_inferred": 0.334,
-   "genotype_leaked": 0.0
+   "med_inferred": 0.386,
+   "genotype_leaked": 0.0,
+   "phenotype_via_bucket": 0.0
   },
   "_baselines": {
    "uniform_1_in_8": 0.125,
@@ -125,7 +129,8 @@
     "dominant_domain": "immuno",
     "dominant_domain_share": 0.25
    }
-  ]
+  ],
+  "phenotype_split_topics": {}
  },
  "llm": {
   "status": "not requested; pass --llm or set EVAL_LLM=1"
