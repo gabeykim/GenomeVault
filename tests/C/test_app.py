@@ -2,6 +2,7 @@
 import re
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 import app as app_module
@@ -54,13 +55,33 @@ def test_check_rejects_empty_input():
     assert client.post("/api/check", json={"text": ""}).status_code == 422
 
 
-def test_ask_returns_state_and_logs_to_ledger():
-    since = client.get("/api/ledger").json()["totals"]["count"]
+# Who writes the ledger: the app's mock until core/ledger.py exists, then B's router only.
+# Between B's ledger merging and B's router merging, nothing writes it, and that is correct.
+LEDGER_WRITER = ("app-mock" if app_module.LEDGER_IS_MOCK
+                 else "router" if app_module.MODES["router.route"] == "real" else None)
+needs_writer = pytest.mark.skipif(LEDGER_WRITER is None,
+                                  reason="real ledger, mock router: nothing writes the ledger yet")
+
+
+def test_ask_returns_a_state():
     a = client.post("/api/ask", json={"question": "What should I bring up with my cardiologist?"}).json()
     assert a["state"] in {"known", "none_listed", "no_data"}
     assert a["text"]
-    new = client.get(f"/api/ledger?since={since}").json()["entries"]
-    assert new, "every ask leaves a ledger entry"
+
+
+@needs_writer
+def test_every_ask_leaves_a_ledger_entry():
+    since = client.get("/api/ledger").json()["totals"]["count"]
+    client.post("/api/ask", json={"question": "What should I bring up with my cardiologist?"})
+    assert client.get(f"/api/ledger?since={since}").json()["entries"], "every ask leaves a ledger entry"
+
+
+def test_app_writes_no_ledger_entries_once_ledger_is_real():
+    if LEDGER_WRITER == "app-mock":
+        pytest.skip("mock ledger: the app is the writer")
+    before = client.get("/api/ledger").json()["totals"]["count"]
+    client.post("/api/check", json={"text": "aspirin"})   # local only: the router is not involved
+    assert client.get("/api/ledger").json()["totals"]["count"] == before
 
 
 def test_ledger_never_reports_personal_fields():
@@ -70,9 +91,11 @@ def test_ledger_never_reports_personal_fields():
     assert all(e["personal_fields_sent"] == 0 for e in led["entries"])
 
 
+@needs_writer
 def test_ledger_since_filters():
-    client.post("/api/check", json={"text": "aspirin"})
+    client.post("/api/ask", json={"question": "Anything about aspirin?"})
     total = client.get("/api/ledger").json()["totals"]["count"]
+    assert total >= 1
     assert client.get(f"/api/ledger?since={total}").json()["entries"] == []
     assert len(client.get(f"/api/ledger?since={total - 1}").json()["entries"]) == 1
 
