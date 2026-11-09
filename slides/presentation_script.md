@@ -1,10 +1,10 @@
 # Presentation script, word for word, start to finish (live demo)
 
-The stage run: team intro, slides and the live demo, about 4:45, then questions. Words in quotes are spoken. *Italics* are actions. **[Slide N]** is on the projector; **[App]** means the laptop screen.
+The stage run: opening, slides and the live demo, about 4:25, then questions. Words in quotes are spoken. *Italics* are actions. **[Slide N]** is on the projector; **[App]** means the laptop screen.
 
 It matches the build as of PLAN v1.3.7 (D-043): typo-tolerant and paraphrased questions, answer-first lead lines and long-tail lookups are **on** for the demo. Every app line below was run through the merged build with those switches on (`scripts/demo_proof.py`: 28 pass, 0 fail, 1 skip for the live long-tail answer, which needs the demo machine's key). Every figure comes from G4 (`slides/numbers.md`).
 
-The lines are written for Kaitlyn as the main speaker. If someone else opens, they swap in their own "I'm…" line.
+One person can speak the whole run. Names come once, at the close (they are also on the cover slide); who built what comes up in the hand-off to questions.
 
 ## Before you go on stage (5 minutes earlier)
 
@@ -13,53 +13,44 @@ The lines are written for Kaitlyn as the main speaker. If someone else opens, th
 - **Sync the knowledge pack now**, off stage, and wait until it finishes. On stage you only mention it.
 - Scroll once past the full-screen GenomeVault title so the app sits on the **Medications** tab.
 - Deck open on slide 1. Have the backup video ready to play.
-- Decide who holds the phone and who clicks the laptop.
+- Decide who speaks, who holds the phone and who clicks the laptop.
 - Never say "safe", "no interaction", or "you should stop/start". Say "no interaction listed", "worth asking your pharmacist".
 
 ---
 
-## 0:00 · [Slide 1 · Cover] · Team intro · 25 s
+## 0:00 · [Slide 1 · Cover] · Opening · 30 s
 
-*Walk up together. The speaker stands at the laptop; the others stand beside the screen.*
+*Walk up together. The speaker stands at the laptop, holding the phone; the others stand beside the screen. Pause, look at the room, then start.*
 
-"Hi, we're GenomeVault. I'm Kaitlyn. I built our evaluation and red team: the part that attacks our own system to prove it's private."
+"This is Alex. He's 58, he just had a heart stent, and he went home with five new prescriptions. One of them may barely work for his genes. Two others could hurt him. The data that would tell him which is the most private data he has, and he would never paste it into a chatbot."
 
-*Gesture to each teammate as you name them.*
+*Hold up the phone.*
 
-"Gabe built the patient data and the medication rules. Dhiaa built the privacy layer and pulled all four parts together. And Cristian built the app and the phone. We built this today with four AI coding agents working side by side, one supervised by each of us."
+"In the next four minutes, you'll watch this laptop read his pill label, find every one of those problems without sending a single byte, and ask the cloud for help in a way the cloud can't trace back to him. Then we'll attack it ourselves and show you the numbers."
 
-**Hand-off version** (each person says their own line instead, about the same length):
-- Kaitlyn: "I'm Kaitlyn. I built the evaluation and red team, the part that attacks our own system."
-- Gabe: "I'm Gabe. I built the patient data and the medication rules."
-- Dhiaa: "I'm Dhiaa. I built the privacy layer and put the pieces together."
-- Cristian: "I'm Cristian. I built the app and the phone."
-- Kaitlyn: "Four AI coding agents built it in parallel today, one supervised by each of us."
-
-## 0:25 · [Slide 1 · Cover] · The hook · 20 s
-
-"Here's why. Alex is 58. He just got a heart stent and went home with five new prescriptions. One of them may barely work for him, and two others could hurt him. His genome and his bloodwork could tell us which. But would you upload your genome to a chatbot? We built GenomeVault so you never have to."
+"This is GenomeVault."
 
 *Advance.*
 
-## 0:45 · [Slide 2 · Three private things] · 20 s
+## 0:30 · [Slide 2 · Three private things] · 15 s
 
-"Whether a drug is right for you depends on three private things: your genes, how your body is doing right now, and your other medications. For Alex, his genes mean clopidogrel may barely activate. His kidney function is falling. And omeprazole makes the clopidogrel problem worse. That's the most private data you have."
+"Whether a drug is right for you depends on three private things: your genes, how your body is doing right now, and your other medications. Alex's genes mean clopidogrel may barely activate, his kidneys are getting worse, and omeprazole makes the clopidogrel problem worse."
 
 *Advance.*
 
-## 1:05 · [Slide 3 · The idea] · 10 s
+## 0:45 · [Slide 3 · The idea] · 10 s
 
 "So we flipped it. Move the model to the data, not the data to the model. The AI PC holds the genome. The cloud only ever sees general questions, hidden among decoys."
 
 *Advance.*
 
-## 1:15 · [Slide 4 · Everything personal stays on the AI PC] · 15 s
+## 0:55 · [Slide 4 · Everything personal stays on the AI PC] · 15 s
 
 "Everything personal, his genes, meds and labs, lives on this laptop. A rules engine checks every drug right here. When we do need the cloud, a privacy router sends only general questions, eight at a time, and a ledger records every byte that leaves. Let me show you."
 
 *Switch to the app (Medications tab). Whoever holds the phone steps forward.*
 
-## 1:30 · [App · phone] · Capture · 25 s
+## 1:10 · [App · phone] · Capture · 25 s
 
 "Alex photographs a new prescription on his phone."
 
@@ -71,13 +62,13 @@ The lines are written for Kaitlyn as the main speaker. If someone else opens, th
 
 "It asks him to confirm, and it's already flagged twice."
 
-## 1:55 · [App · Medications tab] · Local flags · 20 s
+## 1:35 · [App · Medications tab] · Local flags · 20 s
 
 *Point at the four flags, then at the ledger header.*
 
 "Here's everything he takes. Four problems, found on the device: clopidogrel may barely work for his genes, omeprazole makes that worse, his statin dose carries a muscle risk, and lisinopril with his potassium and kidneys. And up here: zero bytes sent, zero personal fields."
 
-## 2:15 · [App · Ask tab] · The cloud in disguise · 40 s
+## 1:55 · [App · Ask tab] · The cloud in disguise · 40 s
 
 *Click the **Ask** tab, then the chip **What should I bring up with my cardiologist?***
 
@@ -99,7 +90,7 @@ The lines are written for Kaitlyn as the main speaker. If someone else opens, th
 
 "The answer comes back general and is personalized here on the laptop: four things to raise with his cardiologist, each tied to his own results."
 
-## 2:55 · [App · Ask tab] · Ask it your own way · 20 s
+## 2:35 · [App · Ask tab] · Ask it your own way · 20 s
 
 *Click in the question box and type **is asprin ok with my plavix**, misspelled, then press Enter.*
 
@@ -115,9 +106,9 @@ The lines are written for Kaitlyn as the main speaker. If someone else opens, th
 
 *Switch to the deck, slide 7.*
 
-## 3:15 · [Slide 7 · We don't claim privacy. We measure it.] · 25 s
+## 2:55 · [Slide 7 · We don't claim privacy. We measure it.] · 25 s
 
-"We don't claim privacy. We measure it. That's my part: we gave everything that left the laptop to an attacker, across 500 synthetic patients."
+"We don't claim privacy. We measure it. Our red team gave everything that left the laptop to an attacker, across 500 synthetic patients."
 
 *Point down the chart, top to bottom.*
 
@@ -125,13 +116,13 @@ The lines are written for Kaitlyn as the main speaker. If someone else opens, th
 
 *Advance.*
 
-## 3:40 · [Slide 9 · Same 20 questions, two ways to ask] · 10 s
+## 3:20 · [Slide 9 · Same 20 questions, two ways to ask] · 10 s
 
 "Same 20 questions, two ways. A cloud-only app sends 420 personal fields. GenomeVault sends zero, with only 11 cloud calls."
 
 *Switch to the app (Ask tab).*
 
-## 3:50 · [App · Ask tab] · Learns, offline, never guesses, acts · 35 s
+## 3:30 · [App · Ask tab] · Learns, offline, never guesses, acts · 35 s
 
 *Click the cardiologist chip again.*
 
@@ -151,21 +142,21 @@ The lines are written for Kaitlyn as the main speaker. If someone else opens, th
 
 *Click **Offline** back to **Online**. Switch to the deck, slide 13.*
 
-## 4:25 · [Slide 13 · Where it goes] · Close · 20 s
+## 4:05 · [Slide 13 · Where it goes] · Close · 20 s
 
 "Today this runs on your AI PC. Next, a clinic or pharmacy server running the same stack. Then, questions across hospitals without moving a single genome. Your genome never leaves your device, the cloud never learns what you asked, and the more you use it, the less it needs the cloud."
 
 "We're Gabe, Dhiaa, Cristian and Kaitlyn, and this is GenomeVault. Thank you."
 
-## 4:45 · Questions, and let the judges type
+## 4:25 · Questions, and let the judges type
 
 *Leave slide 13 up. Bring the laptop to the Ask tab.*
 
-"We'd love your questions, and you're welcome to type your own into the app. Gabe can take the medication rules, Dhiaa the privacy layer, Cristian the app, and I'll take how we tested it."
+"We'd love your questions, and you're welcome to type your own into the app. Gabe built the medication rules, Dhiaa the privacy layer, Cristian the app and phone, and Kaitlyn the red team that tested it, so ask any of us."
 
-**Running long?** Cut in this order: the hand-off intro (use the single-speaker one); slide 9 (fold "420 versus zero" into slide 7's last line); the decoy-traffic sentence at 2:15; the look-alike half of "Ask it your own way"; the Actions tab. Each saves 5–15 seconds.
+**Running long?** Cut in this order: slide 9 (fold "420 versus zero" into slide 7's last line); the decoy-traffic sentence at 1:55; the look-alike half of "Ask it your own way"; the Actions tab. Each saves 5–15 seconds.
 
-**If D-043's switches are all off** on the day (the proof failed outright): skip "Ask it your own way", and at 2:15 read the first sentence of the "For you" paragraph instead of "Four things to raise". Everything else is unchanged.
+**If D-043's switches are all off** on the day (the proof failed outright): skip "Ask it your own way", and at 1:55 read the first sentence of the "For you" paragraph instead of "Four things to raise". Everything else is unchanged.
 
 ---
 
@@ -198,5 +189,5 @@ More answers are in `slides/judge_qa.md`.
 ## If the demo breaks
 
 - **Phone won't connect:** "Let me type it instead." Type **Plavix** into "Check another medication" and carry on from the Medications step.
-- **An answer reads "no data" at 2:15:** "This is the recorded pack not loading. Here's the run we recorded." Play the backup video from 0:55.
+- **An answer reads "no data" at 1:55:** "This is the recorded pack not loading. Here's the run we recorded." Play the backup video from 0:55.
 - **Anything else:** "Let me show you the recording." Play the backup video from the step you were on, and keep talking over it with the same words.
