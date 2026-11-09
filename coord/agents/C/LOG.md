@@ -351,3 +351,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S1 can open on the hero title; S3 starts after one scroll.
 - **Tests:** `make test` exit 0 (1164 passed, main merged in); `check_network.sh` ok. Checked in the browser at 1440×900 and 375×812 at 0–100% scroll: the words never overlap or leave the screen, there is no sideways scroll, deep links land past the hero, and there are no console errors.
 - **Next:** PR #11 merge before G4 (18:15); live run with the key (human).
+
+### C-028 · 2026-11-08 16:40 · commit `82a7205` (PR #11); PR #13 prepared for I · PLAN v1.3.3
+
+- **Change:** (1) `app.py`: `_phone_url()`. Inside a GitHub Codespace (`CODESPACE_NAME` + `GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN`), Actions → Use your phone shows the forwarded HTTPS address. `GV_PHONE_URL` still wins. Environment only, no network. (2) For the integrator, I prepared PR #13 (`.devcontainer/devcontainer.json` + README "Try the demo" with the Codespaces link) and proposal `20261108-1640-C-codespaces-demo.md`. Those files are repo config, so they are Gabe's to merge.
+- **Why:** User request (Cristian): a GitHub link that runs like the local demo.
+- **Class:** Refines (app.py); repo config goes through the proposal
+- **Plan:** refines S2 (where the phone page is served)
+- **Refinements:** in a codespace, the phone URL comes from Codespaces' environment.
+- **Contract impact:** none
+- **Affects:** I: review PR #13 and the proposal. D: the link can go in the submission and slides once it merges.
+- **Demo impact:** none on stage. Adds a way to try it online.
+- **Tests:** `make test` exit 0 (1166 passed, main merged in); `check_network.sh` ok. Clean-install run of the container's command: /, /phone 200; modules real; X1–X4; Q18 known; Sync 122 facts; 0 personal fields.
+- **Next:** after PR #13 merges, open the link once to confirm a real codespace boots.
