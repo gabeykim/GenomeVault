@@ -2,12 +2,12 @@ agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
 current_task: Holding for the G5 freeze. PR #18 (tests only) at e34e618. The D-043 merge order (#22, #20, #18, #21, #19, #23) was rehearsed with make test exit 0, 1335 passed, both with all five flags unset and with all five set. BRIEF queue 1-8 and D-040 part 1 done.
 branch: agent/A-data-rules
-last_commit: e34e618 (PR head; local rebase 93b611b on main 62b0e39, no code diff, not re-pushed)
+last_commit: e34e618 (PR head; local rebase 8aaf3ab on main 27a14fb, no code diff, not re-pushed)
 pr: "#18 open (tests only). #17, #9 merged."
 last_seen:
   plan_version: "1.3.7"
   decisions: D-043
-  logs: {A: 37, B: 73, C: 31, D: 19}
+  logs: {A: 38, B: 74, C: 31, D: 19}
   proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
@@ -55,9 +55,8 @@ dropped:
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
 open_questions: []
 notes: >
-  17:39 cycle: PLAN v1.3.7, D-043 (adaptive features ON for the demo, gated on demo_proof). No new proposals, no FREEZE, no STOP.
-  to-A 1745 (I): A's tests checked with the five flags set and unset. Results are in A-037; message to-integrator 1739.
-  to-A 1734 (B): new needs_cloud rule keys must sit in a partition. A adds no rules before the freeze.
-  The GV_FUZZY question is settled by D-043 (ON).
+  17:41 cycle (A-038): coord-only moves on main (A-037, B-074). Rebased, make test exit 0 (1297 passed, 1 skipped, 1 xfailed). No new inbox, DECISIONS, proposals, FREEZE or STOP.
+  B-074's DEMO=0 finding is in integrator-owned tests/I/; nothing for A.
+  17:39 cycle: D-043 flags checked set and unset (A-037). A adds no rules before the freeze (to-A 1734).
 next: >
   Hold PR #18 for Gabe's merge in the D-043 order. Demo-critical fixes only. Then hold for the G5 freeze (18:30).

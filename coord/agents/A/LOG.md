@@ -526,3 +526,17 @@ Refinements: none for PLAN (test-only).
 - **Inbox:** to-A 1734 from B (new rule keys must sit in a partition, B-073): noted. A adds no new rules before the freeze. to-A 1745 from I: handled by this check. Read B-073; no new C or D entries.
 - **Next:** hold PR #18 for Gabe's merge in the D-043 order, then hold for the G5 freeze (18:30). Demo-critical fixes only.
 Refinements: none.
+
+### A-038 · 2026-11-08 17:41 · no code change (PR #18 stays at `e34e618`) · PLAN v1.3.7
+
+- **Change:** none. Main moved only by coord commits (27a14fb A-037, ac435d2 B-074). Branch rebased locally (head `8aaf3ab`, no diff in A's paths vs PR head `e34e618`) and re-tested. PR #18 not re-pushed.
+- **Why:** routine sync after coord-only moves. A's BRIEF queue is empty; G5 freeze rule is demo-critical fixes only.
+- **Class:** Advances (verification only)
+- **Plan:** P9 G5; D-043
+- **Contract impact:** none
+- **Affects:** nobody. #18 needs no edit in the D-043 merge order.
+- **Demo impact:** none
+- **Tests:** main `27a14fb` + A branch, `make test` exit 0, **1297 passed, 1 skipped, 1 xfailed** (the xfail is the hyphen-banner test that switches off once C's #22 is merged, A-036).
+- **Inbox:** nothing new for A. Read B-074: its DEMO=0 finding is in integrator-owned `tests/I/`, so A has nothing to do. No new DECISIONS (D-043), no new proposals, no new C or D entries.
+- **Next:** hold PR #18 for Gabe's merge in the D-043 order, then hold for the G5 freeze (18:30).
+Refinements: none.
