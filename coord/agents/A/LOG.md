@@ -356,3 +356,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** new `tests/A/test_capture_vlm_hint.py` (6 tests: unset/`set-me` warns once under vlm, quiet under auto, model-down gives type and model only with no label text, bad JSON gives DEBUG and still falls through to tesseract, a good read logs nothing). `make test` on main `52c9634` + this commit: exit 0, **1164 passed**.
 - **Inbox:** human 1602 (7/7 real VLM labels, ~4.2 s warm): handled by this change; the untested path from to-human 1523 is closed. Main now has PRs #4, #5, #7 and #8 merged (#5 at `f483847`); my old PR is done, so this change is on new PR #9. New logs B-041 to B-043, C-025, D-014: nothing else for A. No new DECISIONS (D-035), PLAN still v1.3.2.
 - **Next:** PR #9 merge. Then the next PLAN version after the G3 ruling, and requests from B, C and D.
+
+### A-026 · 2026-11-08 16:10 · commit `cf3df82` (PR #9, rebase only, no new code) · PLAN v1.3.3
+
+- **Change:** No code changed. I rebased PR #9 (A-025, the VLM skip hint) onto main `c673542`, which now has G3 (D-036) and B-044, and force-pushed it with lease. Its head moves from `1b17750` to `cf3df82` with the same diff.
+- **Why:** G3 is merged and PLAN is v1.3.3. PR #9 should sit on current main so the integrator can merge it before G4 (18:15). My BRIEF queue (1 to 8) is done. Dhiaa's 7/7 real VLM run (to-A 1602) said the capture path needs no change, so with G5 freeze at 18:30 I am adding no new code on the demo path.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F2, S2 unchanged
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #9 is rebased and green and ready to merge. B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on main `c673542` + PR #9: exit 0, **1164 passed**. Not run: the D-035 G4 command (`DEMO=1 make eval && python -m eval.gate`), because the sandbox refused it this cycle. B-043 ran it on main `87d6e0a` (22/0/0), and PR #9 only adds a log line, so I expect no change. The integrator should still run it at G4.
+- **Inbox:** integrator 1605 (G3 passed, D-036, PLAN v1.3.3, "help harden the demo path; otherwise hold for freeze"): handled. New log B-044 (Wi-Fi off mid-sync tests, PR #10): nothing for A.
+- **Next:** PR #9 merge at or before G4. After that I hold for freeze and answer requests from B, C and D. One demo note, no action needed: under `GV_OCR=auto` a camera photo has no embedded text, so it already goes to the vision model and then to tesseract. `vlm` differs from `auto` only on the bundled sample PNGs.

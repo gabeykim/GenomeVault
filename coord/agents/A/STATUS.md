@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-025 capture logs a one-time hint when the local vision model is skipped (LOCAL_VLM_MODEL unset, model down, bad JSON). WARNING under GV_OCR=vlm, DEBUG under auto, never label text. Return values unchanged.
+current_task: A-026 PR #9 (A-025 VLM skip hint) rebased on main c673542 after G3. BRIEF queue 1-8 done. Holding for G4/G5.
 branch: agent/A-data-rules
-last_commit: 1b17750
-pr: "#9 (open) agent/A-data-rules -> main: A-025 VLM skip hint. Rebased on main 52c9634, make test exit 0, 1164 passed. (#5 merged at G3 as f483847.)"
+last_commit: cf3df82
+pr: "#9 (open) agent/A-data-rules -> main: A-025 VLM skip hint. Rebased on main c673542, make test exit 0, 1164 passed. (#5 merged at G3, D-036.)"
 last_seen:
-  plan_version: "1.3.2"
-  decisions: D-035
-  logs: {A: 25, B: 43, C: 25, D: 14}
+  plan_version: "1.3.3"
+  decisions: D-036
+  logs: {A: 26, B: 44, C: 25, D: 14}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -33,14 +33,14 @@ handled_messages:
   - 20261108-1551-from-D-offline-reading.md
   - 20261108-1600-from-D-a016-settled.md
   - 20261108-1602-from-human-vlm-results.md
+  - 20261108-1605-from-integrator-g3-passed.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
 open_questions: []
 notes: >
-  A-025: the human's real VLM run (to-A 1602) measured 7/7 labels correct at ~4.2 s each, which closes the
-  untested path from to-human 1523. The only issue found was a silent skip when LOCAL_VLM_MODEL was missing from
-  .env; A-025 now logs a hint for it. PRs #4, #5, #7 and #8 are merged on main; A's suite on main + A-025:
-  1164 passed.
+  G3 passed (D-036), PLAN v1.3.3. The BRIEF queue is done, and the human's 7/7 real VLM run needs no capture
+  change. PR #9 is the only open A work. The D-035 G4 command was not run this cycle because the sandbox
+  refused it; B-043 had it at 22/0/0 on 87d6e0a.
 next: >
-  PR #9 merge. Then the next PLAN version after the G3 ruling, and requests from B, C and D.
+  PR #9 merge before G4 (18:15). Then hold for G5 freeze (18:30) and answer requests from B, C and D.
