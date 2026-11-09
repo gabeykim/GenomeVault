@@ -495,3 +495,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` exit 0, **1297 passed, 1 xfailed**.
 - **Inbox:** to-A 1717 from D (typo eval 20/20, 0 silent wrong): noted, nothing to do. Read D-042, B-066/067, D-017: nothing for A. PRs #14–#17 merged.
 - **Next:** hold PR #18 for review. If C fixes `_swap`, make the xfail a plain test. Hold for the 18:00 ruling and the G5 freeze (18:30).
+
+### A-036 · 2026-11-08 17:33 · commit `e34e618` (PR #18) · PLAN v1.3.6
+
+- **Change:** In `tests/A/test_suggest_swap.py`, the hyphen banner test is now `xfail(strict=True)` only while `app._apply_swaps` is missing (C's span swap, PR #22). When #22 lands it becomes a plain test with no further edit. It also now asserts that both combo ingredients were checked. New test `test_app_apply_swaps_uses_suggest_spans` feeds A's real `suggest()` spans to C's `_apply_swaps`. It is skipped until #22 lands. Tests only, `core/` unchanged.
+- **Why:** to-A 1731 from C (C-031): the hyphen gap is fixed in PR #22, so make the xfail plain. #22 is not on main yet, and a plain test would turn main red. A conditional xfail is correct in both states and needs no follow-up edit near the freeze.
+- **Class:** Refines (test only)
+- **Plan:** D-040 part 1, D-041 interop; I4 check (the banner names only drugs that were checked)
+- **Contract impact:** none
+- **Affects:** C: nothing to do. #22 makes the A test pass, and strict means a regression would show red. I: #18 and #22 can merge in either order.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0 on main base, **1297 passed, 1 skipped, 1 xfailed**. Rehearsal (A branch + `origin/agent/C-app-ui` b991470 merged in a throwaway worktree): `make test` exit 0, **1301 passed**, no xfail, no skip.
+- **Inbox:** to-A 1731 from C, handled. Read C-031, B-071, D-018: nothing else for A. No new DECISIONS (D-042) or proposals, PLAN v1.3.6.
+- **Next:** hold PR #18. The 18:00 GV_FUZZY ruling is the integrator's. Then hold for the G5 freeze (18:30).
+Refinements: none for PLAN (test-only).

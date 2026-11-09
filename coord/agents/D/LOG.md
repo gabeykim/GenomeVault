@@ -238,3 +238,16 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** none (follows C-025 and B-044)
 - **Tests:** `DEMO=1 make test` → exit 0 (1291 passed)
 - **Next:** PR #21 merge before G5 (18:30)
+
+### D-019 · 2026-11-08 17:33 · commit `606ffca` · PLAN v1.3.6
+
+- **Change:** `eval/adaptive.py` reads `data/buckets/<core.decoys.TAIL_VERSION>.json`, so the tail E1 scores tail-v1 today and tail-v2 as soon as B's PR #20 merges (B-068). `docs/results.md` is re-generated on main now that PRs #15 and #17 are merged. Its closing sentence calls rare questions weaker only when they are.
+- **Measured:** on main, typos **20/20**, **0** silent wrong substitutions, **0** look-alikes assumed; tail-v1 statistical **59%**. Checked against PR #20: tail-v2 statistical **15%** (13% with the median prior), repeat-ask **11%**, against 22% on the core.
+- **Why:** to-D/20261108-1721-from-B-tail-v2.md; D's human owner approved.
+- **Class:** Advances
+- **Plan:** advances D-040 part 5 (E1, I5)
+- **Contract impact:** none
+- **Affects:** B (request done); I (D-040 confirmation still pending; no slide change)
+- **Demo impact:** none
+- **Tests:** `DEMO=1 make test` → exit 0 (1292 passed); gate 22 pass, 0 warn, 0 fail; `slides/numbers.md` unchanged
+- **Next:** PR #21 (script + this) merge before G5; re-run after PR #20 merges

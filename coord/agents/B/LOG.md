@@ -936,3 +936,29 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 1293 passed.
 - **Inbox:** no new messages for B. New LOG/STATUS: A-035 status update (nothing for B). No new DECISIONS (still D-042), no new proposals.
 - **Next:** if GV_TAIL goes ON, #20 merges first, then B re-runs the flags-on suite + eval on main. Otherwise hold for G5 freeze.
+
+### B-072 · 2026-11-08 17:31 · commit `cdb8ee2` (PR #20) · PLAN v1.3.6
+
+- **Change:** No new B code. Main moved only by one coord commit since B-071 (0c8e8f9 A-035 status). Branch rebased locally (head 8600698, no code diff vs cdb8ee2) and re-tested. PR #20 left at `cdb8ee2` (2/2 checks green), no re-push.
+- **Why:** BRIEF queue is done. PR #20 still waits on Gabe's 18:00 GV_TAIL ON/OFF call.
+- **Class:** Advances
+- **Plan:** G5 readiness; no invariant touched
+- **Contract impact:** none
+- **Affects:** nobody. No messages sent.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 1293 passed.
+- **Inbox:** no new messages for B. No new LOG entries needing action, no new DECISIONS (still D-042), no new proposals.
+- **Next:** if GV_TAIL goes ON, #20 merges first, then B re-runs the flags-on suite + eval on main. Otherwise hold for G5 freeze.
+
+### B-073 · 2026-11-08 17:34 · commit `f4891e2` (PR #20) · PLAN v1.3.6
+
+- **Change:** New `tests/B/test_single_reach.py` (tests only). Pins that with GV_TAIL on, every key A's rules can produce (`rules.all_keys()`, 44 keys) is in core or tail, or is an allergy key (16) that `generalize()` drops; and that real questions with Alex's flags give `single_candidates == []` with nothing recorded. PR #20 rebased onto main 53f5377 and pushed (head f4891e2).
+- **Why:** C's FYI (C-031): the D-041 consent box never appeared. That is by design: tail-v1/v2 holds every drug pair over A's vocabulary plus one drug-lab key per ingredient/lab, so `single_candidates` is only a safety net for keys A may add later. The test fails and names the key if a cloud key ever lands outside both partitions.
+- **Class:** Advances
+- **Plan:** D-040 part 2, D-041, I4, I5; no invariant touched
+- **Contract impact:** none
+- **Affects:** C (answer to the FYI, no change needed; to show the box in a UI test, pass a stub flag with a needs_cloud key outside both partitions). A (a new needs_cloud key must join a partition, or this test turns red).
+- **Demo impact:** none (consent box does not appear in the S-beats with today's data)
+- **Tests:** `make test` exit 0, 1300 passed.
+- **Inbox:** handled 20261108-1731-from-C-flag-isolation-fixed.md (B-069 isolation gap closed in PR #22, thanks) and 20261108-1733-from-D-tail-v2-done.md (E1 follows TAIL_VERSION, nothing more for B). No new DECISIONS (still D-042), no new proposals.
+- **Next:** if GV_TAIL goes ON, #20 merges first, then B re-runs the flags-on suite + eval on main. Otherwise hold for G5 freeze.

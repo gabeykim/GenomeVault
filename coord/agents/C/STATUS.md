@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: C-030 D-040 part 4 on PR #16 (with C-029 fix); waiting on A suggest + B single send for end-to-end
+current_task: C-031 PR #22 (hyphen swap fix, intent fields); D-040 part 4 green with A/B real code
 branch: agent/C-app-ui
-last_commit: 13374a9
+last_commit: b991470
 last_seen:
-  plan_version: "1.3.4"
-  decisions: D-039
-  logs: {A: 30, B: 58, C: 30, D: 16}
+  plan_version: "1.3.6"
+  decisions: D-042
+  logs: {A: 30, B: 58, C: 31, D: 16}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -63,5 +63,9 @@ handled_messages:
   - 20261108-1700-from-B-uncovered-pair-no-data.md
   - 20261108-1702-from-I-adaptive-part4.md
   - 20261108-1715-from-B-live-fallback-api.md
+  - 20261108-1720-from-A-swap-hyphen.md
+  - 20261108-1720-from-I-intent-hook.md
+  - 20261108-1730-from-A-hyphen-confirmed-main.md
+  - 20261108-1730-from-B-intent-flag-isolation.md
 blocked_on: none
 next: keep S1-S7 and UI stable (bug fixes only after the 18:30 freeze); confirm the Codespaces link once #13 merges; live run with the key (human)
