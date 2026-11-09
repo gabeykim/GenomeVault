@@ -116,6 +116,7 @@ function setTicker(node, text) {
   if (REDUCED) { prev.remove(); return; }
   prev.classList.add("out");
   prev.addEventListener("animationend", () => prev.remove(), { once: true });
+  setTimeout(() => prev.remove(), 1000);   // a hidden tab (presenter on the slides) never fires animationend
 }
 
 
