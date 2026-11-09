@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-027 PR #9 (A-025 VLM skip hint) re-checked on main b105ee0. Only coord files changed since c673542, so no re-push. BRIEF queue 1-8 done. Holding for G4/G5.
+current_task: A-028 PR #9 (A-025 VLM skip hint) re-checked on main 565cbcb. Only coord files changed since b105ee0, so no re-push. BRIEF queue 1-8 done. Holding for G4/G5.
 branch: agent/A-data-rules
 last_commit: cf3df82
-pr: "#9 (open, CI green, with Gabe to merge per integrator 1610) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main b105ee0 make test exit 0, 1164 passed."
+pr: "#9 (open, CI green, with Gabe to merge per integrator 1610) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main 565cbcb make test exit 0, 1164 passed."
 last_seen:
   plan_version: "1.3.3"
   decisions: D-037
-  logs: {A: 27, B: 45, C: 26, D: 14}
+  logs: {A: 28, B: 46, C: 26, D: 14}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
