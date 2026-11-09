@@ -225,19 +225,24 @@ def write_adaptive(ad: dict, core: dict | None = None) -> str:
     else:
         L += [f"Not run: {t['reason']}.", ""]
     tl = ad["tail"]
-    L.append("### Long-tail partition (E1 on `data/buckets/tail-v1.json`)\n")
+    L.append(f"### Long-tail partition (E1 on `data/buckets/{tl.get('partition', 'tail')}.json`, the version `core.decoys.TAIL_VERSION` ships)\n")
     if tl["status"] == "ran":
         sm = tl["sensitivity_unseen_median"]
         L += [f"{tl['buckets']} fixed buckets of 8 ({tl['keys']} keys), {tl['n']} synthetic patients, {tl['asks']} asks each. Real pair guessed:\n",
               "| Attacker | Long tail | Core (v5, for comparison) |", "| --- | --- | --- |",
               f"| Repeat-ask | {pct(tl['repeat_ask'])} | {pct(core['intersection']) if core else 'see E1'} |",
               f"| Statistical (bets on the most common pair in the group) | **{pct(tl['statistical'])}** (ceiling {pct(tl['stat_attacker_ceiling'])}) | {pct(core['statistical']) if core else 'see E1'} |", "",
-              f"**Weaker than the core, as expected.** Tail buckets are a seeded shuffle with no frequency balancing, so a bucket often holds "
-              f"one pair with a common drug among rare ones, and the statistical attacker bets on it. Tail pairs have no priors of their own, "
+              (f"**Weaker than the core.** {tl['partition']} buckets are a seeded shuffle with no frequency balancing, so a bucket often holds "
+               f"one pair with a common drug among rare ones, and the statistical attacker bets on it. " if tl['statistical'] > 0.3 else
+               f"**Frequency-tiered** ({tl['partition']}, B-068): keys are grouped by how common their drugs are, so no pair stands out in "
+               f"its group of 8. ") +
+              f"Tail pairs have no priors of their own, "
               f"so these use synthetic ones: each drug's summed priors from D's universe file, multiplied for a pair, with drugs and labs "
               f"the file doesn't list set to the smallest known value. With them set to the median instead, the statistical attacker gets {pct(sm['statistical'])}. "
-              "The repeat-ask attacker stays near 1 in 8 either way, because the bucket is fixed. Say plainly: common questions get the "
-              "strongest protection; rare ones are still hidden in a fixed group of 8, measured separately.", ""]
+              "The repeat-ask attacker stays near 1 in 8 either way, because the bucket is fixed. " +
+              ("Say plainly: common questions get the strongest protection; rare ones are still hidden in a fixed group of 8, "
+               "measured separately." if core and tl["statistical"] > core["statistical"] + 0.05 else
+               "On this measure rare questions are protected about as well as common ones; they are still reported separately."), ""]
     else:
         L += [f"Not run: {tl['reason']}.", ""]
     return "\n".join(L) + "\n"
