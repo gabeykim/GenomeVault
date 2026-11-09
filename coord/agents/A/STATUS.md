@@ -1,8 +1,8 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-035 swap tests now run C's real /api/check (PR #18, tests only). The hyphen banner gap is confirmed on main and xfailed until C fixes it. BRIEF queue 1-8 and D-040 part 1 done (PR #17 merged).
+current_task: Holding for the G5 freeze. Read PR #19 (I, intent) against A's normalize; its use of suggest() and to_ingredients() matches (to-integrator 1723). PR #18 (tests only) rebased and open. BRIEF queue 1-8 and D-040 part 1 done.
 branch: agent/A-data-rules
-last_commit: 6e5300e (on main 64dd06b)
+last_commit: 46f5304 (on main f2c87fb)
 pr: "#18 open (tests only). #17, #9 merged."
 last_seen:
   plan_version: "1.3.6"
@@ -53,8 +53,9 @@ dropped:
 open_questions:
   - "Is GV_FUZZY ON for the demo? Integrator decides at 18:00. Fact sent: the hyphen-combo swap gap in C's _swap hides X4 (to-integrator 1730)."
 notes: >
-  This cycle: PRs #14-#17 merged. tests/A/test_suggest_swap.py now runs C's real app._swap and /api/check with GV_FUZZY on (no copy left).
-  A banner-honesty check (every assumed name is a checked drug) fails on main for lisinoprl-hydrochlorothiazide. It is a non-strict xfail
-  until C swaps by span (to-C 1730). make test exit 0, 1297 passed, 1 xfailed. No FREEZE, no STOP.
+  This cycle: no new inbox messages, no PLAN or DECISIONS change (still v1.3.6, D-042). New on main: I's PR #19 note to C (intent hook, GV_INTENT).
+  I read PR #19 core/intent.py: it calls normalize.suggest (span/mode/assumed/choices) and to_ingredients exactly as A ships them, so A has nothing to change.
+  C has not changed _swap yet (C-030 is the latest), so the hyphen xfail stays. No code change, so no LOG entry.
+  Rebased on f2c87fb and force-pushed; make test exit 0, 1297 passed, 1 xfailed. No FREEZE, no STOP.
 next: >
   Hold PR #18. When C fixes _swap, turn the xfail into a plain test. 18:00 GV_FUZZY ruling, then hold for the G5 freeze (18:30).
