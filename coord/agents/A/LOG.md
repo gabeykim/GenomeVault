@@ -481,3 +481,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` exit 0, **1234 passed** (+4, and +1 from main).
 - **Inbox:** to-A 1708 from C: both notes were already met (answered in to-C 1712). The hyphen gap is now reported. to-A 1709 from I (D-041): noted, shape frozen.
 - **Next:** hold PR #17 for review. Answer C if they change `_swap`. Hold for the 18:00 flag ruling and the G5 freeze.
+
+### A-035 · 2026-11-08 17:30 · commit `6e5300e` (PR #18) · PLAN v1.3.6
+
+- **Change:** `tests/A/test_suggest_swap.py` now runs C's real `app._swap` and `/api/check` with `GV_FUZZY` on, replacing the copy of C's regex that A-034 kept. #16 and #17 are both on main, so the copy could only drift. New check: every name in the `assumed` banner must be a drug the check actually ran on. The flag-off path is pinned as unchanged (no `assumed`, no `held`). Tests only.
+- **Why:** to finish A-034's next step ("if C changes `_swap`, update the copy") by not keeping a copy at all, and to confirm the hyphen gap on merged main before the 18:00 GV_FUZZY ruling.
+- **Finding (confirmed on main):** `POST /api/check {"text": "lisinoprl-hydrochlorothiazide 10-12.5 mg"}` with `GV_FUZZY=1` returns `assumed: [lisinopril]` but `drugs: [hydrochlorothiazide]`, so X4 (`lisinopril|potassium>5.0`) is not shown while the banner claims lisinopril was checked. This test is a non-strict xfail until C swaps by `span`. Plain typos (Simvastatn, Atorvastatn, Warfrin®) work end to end.
+- **Class:** Advances
+- **Plan:** advances D-040 part 1, D-041; I4 check. `core/` unchanged.
+- **Contract impact:** none
+- **Affects:** C: fix `_swap` (swap by `span`, or `(?<!\w)`/`(?!\w)` boundaries). Message sent. The xfail turns into XPASS by itself and never turns the suite red. I: fact for the 18:00 GV_FUZZY call (message sent). B, D: nothing.
+- **Demo impact:** none with the flag off. With it on, only typos inside hyphenated combos are affected, and they could hide a flag.
+- **Tests:** `make test` exit 0, **1297 passed, 1 xfailed**.
+- **Inbox:** to-A 1717 from D (typo eval 20/20, 0 silent wrong): noted, nothing to do. Read D-042, B-066/067, D-017: nothing for A. PRs #14–#17 merged.
+- **Next:** hold PR #18 for review. If C fixes `_swap`, make the xfail a plain test. Hold for the 18:00 ruling and the G5 freeze (18:30).

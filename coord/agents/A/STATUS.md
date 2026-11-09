@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: D-040 part 1 done (suggest behind GV_FUZZY, shape frozen by D-041). This cycle added a test-only check of how C swaps a suggestion into the text, and found a hyphen gap in C's _swap. PR #17 open for review. BRIEF queue 1-8 done.
+current_task: A-035 swap tests now run C's real /api/check (PR #18, tests only). The hyphen banner gap is confirmed on main and xfailed until C fixes it. BRIEF queue 1-8 and D-040 part 1 done (PR #17 merged).
 branch: agent/A-data-rules
-last_commit: 7bde586 (on main 7853af4)
-pr: "#17 open (D-040 part 1). #9 merged."
+last_commit: 6e5300e (on main 64dd06b)
+pr: "#18 open (tests only). #17, #9 merged."
 last_seen:
   plan_version: "1.3.6"
-  decisions: D-041
-  logs: {A: 34, B: 65, C: 30, D: 16}
+  decisions: D-042
+  logs: {A: 35, B: 67, C: 30, D: 17}
   proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
@@ -45,19 +45,16 @@ handled_messages:
   - 20261108-1710-from-I-suggest-sound-alikes.md
   - 20261108-1708-from-C-d040-ui-ready.md
   - 20261108-1709-from-integrator-d041-suggest-contract.md
+  - 20261108-1717-from-D-typo-results.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
 open_questions:
-  - "Is GV_FUZZY ON for the demo? Integrator decides at 18:00, once C's part 4 renders it (to-integrator 1706)."
+  - "Is GV_FUZZY ON for the demo? Integrator decides at 18:00. Fact sent: the hyphen-combo swap gap in C's _swap hides X4 (to-integrator 1730)."
 notes: >
-  This cycle: read D-041 (PLAN v1.3.6), which makes the suggest() shape a contract (no key changes until freeze), and C's to-A 1708.
-  Added tests/A/test_suggest_swap.py (4 tests, test-only, normalize.py unchanged). It checks that span indexes the typed text,
-  that term is the typed word lowercased, and that swapping assumed in makes to_ingredients find the meant drug.
-  Found a gap: C's _swap regex (?<![\w-]) skips parts of hyphenated combos (lisinoprl-hydrochlorothiazide), so the banner
-  would claim lisinopril while the check ran without it. Told C to swap by span (to-C 1720). Commit 7bde586, A-034.
-  make test exit 0, 1234 passed. No FREEZE, no STOP.
+  This cycle: PRs #14-#17 merged. tests/A/test_suggest_swap.py now runs C's real app._swap and /api/check with GV_FUZZY on (no copy left).
+  A banner-honesty check (every assumed name is a checked drug) fails on main for lisinoprl-hydrochlorothiazide. It is a non-strict xfail
+  until C swaps by span (to-C 1730). make test exit 0, 1297 passed, 1 xfailed. No FREEZE, no STOP.
 next: >
-  Hold PR #17 for review. If C changes _swap, update the copy in test_suggest_swap.py.
-  18:00: the integrator rules on GV_FUZZY. If PR #17 isn't merged by then, the flag stays off. Then hold for the G5 freeze (18:30).
+  Hold PR #18. When C fixes _swap, turn the xfail into a plain test. 18:00 GV_FUZZY ruling, then hold for the G5 freeze (18:30).
