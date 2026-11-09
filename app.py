@@ -25,6 +25,7 @@ from typing import Callable, Literal, Optional
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
 from core import actions, merge
@@ -124,11 +125,44 @@ async def lifespan(_app: FastAPI):
     is actually asking. B's thread owns the schedule (GV_COVER_INTERVAL_S) and sends nothing while
     offline. Only stop what this app started."""
     started = bool(COVER and start_cover and start_cover())
+    if os.environ.get("GV_OCR", "").strip().lower() == "vlm":
+        threading.Thread(target=_warm_vision_model, name="gv-vlm-warm", daemon=True).start()
     try:
         yield
     finally:
         if started and stop_cover:
             stop_cover()
+
+
+VISION = {"configured": False, "warm": False, "seconds": None}
+
+
+def _vision_configured() -> bool:
+    """A's test for a usable vision model (A-025): LOCAL_VLM_MODEL set to a real model name."""
+    try:
+        from core import local_llm
+    except ImportError:
+        return False
+    return (getattr(local_llm, "VLM_MODEL", "") or "") not in ("", "set-me")
+
+
+def _warm_vision_model() -> None:
+    """With GV_OCR=vlm the first label read loads the local vision model (~10 s). Read one synthetic
+    sample label at startup so the S2 photo on stage takes ~4 s instead. Local only (I2).
+    Without a configured model there is nothing to warm: say so instead of reporting "warm"."""
+    VISION["configured"] = _vision_configured()
+    if not VISION["configured"]:
+        print("GenomeVault: GV_OCR=vlm but LOCAL_VLM_MODEL is not set; label photos won't be read "
+              "(set it, e.g. qwen2.5vl:7b, or use GV_OCR=auto)", flush=True)
+        return
+    t0 = time.perf_counter()
+    try:
+        drugs = from_image((PHONE_DIR / "samples" / "aspirin.png").read_bytes(), "image/png")
+        VISION.update(warm=bool(drugs), seconds=round(time.perf_counter() - t0, 1))
+        print(f"GenomeVault: vision model {'warm' if drugs else 'did not read the warm-up label'} "
+              f"({VISION['seconds']} s)", flush=True)
+    except Exception as e:  # noqa: BLE001 - a cold model is slower, not broken
+        print(f"GenomeVault: vision model warm-up failed ({type(e).__name__}); first read will be slow", flush=True)
 
 
 def _cover_on() -> bool:
@@ -162,7 +196,8 @@ def index() -> FileResponse:
 @app.get("/api/status")
 def status() -> dict:
     return {"demo": DEMO, "disclaimer": DISCLAIMER, "modules": MODES, "extras": EXTRAS, "cloud": _cloud(),
-            "cover": _cover_on()}
+            "cover": _cover_on(),
+            "vision": {"mode": os.environ.get("GV_OCR", "auto").strip().lower(), **VISION}}
 
 
 @app.get("/api/profile", response_model=Profile)
@@ -398,7 +433,19 @@ def sync_status() -> dict:
 # The phone reaches the laptop over the local network, and this app holds the whole profile. So any
 # request that isn't from this machine needs the pairing code shown on the laptop (Actions tab).
 PHONE_CODE = (os.environ.get("GV_PHONE_CODE") or secrets.token_hex(3)).upper()
-PHONE_URL = os.environ.get("GV_PHONE_URL", "")          # set by phone/serve_https.sh
+def _phone_url() -> str:
+    """Where the phone opens /phone. phone/serve_https.sh sets GV_PHONE_URL on a laptop; in a GitHub
+    Codespace (the README's "Open in Codespaces" link) the forwarded HTTPS address is known from the
+    environment. Nothing is looked up over the network (I2)."""
+    if os.environ.get("GV_PHONE_URL"):
+        return os.environ["GV_PHONE_URL"]
+    name, domain = os.environ.get("CODESPACE_NAME"), os.environ.get("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN")
+    if name and domain:
+        return f"https://{name}-{os.environ.get('GV_PORT', '8000')}.{domain}/phone"
+    return ""
+
+
+PHONE_URL = _phone_url()
 PAIR_COOKIE = "gv_pair"
 _LOCAL = {"127.0.0.1", "::1", "localhost", "testclient"}
 _OPEN_PATHS = ("/phone", "/phone-assets/", "/api/phone/pair")
@@ -471,7 +518,9 @@ async def capture(request: Request) -> dict:
     data = await request.body()
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, "photo too large")
-    drugs = from_image(data, mime) if mime.startswith("image/") and data else []
+    # The on-device vision model takes ~4 s a label (GV_OCR=vlm): read off the event loop so the
+    # laptop UI keeps polling meanwhile.
+    drugs = await run_in_threadpool(from_image, data, mime) if mime.startswith("image/") and data else []
     # D-029: only report what was read. The user confirms or edits it on the phone before rules run.
     return {"read": bool(drugs), "drugs": [d.model_dump() for d in drugs]}
 

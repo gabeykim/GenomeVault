@@ -194,3 +194,72 @@ def test_phone_offers_every_label_and_a_print_sheet():
     html = (PHONE / "index.html").read_text() + (PHONE / "labels.html").read_text()
     for name in LABELS:
         assert f"/phone-assets/samples/{name}" in html
+
+
+# ---------- vision-model demo settings (Dhiaa 16:02, D-029) ----------
+
+def test_capture_reads_off_the_event_loop(monkeypatch):
+    """A ~4 s on-device read must not stall other requests: from_image runs in a worker thread."""
+    import asyncio
+    seen = {}
+
+    def fake(data, mime):
+        try:
+            asyncio.get_running_loop()
+            seen["on_loop"] = True
+        except RuntimeError:          # no running loop: a worker thread
+            seen["on_loop"] = False
+        return []
+    monkeypatch.setattr(app_module, "from_image", fake)
+    local.post("/api/capture", content=b"\x89PNG", headers={"Content-Type": "image/png"})
+    assert seen == {"on_loop": False}
+
+
+def test_status_reports_vision_mode(monkeypatch):
+    monkeypatch.setenv("GV_OCR", "vlm")
+    v = local.get("/api/status").json()["vision"]
+    assert v["mode"] == "vlm" and set(v) >= {"configured", "warm", "seconds"}
+
+
+def test_warm_up_reads_one_sample_label(monkeypatch):
+    calls = []
+    monkeypatch.setattr(app_module, "_vision_configured", lambda: True)
+    monkeypatch.setattr(app_module, "from_image",
+                        lambda data, mime: calls.append((len(data), mime)) or [Drug(ingredient="aspirin")])
+    monkeypatch.setattr(app_module, "VISION", {"configured": False, "warm": False, "seconds": None})
+    app_module._warm_vision_model()
+    assert calls and calls[0][1] == "image/png"
+    assert app_module.VISION["configured"] is True and app_module.VISION["warm"] is True
+
+
+def test_warm_up_without_a_model_is_not_reported_warm(monkeypatch, capsys):
+    """A-025: with GV_OCR=vlm and no LOCAL_VLM_MODEL there is nothing to warm, and status says so."""
+    calls = []
+    monkeypatch.setattr(app_module, "_vision_configured", lambda: False)
+    monkeypatch.setattr(app_module, "from_image", lambda data, mime: calls.append(1) or [])
+    monkeypatch.setattr(app_module, "VISION", {"configured": True, "warm": False, "seconds": None})
+    app_module._warm_vision_model()
+    assert calls == [] and app_module.VISION == {"configured": False, "warm": False, "seconds": None}
+    assert "LOCAL_VLM_MODEL is not set" in capsys.readouterr().out
+
+
+def test_phone_shows_progress_and_downscales_photos():
+    js = (app_module.PHONE_DIR / "phone.js").read_text()
+    assert "Reading the label on this laptop" in js and "downscale(" in js
+
+
+# ---------- GitHub Codespaces demo link ----------
+
+def test_phone_url_in_a_codespace(monkeypatch):
+    monkeypatch.delenv("GV_PHONE_URL", raising=False)
+    monkeypatch.setenv("CODESPACE_NAME", "fluffy-space-1234")
+    monkeypatch.setenv("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN", "app.github.dev")
+    assert app_module._phone_url() == "https://fluffy-space-1234-8000.app.github.dev/phone"
+    monkeypatch.setenv("GV_PHONE_URL", "https://192.168.1.20:8443/phone")   # the laptop script wins
+    assert app_module._phone_url() == "https://192.168.1.20:8443/phone"
+
+
+def test_phone_url_empty_elsewhere(monkeypatch):
+    for k in ("GV_PHONE_URL", "CODESPACE_NAME", "GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN"):
+        monkeypatch.delenv(k, raising=False)
+    assert app_module._phone_url() == ""
