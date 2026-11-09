@@ -74,3 +74,5 @@ coord/inbox/to-integrator/20261108-1702-from-I-adaptive-accepted.md
 coord/inbox/to-integrator/20261108-1706-from-A-pr17-ready.md
 coord/inbox/to-integrator/20261108-1708-from-C-d040-part4.md
 coord/inbox/to-human/20261108-1709-from-integrator-needs-gabe-merge-pr14-17.md
+coord/inbox/to-integrator/20261108-1716-from-A-sound-alikes-done.md
+coord/inbox/to-human/20261108-1712-from-integrator-needs-gabe-pr17-update.md
