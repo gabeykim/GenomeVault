@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-068 tail-v2 frequency-tiered long-tail partition (e47dbdd, PR #20); stat attacker 0.59 -> 0.15
+current_task: B-071 re-test after coord-only moves on main (9116895); PR #20 held at cdb8ee2 (green) pending Gabe
 branch: agent/B-privacy-router
-last_commit: e47dbdd
+last_commit: cdb8ee2
 last_seen:
   plan_version: "1.3.6"
   decisions: D-042
-  logs: {A: 34, B: 68, C: 30, D: 17}
+  logs: {A: 35, B: 71, C: 30, D: 18}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -120,4 +120,11 @@ notes: >
   same 8376 keys, tiered by unseen count then product of synthetic priors), TAIL_VERSION = tail-v2. Stat attacker 0.15
   (ceiling 0.129), 0.13 with unseen at median; repeat-ask ~0.11. make test exit 0, 1293 passed. PR #20. D asked to point
   eval/adaptive.py TAIL_FILE at tail-v2.json.
-next: after PR #20 merges, re-run the flags-on suite + eval on main; hold for 18:00 ON/OFF and G5 freeze.
+  B-069: PR #20 rebased onto main 1e0d176 (head cdb8ee2, 2/2 green), make test exit 0, 1293 passed. Merge main + #18 + #19 + #20:
+  flags off 1311 passed + 1 xfail; all flags on 3 failures, all test isolation in I's #19 (2) and C's test_adaptive (1), none in B.
+  I and C told.
+  B-070: main moved only by coord commits (0f06609 escalated B's all-OFF flag rec + PR #20 to Gabe). Re-tested locally
+  (exit 0, 1293 passed); PR #20 left at cdb8ee2 (2/2 green), no re-push.
+  B-071: main moved only by coord commits (50935df, 9116895 A-035 status). Re-tested locally (exit 0, 1293 passed);
+  PR #20 left at cdb8ee2 (2/2 green), no re-push. No new inbox, DECISIONS or proposals.
+next: if GV_TAIL goes ON, #20 merges first, then re-run flags-on suite + eval on main; else hold for G5 freeze.

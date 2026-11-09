@@ -2,12 +2,12 @@ agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
 current_task: Holding for the G5 freeze. Read PR #19 (I, intent) against A's normalize; its use of suggest() and to_ingredients() matches (to-integrator 1723). PR #18 (tests only) rebased and open. BRIEF queue 1-8 and D-040 part 1 done.
 branch: agent/A-data-rules
-last_commit: 46f5304 (on main f2c87fb)
-pr: "#18 open (tests only). #17, #9 merged."
+last_commit: f109b76 (on main 9116895)
+pr: "#18 open (tests only), CI green. #17, #9 merged."
 last_seen:
   plan_version: "1.3.6"
   decisions: D-042
-  logs: {A: 35, B: 67, C: 30, D: 17}
+  logs: {A: 35, B: 70, C: 30, D: 18}
   proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
@@ -53,9 +53,9 @@ dropped:
 open_questions:
   - "Is GV_FUZZY ON for the demo? Integrator decides at 18:00. Fact sent: the hyphen-combo swap gap in C's _swap hides X4 (to-integrator 1730)."
 notes: >
-  This cycle: no new inbox messages, no PLAN or DECISIONS change (still v1.3.6, D-042). New on main: I's PR #19 note to C (intent hook, GV_INTENT).
-  I read PR #19 core/intent.py: it calls normalize.suggest (span/mode/assumed/choices) and to_ingredients exactly as A ships them, so A has nothing to change.
-  C has not changed _swap yet (C-030 is the latest), so the hyphen xfail stays. No code change, so no LOG entry.
-  Rebased on f2c87fb and force-pushed; make test exit 0, 1297 passed, 1 xfailed. No FREEZE, no STOP.
+  17:30 cycle: no new inbox messages or proposals, no PLAN or DECISIONS change (still v1.3.6, D-042).
+  New on main: B-070 only (B re-tested PR #20 after coord-only moves, "Affects: nobody"). Nothing for A.
+  C is still at C-030, so the hyphen xfail in #18 stays.
+  No code change, so no LOG entry. Rebased on 9116895 and force-pushed (f109b76); make test exit 0, 1297 passed, 1 xfailed. No FREEZE, no STOP.
 next: >
   Hold PR #18. When C fixes _swap, turn the xfail into a plain test. 18:00 GV_FUZZY ruling, then hold for the G5 freeze (18:30).

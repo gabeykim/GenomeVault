@@ -226,3 +226,15 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** none
 - **Tests:** `DEMO=1 make test` → exit 0 (1181 passed, 2 skipped until #15/#17); gate 22 pass, 0 warn, 0 fail; the 2 skipped tests pass on A's + B's branches
 - **Next:** on Gabe's confirmation, the Q&A line and separate slide rows; re-run once #15 and #17 merge
+
+### D-018 · 2026-11-08 17:27 · commit `8d215d1` · PLAN v1.3.6
+
+- **Change:** `slides/presentation_script.md`, the word-for-word presentation script. Version A (about 3:40) interleaves slides 1–4, 7, 9 and 13 with live demo beats S2–S6; Version B (about 2:00) is slides only. Slides 8, 11 and 12 are held for questions, with answers, plus recovery lines if the demo breaks. PR #14 merged before this landed, so it is in PR #21.
+- **Why:** D's human owner asked for a full script tied to each slide and demo step.
+- **Class:** Advances
+- **Plan:** advances P8 (pitch, S1–S7)
+- **Contract impact:** none
+- **Affects:** none
+- **Demo impact:** none (follows C-025 and B-044)
+- **Tests:** `DEMO=1 make test` → exit 0 (1291 passed)
+- **Next:** PR #21 merge before G5 (18:30)

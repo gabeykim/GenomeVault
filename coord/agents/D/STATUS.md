@@ -1,8 +1,8 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: D-040 part 5 prepared (D-017, PR #14 at 87d818a); waiting on Gabe's D-040 confirmation and PRs #15/#17
+current_task: PR #21 (presentation script, 8d215d1) awaiting merge before G5; D-040 eval on main via PR #14
 branch: agent/D-eval
-last_commit: 87d818a
+last_commit: 8d215d1
 last_seen:
   plan_version: "1.3.1"
   decisions: D-034
@@ -78,5 +78,7 @@ handled_messages:
   - 20261108-1708-from-C-d040-strings.md
   - 20261108-1715-from-B-live-fallback-api.md
   - 20261108-1716-from-A-typo-set-plus5.md
-blocked_on: integrator confirmation of D-040 (to-integrator 1712) before any slide change
+  - 20261108-1709-from-integrator-d041-contract-note.md
+  - 20261108-1712-from-B-tail-fix.md
+blocked_on: none (D-040 treated as in force per D-041/D-042; slide changes for it only on Kaitlyn's OK)
 next: G4 at 18:15 (DEMO=1 make eval && python -m eval.gate on main); final number pass on deck and submission
