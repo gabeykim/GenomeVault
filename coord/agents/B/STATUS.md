@@ -1,12 +1,12 @@
 agent: B
 state: working     # working | blocked | waiting-review | done | not-started
-current_task: B-065 D-040 part 2 GV_TAIL done (3403f65 on PR #15, 1200 passed); flag ON/OFF decision by 18:00
+current_task: B-066 GV_TAIL flag-on fix (97f83f3 on PR #15); flags-on suite green with #16 + #17; ON/OFF call by 18:00
 branch: agent/B-privacy-router
-last_commit: 3403f65
+last_commit: 97f83f3
 last_seen:
   plan_version: "1.3.5"
   decisions: D-040
-  logs: {A: 30, B: 65, C: 29, D: 16}
+  logs: {A: 32, B: 66, C: 30, D: 16}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -47,6 +47,7 @@ handled_messages:
   - 20261108-1658-from-integrator-adaptive-questions-pending.md
   - 20261108-1702-from-I-adaptive-parts2-3.md
   - 20261108-1702-from-C-single-and-tail-shape.md
+  - 20261108-1708-from-C-d040-ui-ready.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -105,4 +106,8 @@ notes: >
   alias onto the one tail drug-lab key (I3). Cover: fair coin core/tail. single_candidates/send_single as C proposed
   (ledger bucket_id "single", refused for partition keys). Flag default off. make test exit 0, 1200 passed.
   Not run: full suite with GV_TAIL=1 exported (sandbox refused). C and D told.
-next: after PR #15 merges, run the full suite + eval with GV_TAIL=1 and GV_DEMO_LIVE_FALLBACK=1; agree flag ON/OFF with the integrator by 18:00.
+  B-066: full suite with GV_TAIL, GV_DEMO_LIVE_FALLBACK, GV_FUZZY on (set inside Python) on a throwaway merge main + #15 + #16 + #17
+  found 3 router bugs: a covering local flag was overridden by a tail send (wrong no_data). Fixed (97f83f3): same-product
+  ingredients never a pair; tail drug-lab keys only when no flag covers; substitution asks no tail-only pair. make test exit 0,
+  1207 passed; merge flags off 1263 passed, flags on 1263 passed. C's single shapes confirmed. C, D, integrator told.
+next: after PR #15 merges, run D's eval with the D-040 flags on; send the integrator the flag ON/OFF recommendation by 18:00.

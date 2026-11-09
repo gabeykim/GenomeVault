@@ -851,3 +851,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 1200 passed. Not run: the full suite with `GV_TAIL=1` exported (the sandbox refused env-prefixed pytest); flag-on behaviour is covered by `tests/B/test_tail.py` only.
 - **Inbox:** handled 20261108-1702-from-C-single-and-tail-shape (shapes confirmed). New LOG: C-029 (input click fix), nothing for B.
 - **Next:** full-suite + eval run with GV_TAIL=1 on main after merge; decide flag ON/OFF by 18:00 with the integrator.
+
+### B-066 · 2026-11-08 17:12 · commit `97f83f3` (PR #15) · PLAN v1.3.5
+
+- **Change:** Ran the full suite with `GV_TAIL=1 GV_DEMO_LIVE_FALLBACK=1 GV_FUZZY=1` (flags set from inside Python) on a throwaway merge of main + PR #15 + #16 (C-030) + #17 (A-032). 10 B tests failed. 3 were real router bugs: with the tail on, a covering local flag no longer settled the question. Tail drug-lab keys and tail-only pairs were sent on top of it, and a cache miss turned the local `known` answer into `no_data`. Cases: allergy flag + "amox-clav"; X3/X4 + "simvastatin dose and my potassium"; class-rule flag + "naproxen instead of ibuprofen"; X1 + "eGFR 48" sent an extra tail bucket. Fix in `core/router.py`: (1) the ingredients of one combination product named in the question ("amox-clav", "ezetimibe-simvastatin") are never a pair; (2) tail drug-lab keys are asked only when no flag covers the question; (3) a substitution question asks no tail-only pair. Named tail pairs are still asked, even beside an unrelated covering flag (the D-040 goal). The other 7 failures were tests that assume the core partition (cover draws, core vocabulary); they now pin `GV_TAIL` off, and 7 flag-on tests were added to `tests/B/test_tail.py`.
+- **Why:** B-065 next step (flag-on full suite before the 18:00 ON/OFF call). A wrong `no_data` on an allergy question would be an S-beat regression with the flag on.
+- **Class:** Refines
+- **Plan:** refines D-040 part 2 (when tail keys are asked); I4, I5, P6.1 kept; flag off = unchanged
+- **Refinements:** with GV_TAIL, tail drug-lab keys only when no flag covers the question; same-product ingredient pairs never asked; substitution questions ask no tail-only pair.
+- **Contract impact:** none
+- **Affects:** C: confirmed `single_candidates(question, flags) -> list[str]`, `send_single(key) -> Answer` (records its own ledger `bucket` entry, bucket_id `single`; blocked = `blocked` entry), tail bucket_id `tail-NNNN`, exactly as C-030 reads them. Nothing to change. D: with GV_TAIL, fewer spurious tail sends; E1 on named tail pairs unchanged.
+- **Demo impact:** none with flags off. With them on, local answers (allergy, X3/X4, class rule) stay local in S4/S6.
+- **Tests:** `make test` exit 0, 1207 passed (B branch). Throwaway merge main + #15 + #16 + #17: flags off exit 0, 1263 passed; all three flags on exit 0, 1263 passed.
+- **Inbox:** handled 20261108-1708-from-C-d040-ui-ready (shapes confirmed). New LOG: A-031/A-032 (`suggest`, PR #17), C-030 (PR #16): no B change needed.
+- **Next:** eval with the flags on after merge; recommend flag ON/OFF to the integrator by 18:00.
