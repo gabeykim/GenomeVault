@@ -156,3 +156,67 @@ def test_cover_can_draw_tail(env, monkeypatch):
     monkeypatch.setattr(router._cover_rng, "random", lambda: 0.1)
     e = router.send_cover()
     assert e is not None and e.kind == "cover" and e.bucket_id.startswith("tail-")
+
+
+# B-066: GV_TAIL never overrides a local answer, and never pairs one product's own ingredients ---------
+
+from core.rules import check_all  # noqa: E402
+
+_ALLERGY = Flag(id="A1", key="penicillin|amoxicillin", severity="high", engine="allergy",
+                evidence=["penicillin allergy"], needs_cloud=True)
+_X1 = Flag(id="X1", key="CYP2C19:poor_metabolizer|clopidogrel", severity="high", engine="gene_drug",
+           evidence=["CYP2C19 poor metabolizer"], needs_cloud=True)
+_CR = Flag(id="CR-001", key="aspirin|naproxen", severity="high", engine="class_rule",
+           evidence=["NSAID + antiplatelet"], needs_cloud=False)
+
+
+def _sent_texts() -> list[str]:
+    return [t for e in ledger.feed(0) for t in ledger.outbound(e.seq)]
+
+
+def test_combo_product_ingredients_are_not_a_pair():
+    q = "Is ezetimibe-simvastatin 10-40 mg OK with my clopidogrel?"
+    keys = router._question_keys(q)
+    assert pair_key("ezetimibe", "simvastatin") not in keys
+    assert pair_key("clopidogrel", "simvastatin") in keys and pair_key("clopidogrel", "ezetimibe") in keys
+    assert pair_key("amoxicillin", "clavulanate") not in router._question_keys("Can I take amox-clav?")
+
+
+def test_combo_question_sends_tail_pair_but_never_strength_or_own_pair(env):
+    q = "Is ezetimibe-simvastatin 10-40 mg OK with my clopidogrel?"
+    router.route(q, [])
+    texts = [t.lower() for t in _sent_texts()]
+    assert texts and all("10-40" not in t and q.lower() not in t for t in texts)
+    own = topic_for_key(pair_key("ezetimibe", "simvastatin")).text.lower()
+    assert own not in texts
+    assert all(e.personal_fields_sent == 0 for e in ledger.feed(0))
+
+
+def test_amox_clav_allergy_stays_local_with_tail():
+    a = router.route("Can I take amox-clav?", [_ALLERGY])
+    assert not a.sent_to_cloud and [e.kind for e in ledger.feed(0)] == ["local_only"]
+
+
+def test_local_only_flags_with_a_lab_word_send_nothing_with_tail():
+    local = [f for f in check_all(load_profile()) if not f.needs_cloud]
+    assert local
+    a = router.route("Is my simvastatin dose and my potassium ok?", local)
+    assert not a.sent_to_cloud and a.state == "known" and a.text == router.LOCAL_TEXT
+
+
+def test_covering_flag_with_a_lab_word_asks_no_tail_drug_lab_key():
+    router.route("I am 58, CYP2C19 *2/*2, eGFR 48 - clopidogrel?", [_X1])
+    assert [e for e in ledger.feed(0) if e.kind == "bucket"]          # X1's core bucket still goes
+    assert not any(e.bucket_id.startswith("tail-") for e in ledger.feed(0))
+
+
+def test_substitution_question_asks_no_tail_pair(monkeypatch):
+    monkeypatch.delenv("DEMO")
+    a = router.route("What about naproxen instead of ibuprofen?", [_CR])
+    assert a.state == "known" and a.text == router.LOCAL_TEXT and not a.sent_to_cloud
+
+
+def test_named_tail_pair_with_unrelated_covering_flag_is_still_asked(env):
+    _cache_bucket(env, [PAIR])
+    router.route("Can I take amoxicillin with warfarin?", [_ALLERGY])
+    assert any(e.bucket_id.startswith("tail-") for e in ledger.feed(0) if e.kind == "bucket")

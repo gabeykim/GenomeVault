@@ -58,7 +58,8 @@ def demo_cache(tmp_path, monkeypatch):
 
 
 def _bucket_allow(bucket_id: str) -> set[str]:
-    bucket = next(b for b in load_buckets() if b.id == bucket_id)
+    from core.decoys import TAIL_VERSION
+    bucket = next(b for b in load_buckets() + load_buckets(TAIL_VERSION) if b.id == bucket_id)
     return set().union(*(_key_drugs(k) for k in bucket.keys))
 
 

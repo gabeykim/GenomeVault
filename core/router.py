@@ -122,10 +122,32 @@ def _named_drugs(question: str) -> list[str]:
     return sorted(w for w in words if w in vocab)
 
 
+_PRODUCT_RE = re.compile(r"[a-z0-9]+(?:\s*[-/]\s*[a-z0-9]+)+")
+
+
+def _same_product_pairs(question: str) -> set[str]:
+    """Pairs of ingredients of ONE combination product named in the question ("amox-clav",
+    "ezetimibe-simvastatin"): the product itself, not a question about taking the two together."""
+    out: set[str] = set()
+    try:
+        from .normalize import to_ingredients
+    except Exception:
+        return out
+    for m in _PRODUCT_RE.finditer(question.lower()):
+        try:
+            ings = sorted({d.ingredient.strip().lower() for d in to_ingredients(m.group())})
+        except Exception:
+            continue
+        out |= {pair_key(a, b) for i, a in enumerate(ings) for b in ings[i + 1:]}
+    return out
+
+
 def _question_keys(question: str) -> list[str]:
-    """Exact drug-drug keys for pairs of known drugs the user names in the question (local parse)."""
+    """Exact drug-drug keys for pairs of known drugs the user names in the question (local parse).
+    The two ingredients of one combination product are not a pair the user asks about."""
     named = _named_drugs(question)
-    return [pair_key(a, b) for i, a in enumerate(named) for b in named[i + 1:]]
+    same = _same_product_pairs(question)
+    return [k for i, a in enumerate(named) for b in named[i + 1:] if (k := pair_key(a, b)) not in same]
 
 
 # Words that put a gene or a lab test in the question's subject (local parse only).
@@ -173,8 +195,10 @@ def _subject_keys(question: str, flags: list[Flag], profile: Optional[Profile]) 
         flag_drugs |= _key_drugs(f.key)
     covered = {(_key_gene(f.key) or _key_lab(f.key), d) for f in flags for d in _key_drugs(f.key)}
     space = list(universe()) + list(load_aliases())
-    if tail_enabled():
-        space += list(_tail_lab_keys())   # gene keys stay core-only; the tail adds drug-lab keys
+    # Gene keys stay core-only; the tail adds drug-lab keys, but only when no local flag covers the
+    # question: a flag already answers it on-device with the person's own band, nothing more is sent.
+    if tail_enabled() and not any(not named or _key_drugs(f.key) & set(named) for f in flags):
+        space += list(_tail_lab_keys())
     if profile is not None and named:
         assessed = {g.upper() for g, v in profile.genotypes.items() if v and v != "not_assessed"}
         genes_named = bool(words & _GENE_WORDS) or bool({w.upper() for w in words} & assessed)
@@ -248,6 +272,10 @@ def route(question: str, flags: list[Flag]) -> Answer:
             wanted.append(f.key)
     flag_keys = {f.key for f in flags}
     asked = [k for k in asked if k not in flag_keys]
+    if tail_enabled() and _SUBSTITUTE_RE.search(question.lower()):
+        # "naproxen instead of ibuprofen" names alternatives, not two drugs taken together: a tail-only
+        # pair of them is not asked (the core partition behaves as before).
+        asked = [k for k in asked if bucket_for(k) is not None or k not in _question_keys(question)]
     for k in asked:
         if k not in wanted:
             wanted.append(k)

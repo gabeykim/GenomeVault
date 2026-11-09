@@ -101,7 +101,8 @@ def test_two_bucket_question_is_spread_out(monkeypatch):
 
 # --- P6.6 cover buckets ---------------------------------------------------------------------------
 
-def test_send_cover_sends_one_whole_fixed_bucket():
+def test_send_cover_sends_one_whole_fixed_bucket(monkeypatch):
+    monkeypatch.delenv("GV_TAIL", raising=False)   # core partition only; the tail cover is in test_tail.py
     e = router.send_cover()
     assert e is not None and e.kind == "cover" and e.bytes_out > 0 and e.personal_fields_sent == 0
     b = next(b for b in load_buckets() if b.id == e.bucket_id)
@@ -114,7 +115,8 @@ def test_send_cover_sends_one_whole_fixed_bucket():
     assert all(kb.get(k) is not None for k in b.keys)          # all 8 answers stored
 
 
-def test_cover_choice_ignores_questions_and_covers_partition():
+def test_cover_choice_ignores_questions_and_covers_partition(monkeypatch):
+    monkeypatch.delenv("GV_TAIL", raising=False)   # core partition only; the tail cover is in test_tail.py
     router.route("Does my genetics change how clopidogrel works for me?", [X1])
     real = bucket_for(X1.key).id
     seen = [router.send_cover().bucket_id for _ in range(400)]
