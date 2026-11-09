@@ -116,6 +116,7 @@ function setTicker(node, text) {
   if (REDUCED) { prev.remove(); return; }
   prev.classList.add("out");
   prev.addEventListener("animationend", () => prev.remove(), { once: true });
+  setTimeout(() => prev.remove(), 1000);   // a hidden tab (presenter on the slides) never fires animationend
 }
 
 
@@ -175,7 +176,7 @@ function playIntro(onOpen) {
     while (left > 0) {
       const h = Math.min(left, 6 + Math.floor(r() * 26));
       const roll = r();
-      const kind = roll < 0.42 ? "b" : roll < 0.6 ? "e" : roll < 0.68 ? "m" : "w";    // raised midnight, blue, cantaloupe, midnight
+      const kind = roll < 0.5 ? "b" : "w";    // ink or paper
       col.append(el("i", { class: kind, style: `height:${h}%` }));
       left -= h;
     }
@@ -618,6 +619,9 @@ async function pollCaptures() {
 let lastSeq = 0;
 let polling = false;
 let firstPoll = true;
+// Background decoys (cover traffic) go out every few seconds; one grouped row instead of a list of them.
+const cover = { n: 0, bytes: 0 }, pack = { n: 0, bytes: 0 };
+const groupSum = (g) => `${g.n} group${g.n === 1 ? "" : "s"} · ${formatBytes(g.bytes)}`;
 
 // The 8 questions that left in one bucket. Only this device can mark which one is the user's.
 async function showOutbound(e, li, toggle) {
@@ -659,7 +663,7 @@ function ledgerEntry(e) {
   const li = el("li", { class: `entry k-${e.kind}`,
     title: [time, e.bucket_id, `personal fields ${e.personal_fields_sent}`].filter(Boolean).join(" · ") },
     el("span", { class: "seq" }, pad2(e.seq)),
-    el("span", { class: "desc" }, e.pack ? "Knowledge pack · same for every user" : (LEDGER_KINDS[e.kind] || e.kind), toggle),
+    el("span", { class: "desc" }, LEDGER_KINDS[e.kind] || e.kind, toggle),
     el("span", { class: "bytes" }, formatBytes(e.bytes_out)));
   toggle?.addEventListener("click", () => showOutbound(e, li, toggle));
   return li;
@@ -672,24 +676,28 @@ async function pollLedger() {
     const data = await api(`/api/ledger?since=${lastSeq}`);
     const list = $("ledger");
     if (data.entries.length) {
-      list.querySelector(".ledger-empty")?.remove();
       let outbound = 0;
       for (const e of data.entries) {
-        list.prepend(ledgerEntry(e));
         lastSeq = Math.max(lastSeq, e.seq);
-        if (e.kind === "bucket" || e.kind === "cover") outbound++;
+        const group = e.pack ? pack : e.kind === "cover" ? cover : null;
+        if (group) { group.n++; group.bytes += e.bytes_out; continue; }
+        list.querySelector(".ledger-empty")?.remove();
+        list.prepend(ledgerEntry(e));
+        if (e.kind === "bucket") outbound++;
       }
       if (outbound && !firstPoll) sendPackets(8);
     }
     firstPoll = false;
     const t = data.totals;
     setTicker($("ledger-bytes"), formatBytes(t.bytes_out));
-    setTicker($("total-bytes"), formatBytes(t.bytes_out));
     setTicker($("ledger-personal"), String(t.personal_fields_sent));
     $("ledger-personal").classList.toggle("good", t.personal_fields_sent === 0);
     $("ledger-personal").classList.toggle("bad", t.personal_fields_sent > 0);
     applyCloud(data.cloud);
-    $("live-cover").hidden = !data.cover;
+    $("live-cover").hidden = !data.cover && !cover.n;
+    $("cover-sum").textContent = cover.n ? groupSum(cover) : "on";
+    $("pack-row").hidden = !pack.n;
+    $("pack-sum").textContent = groupSum(pack);
     const learned = $("learned");
     if (data.learned) {
       learned.hidden = false;
@@ -712,13 +720,11 @@ function applySync(s) {
   const btn = $("sync-btn"), msg = $("sync-msg");
   btn.disabled = s.running || cloudState?.online === false;
   btn.querySelector("span").textContent = s.running ? "Syncing…" : s.result ? "Sync again" : "Sync knowledge pack";
-  if (s.running) msg.textContent = "Downloading the same groups every user gets, in shuffled order.";
-  else if (s.result?.error) msg.textContent = `Sync stopped (${s.result.error}). Try again when online.`;
-  else if (s.result?.offline) msg.textContent = "Went offline during the sync; what arrived is kept.";
-  else if (s.result) {
-    const r = s.result;
-    msg.textContent = `Synced: ${r.sent} groups sent, ${r.skipped} already here, ${r.facts} facts stored. Same for every user.`;
-  } else if (cloudState?.online === false) msg.textContent = "Connect to sync. Stored answers keep working offline.";
+  if (s.running) msg.textContent = "Same download for every user.";
+  else if (s.result?.error) msg.textContent = `Sync stopped (${s.result.error}).`;
+  else if (s.result?.offline) msg.textContent = "Went offline; what arrived is kept.";
+  else if (s.result) msg.textContent = `${s.result.facts} facts stored. Same for every user.`;
+  else msg.textContent = "";
 }
 
 async function refreshSync() {
@@ -819,7 +825,6 @@ function initTabs() {
 async function loadData() {
   try {
     const status = await api("/api/status");
-    $("demo-badge").hidden = !status.demo;
     applyCloud(status.cloud);
     // Which modules are still mocks: for the team, shown only with ?debug.
     if (new URLSearchParams(location.search).has("debug")) {

@@ -1,0 +1,26 @@
+{
+  "version": "allergy-v1",
+  "note": "Authored allergy groups with a source (PLAN F3, I4). An allergy on the profile matches a group by its id or one of its aliases; the flag fires only for a listed member. Keys are `allergy:<group>|<ingredient>`. An allergy written as a listed member's own name (e.g. `amoxicillin`) matches that ingredient only, key `allergy:<ingredient>|<ingredient>`, and never the rest of its group. Nothing is inferred across groups: no penicillin -> cephalosporin cross-reactivity, and no sulfonamide antibiotic -> non-antibiotic sulfonamide (furosemide, hydrochlorothiazide, celecoxib). Allergy flags stay on the device (the allergy list is a personal field; B's generalize sends nothing for engine `allergy`).",
+  "groups": {
+    "penicillin": {
+      "label": "a penicillin",
+      "aliases": ["penicillins", "pcn", "penicillin allergy"],
+      "members": ["amoxicillin", "ampicillin", "penicillin_v", "penicillin_g", "dicloxacillin", "nafcillin", "oxacillin", "piperacillin"]
+    },
+    "sulfonamide_antibiotic": {
+      "label": "a sulfonamide antibiotic",
+      "aliases": ["sulfa", "sulfa drugs", "sulfa antibiotics", "sulfonamide", "sulfonamides"],
+      "members": ["sulfamethoxazole", "sulfadiazine"]
+    }
+  },
+  "rules": [
+    {"id": "AL-001", "group": "penicillin",
+     "severity": "high", "tier": "curated", "needs_cloud": false,
+     "source": "FDA labeling for penicillin-class antibiotics (e.g. amoxicillin): contraindicated with a history of serious hypersensitivity to any penicillin",
+     "text": "Your record lists a penicillin allergy and this medicine is a penicillin. Tell the pharmacist or prescriber about the allergy before taking it."},
+    {"id": "AL-002", "group": "sulfonamide_antibiotic",
+     "severity": "high", "tier": "curated", "needs_cloud": false,
+     "source": "FDA labeling for sulfamethoxazole/trimethoprim: contraindicated with known hypersensitivity to sulfonamides",
+     "text": "Your record lists a sulfa allergy and this medicine is a sulfonamide antibiotic. Tell the pharmacist or prescriber about the allergy before taking it."}
+  ]
+}

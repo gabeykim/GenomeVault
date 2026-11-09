@@ -25,12 +25,10 @@
         </svg>
         <span>GenomeVault</span>
       </a>
-      <span class="bar-meta"><span class="blink"></span>On device <span class="mute" id="demo-badge" hidden>· Demo mode</span></span>
       <button class="net" id="net" type="button" role="switch" aria-checked="false" aria-label="Wi-Fi off" hidden>
         <span class="net-track" aria-hidden="true"><span class="net-knob"></span></span>
         <span class="net-state" id="net-state">Online</span>
       </button>
-      <span class="bar-stat"><span class="mute">Sent to cloud</span><strong class="ticker" id="total-bytes"><span class="tick">0 B</span></strong></span>
     </div>
 
     <h1 class="wordmark" aria-label="GenomeVault">
@@ -48,10 +46,10 @@
     <section class="sec col-main" id="sec-main">
       <div class="rule"></div>
       <nav class="tabs" role="tablist" aria-label="Sections">
-        <button class="tab" role="tab" id="tab-meds" aria-controls="panel-meds" aria-selected="true" data-tab="meds"><span class="num">01</span>Medications</button>
-        <button class="tab" role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" data-tab="ask"><span class="num">02</span>Ask</button>
-        <button class="tab" role="tab" id="tab-actions" aria-controls="panel-actions" aria-selected="false" data-tab="actions"><span class="num">03</span>Actions</button>
-        <button class="tab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-tab="data"><span class="num">04</span>My data</button>
+        <button class="tab" role="tab" id="tab-meds" aria-controls="panel-meds" aria-selected="true" data-tab="meds">Medications</button>
+        <button class="tab" role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" data-tab="ask">Ask</button>
+        <button class="tab" role="tab" id="tab-actions" aria-controls="panel-actions" aria-selected="false" data-tab="actions">Actions</button>
+        <button class="tab" role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-tab="data">My data</button>
       </nav>
 
       <div class="panel active" role="tabpanel" id="panel-meds" aria-labelledby="tab-meds">
@@ -103,20 +101,29 @@
         <div class="rule"></div>
         <header class="sec-head">
           <h2>Outbound ledger</h2>
-          <span class="tag"><span class="blink"></span>Live<span class="live-cover" id="live-cover" hidden
-            title="Decoy groups also go out on a steady schedule, so no one watching can tell when you are actually asking.">&nbsp;· cover on</span></span>
+          <span class="tag"><span class="blink"></span>Live</span>
         </header>
         <div class="totals">
-          <div><span class="mute">Bytes out</span><strong class="ticker" id="ledger-bytes"><span class="tick">0 B</span></strong></div>
+          <div><span class="mute">Sent to cloud</span><strong class="ticker" id="ledger-bytes"><span class="tick">0 B</span></strong></div>
           <div><span class="mute">Personal fields</span><strong class="ticker" id="ledger-personal"><span class="tick">0</span></strong></div>
         </div>
         <p class="learned" id="learned" hidden><strong class="ticker" id="learned-n"><span class="tick">0</span></strong><span>facts learned on this device</span></p>
         <div class="sync" id="sync" hidden>
-          <button type="button" class="line-btn" id="sync-btn"><span>Sync knowledge pack</span></button>
-          <span class="mute small" id="sync-msg">The same answers every user gets, so more works offline. Nothing about you picks what is sent.</span>
+          <button type="button" class="line-btn" id="sync-btn"
+            title="Downloads the same answers every user gets, so more works offline. Nothing about you picks what is sent."><span>Sync knowledge pack</span></button>
+          <span class="mute small" id="sync-msg"></span>
         </div>
+        <p class="cover-row" id="live-cover" hidden
+          title="Decoy groups go out on a steady schedule, so no one watching can tell when you are actually asking.">
+          <span class="cover-dot" aria-hidden="true"></span><span>Background decoys</span>
+          <span class="mute" id="cover-sum"></span>
+        </p>
+        <p class="cover-row" id="pack-row" hidden title="The knowledge pack is the same download for every user.">
+          <span class="cover-dot" aria-hidden="true"></span><span>Knowledge pack</span>
+          <span class="mute" id="pack-sum"></span>
+        </p>
         <ol class="ledger" id="ledger">
-          <li class="ledger-empty">Nothing has left this device.</li>
+          <li class="ledger-empty">None of your questions have left this device.</li>
         </ol>
       </section>
     </aside>

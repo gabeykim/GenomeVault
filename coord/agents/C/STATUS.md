@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: C-024 pushed (mock fallbacks dropped) on PR #8; next G3 rehearsal
+current_task: PR #11 ready (CI green on ad4300f); waiting for merge before G4
 branch: agent/C-app-ui
-last_commit: ff5a93c
+last_commit: ad4300f
 last_seen:
-  plan_version: "1.3.1"
-  decisions: D-032
-  logs: {A: 17, B: 30, C: 24, D: 11}
+  plan_version: "1.3.3"
+  decisions: D-036
+  logs: {A: 25, B: 44, C: 26, D: 14}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -50,5 +50,12 @@ handled_messages:
   - 20261108-1536-from-B-app-path-pinned.md
   - 20261108-1537-from-A-app-real-path.md
   - 20261108-1540-from-B-pack-path-pinned.md
+  - 20261108-1551-from-D-bone-again.md
+  - 20261108-1555-from-B-ledger-flag-free.md
+  - 20261108-1602-from-human-vlm-results.md
+  - 20261108-1605-from-integrator-g3-passed.md
+  - 20261108-1606-from-A-vlm-skip-hint.md
+  - 20261108-1705-from-B-partial-sync-explained.md
+  - 20261108-1610-from-integrator-pr11-draft.md
 blocked_on: none
-next: PR #8 review; rehearsal x2 demo + x1 live by G3 17:30, timings to D
+next: PR #11 review; live run with ANTHROPIC_API_KEY on the demo laptop (human); keep S1-S7 solid for G4 18:15 / G5 freeze 18:30

@@ -449,3 +449,144 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0: 801 passed, 3 skipped. In a throwaway merge with `origin/agent/C-app-ui` (PR #8), both files pass: 12 passed. PR #7 updated (head f3a4abc).
 - **Inbox:** C 1543 (stand-ins gone, PR #8) handled by this change. D-033 (Gabe is the integrator, backup Dhiaa): noted. Read A-019 and C-024: nothing else for B.
 - **Next:** PR #7 review before G3 (17:30). After PR #5 merges, confirm the allergy test runs. After PR #4 merges, re-run `DEMO=1 make eval` on main.
+
+### B-037 · 2026-11-08 15:50 · commit `5db1721` (PR #7, rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #7 onto main (`aa30bbf`, D-034) and force-pushed it (new head `5db1721`). Then I checked early that B's allergy test runs against A's allergy engine. In a throwaway worktree I merged PR #7 with `origin/agent/A-data-rules` (PR #5, `d81a2b0`). There were no conflicts, and `make test` exited 0 with 1090 passed and 2 skipped. On PR #7 alone it is 801 passed and 3 skipped. Skip reasons cannot be printed in this sandbox, so this is by elimination. Merging #5 removes exactly one skip, and the only B skip that waits on #5 is `test_g2_real_rules.py`'s allergy test. So that test now runs and passes: amoxicillin stays local_only, 0 bytes, 0 personal fields (I3). I removed the worktree and pushed nothing from it.
+- **Why:** The BRIEF queue is done and PR #7 is waiting for review. This settles one of my post-merge checks before G3 (17:30), not after it.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I3
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #7 head is now `5db1721`, and #7 + #5 merge cleanly and stay green. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. On PR #7 + PR #5: exit 0, 1090 passed, 2 skipped.
+- **Inbox:** nothing new for B. D-034 (submission draft, personalization described as rule-based): noted, B's claims (I3, ledger bytes, offline) are unaffected. A-020 (G3 rehearsal on four PR heads, 1154 green): matches this check.
+- **Next:** PR #7 review and merge at G3. After PR #4 (D) merges, re-run `DEMO=1 make eval` on main.
+
+### B-038 · 2026-11-08 16:00 · commit `4101ae2` (PR #7, rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #7 onto main `6c35c51` (A-021, D-012) and force-pushed it (new head `4101ae2`). Then I answered D's open question from D-012 (A-016) with what B's router actually does. Offline, a question that a local flag covers but whose cloud key is not in the KB yet returns `state="no_data"` with `OFFLINE_TEXT`, sends 0 bytes and writes no ledger entry. This is deliberate under I4: an open cloud key is never shown as "checked". `tests/B/test_offline.py::test_offline_cold_kb_is_no_data_zero_bytes_no_ledger` pins it. The flag itself still comes from `rules.check_all`, and C's UI shows it either way. So D's plan to report both readings (what the user sees, and the router state) matches the code. B will not change this without a proposal.
+- **Why:** D-012 left the A-016 question open and waiting for D's human owner. The facts on B's side help that decision. The BRIEF queue (stretch included) is done.
+- **Class:** Advances
+- **Plan:** supports F8, I4, P7 E4 reporting; G3 (P9) prep
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** D: the router-state reading of E4 is pinned by a B test you can cite (message sent). I: PR #7 head is now `4101ae2`. A, C: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped.
+- **Inbox:** D 1551 (P3 added; D cites B's brand and sync tests and uses about 1,010 B per group from the live ledger) handled, no action for B. Read A-021: G3 sequence green on the integrated heads (#4, #5, #7, #8), nothing for B. D-012: see above.
+- **Next:** PR #7 review and merge at G3 (17:30). After PR #4 merges, re-run `DEMO=1 make eval` on main.
+
+### B-039 · 2026-11-08 16:10 · commit `079fe75` (PR #7, rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #7 onto main `dba1848` and force-pushed it (new head `079fe75`). Then I ran a G3 merge rehearsal on the newest heads of all four open PRs. C's PR #8 changed after my app-path tests (B-033, B-034, B-036) were written, so I wanted to check them against it. In a throwaway worktree at main `dba1848` I merged PR #7 (`4101ae2`, same code as `079fe75`), PR #8 (`ff5a93c`), PR #5 (`1349212`) and PR #4 (`0598ceb`) in one octopus merge. Git hit no conflicts. `make test` exited 0 with 1157 passed and 0 skipped, so every B app-path test, the allergy test included, runs and passes on the merged tree. I removed the worktree and pushed nothing from it.
+- **Why:** The BRIEF queue is done and PR #7 is waiting for review. This lets the integrator merge for G3 (17:30) in any order without a surprise from B's side.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I3, I4, F8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #7 head is now `079fe75`. #4 + #5 + #7 + #8 merge cleanly on main and stay green (message sent). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. On main + #7 + #8 + #5 + #4: exit 0, 1157 passed, 0 skipped.
+- **Inbox:** nothing new for B. No new DECISIONS (still D-034), PLAN still v1.3.1, and no new A, C or D LOG entries since B-038.
+- **Next:** PR #7 review and merge at G3 (17:30). After PR #4 merges, re-run `DEMO=1 make eval` on main.
+
+### B-040 · 2026-11-08 16:20 · commit `1e265c1` (PR #7, rebase only, no new code) · PLAN v1.3.2
+
+- **Change:** No code changed. I rebased PR #7 onto main `c2518bc` (D-035, PLAN v1.3.2) and force-pushed it (new head `1e265c1`). I re-ran the G3 merge rehearsal because PR #5 (A) and PR #4 (D) heads moved. In a throwaway worktree at main `c2518bc` I octopus-merged PR #7 `1e265c1`, PR #5 `f483847`, PR #8 `ff5a93c` and PR #4 `4bd66e2`. Git hit no conflicts. `make test` exited 0 with 1158 passed and 0 skipped. A force-pushed #5 while I was running, so I first ran the merge with `1349212` (1158 passed, 0 skipped), then ran it again with `f483847`. I removed the worktree and pushed nothing from it.
+- **Not run:** the D-035 G4 command (`DEMO=1 make eval && python -m eval.gate`). The sandbox refused `make eval` in the throwaway tree. D-013 reports 22/0/0 on D's tree. The integrator should run it on main after G3.
+- **Why:** G3 is at 17:30 and two heads moved after B-039. The integrator should merge a set of heads that has been tested together.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I3, I4, I7, F8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #7 head is now `1e265c1`. The current heads #4 `4bd66e2`, #5 `f483847`, #7 `1e265c1` and #8 `ff5a93c` merge cleanly on main and stay green (message sent). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. Integrated: exit 0, 1158 passed, 0 skipped. `python -m core.cloud check`: 136/136 keys usable, 0 missing, 0 rejected (I7), 0 outside the partition.
+- **Inbox:** D 1600 (E4 strict reading equals `route()` state, cold 4/20, synced 18/20): handled, nothing for B. D-035 (G4 command) and PLAN v1.3.2: read, no change to B's code. Read D-013 and A-022: nothing for B.
+- **Next:** PR #7 review and merge at G3 (17:30). After G3, rebase onto main and run B's suite against the merged code. Run the D-035 G4 command on main if the sandbox allows it.
+
+### B-041 · 2026-11-08 16:35 · commit `91a39b7` (PR #7, rebase only, no new code) · PLAN v1.3.2
+
+- **Change:** No code changed. I rebased PR #7 onto main `f51ae85` and force-pushed it (new head `91a39b7`, same code as `1e265c1`). Main only gained coordination commits since B-040, so the G3 rehearsal from B-040 and A-023 still holds for this code.
+- **Why:** keep PR #7 current on main before the G3 merge (17:30). Every BRIEF queue item and the stretch item are done, so nothing else is unblocked for B before G3.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I3, I4, F8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #7 head is now `91a39b7` (code identical to `1e265c1`, which A-023 and B-040 tested together with #4, #5 and #8). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. CI checks on the PR: green.
+- **Inbox:** nothing new for B. No new DECISIONS (still D-035), PLAN still v1.3.2. Read A-023 (G3 rehearsal 1158 passed, gate 22/0/0) and D's STATUS update: nothing for B.
+- **Next:** PR #7 review and merge at G3. After G3, rebase onto main, run B's suite against the merged code, and run the D-035 G4 command on main if the sandbox allows it.
+
+### B-042 · 2026-11-08 16:45 · commit `e269240` (PR #7, rebase only, no new code) · PLAN v1.3.2
+
+- **Change:** No code changed. I rebased PR #7 onto main `0ed2e0c` and force-pushed it (new head `e269240`, same code as `1e265c1` and `91a39b7`). Main only gained one coordination commit (integrator inbox to A, C, D on vision-model labels), so the B-040 and A-023 G3 rehearsal still holds for this code.
+- **Why:** keep PR #7 current on main before the G3 merge (17:30). Every BRIEF queue item and the stretch item are done.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I3, I4, F8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #7 head is now `e269240` (code identical to the tested `1e265c1`). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped.
+- **Inbox:** nothing new for B. No new DECISIONS (still D-035), PLAN still v1.3.2. Read `0ed2e0c` (vision-model label results to A, C, D): label capture is outside B's paths, nothing for B.
+- **Next:** PR #7 review and merge at G3. After G3, rebase onto main, run B's suite against the merged code, and run the D-035 G4 command on main if the sandbox allows it.
+
+### B-043 · 2026-11-08 16:55 · commit `87d6e0a` (main after PR #4, #5, #7, #8 merged; no new B code) · PLAN v1.3.2
+
+- **Change:** No code changed. PR #7 is merged (`1ceb00a`), and so are #5, #8 and #4 (main `87d6e0a`). I rebased `agent/B-privacy-router` onto main (it now equals main) and force-pushed it. I then ran B's suite and the D-035 G4 command on the integrated main.
+- **Why:** this is the post-merge check from B-042's "Next" line (AGENTS.md §11: after merges, switch from mocks to real code and re-test).
+- **Class:** Advances
+- **Plan:** advances G3/G4 (P9); I3, I4, F8 checked on the integrated build
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: main `87d6e0a` is green for B, and the G4 gate passes on it (numbers below). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on main `87d6e0a`: exit 0, 1158 passed, 0 skipped. `make eval DEMO=1` then `python -m eval.gate`: **G4 gate 22 pass, 0 warn, 0 fail** (P1 real v5 partition, P3 demo replay, E2a 11 calls / 20 questions, E3c 0 personal fields, E4a cold 11/20 warm 18/20, E4c synced 18/20, I4 none, I7b 25/25). The eval rewrote `docs/results.md` and `eval/results/latency_cost.json` in my worktree; I reverted both (D owns them) and committed nothing.
+- **Inbox:** nothing new for B. No new DECISIONS (still D-035), PLAN still v1.3.2. Read A-024 (standalone gate 22/0/0): matches this run.
+- **Next:** B's queue and the stretch item are done and on main. Wait for the G3 ruling and the next PLAN version, and answer any inbox requests. The local Finder copies (`core/cloud 2.py` etc.) are untracked; a human can delete them.
+
+### B-044 · 2026-11-08 17:05 · commit `d74c0b5` (PR #10, tests only) · PLAN v1.3.3
+
+- **Change:** two new tests in `tests/B/test_pack_sync.py` for C-025's "Not done" item: one stage-delay Sync stopped after 1 group with `offline: true`, and it didn't happen again. (1) With `DEMO=1` and `GV_DELAY_S=0.3,2.0`, a sync sends every group: 8 pauses per group, each between 0.3 and 2.0 s. (2) Wi-Fi switched off halfway through the first group: that group finishes and its answers are kept in the KB, the rest are not tried, and the result is `sent=1, offline=true`. After Wi-Fi comes back, the next sync skips the stored group and sends the rest, so each group is sent once overall.
+- **Why:** with demo mode on, `cloud._answers` raises `CloudUnavailable` only when `offline()` is forced, so a demo-mode `offline: true` always means `GV_OFFLINE` or `/api/offline` (the S6 toggle) was on while the sync was still running. A Sync with stage delays takes about 2 min, so pressing S6 Wi-Fi off before it finishes gives exactly C's result. That is correct behaviour (F8), not a bug.
+- **Class:** Advances
+- **Plan:** advances F6, F8, P6.6, S6; I5 (whole buckets, each once)
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** C: explains C-025's one-group Sync, nothing to change (the "Went offline; what arrived is kept" UI is right). D: rehearsal note: with stage delays, wait for Sync to finish before S6 Wi-Fi off.
+- **Demo impact:** S6 timing note only (no click changes)
+- **Tests:** `make test` on main `b1ca51c` + this commit: exit 0, 1160 passed.
+- **Inbox:** to-B/20261108-1605-from-integrator-g3-passed.md (G3, PLAN v1.3.3, D-036): nothing changes for B. Read C-025, D-014.
+- **Next:** PR #10 for the integrator before G4 (18:15). Then answer inbox requests until G5 freeze.
+
+### B-045 · 2026-11-08 16:10 · commit `82032ff` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (the B-044 tests) was rebased onto main `c673542` and pushed as `82032ff`. Before that I checked it together with A's PR #9: merging main + #9 + #10 in a throwaway worktree gave no conflicts.
+- **Why:** to keep PR #10 ready to merge before G4, and to show that the two open non-draft PRs (#9 and #10) can merge in either order.
+- **Class:** Advances
+- **Plan:** advances F8, S6 (same as B-044); no change to any invariant
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 (CI green) and PR #9 can merge together, so both can go in at G4. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch (main `c673542` + `82032ff`): exit 0, 1160 passed. On the throwaway merge of main + PR #9 + PR #10: exit 0, 1166 passed. The throwaway worktree was removed afterwards.
+- **Inbox:** nothing new for B. Read A-025 (capture vision-model hint, PR #9): it touches only `core/capture.py` and does not change any input to the router. No new DECISIONS (D-036), PLAN still v1.3.3.
+- **Next:** PR #10 merge at G4. Then answer inbox requests until G5 freeze.
+
+### B-046 · 2026-11-08 16:20 · commit `f8c7fe1` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (B-044 tests) was rebased onto main `8946465` and pushed as `f8c7fe1`. Main moved only in `coord/` since `c673542`. I then merged main with all four open PRs in a throwaway worktree: #9 A `cf3df82`, #10 B `f8c7fe1`, #11 C `ad4300f`, #12 D `3fcab5a` (draft). There were no conflicts.
+- **Why:** G4 is at 18:15 and freeze is at 18:30. The integrator can merge #9 to #12 in any order without a surprise.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F8, S6 unchanged; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: #9, #10, #11 and #12 merge together cleanly and the suite is green. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch: exit 0, 1160 passed. On the throwaway merge of main + #9 + #10 + #11 + #12: exit 0, **1171 passed**. The throwaway worktree was removed. Not run: the D-035 G4 eval command on the combined build. The integrator should run it at G4.
+- **Inbox:** nothing new for B. Read D-037 (D's offline two-reading line accepted; it matches B-038/B-043 numbers, nothing for B), A-026 (PR #9 rebase only) and C-026 (`/api/status.vision.configured`, does not touch the router).
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.

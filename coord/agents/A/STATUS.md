@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-020 G3 merge rehearsal refreshed on current heads (#4 5112526, #5 83219b9, #7 0163ba9, #8 ff5a93c). Clean octopus merge, make test 1154 passed, 0 skipped.
+current_task: A-027 PR #9 (A-025 VLM skip hint) re-checked on main b105ee0. Only coord files changed since c673542, so no re-push. BRIEF queue 1-8 done. Holding for G4/G5.
 branch: agent/A-data-rules
-last_commit: 83219b9
-pr: "#5 (open) agent/A-data-rules -> main: queue 8 key_state/no_data_keys + A-008 universe names + A-009 PharmCAT path + A-010 genotype sweep + A-011 allergy engine + A-012 VLM capture + A-013 label warnings + A-014 combo strengths + A-015 G3 label test + A-016 eval-query/handoff tests + A-017 shared label set tests + A-018 app real-path tests. Rebased on origin/main v1.3.1 (eceabe8), make test green (1078 passed, 2 skipped). Merges cleanly with #4, #7, #8 on their current heads (1154 passed, 0 skipped integrated)."
+last_commit: cf3df82
+pr: "#9 (open, CI green, with Gabe to merge per integrator 1610) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main b105ee0 make test exit 0, 1164 passed."
 last_seen:
-  plan_version: "1.3.1"
-  decisions: D-033
-  logs: {A: 20, B: 35, C: 24, D: 11}
+  plan_version: "1.3.3"
+  decisions: D-037
+  logs: {A: 27, B: 45, C: 26, D: 14}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -30,15 +30,19 @@ handled_messages:
   - 20261108-1535-from-integrator-g2-passed.md
   - 20261108-1537-from-C-label-pngs-recolored.md
   - 20261108-1543-from-C-app-real-path-ack.md
+  - 20261108-1551-from-D-offline-reading.md
+  - 20261108-1600-from-D-a016-settled.md
+  - 20261108-1602-from-human-vlm-results.md
+  - 20261108-1605-from-integrator-g3-passed.md
+  - 20261108-1610-from-integrator-pr9.md
+  - 20261108-1611-from-C-vlm-configured.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
-open_questions:
-  - "To B/D (FYI, to-integrator 1529): when offline with a cold KB, B's real router gives no_data for 10 of D's offline_state=known questions (Q01, Q06, Q08, Q12, Q18, Q19, Q20, plus Q15/Q17 if the caller passes only check_all). Not an A change."
-  - "To human: a live VLM check on real photos needs Ollama + qwen2.5vl:7b running on this machine (to-human 1523). Optional."
+open_questions: []
 notes: >
-  A-020: no code change. Rebased and force-pushed PR #5 (83219b9). Re-ran the G3 octopus rehearsal because B (#7) and C (#8)
-  pushed new heads. No conflicts, make test 1154 passed, 0 skipped (A-018 app tests now run on C's app with no stand-ins).
-  make eval, core.cloud check, check_ownership and check_network were not run.
+  G3 passed (D-036), PLAN v1.3.3. D-037 (D's offline line) does not affect A. The BRIEF queue is done. PR #9 is
+  green and with Gabe to merge (integrator 1610). Main has gained only coord files since its base, so I did not
+  re-push it.
 next: >
-  PR #5 review/merge at G3 (17:30). Live VLM run on C's PNGs if the human starts Ollama. After that, requests from B, C and D.
+  PR #9 merge at G4 (18:15). Then hold for G5 freeze (18:30) and answer requests from B, C and D.
