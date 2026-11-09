@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-071 re-test after coord-only moves on main (9116895); PR #20 held at cdb8ee2 (green) pending Gabe
+current_task: B-072 re-test after coord-only moves on main (0c8e8f9); PR #20 held at cdb8ee2 (green) pending Gabe
 branch: agent/B-privacy-router
 last_commit: cdb8ee2
 last_seen:
   plan_version: "1.3.6"
   decisions: D-042
-  logs: {A: 35, B: 71, C: 30, D: 18}
+  logs: {A: 35, B: 72, C: 30, D: 18}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -126,5 +126,7 @@ notes: >
   B-070: main moved only by coord commits (0f06609 escalated B's all-OFF flag rec + PR #20 to Gabe). Re-tested locally
   (exit 0, 1293 passed); PR #20 left at cdb8ee2 (2/2 green), no re-push.
   B-071: main moved only by coord commits (50935df, 9116895 A-035 status). Re-tested locally (exit 0, 1293 passed);
+  PR #20 left at cdb8ee2 (2/2 green), no re-push. No new inbox, DECISIONS or proposals.
+  B-072: main moved only by coord commit 0c8e8f9 (A-035 status). Re-tested locally (exit 0, 1293 passed);
   PR #20 left at cdb8ee2 (2/2 green), no re-push. No new inbox, DECISIONS or proposals.
 next: if GV_TAIL goes ON, #20 merges first, then re-run flags-on suite + eval on main; else hold for G5 freeze.

@@ -936,3 +936,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 1293 passed.
 - **Inbox:** no new messages for B. New LOG/STATUS: A-035 status update (nothing for B). No new DECISIONS (still D-042), no new proposals.
 - **Next:** if GV_TAIL goes ON, #20 merges first, then B re-runs the flags-on suite + eval on main. Otherwise hold for G5 freeze.
+
+### B-072 · 2026-11-08 17:31 · commit `cdb8ee2` (PR #20) · PLAN v1.3.6
+
+- **Change:** No new B code. Main moved only by one coord commit since B-071 (0c8e8f9 A-035 status). Branch rebased locally (head 8600698, no code diff vs cdb8ee2) and re-tested. PR #20 left at `cdb8ee2` (2/2 checks green), no re-push.
+- **Why:** BRIEF queue is done. PR #20 still waits on Gabe's 18:00 GV_TAIL ON/OFF call.
+- **Class:** Advances
+- **Plan:** G5 readiness; no invariant touched
+- **Contract impact:** none
+- **Affects:** nobody. No messages sent.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 1293 passed.
+- **Inbox:** no new messages for B. No new LOG entries needing action, no new DECISIONS (still D-042), no new proposals.
+- **Next:** if GV_TAIL goes ON, #20 merges first, then B re-runs the flags-on suite + eval on main. Otherwise hold for G5 freeze.
