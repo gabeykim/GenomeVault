@@ -1,13 +1,14 @@
 agent: A
 state: done     # working | blocked | waiting-review | done | not-started
-current_task: Holding for G5. Branch agent/A-data-rules rebased onto main c7f159f and pushed; it has no diff against main. make test exit 0, 1177 passed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
+current_task: Holding for G5, ready for adaptive-questions part 1 (normalize.suggest behind GV_FUZZY) if the integrator accepts it. Branch agent/A-data-rules rebased onto main 4603f3e and pushed; it has no diff against main. make test exit 0, 1177 passed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
 branch: agent/A-data-rules
-last_commit: 7b3ad75 (merged via 81aa06e); branch tip = main c7f159f
+last_commit: 7b3ad75 (merged via 81aa06e); branch tip = main 4603f3e
 pr: "#9 merged. No open A PR."
 last_seen:
   plan_version: "1.3.4"
   decisions: D-039
-  logs: {A: 30, B: 60, C: 28, D: 16}
+  logs: {A: 30, B: 61, C: 28, D: 16}
+  proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -42,13 +43,13 @@ blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
-open_questions: []
+open_questions:
+  - "Adaptive-questions proposal (20261108-1655, touches I4/I5): no integrator ruling yet. A told the integrator it can build part 1 (normalize.suggest, GV_FUZZY=1) in ~30 min if accepted, and suggested a return shape (to-integrator 20261108-1657)."
 notes: >
-  This cycle: PLAN still v1.3.4 and the newest decision is still D-039. No new inbox messages or proposals for A.
-  New since last cycle: B-060 (PR #15, a B test pinning GV_COVER_INTERVAL_S=20 for D-039) and D's PR #14 note (docs/slides headers).
-  Both are outside A's area and need nothing from A. The only new commits on main are coordination files.
-  No FREEZE, no STOP. Rebased onto main c7f159f, make test exit 0 (1177 passed), pushed agent/A-data-rules (it equals main).
-  No code change, so there is no new LOG entry.
+  This cycle: PLAN is still v1.3.4 and the newest decision is still D-039. No new messages for A in to-A.
+  New: human proposal 20261108-1655 (adaptive questions) asks A for part 1. It has no ruling and touches I4/I5, so A wrote no code (AGENTS §5, §8).
+  Also new: B-061 (a sync, PR #15 still waiting); it needs nothing from A.
+  No FREEZE, no STOP. Rebased onto main 4603f3e, make test exit 0 (1177 passed), pushed agent/A-data-rules (no diff against main). No code change, so no new LOG entry.
 next: >
-  Hold new code until G5 freeze (18:30). Answer demo-critical requests from B, C, D or the integrator in A's area
-  (data/, ingest, graph, capture, normalize, rules).
+  If the integrator accepts part 1: build core/normalize.suggest plus data/rules/lookalikes.json and a tests/A typo set behind GV_FUZZY=1, PR by 18:00.
+  Otherwise hold new code until the G5 freeze (18:30) and only answer demo-critical requests in A's area.
