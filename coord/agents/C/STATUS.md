@@ -1,11 +1,11 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: C-031 PR #22 (hyphen swap fix, intent fields); D-040 part 4 green with A/B real code
+current_task: PR #22 waiting for merge (first in D-043 order); D-043 checked: 1335 green flags on/off, demo_proof 28/0/1
 branch: agent/C-app-ui
 last_commit: b991470
 last_seen:
   plan_version: "1.3.6"
-  decisions: D-042
+  decisions: D-043
   logs: {A: 30, B: 58, C: 31, D: 16}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
@@ -67,5 +67,8 @@ handled_messages:
   - 20261108-1720-from-I-intent-hook.md
   - 20261108-1730-from-A-hyphen-confirmed-main.md
   - 20261108-1730-from-B-intent-flag-isolation.md
+  - 20261108-1733-from-A-swap-fix-verified.md
+  - 20261108-1734-from-B-single-box-by-design.md
+  - 20261108-1745-from-I-adaptive-on.md
 blocked_on: none
-next: keep S1-S7 and UI stable (bug fixes only after the 18:30 freeze); confirm the Codespaces link once #13 merges; live run with the key (human)
+next: demo-critical fixes only; keep tests green with the five D-043 flags set and unset; live run with the key (human)
