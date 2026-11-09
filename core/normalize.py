@@ -4,11 +4,16 @@
 products into their ingredients, and attaches a dose when the text gives one. Names come only from
 `data/rules/drug_names.json`; there is no fuzzy matching, so an unknown or misspelled name gives `[]`
 rather than a guess (same spirit as I4: no extrapolation).
+
+`suggest(text)` (D-040 part 1, only when `GV_FUZZY=1`) proposes spellings for words that matched
+no name, for the UI to show. It never changes what `to_ingredients` returns: a suggestion only
+becomes a lookup after the user sees it and the corrected text goes back through the exact path.
 """
 from __future__ import annotations
 
 import functools
 import json
+import os
 import pathlib
 import re
 
@@ -76,19 +81,18 @@ def _dose(window: str, n_ingredients: int) -> list[float | None]:
     return [round(p, 3) for p in parts]
 
 
-def to_ingredients(text: str) -> list[Drug]:
-    """Every recognized drug in `text` as `Drug(ingredient, dose_mg)`, in order of appearance,
-    one entry per ingredient. Unknown text returns `[]`."""
-    if not text or not text.strip():
-        return []
-    text = text.lower().replace("®", " ").replace("™", " ")
+def _clean(text: str) -> str:
+    return text.lower().replace("®", " ").replace("™", " ")
+
+
+def _matches(text: str) -> list[tuple[tuple[str, ...], int, int]]:
+    """Exact lexicon names in cleaned `text`, longest name first: (ingredients, start, end)."""
     lex, longest = _lexicon()
     toks = _tokens(text)
-
-    matches: list[tuple[tuple[str, ...], int, int]] = []   # (ingredients, start, end)
+    matches: list[tuple[tuple[str, ...], int, int]] = []
     i = 0
     while i < len(toks):
-        for n in range(min(longest, len(toks) - i), 0, -1):          # longest name first
+        for n in range(min(longest, len(toks) - i), 0, -1):
             key = tuple(t for t, _, _ in toks[i:i + n])
             if key in lex:
                 matches.append((lex[key], toks[i][1], toks[i + n - 1][2]))
@@ -96,6 +100,16 @@ def to_ingredients(text: str) -> list[Drug]:
                 break
         else:
             i += 1
+    return matches
+
+
+def to_ingredients(text: str) -> list[Drug]:
+    """Every recognized drug in `text` as `Drug(ingredient, dose_mg)`, in order of appearance,
+    one entry per ingredient. Unknown text returns `[]`."""
+    if not text or not text.strip():
+        return []
+    text = _clean(text)
+    matches = _matches(text)
 
     # Names joined only by "-" or "/" are one combination product, and the strengths after the last
     # name belong to all of them in order: "ezetimibe-simvastatin 10-40 mg" is simvastatin 40 mg.
@@ -115,3 +129,147 @@ def to_ingredients(text: str) -> list[Drug]:
             elif drugs[ing].dose_mg is None and dose is not None:
                 drugs[ing] = Drug(ingredient=ing, dose_mg=dose)
     return list(drugs.values())
+
+
+# --- D-040 part 1: typo suggestions (GV_FUZZY=1) -------------------------------------------
+
+LOOKALIKES_PATH = NAMES_PATH.parent / "lookalikes.json"
+ASSUME_MAX = 2           # "assumed" needs the best candidate within 2 edits ...
+ASSUME_GAP = 2           # ... and every candidate meaning another drug at least 2 edits further
+MAX_CHOICES = 3
+MIN_TOKEN = 4            # shorter words ("mg", "xl", "can") are never treated as typos
+
+# Common question words long enough to be suggest-able. Never a typo for a drug name.
+_STOPWORDS = frozenset("""
+    about after again alcohol allergic allergy also anything before blood both coffee combine
+    combined could daily days does doctor dose doses drink drinks each effects every feel food
+    gave given grapefruit have headache heart help high interact interaction interactions juice
+    just like medicine meds mixing morning night nurse okay once only other pain pharmacist pill
+    pills prescribed prescription pressure safe should side some start started still stop stopped
+    tablet tablets take taken takes taking than that their them then there these they this
+    together twice using water week weeks what when where which while will with would years your
+""".split())
+
+
+def fuzzy_enabled() -> bool:
+    return os.environ.get("GV_FUZZY", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _limit(token: str) -> int:
+    """Edits a word may be from a name and still count as a candidate."""
+    n = len(token)
+    return 1 if n <= 6 else 2 if n <= 9 else 3     # short words: "player" is not "bayer"
+
+
+def _distance(a: str, b: str, cap: int) -> int:
+    """Edit distance with adjacent swaps counting as one edit (optimal string alignment).
+    Returns cap + 1 as soon as the answer must exceed `cap`."""
+    if abs(len(a) - len(b)) > cap:
+        return cap + 1
+    prev2: list[int] = []
+    prev = list(range(len(b) + 1))
+    for i in range(1, len(a) + 1):
+        cur = [i] + [0] * len(b)
+        for j in range(1, len(b) + 1):
+            cost = 0 if a[i - 1] == b[j - 1] else 1
+            cur[j] = min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost)
+            if i > 1 and j > 1 and a[i - 1] == b[j - 2] and a[i - 2] == b[j - 1]:
+                cur[j] = min(cur[j], prev2[j - 2] + 1)
+        if min(cur) > cap:
+            return cap + 1
+        prev2, prev = prev, cur
+    return prev[-1]
+
+
+_SOUNDS = (("ph", "f"), ("cks", "x"), ("ks", "x"), ("cs", "x"), ("ck", "k"), ("z", "s"), ("y", "i"))
+SOUND_D = 1              # a word that sounds like a name ("plavicks", "ibuprophen") counts as 1 edit
+
+
+def _sound(word: str) -> str:
+    """Sound-alike form: ph->f, cks/ks/cs->x, ck->k, z->s, y->i, then double letters -> single."""
+    for a, b in _SOUNDS:
+        word = word.replace(a, b)
+    return "".join(c for i, c in enumerate(word) if i == 0 or c != word[i - 1])
+
+
+@functools.lru_cache(maxsize=1)
+def _sound_index() -> dict[str, tuple[str, ...]]:
+    names, _, _ = _suggest_tables()
+    index: dict[str, list[str]] = {}
+    for name in names:
+        index.setdefault(_sound(name), []).append(name)
+    return {k: tuple(v) for k, v in index.items()}
+
+
+@functools.lru_cache(maxsize=1)
+def _suggest_tables():
+    """(candidate name -> ingredients, or None for a look-alike we have no tables for;
+    name -> the other names in its look-alike groups; words inside multi-word names)."""
+    lex, _ = _lexicon()
+    names: dict[str, tuple[str, ...] | None] = {k[0]: v for k, v in lex.items() if len(k) == 1}
+    parts = frozenset(w for k in lex if len(k) > 1 for w in k)
+    groups: dict[str, list[str]] = {}
+    for group in json.loads(LOOKALIKES_PATH.read_text())["groups"]:
+        group = [g.lower() for g in group]
+        for g in group:
+            mates = groups.setdefault(g, [])
+            mates += [x for x in group if x != g and x not in mates]
+            names.setdefault(g, None)
+    return names, groups, parts
+
+
+def suggest(text: str) -> list[dict]:
+    """Spelling suggestions for the words in `text` that matched no drug name (D-040 part 1).
+
+    Returns [] unless GV_FUZZY=1. Otherwise one dict per suggest-able word, in text order:
+        {"token": str, "term": str,     # the same word (C reads "term")
+         "span": [start, end], "mode": "assumed" | "ask",
+         "assumed": name | None,        # set only when mode == "assumed"
+         "choices": [name, ...],        # 1 to 3, best first; "assumed" has exactly 1
+         "not_covered": [name, ...]}    # choices that are real drugs with no GenomeVault tables
+    "assumed": one name within 2 edits and nothing meaning another drug within 2 more; the UI
+    shows "I'm assuming you mean X" with an undo. "ask": the UI shows "Did you mean ...?" and
+    waits. A word that sounds like a name (_sound: "plavicks", "ibuprophen") counts as 1 edit.
+    A word near any name in data/rules/lookalikes.json is always "ask". Choices are spelled
+    so that to_ingredients() recognizes them (not_covered ones give [], i.e. no_data)."""
+    if not fuzzy_enabled() or not text or not text.strip():
+        return []
+    text = _clean(text)
+    names, groups, parts = _suggest_tables()
+    covered = [(s, e) for _, s, e in _matches(text)]
+    out: list[dict] = []
+    for token, start, end in _tokens(text):
+        if (len(token) < MIN_TOKEN or token in _STOPWORDS or token in parts
+                or any(s <= start and end <= e for s, e in covered)):
+            continue
+        if token in names:            # spells a look-alike we have no tables for ("clozapine"): no guess
+            continue
+        cap = _limit(token)
+        dist = {name: d for name in names if (d := _distance(token, name, cap)) <= cap}
+        for name in _sound_index().get(_sound(token), ()):     # sound-alike match: 1 edit at most
+            dist[name] = min(dist.get(name, SOUND_D), SOUND_D)
+        ranked = sorted((d, name) for name, d in dist.items())
+        if not ranked:
+            continue
+        best_d, best = ranked[0]
+        near_lookalike = [name for _, name in ranked if name in groups]
+        others = [d for d, name in ranked[1:] if names[name] is None or names[name] != names[best]]
+        if (not near_lookalike and names[best] is not None and best_d <= ASSUME_MAX
+                and best[0] == token[0]                       # typos rarely change the first letter
+                and all(d >= best_d + ASSUME_GAP for d in others)):
+            mode, choices = "assumed", [best]
+        else:
+            mode, choices, seen = "ask", [], set()
+            for _, name in ranked:
+                if names[name] is not None:
+                    if names[name] in seen:
+                        continue      # "rifampn": rifampin, not rifampicin as well
+                    seen.add(names[name])
+                choices.append(name)
+            for name in near_lookalike:
+                choices += [g for g in groups[name] if g not in choices]
+            choices = choices[:MAX_CHOICES]
+        out.append({"token": token, "term": token, "span": [start, end], "mode": mode,
+                    "assumed": choices[0] if mode == "assumed" else None, "choices": choices,
+                    "not_covered": [c for c in choices if names[c] is None]})
+    return out
