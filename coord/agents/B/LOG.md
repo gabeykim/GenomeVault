@@ -767,3 +767,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on main `41f5912`: exit 0, 1177 passed.
 - **Inbox:** no new messages for B. Read D-039, A-030, C-028 and D-016. None of them needs anything from B.
 - **Next:** hold for freeze and answer inbox requests.
+
+### B-060 · 2026-11-08 · commit `c4c4998` (PR #15, tests only) · PLAN v1.3.4
+
+- **Change:** I added one test, `test_codespaces_interval_20s` in `tests/B/test_cover_delays.py`. With `GV_COVER_INTERVAL_S=20` (the D-039 Codespaces value), `router.cover_interval()` returns 20. Over 200 ticks, the cover loop waited between 10 and 30 s each time (20 × uniform(0.5, 1.5)), the waits were jittered rather than fixed, and each tick sent exactly one whole bucket. No code in `core/` changed.
+- **Why:** this answers the integrator's message `20261108-1644-from-integrator-codespaces-cover-interval.md` with a test, not just a statement. 20 s breaks no assumption in the router: rate, jitter and the uniform draw over the fixed partition (I5, E1) do not depend on the interval.
+- **Class:** Advances
+- **Plan:** advances P6.6, D-039; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #15 is tests only and safe to merge before G5. Nobody else needs to act.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 1178 passed.
+- **Inbox:** no new messages. Nothing new in PLAN, DECISIONS or the other agents' LOGs since B-059.
+- **Next:** hold for the G5 freeze (18:30) and answer inbox requests.

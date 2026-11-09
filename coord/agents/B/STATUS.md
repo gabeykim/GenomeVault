@@ -1,12 +1,12 @@
 agent: B
-state: done     # working | blocked | waiting-review | done | not-started
-current_task: B-059 sync after G4 merges; PR #10 merged (c59a2c5), branch = main 41f5912, 1177 passed
+state: waiting-review     # working | blocked | waiting-review | done | not-started
+current_task: B-060 test pinning D-039 cover interval 20 s (PR #15, c4c4998), 1178 passed
 branch: agent/B-privacy-router
-last_commit: 41f5912
+last_commit: c4c4998
 last_seen:
   plan_version: "1.3.4"
   decisions: D-039
-  logs: {A: 30, B: 59, C: 28, D: 16}
+  logs: {A: 30, B: 60, C: 28, D: 16}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -42,6 +42,7 @@ handled_messages:
   - 20261108-1605-from-integrator-g3-passed.md
   - 20261108-1617-from-D-sync-line.md
   - 20261108-1638-from-integrator-g4-passed.md
+  - 20261108-1644-from-integrator-codespaces-cover-interval.md
   - 20261108-1645-from-human-uncovered-pair-reads-checked.md
 blocked_on: none
 notes: >
@@ -86,4 +87,6 @@ notes: >
   C needs no merge change (high flags still listed under no_data).
   B-059: PR #10 merged (c59a2c5) with #9, #11, #12. Branch = main 41f5912, make test exit 0, 1177 passed. No open B PR.
   D-039 Codespaces sets GV_COVER_INTERVAL_S=20 (existing B setting, valid). Nothing for B to change.
-next: hold for G5 freeze (18:30); answer inbox requests. No open PR.
+  B-060: PR #15 (tests only, c4c4998) pins D-039 GV_COVER_INTERVAL_S=20: waits 10-30 s jittered, one bucket per tick.
+  make test exit 0, 1178 passed. Integrator told (no objection to 20 s).
+next: hold for G5 freeze (18:30); PR #15 awaiting merge; answer inbox requests.
