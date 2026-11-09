@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (C-022 pushed; PR #3 updated; waiting for G2 merges)
+current_task: C-025 G3 rehearsal done (3 runs) + vision-model stage items on PR #8; live run needs the API key (human)
 branch: agent/C-app-ui
-last_commit: a39ba64
+last_commit: c0c385b
 last_seen:
-  plan_version: "1.3"
-  decisions: D-029
-  logs: {A: 14, B: 27, C: 22, D: 11}
+  plan_version: "1.3.2"
+  decisions: D-035
+  logs: {A: 24, B: 41, C: 25, D: 13}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -45,5 +45,13 @@ handled_messages:
   - 20261108-1520-from-human-whats-left.md
   - 20261108-1501-from-I-plan-v1-3.md
   - 20261108-1523-from-A-warning-lines.md
+  - 20261108-1534-from-A-label-set-pinned.md
+  - 20261108-1535-from-integrator-g2-passed.md
+  - 20261108-1536-from-B-app-path-pinned.md
+  - 20261108-1537-from-A-app-real-path.md
+  - 20261108-1540-from-B-pack-path-pinned.md
+  - 20261108-1551-from-D-bone-again.md
+  - 20261108-1555-from-B-ledger-flag-free.md
+  - 20261108-1602-from-human-vlm-results.md
 blocked_on: none
-next: G2: after #6, #2, #3 merge, sync, drop stand-ins (D-014), one question end to end on main; then rehearsal x2 demo + x1 live by G3 17:30, timings to D
+next: PR #8 review; live run with ANTHROPIC_API_KEY on the demo laptop (human); freeze prep for G5 18:30

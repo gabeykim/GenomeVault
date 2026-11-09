@@ -149,3 +149,42 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Tests:** `make test` → exit 0 (188 passed). Dry run on main + PR #6 (`2cc266b`) + A `9e94292` + B `170ba35` + C `714e9b0` + D: `python -m core.cloud check` → exit 0 (136/136 usable); `make test` → exit 0 (916 passed); `make eval` → exit 0; `python -m eval.gate` → **20 pass, 0 warn, 0 fail**.
 - **Live results with the pack:** 11 cloud calls for 20 questions (first five 4, last five 0); Q19 answered on the device; offline 11/20 cold, 18/20 warm, 18/20 synced; 0 personal fields; I4 `unbacked_known` empty.
 - **Next:** G4 at 18:15 on main per `docs/G4.md`; optional extra cases from A (allergy, look-alike label, label warnings) and B (brand names)
+
+### D-012 · 2026-11-08 15:51 · commits `9b90a78`, `5112526`, `832b065` (merge of main after G2), `0598ceb` · PLAN v1.3.1
+
+- **Change:** (1) `docs/submission.md`: the judging draft (accepted, D-034). (2) `slides/judge_qa.md`: 16 answers on the integrated results, including the integrator's five; `slides/video_script.md`: a 3:00 backup video. (3) Merged main after G2 (D-032): D's branch now runs on A's, B's and C's real modules and the knowledge pack. `eval/results`, `docs/results.md`, `docs/charts` and `slides/numbers.md` come from the live integrated build. (4) New gate check P3 (B-035): a live run must reach the cloud or its demo replay, else FAIL. `docs/G4.md` says to always run `DEMO=1 make eval`.
+- **Why:** integrator 15:20 list items 4–6; G2 notice; B-035.
+- **Class:** Refines
+- **Plan:** advances P8, P9 G2/G4, P7 E2/E4; follows D-025, D-027, D-032, D-034
+- **Refinements:** a G4 run without the demo replay or a key is a FAIL, not a quiet understatement.
+- **Contract impact:** none
+- **Affects:** I: G4 command is `DEMO=1 make eval && python -m eval.gate` → message sent. B: P3 added → reply sent. A: offline-state question is with D's human owner → reply sent. C: deck re-theme to bone/black in progress → reply sent.
+- **Demo impact:** none
+- **Tests:** on D's branch synced with main: `DEMO=1 make test` → exit 0 (835 passed); `DEMO=1 make eval` → exit 0; `python -m eval.gate` → **21 pass, 0 warn, 0 fail** (P3 FAILs and exits 1 without `DEMO=1`, as intended).
+- **Open question (A-016):** B's router answers `no_data` offline for 10 questions where D's E4 counts a covering local flag as answered. D proposes reporting both readings (user-visible content and router state); awaiting D's human owner.
+- **Next:** G4 at 18:15; final number pass on deck and submission after G4
+
+### D-013 · 2026-11-08 16:00 · commit `4bd66e2` · PLAN v1.3.1
+
+- **Change:** E4 reports both offline readings (A-016), as decided by D's human owner: **user-visible** (a covering local flag or curated note counts, because it's on screen) and **strict** (only the router's own `known`: a stored fact or a local-only flag). `Result.strict_state`; the simulated backend records what B's router would answer. New gate check E4d. `docs/results.md`, `slides/numbers.md`, `docs/submission.md`, `slides/judge_qa.md` and the deck state both. `slides/pitch.md` bracketed figures are refreshed from the integrated build (A-021).
+- **Why:** A-016 question settled; A-021 noted stale pitch figures.
+- **Class:** Refines
+- **Plan:** advances P7 E4, P8; settles A-016
+- **Refinements:** "answered offline" is reported in two readings; neither counts an honest `no_data`.
+- **Contract impact:** none
+- **Affects:** A: settled → reply sent. B: strict matches `route()` → note sent. I: the submission's offline line now carries both counts → note sent.
+- **Demo impact:** none
+- **Tests:** `DEMO=1 make test` → exit 0 (836 passed); `DEMO=1 make eval` → exit 0; `python -m eval.gate` → **22 pass, 0 warn, 0 fail**. Offline on the integrated build: user-visible cold 11/20, strict cold 4/20 (Q01, Q06, Q08, Q12, Q18, Q19, Q20 differ); both 18/20 after a pack sync.
+- **Next:** G4 at 18:15; final number pass after G4
+
+### D-014 · 2026-11-08 16:07 · commit `3fcab5a` · PLAN v1.3.2
+
+- **Change:** the on-device label-reading result Dhiaa measured (7/7 correct, ~4 s per label, no network; demo set of 7 synthetic printed labels) is now quoted in `slides/numbers.md` under a new "Measured by hand (not from `make eval`)" section, generated from `eval/run_all.MEASURED` so `make eval` keeps it. It is also in `docs/submission.md` (How it works; What's real, and what's demo), `slides/judge_qa.md` (Ollama answer, plus a new label-accuracy question), the S2 line of `slides/demo_script.md`, and the deck's speaker notes for How it works.
+- **Why:** to-D/20261108-1602-from-human-vlm-results.md; D's human owner approved.
+- **Class:** Advances
+- **Plan:** advances P8; D-029
+- **Contract impact:** none
+- **Affects:** none. The figure is scoped to the demo label set everywhere it appears, as Dhiaa asked.
+- **Demo impact:** S2 narration now mentions "about 4 seconds"; no click changes
+- **Tests:** `DEMO=1 make test` → exit 0 (836 passed, 2 skipped); `python -m eval.gate` → 22 pass, 0 warn, 0 fail
+- **Next:** G4 at 18:15; final number pass after G4

@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-017 shared label set (C-022, to-A 1526): from_image pinned against phone/samples texts + PNGs, done, on PR #5
+current_task: A-025 capture logs a one-time hint when the local vision model is skipped (LOCAL_VLM_MODEL unset, model down, bad JSON). WARNING under GV_OCR=vlm, DEBUG under auto, never label text. Return values unchanged.
 branch: agent/A-data-rules
-last_commit: 1fd3909
-pr: "#5 (open) agent/A-data-rules -> main: queue 8 key_state/no_data_keys + A-008 universe names + A-009 PharmCAT path + A-010 genotype sweep + A-011 allergy engine + A-012 VLM capture + A-013 label warnings + A-014 combo strengths + A-015 G3 label test + A-016 eval-query/handoff tests + A-017 shared label set tests. Rebased on origin/main (v1.3), make test green (403 passed, 21 skipped)."
+last_commit: 1b17750
+pr: "#9 (open) agent/A-data-rules -> main: A-025 VLM skip hint. Rebased on main 52c9634, make test exit 0, 1164 passed. (#5 merged at G3 as f483847.)"
 last_seen:
-  plan_version: "1.3"
-  decisions: D-031
-  logs: {A: 17, B: 31, C: 22, D: 11}
+  plan_version: "1.3.2"
+  decisions: D-035
+  logs: {A: 25, B: 43, C: 25, D: 14}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -27,15 +27,20 @@ handled_messages:
   - 20261108-1518-from-D-optional-cases.md
   - 20261108-1522-from-integrator-g2-support.md
   - 20261108-1526-from-C-label-set.md
+  - 20261108-1535-from-integrator-g2-passed.md
+  - 20261108-1537-from-C-label-pngs-recolored.md
+  - 20261108-1543-from-C-app-real-path-ack.md
+  - 20261108-1551-from-D-offline-reading.md
+  - 20261108-1600-from-D-a016-settled.md
+  - 20261108-1602-from-human-vlm-results.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
-open_questions:
-  - "To B/D (FYI, to-integrator 1529): offline + cold KB, B's real router gives no_data for 10 of D's offline_state=known questions (Q01, Q06, Q08, Q12, Q18, Q19, Q20, and Q15/Q17 if caller passes only check_all). Not an A change."
-  - "To human: live VLM check on real photos needs Ollama + qwen2.5vl:7b running on this machine (to-human 1523). Optional."
+open_questions: []
 notes: >
-  A-017: tests/A/test_capture_shared_samples.py. C's 7 label texts run everywhere; the real phone/samples
-  PNGs (C-owned) run once C's PR is on main (15 skips until then) and passed 23/23 against C's branch files.
-  Ibuprofen flags X5 x4 for Alex (one per med pair).
+  A-025: the human's real VLM run (to-A 1602) measured 7/7 labels correct at ~4.2 s each, which closes the
+  untested path from to-human 1523. The only issue found was a silent skip when LOCAL_VLM_MODEL was missing from
+  .env; A-025 now logs a hint for it. PRs #4, #5, #7 and #8 are merged on main; A's suite on main + A-025:
+  1164 passed.
 next: >
-  PR #5 review at G2. Live VLM run on C's PNGs (iTXt stripped) if the human starts Ollama. Otherwise requests from B/C/D.
+  PR #9 merge. Then the next PLAN version after the G3 ruling, and requests from B, C and D.

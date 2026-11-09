@@ -1,0 +1,195 @@
+{
+ "backend": "live",
+ "rows": [
+  {
+   "q": "Q01",
+   "category": "gene_drug",
+   "cloud_calls": 2,
+   "kb_hits": 0,
+   "bytes_out": 2115,
+   "state": "known",
+   "cum_local_share": 0.0
+  },
+  {
+   "q": "Q02",
+   "category": "gene_drug",
+   "cloud_calls": 0,
+   "kb_hits": 0,
+   "bytes_out": 0,
+   "state": "known",
+   "cum_local_share": 0.5
+  },
+  {
+   "q": "Q03",
+   "category": "gene_drug",
+   "cloud_calls": 0,
+   "kb_hits": 0,
+   "bytes_out": 0,
+   "state": "no_data",
+   "cum_local_share": 0.667
+  },
+  {
+   "q": "Q04",
+   "category": "gene_drug",
+   "cloud_calls": 1,
+   "kb_hits": 1,
+   "bytes_out": 1197,
+   "state": "known",
+   "cum_local_share": 0.5
+  },
+  {
+   "q": "Q05",
+   "category": "gene_drug",
+   "cloud_calls": 1,
+   "kb_hits": 0,
+   "bytes_out": 1233,
+   "state": "known",
+   "cum_local_share": 0.4
+  },
+  {
+   "q": "Q06",
+   "category": "drug_drug",
+   "cloud_calls": 0,
+   "kb_hits": 1,
+   "bytes_out": 0,
+   "state": "known",
+   "cum_local_share": 0.5
+  },
+  {
+   "q": "Q07",
+   "category": "drug_drug",
+   "cloud_calls": 1,
+   "kb_hits": 1,
+   "bytes_out": 962,
+   "state": "known",
+   "cum_local_share": 0.429
+  },
+  {
+   "q": "Q08",
+   "category": "drug_drug",
+   "cloud_calls": 1,
+   "kb_hits": 1,
+   "bytes_out": 940,
+   "state": "known",
+   "cum_local_share": 0.375
+  },
+  {
+   "q": "Q09",
+   "category": "drug_drug",
+   "cloud_calls": 1,
+   "kb_hits": 0,
+   "bytes_out": 949,
+   "state": "known",
+   "cum_local_share": 0.333
+  },
+  {
+   "q": "Q10",
+   "category": "drug_drug",
+   "cloud_calls": 1,
+   "kb_hits": 0,
+   "bytes_out": 943,
+   "state": "known",
+   "cum_local_share": 0.3
+  },
+  {
+   "q": "Q11",
+   "category": "drug_lab",
+   "cloud_calls": 0,
+   "kb_hits": 0,
+   "bytes_out": 0,
+   "state": "known",
+   "cum_local_share": 0.364
+  },
+  {
+   "q": "Q12",
+   "category": "drug_lab",
+   "cloud_calls": 1,
+   "kb_hits": 0,
+   "bytes_out": 926,
+   "state": "known",
+   "cum_local_share": 0.333
+  },
+  {
+   "q": "Q13",
+   "category": "drug_lab",
+   "cloud_calls": 1,
+   "kb_hits": 0,
+   "bytes_out": 931,
+   "state": "known",
+   "cum_local_share": 0.308
+  },
+  {
+   "q": "Q14",
+   "category": "drug_lab",
+   "cloud_calls": 1,
+   "kb_hits": 0,
+   "bytes_out": 915,
+   "state": "known",
+   "cum_local_share": 0.286
+  },
+  {
+   "q": "Q15",
+   "category": "otc",
+   "cloud_calls": 0,
+   "kb_hits": 0,
+   "bytes_out": 0,
+   "state": "known",
+   "cum_local_share": 0.333
+  },
+  {
+   "q": "Q16",
+   "category": "otc",
+   "cloud_calls": 0,
+   "kb_hits": 0,
+   "bytes_out": 0,
+   "state": "no_data",
+   "cum_local_share": 0.375
+  },
+  {
+   "q": "Q17",
+   "category": "otc",
+   "cloud_calls": 0,
+   "kb_hits": 0,
+   "bytes_out": 0,
+   "state": "known",
+   "cum_local_share": 0.412
+  },
+  {
+   "q": "Q18",
+   "category": "open_ended",
+   "cloud_calls": 0,
+   "kb_hits": 1,
+   "bytes_out": 0,
+   "state": "known",
+   "cum_local_share": 0.444
+  },
+  {
+   "q": "Q19",
+   "category": "open_ended",
+   "cloud_calls": 0,
+   "kb_hits": 1,
+   "bytes_out": 0,
+   "state": "known",
+   "cum_local_share": 0.474
+  },
+  {
+   "q": "Q20",
+   "category": "open_ended",
+   "cloud_calls": 0,
+   "kb_hits": 1,
+   "bytes_out": 0,
+   "state": "known",
+   "cum_local_share": 0.5
+  }
+ ],
+ "total_cloud_calls": 11,
+ "local_share": 0.5,
+ "cloud_calls_first5": 4,
+ "cloud_calls_last5": 0,
+ "repeat_q19_is_local": true,
+ "cloud_status": {
+  "online": true,
+  "demo": true,
+  "forced_offline": false
+ }
+}

@@ -1,12 +1,12 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (D-011 pushed; PR #4 at 6c1b9d6; G4 dry run on v1.3: 20 pass, 0 warn, 0 fail)
+current_task: none (D-014 pushed; PR #4 at 3fcab5a; gate 22 pass, 0 warn, 0 fail)
 branch: agent/D-eval
-last_commit: 6c1b9d6
+last_commit: 3fcab5a
 last_seen:
-  plan_version: "1.2.1 (1.3 pending in PR #6)"
-  decisions: D-024
-  logs: {A: 13, B: 26, C: 21, D: 11}
+  plan_version: "1.3.1"
+  decisions: D-034
+  logs: {A: 21, B: 34, C: 24, D: 13}
 handled_messages:
   - 20261108-1320-from-C-ui-look.md
   - 20261108-1323-from-C-boundaries.md
@@ -49,5 +49,19 @@ handled_messages:
   - 20261108-1510-from-C-s6-sync-confirm.md
   - 20261108-1512-from-A-label-warnings.md
   - 20261108-1516-from-C-answer-order.md
-blocked_on: none (G4 needs PRs #2-#6 merged on main)
-next: G4 at 18:15 on main per docs/G4.md; optional cases (A allergy, look-alike label, label warnings; B brand names)
+  - 20261108-1501-from-I-plan-v1-3.md
+  - 20261108-1518-from-A-combo-doses.md
+  - 20261108-1520-from-human-whats-left.md
+  - 20261108-1528-from-B-brand-cases.md
+  - 20261108-1529-from-A-offline-states.md
+  - 20261108-1535-from-integrator-g2-passed.md
+  - 20261108-1537-from-C-palette-back.md
+  - 20261108-1543-from-B-g4-dry-run.md
+  - 20261108-1546-from-integrator-submission-draft.md
+  - 20261108-1555-from-B-sync-same-for-all.md
+  - 20261108-1550-from-A-eval-on-integrated.md
+  - 20261108-1556-from-integrator-g4-command.md
+  - 20261108-1600-from-B-offline-no-data.md
+  - 20261108-1602-from-human-vlm-results.md
+blocked_on: none
+next: G4 at 18:15 (DEMO=1 make eval && python -m eval.gate on main); final number pass on deck and submission

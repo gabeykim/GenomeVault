@@ -230,3 +230,129 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` exit 0, 403 passed, 21 skipped. `check_ownership.py --range origin/main..HEAD`: ownership ok.
 - **Inbox:** C 1526 (shared label set) handled here. Read B-030, B-031 and C-022: no change needed from A. B-030 relies on A's brand mapping (Advil, Prilosec, Protonix, Zestril, Aleve, Bayer), which is noted and unchanged. No new DECISIONS since D-031, and PLAN is still v1.3.
 - **Next:** PR #5 review at G2. Live VLM check on C's PNGs with the iTXt stripped, if the human starts Ollama. After that, requests from B, C and D.
+
+### A-018 · 2026-11-08 15:37 · commit `a831312` · PLAN v1.3
+
+- **Change:** New `tests/A/test_app_real_path.py` (9 tests). No A code changed. B's PR #2 and C's PR #3 are on main now, so this is the post-gate switch from mocks to real code (AGENTS.md §11). C's app tests swap A's functions for stand-ins; these don't. They go through C's real FastAPI app with A's real `graph`, `rules`, `normalize` and `capture`, and pin: (1) `/api/status` reports those four modules as `real` and A's extras (`expected_notes_all`, `expected_notes`, `no_data_keys`) as present. (2) `/api/profile` is Alex from `data/` with CYP2D6 `not_assessed` (D-021, D-031). (3) `/api/flags` is exactly X1–X4 on their exact keys, X2 shown once, equal to `rules.check_all(graph.load_profile())`, and no evidence says "safe". (4) The notes are expected-combination keys only and are never also flags. (5) Typing "Advil" gives ibuprofen with X5 on all four keys. (6) "Protonix 40 mg" gives pantoprazole, no flags, and `clopidogrel|pantoprazole` in `no_data` (S6, I4). (7) An unknown name gives nothing, not a guess. (8) `/api/capture/confirm` with simvastatin 40 flags X3, and with 20 it flags nothing. (9) A question naming Advil adds X5 to the flags the app routes (B-025); `route()` is never called.
+- **Why:** This is the first time A's real code runs inside the merged app. If the wiring or A's output drifts from P5, the suite now goes red. Only local endpoints are used, so nothing reaches the cloud (I2).
+- **Class:** Advances
+- **Plan:** advances G2, F2, F3, M4, S2, S6; I4 (no_data, no guess)
+- **Contract impact:** none
+- **Affects:** C: FYI only, nothing to do. If `app.py` stops resolving A's modules or changes `/api/check`, `/api/flags` or `/api/capture/confirm` output, `tests/A` will flag it. B, D, I: none.
+- **Demo impact:** none (pins S2 and S6 on real code)
+- **Tests:** `make test` exit 0, 1078 passed, 2 skipped. After rebasing on main (B and C merged), the 15 phone/samples tests from A-017 run instead of skipping. I did not run `check_ownership.py` or `check_network.sh`: both needed approval in this session. The commit touches only `tests/A/`.
+- **Inbox:** nothing new for A. No new DECISIONS since D-031, PLAN is still v1.3, and there are no new LOG entries from B, C or D since my last cycle. PR #5 is MERGEABLE, and CI was still running at the time of writing.
+- **Next:** PR #5 review. Live VLM check on C's PNGs if the human starts Ollama. After that, requests from B, C and D.
+
+### A-019 · 2026-11-08 15:42 · commit `ad4ee19` (rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #5 onto main (v1.3.1, D-032) and force-pushed it (`ad4ee19`). Then I ran a G3 merge rehearsal in a throwaway worktree: `origin/main` merged with all four open PRs (#4 D, #5 A, #7 B, #8 C) in one octopus merge. It merged with no conflicts, and `make test` exited 0 with 1148 passed and 0 skipped. I removed the worktree afterwards and pushed nothing from it. I also checked every ingredient in A's name table (126) against B's frozen partition v5 (140 keys plus aliases). Every flag key A can fire for Alex is in the universe, except the `allergy:penicillin|*` keys. Those are local-only flags, which B accepted in to-A 1502. B's `test_rule_keys_match_real_rules_when_present` already pins this, so I added no duplicate test.
+- **Why:** G3 is at 17:30, and the integrator will merge these four PRs together. Knowing now that they merge cleanly and stay green saves time at the gate.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I4/I5 (A's keys stay inside the frozen v5 universe, D-027)
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: the four open PRs (#4, #5, #7, #8) merge cleanly together and stay green (message sent). B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on my rebased branch: exit 0, 1078 passed, 2 skipped. On the integrated main+#4+#5+#7+#8: exit 0, 1148 passed. I did not run `make eval` or `core.cloud check` (they needed approval in this session).
+- **Inbox:** to-A 1535 (G2 passed, D-032, v1.3.1): I rebased. to-A 1537 (C-023 recolored PNGs, same text): the A-017 sample tests still pass, and they don't check pixels. New logs: B-033 and C-023, nothing for A.
+- **Next:** PR #5 review and merge at G3. Live VLM check on C's PNGs if the human starts Ollama. Then requests from B, C and D. If B ships a partition v6, re-run the key-coverage check.
+
+### A-020 · 2026-11-08 15:50 · commit `83219b9` (rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #5 onto main (now has D-033) and force-pushed it (`83219b9`). Then I re-ran the G3 merge rehearsal on the newest PR heads, because B (#7 → `0163ba9`) and C (#8 → `ff5a93c`, mock fallbacks dropped in C-024) had both pushed since A-019. In a throwaway worktree I octopus-merged `origin/main` (`eceabe8`) with #4 D (`5112526`), #5 A, #7 B and #8 C. There were no conflicts, and `make test` exited 0 with 1154 passed and 0 skipped. Nothing in A's suite skips any more on the integrated tree. That includes A-018's app real-path tests, which now run on C's app with no stand-ins. I removed the worktree and pushed nothing from it.
+- **Why:** G3 is at 17:30. Two of the four PRs changed after the last rehearsal, so the A-019 result was out of date.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: the four open PRs still merge cleanly together and stay green on their current heads (message sent). B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on my rebased branch: exit 0, 1078 passed, 2 skipped (the 2 skips wait on PR #4 queries.json and C's app path, both fine on the integrated tree). Integrated main + #4/#5/#7/#8: exit 0, 1154 passed, 0 skipped.
+- **Inbox:** to-A 1543 (C-024 ack): I noted that `_named_drugs` no longer checks for a mock normalizer, and A's tests don't rely on that. D-033 (Gabe is integrator, backup Dhiaa): noted, nothing for A. New logs: B-034, B-035 and C-024, nothing for A. B-035 confirms Q03 (`CYP2D6:not_assessed|codeine`) stays no_data offline, as A's rules intend (D-021).
+- **Next:** PR #5 review and merge at G3. Live VLM check on C's PNGs if the human starts Ollama. Then requests from B, C and D. If B ships partition v6, re-run the key-coverage check.
+
+### A-021 · 2026-11-08 15:50 · commit `d81a2b0` (rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #5 onto main `aa30bbf` (D-034) and force-pushed it (`d81a2b0`). Then I closed the gap the integrator flagged in to-human 1546: the G3 rehearsal had never run `make eval` or `python -m core.cloud check` on the integrated tree. On a local throwaway branch (never pushed, deleted afterwards) I octopus-merged `origin/main` with the current heads #4 D `5112526`, #5 A `d81a2b0`, #7 B `f3a4abc` (B-036) and #8 C `ff5a93c`. There were no conflicts. Results on the integrated tree:
+  - `make test`: exit 0, 1156 passed, 0 skipped.
+  - `python -m core.cloud check`: 136/136 keys usable, 0 missing, 0 rejected (I7), 0 outside the partition.
+  - `make eval DEMO=1` (EVAL_LLM unset, so no API spend): partition `real:data/buckets/v5.json`, backend `live`.
+  - `python -m eval.gate`: **20 pass, 0 warn, 0 fail**.
+- **Finding for D:** the `slides/numbers.md`, `docs/results.md` and `eval/results/*` committed on PR #4 come from the stand-in partition and the simulated backend. On the integrated build several figures change: random decoys 95%→99%, fixed-bucket repeat-ask 15%→11%, statistical 17%→22% (ceiling 19%→20%), one-session condition guess 75%→72%, separate+cover 29%→34%, blind 27%→26%, **cloud calls 6→11**, **on-device share 75%→50%**, warm offline 17/20→18/20, and a new row: wording filter 25/25. `slides/pitch.md:12` still has the bracketed "[6] cloud calls … [75%] answered on device". Line 10 has "[95%]" and "[14%]". All 20 gate claims still pass. Only the quoted numbers need regenerating after the merge. I discarded my regenerated files and pushed none of them.
+- **Why:** G3 is at 17:30. P8 requires every quoted figure to match the merged build (D-034). The rehearsal had not yet checked the eval suite or the demo cache.
+- **Class:** Advances
+- **Plan:** advances G3/G4 (P9) prep; checks P8 claims, I3, I4, I7, I8 on the integrated build
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** D: re-run `DEMO=1 make eval` after #4 merges with the others and refresh the bracketed pitch numbers (message sent). I: the full G3 sequence (test, cloud check, eval, gate) is green on the current heads (message sent). B, C: nothing to do.
+- **Demo impact:** none to the beats. The pitch figures on the learning slide change (S-pitch numbers only).
+- **Tests:** `make test` on my rebased branch: exit 0, 1078 passed, 2 skipped. Integrated: as above.
+- **Inbox:** no new to-A messages. D-034 (submission accepted, personalization described as rule-based): consistent with A's code, since only `core/capture.py` calls a local model. New log B-036: nothing for A.
+- **Next:** PR #5 review and merge at G3. After the merge, re-run A's suite on main. Live VLM check if the human starts Ollama. Then requests from B, C and D.
+
+### A-022 · 2026-11-08 16:05 · commit `1349212` (rebase only, no new code) · PLAN v1.3.1
+
+- **Change:** No code changed. I rebased PR #5 onto main `6c35c51` and force-pushed it (`1349212`). B (#7 → `4101ae2`, B-038) and D (#4 → `0598ceb`, D-012) moved their heads after A-021, so I re-ran the G3 rehearsal. In a throwaway worktree (removed afterwards, nothing pushed from it) I octopus-merged `origin/main` `dba1848` with #5 A `1349212`, #7 B `4101ae2`, #8 C `ff5a93c` and #4 D `0598ceb`. There were no conflicts. Results:
+  - `make test` on the integrated tree: exit 0, **1157 passed, 0 skipped** (one more than A-021, from B's new test).
+  - `make eval DEMO=1` on the integrated tree (EVAL_LLM unset, no API spend): partition `real:data/buckets/v5.json`, backend `live`. The gate section it wrote reads **21 pass, 0 warn, 0 fail**, and P3 shows "demo replay", so DEMO=1 took effect.
+  - I did not run `python -m eval.gate` as its own command this time: the sandbox would not let me run it from the throwaway directory. The 21/0/0 above is the gate table that `make eval` wrote into `docs/results.md`.
+  - `python -m core.cloud check`: 136/136 keys usable, 0 missing, 0 rejected (I7), 0 outside the partition. I ran it in A's worktree, not the integrated one. #7 and #8 change no `core/cloud.py` or `data/buckets/` file, so the result carries over.
+- **Why:** G3 is at 17:30 and two PR heads changed after A-021. The integrator should merge heads that have been checked together.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; checks I3, I4, I7 and the P8 claims on the integrated build
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: the four current heads (#4 `0598ceb`, #5 `1349212`, #7 `4101ae2`, #8 `ff5a93c`) merge cleanly and stay green. B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on A's rebased branch: exit 0, 1078 passed, 2 skipped. Integrated: as above.
+- **Inbox:** D 1551 (D will report both readings of offline E4; D's human owner decides): handled, nothing for A. B-038 (router-state reading pinned by `tests/B/test_offline.py`): matches A-016. No new DECISIONS since D-034; PLAN still v1.3.1.
+- **Next:** PR #5 review and merge at G3. After the merge, re-run A's suite on main. Live VLM check if the human starts Ollama. Then requests from B, C and D.
+
+### A-023 · 2026-11-08 16:15 · commit `f483847` (rebase only, no new code) · PLAN v1.3.2
+
+- **Change:** No code changed. I rebased PR #5 onto main `48c182d` and force-pushed it (`f483847`, same code as `1349212`). D's PR #4 moved to `4bd66e2` (D-013, new gate check E4d) and B's PR #7 to `079fe75` after A-022, so I re-ran the G3 rehearsal. In a throwaway worktree (removed afterwards, nothing pushed from it) I octopus-merged `origin/main` `c2518bc` (PLAN v1.3.2) with #4 D `4bd66e2`, #5 A `f483847`, #7 B `079fe75` and #8 C `ff5a93c`. There were no conflicts. Results:
+  - `make test` on the integrated tree: exit 0, **1158 passed, 0 skipped**.
+  - `make eval DEMO=1` on the integrated tree (EVAL_LLM unset, no API spend): partition `real:data/buckets/v5.json`, backend `live`, P3 "demo replay". The gate table it wrote reads **22 pass, 0 warn, 0 fail**, E4d included (strict cold 4/20, synced 18/20; user-visible cold 11/20).
+  - I did not run `python -m eval.gate` as its own command (the D-035 G4 command's second half): the sandbox would not run it from the throwaway directory. The 22/0/0 above is the table `make eval` wrote into `docs/results.md`.
+- **Why:** G3 is at 17:30 and two PR heads changed after A-022. The integrator should merge heads that have been checked together.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; checks I3, I4 and the P8 claims on the integrated build; G4 command per D-035
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: the four current heads (#4 `4bd66e2`, #5 `f483847`, #7 `079fe75`, #8 `ff5a93c`) merge cleanly on main `c2518bc` and stay green. B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on A's rebased branch: exit 0, 1078 passed, 2 skipped. Integrated: as above.
+- **Inbox:** D 1600 (A-016 settled: E4 reports both readings, strict cold 4/20 differs on the seven questions A listed): handled, nothing for A. D-035 / PLAN v1.3.2 (G4 command `DEMO=1 make eval && python -m eval.gate`): no effect on A's code. New logs B-039, D-013: nothing for A.
+- **Next:** PR #5 review and merge at G3. After the merge, re-run A's suite on main. Live VLM check if the human starts Ollama. Then requests from B, C and D.
+
+### A-024 · 2026-11-08 16:25 · commit `f483847` (no new code, no re-push) · PLAN v1.3.2
+
+- **Change:** No code changed. PR #5 stays at `f483847`. Main has gained only coord commits since then, so I did not re-push and the head others have tested stays put. B's PR #7 moved to `91a39b7` after B-040, so I re-checked the integrated set. Every earlier rehearsal had also left one gap: the standalone `python -m eval.gate` half of the D-035 G4 command. I closed it. On a local temp branch in A's code worktree (deleted afterwards, nothing pushed from it) I octopus-merged main `f51ae85` with #4 D `4bd66e2`, #5 A `f483847`, #7 B `91a39b7` and #8 C `ff5a93c`. There were no conflicts.
+  - `make test` on the integrated tree: exit 0, **1158 passed, 0 skipped**.
+  - `python -m eval.gate` on its own: **22 pass, 0 warn, 0 fail** (P1 `real:data/buckets/v5.json`, P2 live, P3 demo replay, E4d strict cold 4/20 / synced 18/20, I7b 25/25).
+  - Not run: `DEMO=1 make eval`. The sandbox refused it this time, so the gate read the `eval/results/*` committed on #4 and did not regenerate them on this tree. The integrator should still run the full D-035 command on main after G3.
+- **Why:** G3 is at 17:30. Until now no one had run the gate script on its own against the integrated heads, and B's head had moved again.
+- **Class:** Advances
+- **Plan:** advances G3/G4 (P9) prep; checks I3, I4, I7 and the P8 claims through the gate; D-035
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: current heads #4 `4bd66e2`, #5 `f483847`, #7 `91a39b7` and #8 `ff5a93c` merge cleanly and stay green, and the gate passes 22/0/0 (message sent). B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on A's branch (rebased locally on `f51ae85`): exit 0, 1078 passed, 2 skipped. Integrated: as above.
+- **Inbox:** no new to-A messages. New log B-040 (rehearsal with `1e265c1`, G4 command not run): this entry covers the gate half on B's newer `91a39b7`. No new DECISIONS since D-035; PLAN still v1.3.2.
+- **Next:** PR #5 review and merge at G3. After the merge, re-run A's suite on main. Live VLM check if the human starts Ollama. Then requests from B, C and D.
+
+### A-025 · 2026-11-08 16:06 · commit `1b17750` (PR #9) · PLAN v1.3.2
+
+- **Change:** `core/capture.py` now explains why it skipped the local vision model. It logs one line per process per reason on the `genomevault.capture` logger. Model not set: the line says to add `LOCAL_VLM_MODEL=qwen2.5vl:7b` to `.env` (see `.env.example`). Model did not answer: the model name and the exception type only. Reply was not the expected JSON. The level is WARNING under `GV_OCR=vlm`, where the user asked for the model, and DEBUG under `auto`, where running without a model is the normal I8 path. Return values are unchanged (`None` on every skip, as before). The log line never contains label text, image content or exception messages (I2; a test checks this with a synthetic name and Rx number).
+- **Why:** to-A 1602 (human, demo laptop): a `.env` without `LOCAL_VLM_MODEL` made `GV_OCR=vlm` return `[]` in 0.0 s with no hint.
+- **Class:** Refines
+- **Plan:** refines F2, M3, S2 (D-029 setup); I2 and I4 unchanged
+- **Refinements:** capture logs a one-time setup hint when the vision model is skipped: WARNING with `GV_OCR=vlm`, DEBUG with `auto`, never label content.
+- **Contract impact:** none (`from_image` / `from_text` signatures and return values unchanged)
+- **Affects:** C: nothing required. With `GV_OCR=vlm`, C's startup warm-up (C-025) now prints the hint once if the model is unset, so a fast "warm" no longer passes silently. D: nothing required. If the env docs mention `GV_OCR=vlm`, they could add "existing `.env` files need `LOCAL_VLM_MODEL=qwen2.5vl:7b` added by hand". I: please review and merge PR #9.
+- **Demo impact:** S2: none on the happy path. With a misconfigured `.env`, the console now says what to fix.
+- **Tests:** new `tests/A/test_capture_vlm_hint.py` (6 tests: unset/`set-me` warns once under vlm, quiet under auto, model-down gives type and model only with no label text, bad JSON gives DEBUG and still falls through to tesseract, a good read logs nothing). `make test` on main `52c9634` + this commit: exit 0, **1164 passed**.
+- **Inbox:** human 1602 (7/7 real VLM labels, ~4.2 s warm): handled by this change; the untested path from to-human 1523 is closed. Main now has PRs #4, #5, #7 and #8 merged (#5 at `f483847`); my old PR is done, so this change is on new PR #9. New logs B-041 to B-043, C-025, D-014: nothing else for A. No new DECISIONS (D-035), PLAN still v1.3.2.
+- **Next:** PR #9 merge. Then the next PLAN version after the G3 ruling, and requests from B, C and D.

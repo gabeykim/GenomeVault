@@ -1,0 +1,110 @@
+{
+ "version": "fixture-v1",
+ "doc": "D stand-in partition (build_buckets.py, seed 1814, stat-attacker score 0.163). Replace with B's data/buckets/v1.json.",
+ "buckets": [
+  {
+   "id": "B00",
+   "keys": [
+    "CYP2C19|clopidogrel",
+    "CYP2C19|escitalopram",
+    "CYP2C19|sertraline",
+    "CYP2D6|codeine",
+    "SLCO1B1|atorvastatin",
+    "aspirin|clopidogrel",
+    "metformin|egfr",
+    "warfarin|inr"
+   ]
+  },
+  {
+   "id": "B01",
+   "keys": [
+    "CYP2C19|omeprazole",
+    "CYP2D6|metoprolol",
+    "VKORC1|warfarin",
+    "aspirin|ibuprofen",
+    "aspirin|warfarin",
+    "clopidogrel|omeprazole",
+    "ibuprofen|egfr",
+    "lisinopril|egfr"
+   ]
+  },
+  {
+   "id": "B02",
+   "keys": [
+    "CYP2C19|citalopram",
+    "CYP2C19|pantoprazole",
+    "CYP2C9|warfarin",
+    "SLCO1B1|simvastatin",
+    "acetaminophen|alt",
+    "apixaban|egfr",
+    "lisinopril|potassium",
+    "sertraline|tramadol"
+   ]
+  },
+  {
+   "id": "B03",
+   "keys": [
+    "CYP2D6|paroxetine",
+    "CYP2D6|tramadol",
+    "SLCO1B1|rosuvastatin",
+    "amlodipine|simvastatin",
+    "citalopram|ondansetron",
+    "ibuprofen|lisinopril",
+    "lisinopril|spironolactone",
+    "spironolactone|potassium"
+   ]
+  },
+  {
+   "id": "B04",
+   "keys": [
+    "CYP2C19|voriconazole",
+    "DPYD|fluorouracil",
+    "clarithromycin|simvastatin",
+    "clopidogrel|esomeprazole",
+    "clopidogrel|pantoprazole",
+    "ibuprofen|lithium",
+    "lithium|sodium",
+    "simvastatin|alt"
+   ]
+  },
+  {
+   "id": "B05",
+   "keys": [
+    "CYP2C9|ibuprofen",
+    "CYP2C9|phenytoin",
+    "CYP2D6|amitriptyline",
+    "CYP2D6|ondansetron",
+    "HLA-B|allopurinol",
+    "HLA-B|carbamazepine",
+    "clopidogrel|ibuprofen",
+    "digoxin|potassium"
+   ]
+  },
+  {
+   "id": "B06",
+   "keys": [
+    "CYP2C9|celecoxib",
+    "CYP2D6|tamoxifen",
+    "NUDT15|mercaptopurine",
+    "TPMT|azathioprine",
+    "amiodarone|digoxin",
+    "methotrexate|trimethoprim",
+    "nitroglycerin|sildenafil",
+    "simvastatin|ck"
+   ]
+  },
+  {
+   "id": "B07",
+   "keys": [
+    "CYP2D6|atomoxetine",
+    "CYP3A5|tacrolimus",
+    "G6PD|rasburicase",
+    "HLA-B|abacavir",
+    "UGT1A1|irinotecan",
+    "allopurinol|azathioprine",
+    "atorvastatin|clarithromycin",
+    "fluconazole|warfarin"
+   ]
+  }
+ ]
+}

@@ -287,3 +287,42 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S2 (7 sample labels plus a printable sheet), S6 (Q15 consistent with the typed ibuprofen check)
 - **Tests:** C alone → `make test` exit 0 (271 passed, 7 skipped). main + all open PRs merged → exit 0, 961 passed. With A's real reader, the 7 labels read as aspirin 81 (no flag), clopidogrel 75 (X1, X2), omeprazole 20 (X2), simvastatin 40 (X3), lisinopril 10 (X4), ibuprofen 200 (X5), amoxicillin 500 (AL-001). Checked by hand on the phone page and the label sheet.
 - **Next:** G2: after #6, #2 and #3 merge, sync and drop the stand-ins (D-014), then run one question end to end on main. Then rehearsal by G3 (17:30).
+
+### C-023 · 2026-11-08 15:37 · commit `e289cdc` (PR #8) · PLAN v1.3.1
+
+- **Change:** Back to the original monochrome palette: bone paper `#e1e1de`, black ink `#0b0b0b`. This covers the laptop UI, phone page, printable label sheet, `/summary`, and the sample label PNGs (regenerated with the same text). Red, amber and green stay only on small status indicators. The screen is simpler too. The header is just the logo and the online switch, and "Sent to cloud" lives in the ledger totals. Tabs drop their numbers. Background decoys (`cover`) and knowledge-pack rows (`pack`) each collapse into one summary row with a count and bytes. The user's own decoy groups still list one by one with "See the 8 questions". Sync copy is one line, and its explanation moved to the button tooltip. On phones, sample labels stack as single rows.
+- **Why:** User request (Cristian): the original look, and a less cluttered screen. With cover traffic on, the ledger grew by a row every 20 s, and the sync added 14 more.
+- **Class:** Refines
+- **Plan:** refines F7, F8 (presentation only); S2, S4, S6 beats unchanged
+- **Refinements:** in the ledger, cover and pack rows are summarized instead of listed. Only bucket rows (the user's) are listed one by one.
+- **Contract impact:** none
+- **Affects:** D: screenshots and slides should use bone/black again, the header no longer shows "Sent to cloud" (it's in the ledger), and decoy and pack rows are grouped → refresh screenshots. A: label PNG pixels changed, but their text and `labels.json` did not → none expected.
+- **Demo impact:** S4 (the ledger shows the user's group plus one "Background decoys" line), S6 ("Knowledge pack · N groups" after Sync), S2 (phone look)
+- **Tests:** C branch with main merged → `make test` exit 0 (789 passed, 3 skipped). Integrated (main + all open PRs) → exit 0, 961 passed. Checked in the browser at 1440 px and 375 px: Q18 lists 1 user group, decoys are grouped, Sync shows "Knowledge pack 14 groups · 14 KB", `/summary` and `/phone` render.
+- **Next:** G2 follow-up (D-032): drop the mock fallbacks for ledger and route and run one question end to end on main; then rehearsal by G3 (17:30).
+
+### C-024 · 2026-11-08 15:42 · commit `4ab163f` (PR #8) · PLAN v1.3.1
+
+- **Change:** `app.py` now imports the real contract functions directly: A's `graph.load_profile`, `rules.check`, `normalize.to_ingredients` and `capture.from_image`; B's `router.route`, `ledger.feed` and `cloud.status`; C's `merge.personalize`. Removed: `_MockLedger` and the app's own ledger writes, the mock normalizer, `_resolve`, `LEDGER_IS_MOCK`, and the `mock` field in `/api/ledger`. B's router is the only ledger writer. `/api/status` keeps its `modules` shape (all `real`). Non-contract helpers stay optional. C's tests now assert there are no stand-ins.
+- **Why:** D-014 (drop the stand-ins after G2) and D-032 (G2 passed).
+- **Class:** Advances
+- **Plan:** advances G2 follow-up, F5, M10
+- **Contract impact:** none (`/api/ledger` loses `mock`, which only C read)
+- **Affects:** none
+- **Demo impact:** none. End to end on main + C, with the real router, ledger and cloud: cold Q18 → `known`, 2 bucket rows (1171 + 944 B), 0 personal fields; the same question again → `kb_hit`, 0 B. The UI with ?debug shows "All modules live", with no console errors.
+- **Tests:** `make test` exit 0 (790 passed, 3 skipped: the skips wait on PR #5 allergy engine and PR #4 queries.json); `check_network.sh` ok.
+- **Next:** rehearsal by G3 (17:30): 2× demo mode + 1× live, timings to D.
+
+### C-025 · 2026-11-08 16:05 · commits `35e6f35`, `c0c385b` (PR #8) · PLAN v1.3.2
+
+- **Change:** (1) **G3 rehearsal.** I ran D's demo script (S2–S6) 3 times on main + PRs #4, #5, #7, #8: twice in demo mode (once through the API, once by clicking the UI) and once in demo mode with B's stage delays (`GV_DELAY_S=0.3,2.0`). All 19 checks pass, with 0 personal fields throughout. Timings are in the message to D. (2) **Ticker fix.** A hidden tab never fires `animationend`, so every ledger update left its old number behind (5 stacked values seen). A 1 s timer now removes it. (3) **Dhiaa's vision-model items.** The phone shows "Reading the label on this laptop…" with a spinner and a seconds counter, and camera photos are downscaled to about 1280 px JPEG. `/api/capture` reads in a worker thread, so a 4 s read no longer stalls the laptop UI. With `GV_OCR=vlm`, startup warms the model on one sample label. `/api/status` adds `vision` {mode, warm, seconds}. `serve_https.sh` prints the mode.
+- **Why:** G3 rehearsal (Dhiaa's 15:20 list), and Dhiaa's 16:02 request (real vision model: 4.2 s a label warm, 10.6 s cold).
+- **Class:** Refines
+- **Plan:** refines F2, F5, S2 (D-029); S4/S6 unchanged
+- **Refinements:** a photo read never blocks the server. The stage run uses `GV_OCR=vlm`, with `auto` (embedded text) as the offline fallback.
+- **Contract impact:** none (`/api/status.vision` is additive)
+- **Affects:** D: script notes (Q18 may send 1 or 2 groups; Sync takes ~2 min with stage delays; S2 read ~4 s with vlm) → update lines. A, B: none.
+- **Demo impact:** S2 (progress while reading; warm model), S4/S6 (no change)
+- **Tests:** C branch → `make test` exit 0 (794 passed, 3 skipped); `check_network.sh` ok. Integrated → 1154 passed before these two commits. `python -m core.cloud check`: 136/136 usable. Checked the reading state and ledger in the browser; no console errors.
+- **Not done:** a live run (real cloud calls) needs `ANTHROPIC_API_KEY`, which this environment doesn't have. One stage-delay run's Sync stopped after 1 group with `offline: true`; I couldn't reproduce it (two later runs completed), and the UI handles it ("Went offline; what arrived is kept", Sync again).
+- **Next:** live run with the key on the demo laptop (human), then freeze prep for G5 (18:30).

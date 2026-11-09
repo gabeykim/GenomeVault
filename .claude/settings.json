@@ -6,6 +6,7 @@
       "Write",
       "Bash(git *)",
       "Bash(gh pr *)",
+      "Bash(gh run *)",
       "Bash(make *)",
       "Bash(python *)",
       "Bash(python3 *)",
