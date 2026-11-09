@@ -1,4 +1,4 @@
-# GenomeVault PLAN — v1.3.4
+# GenomeVault PLAN — v1.3.6
 
 Source of truth for the idea. Edited only by the integrator, through accepted proposals (see AGENTS.md §5, §12). Cite these IDs in every commit, report and proposal.
 
@@ -82,6 +82,8 @@ Expected therapy, no Flag (informational UI note only): `aspirin|clopidogrel` is
 
 Knowledge pack (D-027): the entire fixed partition, asked once with the same generalized questions for every user and human-reviewed, ships as `mocks/cloud_cache/`. `router.sync_pack()` loads it into the KB, so a synced question stops at step 2 and sends nothing. Steps 3–8 remain for keys not yet synced and for the cold-start demo beat (S4).
 
+Adaptive questions (D-040): a typed drug name that matches no exact key gets a suggestion (assumed with an undo when unambiguous; otherwise did-you-mean choices; look-alike names always ask) before any lookup. A key outside the core partition but inside the long-tail partition `data/buckets/tail-v1.json` (fixed, versioned, k = 8, same for every user) goes through steps 2–8 like any other key. A term in neither gets `no_data`, plus an optional consented single send logged as not hidden. All behind flags (`GV_FUZZY`, `GV_TAIL`, `GV_DEMO_LIVE_FALLBACK`).
+
 Answer states: `known` · `none_listed` (exact pair listed as no interaction in a curated source) · `no_data`.
 
 ## P7 Evaluation
@@ -123,3 +125,5 @@ S1 Hook · S2 Capture on phone · S3 Local flags X1–X4, "0 bytes sent" · S4 H
 - v1.3.2 — P9 G4: gate command fixed as `DEMO=1 make eval && python -m eval.gate`; without DEMO=1 and no key, E2/E4 understate the design and gate check P3 fails (D-035).
 - v1.3.3 — G3 passed: A (#5, 61f94d4), B (#7, 1ceb00a), C (#8, e15cbcc), D (#4, 87d6e0a) merged; KB + knowledge pack, full UI, phone page, offline/sync, and E1–E4 evals on main (D-036).
 - v1.3.4 — G4 passed: `DEMO=1 make eval && python -m eval.gate` green on the integrated build (22 pass, 0 fail) (D-038).
+- v1.3.5 — Adaptive questions accepted (D-040): typo suggestions, long-tail fixed partition, demo live fallback, consent path; all behind flags, ON only if green by 18:00.
+- v1.3.6 — D-040 interfaces recorded in CONTRACTS (D-041): `normalize.suggest`, `router.single_candidates`, `router.send_single` (additive, flag-off stubs); tail/single sends reuse `LedgerEntry` with `bucket_id` `tail-NNNN` / `single`, no type change.

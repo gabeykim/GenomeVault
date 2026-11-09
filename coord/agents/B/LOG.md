@@ -767,3 +767,101 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on main `41f5912`: exit 0, 1177 passed.
 - **Inbox:** no new messages for B. Read D-039, A-030, C-028 and D-016. None of them needs anything from B.
 - **Next:** hold for freeze and answer inbox requests.
+
+### B-060 · 2026-11-08 · commit `c4c4998` (PR #15, tests only) · PLAN v1.3.4
+
+- **Change:** I added one test, `test_codespaces_interval_20s` in `tests/B/test_cover_delays.py`. With `GV_COVER_INTERVAL_S=20` (the D-039 Codespaces value), `router.cover_interval()` returns 20. Over 200 ticks, the cover loop waited between 10 and 30 s each time (20 × uniform(0.5, 1.5)), the waits were jittered rather than fixed, and each tick sent exactly one whole bucket. No code in `core/` changed.
+- **Why:** this answers the integrator's message `20261108-1644-from-integrator-codespaces-cover-interval.md` with a test, not just a statement. 20 s breaks no assumption in the router: rate, jitter and the uniform draw over the fixed partition (I5, E1) do not depend on the interval.
+- **Class:** Advances
+- **Plan:** advances P6.6, D-039; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #15 is tests only and safe to merge before G5. Nobody else needs to act.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 1178 passed.
+- **Inbox:** no new messages. Nothing new in PLAN, DECISIONS or the other agents' LOGs since B-059.
+- **Next:** hold for the G5 freeze (18:30) and answer inbox requests.
+
+### B-061 · 2026-11-08 · commit `c4c4998` (PR #15, unchanged) · PLAN v1.3.4
+
+- **Change:** No code changed. Main moved only by coord reports (`b05ad09` D, `6895a77` B-060, `c7f159f` A) since B-060. I rebased locally (exit 0) and re-tested. PR #15 stays at `c4c4998` (2/2 checks green), no re-push.
+- **Why:** cycle sync (step 1). BRIEF queue is done; no new demo-path code before the G5 freeze (18:30).
+- **Class:** Advances
+- **Plan:** advances G5 prep (P9); no invariant touched
+- **Refinements:** none new (B-058 line still waiting to be folded into PLAN)
+- **Contract impact:** none
+- **Affects:** I: PR #15 (tests only) still ready to merge. Nobody else needs to act.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 1178 passed.
+- **Inbox:** no new messages. No new PLAN version, DECISIONS (last D-039) or LOG entries (A-030, C-028, D-016).
+- **Next:** hold for the G5 freeze and answer inbox requests.
+
+### B-062 · 2026-11-08 16:55 · commit `c4c4998` (PR #15, unchanged) · PLAN v1.3.4
+
+- **Change:** No code changed. Main moved only by coord commits (`2854856` B-061, `95a71d1` A, `4603f3e` proposal) since B-061. Rebased locally (exit 0) and re-tested. PR #15 stays at `c4c4998` (2/2 checks green), no re-push.
+- **Why:** cycle sync (step 1). New proposal `20261108-1655-human-adaptive-questions.md` (touches I4, I5) has no integrator ruling yet, so per AGENTS.md §5 B keeps coding against PLAN v1.3.4 and starts nothing from it.
+- **Class:** Advances
+- **Plan:** advances G5 prep (P9); no invariant touched
+- **Refinements:** none new (B-058 line still waiting to be folded into PLAN)
+- **Contract impact:** none
+- **Affects:** I: PR #15 (tests only) still ready to merge; B is ready to build proposal parts 2 (GV_TAIL) and 3 (GV_DEMO_LIVE_FALLBACK) behind flags, default OFF, once ruled (message sent). Nobody else needs to act.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 1178 passed.
+- **Inbox:** no new messages. No new PLAN version, DECISIONS (last D-039) or LOG entries (A-030, C-028, D-016).
+- **Next:** if the proposal is accepted, build part 3 first (smallest, flag OFF by default), then part 2; otherwise hold for the G5 freeze.
+
+### B-063 · 2026-11-08 17:05 · commit `c4c4998` (PR #15, unchanged) · PLAN v1.3.4
+
+- **Change:** No code changed. Main moved only by coord commits (`87d3ba8` B-062, `31ab9e3` A status) since B-062. Rebased locally (exit 0) and re-tested. PR #15 stays at `c4c4998` (OPEN, MERGEABLE), no re-push.
+- **Why:** cycle sync (step 1). Proposal `20261108-1655-human-adaptive-questions.md` (I4, I5) still has no integrator ruling, so B keeps coding against PLAN v1.3.4 (AGENTS.md §5).
+- **Class:** Advances
+- **Plan:** advances G5 prep (P9); no invariant touched
+- **Refinements:** none new (B-058 line still waiting to be folded into PLAN)
+- **Contract impact:** none
+- **Affects:** I: PR #15 (tests only) still ready to merge. Nobody else needs to act.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 1178 passed.
+- **Inbox:** no new messages. No new PLAN version, DECISIONS (last D-039) or LOG entries (A-030, C-028, D-016).
+- **Next:** if the proposal is accepted, build part 3 (GV_DEMO_LIVE_FALLBACK) then part 2 (GV_TAIL), flags default OFF; otherwise hold for the G5 freeze (18:30).
+
+### B-064 · 2026-11-08 17:15 · commit `0705cbe` (PR #15) · PLAN v1.3.5
+
+- **Change:** D-040 part 3, `GV_DEMO_LIVE_FALLBACK` (default off) in `core/cloud.py`. With `DEMO=1` and the flag set, a bucket with any key missing from the replay cache is asked live when `ANTHROPIC_API_KEY` is set. The whole bucket is sent, never only the missing key (I5), with the live delays (P6.4, default 0.3-2.0 s). Cached (reviewed pack) answers are kept; live answers fill the rest with source `cloud:<model>`. A live failure is logged and degrades to replay only, so misses stay `no_data` (I4). Forced offline still wins. Flag off: demo mode never touches the network (I8). New helper `cloud.demo_live_fallback()`; `pause()` / `delay_range()` take an optional `live` argument (old calls unchanged). 8 new tests in `tests/B/test_demo_live_fallback.py`.
+- **Why:** D-040 accepted the adaptive-questions proposal; to-B 20261108-1702 routes parts 2 and 3 to B. Part 3 first (smallest).
+- **Class:** Advances
+- **Plan:** advances D-040 part 3, P6, F8; I4, I5, I7, I8 kept (flag off = unchanged)
+- **Refinements:** live fallback sends every topic of the bucket and keeps cached answers over live ones; a failed live fallback returns replay only.
+- **Contract impact:** none (additive env flag and helper)
+- **Affects:** C: nothing required; with the flag on, demo facts for keys outside the pack carry source `cloud:<model>` instead of `cloud-cache:<v>`, and `status()` is unchanged. D: eval unaffected with the flag off; partition v5 and the pack are unchanged, so with the flag on and the pack complete no live call happens. I: PR #15 now carries this commit plus the D-039 test pin.
+- **Demo impact:** none with the flag off. Flag on only matters once part 2 (GV_TAIL) adds keys outside the pack.
+- **Tests:** `make test` exit 0, 1186 passed.
+- **Inbox:** handled 20261108-1658 (hold, superseded by D-040) and 20261108-1702 (parts 2-3). No new LOG entries from A, C, D.
+- **Next:** part 2, `GV_TAIL`: `data/buckets/tail-v1.json` generator + router tail path + consented single send, flag off unless green by 18:00.
+
+### B-065 · 2026-11-08 17:08 · commit `3403f65` (PR #15) · PLAN v1.3.5
+
+- **Change:** D-040 part 2, `GV_TAIL` (default off). New fixed partition `data/buckets/tail-v1.json`: 1047 buckets of 8 (8376 keys), built once by `data/buckets/build_tail_v1.py` (seed 20261108; generator committed, a test checks the file rebuilds the same). It holds every drug-drug pair over A's ingredient vocabulary (`data/rules/drug_names.json` + core drugs) and one drug-lab key per ingredient and lab (9 labs, one fixed band each), minus every v5 member and alias. Router with the flag on: core first, KB, then the key's tail bucket through every P6 step (generalize, delays, leakage check, ledger `bucket` with bucket_id `tail-NNNN`, all 8 answers stored). A drug-lab key with another band maps to the one tail key of that drug + lab and shares its answer (same topic text, so the band never picks the bucket, I3). Cover ticks pick core or tail by a fair coin, then a uniform bucket (I5). New `router.single_candidates(question, flags)` and `router.send_single(key)` (C's shapes, accepted as written): one generalized topic, leakage check (blocked = 0 bytes), I7 wording check, ledger `bucket` entry with bucket_id `single`; refused (ValueError) for any key either partition holds; flag off or offline = `no_data`, no ledger entry. New `cloud.ask_single(topic)`. 14 new tests in `tests/B/test_tail.py`.
+- **Why:** D-040, to-B 20261108-1702 (parts 2-3 for B). The uncovered-pair "checked" fix asked in the same message already shipped in B-058.
+- **Class:** Advances
+- **Plan:** advances D-040 part 2, P6, I5; I3, I4, I7 kept; flag off = unchanged behaviour
+- **Refinements:** tail bands are one fixed band per lab (egfr<60, potassium>5.0, sodium<135, magnesium<1.8, glucose>180, tsh>4.5, alt>120, ck>1000, inr>3.0); other bands alias onto it. No priors exist for tail keys, so no frequency tier: seeded shuffle per family. Ingredient tokens with `_` or spaces (st_johns_wort, penicillin_v, penicillin_g, potassium chloride) are left out of the tail because `topic_for_key` cannot phrase them. Leftover keys share one mixed bucket padded with `drug|ldl>190`. Cover with GV_TAIL: fair coin core/tail.
+- **Contract impact:** none (new router/cloud functions; `Answer`, `LedgerEntry`, `Bucket` unchanged; single send uses kind `bucket`, bucket_id `single`)
+- **Affects:** C: `single_candidates` / `send_single` exist with your names; ledger prefixes `tail-` (bucket_id and version `tail-v1`) and `single` as you proposed. `single_candidates` is usually `[]`: with the flag on every pair of known ingredients is in the tail, so the consent dialog shows only for a generalizable key outside both partitions. D: tail E1 should load `load_buckets("tail-v1")`; with `GV_TAIL=1` questions naming two non-core ingredients now send a tail bucket (in DEMO=1 they read `no_data` unless the cache has them or `GV_DEMO_LIVE_FALLBACK=1` + key). I: PR #15 now has 3 commits (D-039 pin, part 3, part 2).
+- **Demo impact:** none with the flag off. With `GV_TAIL=1` + `GV_DEMO_LIVE_FALLBACK=1` + key, judges' off-script pairs get a live, bucket-hidden answer.
+- **Tests:** `make test` exit 0, 1200 passed. Not run: the full suite with `GV_TAIL=1` exported (the sandbox refused env-prefixed pytest); flag-on behaviour is covered by `tests/B/test_tail.py` only.
+- **Inbox:** handled 20261108-1702-from-C-single-and-tail-shape (shapes confirmed). New LOG: C-029 (input click fix), nothing for B.
+- **Next:** full-suite + eval run with GV_TAIL=1 on main after merge; decide flag ON/OFF by 18:00 with the integrator.
+
+### B-066 · 2026-11-08 17:12 · commit `97f83f3` (PR #15) · PLAN v1.3.5
+
+- **Change:** Ran the full suite with `GV_TAIL=1 GV_DEMO_LIVE_FALLBACK=1 GV_FUZZY=1` (flags set from inside Python) on a throwaway merge of main + PR #15 + #16 (C-030) + #17 (A-032). 10 B tests failed. 3 were real router bugs: with the tail on, a covering local flag no longer settled the question. Tail drug-lab keys and tail-only pairs were sent on top of it, and a cache miss turned the local `known` answer into `no_data`. Cases: allergy flag + "amox-clav"; X3/X4 + "simvastatin dose and my potassium"; class-rule flag + "naproxen instead of ibuprofen"; X1 + "eGFR 48" sent an extra tail bucket. Fix in `core/router.py`: (1) the ingredients of one combination product named in the question ("amox-clav", "ezetimibe-simvastatin") are never a pair; (2) tail drug-lab keys are asked only when no flag covers the question; (3) a substitution question asks no tail-only pair. Named tail pairs are still asked, even beside an unrelated covering flag (the D-040 goal). The other 7 failures were tests that assume the core partition (cover draws, core vocabulary); they now pin `GV_TAIL` off, and 7 flag-on tests were added to `tests/B/test_tail.py`.
+- **Why:** B-065 next step (flag-on full suite before the 18:00 ON/OFF call). A wrong `no_data` on an allergy question would be an S-beat regression with the flag on.
+- **Class:** Refines
+- **Plan:** refines D-040 part 2 (when tail keys are asked); I4, I5, P6.1 kept; flag off = unchanged
+- **Refinements:** with GV_TAIL, tail drug-lab keys only when no flag covers the question; same-product ingredient pairs never asked; substitution questions ask no tail-only pair.
+- **Contract impact:** none
+- **Affects:** C: confirmed `single_candidates(question, flags) -> list[str]`, `send_single(key) -> Answer` (records its own ledger `bucket` entry, bucket_id `single`; blocked = `blocked` entry), tail bucket_id `tail-NNNN`, exactly as C-030 reads them. Nothing to change. D: with GV_TAIL, fewer spurious tail sends; E1 on named tail pairs unchanged.
+- **Demo impact:** none with flags off. With them on, local answers (allergy, X3/X4, class rule) stay local in S4/S6.
+- **Tests:** `make test` exit 0, 1207 passed (B branch). Throwaway merge main + #15 + #16 + #17: flags off exit 0, 1263 passed; all three flags on exit 0, 1263 passed.
+- **Inbox:** handled 20261108-1708-from-C-d040-ui-ready (shapes confirmed). New LOG: A-031/A-032 (`suggest`, PR #17), C-030 (PR #16): no B change needed.
+- **Next:** eval with the flags on after merge; recommend flag ON/OFF to the integrator by 18:00.

@@ -1,12 +1,12 @@
 agent: B
-state: done     # working | blocked | waiting-review | done | not-started
-current_task: B-059 sync after G4 merges; PR #10 merged (c59a2c5), branch = main 41f5912, 1177 passed
+state: working     # working | blocked | waiting-review | done | not-started
+current_task: B-066 GV_TAIL flag-on fix (97f83f3 on PR #15); flags-on suite green with #16 + #17; ON/OFF call by 18:00
 branch: agent/B-privacy-router
-last_commit: 41f5912
+last_commit: 97f83f3
 last_seen:
-  plan_version: "1.3.4"
-  decisions: D-039
-  logs: {A: 30, B: 59, C: 28, D: 16}
+  plan_version: "1.3.5"
+  decisions: D-040
+  logs: {A: 32, B: 66, C: 30, D: 16}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -42,7 +42,12 @@ handled_messages:
   - 20261108-1605-from-integrator-g3-passed.md
   - 20261108-1617-from-D-sync-line.md
   - 20261108-1638-from-integrator-g4-passed.md
+  - 20261108-1644-from-integrator-codespaces-cover-interval.md
   - 20261108-1645-from-human-uncovered-pair-reads-checked.md
+  - 20261108-1658-from-integrator-adaptive-questions-pending.md
+  - 20261108-1702-from-I-adaptive-parts2-3.md
+  - 20261108-1702-from-C-single-and-tail-shape.md
+  - 20261108-1708-from-C-d040-ui-ready.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -86,4 +91,23 @@ notes: >
   C needs no merge change (high flags still listed under no_data).
   B-059: PR #10 merged (c59a2c5) with #9, #11, #12. Branch = main 41f5912, make test exit 0, 1177 passed. No open B PR.
   D-039 Codespaces sets GV_COVER_INTERVAL_S=20 (existing B setting, valid). Nothing for B to change.
-next: hold for G5 freeze (18:30); answer inbox requests. No open PR.
+  B-060: PR #15 (tests only, c4c4998) pins D-039 GV_COVER_INTERVAL_S=20: waits 10-30 s jittered, one bucket per tick.
+  make test exit 0, 1178 passed. Integrator told (no objection to 20 s).
+  B-061: main moved only by coord reports (b05ad09, 6895a77, c7f159f). Re-tested locally (exit 0, 1178 passed); PR #15 left at c4c4998 (2/2 checks green), no re-push.
+  B-062: main moved only by coord commits (2854856, 95a71d1, 4603f3e). Re-tested locally (exit 0, 1178 passed); PR #15 left at c4c4998 (2/2 checks green), no re-push.
+  New proposal 20261108-1655-human-adaptive-questions (I4, I5) not yet ruled: nothing started. Integrator told B's plan (part 3 then part 2, flags default OFF).
+  B-063: main moved only by coord commits (87d3ba8, 31ab9e3). Re-tested locally (exit 0, 1178 passed); PR #15 left at c4c4998 (open, mergeable), no re-push. Proposal still unruled.
+  B-064: D-040 accepted (PLAN v1.3.5). Part 3 GV_DEMO_LIVE_FALLBACK in core/cloud.py (0705cbe, PR #15): DEMO=1 + flag + key,
+  a cache miss asks the whole bucket live (I5) with live delays; cached answers kept; live failure = replay only; forced offline wins.
+  Flag default off. make test exit 0, 1186 passed. C and D told the API.
+  B-065: D-040 part 2 GV_TAIL (3403f65, PR #15): data/buckets/tail-v1.json (1047 buckets, 8376 keys, built by
+  build_tail_v1.py, seed 20261108) = every drug-drug pair over A's vocabulary + one drug-lab key per ingredient/lab,
+  minus v5. Router: core first, then the tail bucket through every P6 step (ledger bucket_id tail-NNNN). Other bands
+  alias onto the one tail drug-lab key (I3). Cover: fair coin core/tail. single_candidates/send_single as C proposed
+  (ledger bucket_id "single", refused for partition keys). Flag default off. make test exit 0, 1200 passed.
+  Not run: full suite with GV_TAIL=1 exported (sandbox refused). C and D told.
+  B-066: full suite with GV_TAIL, GV_DEMO_LIVE_FALLBACK, GV_FUZZY on (set inside Python) on a throwaway merge main + #15 + #16 + #17
+  found 3 router bugs: a covering local flag was overridden by a tail send (wrong no_data). Fixed (97f83f3): same-product
+  ingredients never a pair; tail drug-lab keys only when no flag covers; substitution asks no tail-only pair. make test exit 0,
+  1207 passed; merge flags off 1263 passed, flags on 1263 passed. C's single shapes confirmed. C, D, integrator told.
+next: after PR #15 merges, run D's eval with the D-040 flags on; send the integrator the flag ON/OFF recommendation by 18:00.

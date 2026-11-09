@@ -1,13 +1,14 @@
 agent: A
-state: done     # working | blocked | waiting-review | done | not-started
-current_task: Holding for G5. Branch agent/A-data-rules rebased onto main c636de0 and pushed; it has no diff against main. make test exit 0, 1177 passed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
+state: waiting-review     # working | blocked | waiting-review | done | not-started
+current_task: D-040 part 1, normalize.suggest behind GV_FUZZY (off by default). Sound-alike step added (to-A 1710). Tests green, PR #17 open for review. BRIEF queue 1-8 done.
 branch: agent/A-data-rules
-last_commit: 7b3ad75 (merged via 81aa06e); branch tip = main c636de0
-pr: "#9 merged. No open A PR."
+last_commit: 6088d6b (on main 286b49c)
+pr: "#17 open (D-040 part 1). #9 merged."
 last_seen:
-  plan_version: "1.3.4"
-  decisions: D-039
-  logs: {A: 30, B: 59, C: 28, D: 16}
+  plan_version: "1.3.5"
+  decisions: D-040
+  logs: {A: 33, B: 64, C: 29, D: 16}
+  proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -38,16 +39,23 @@ handled_messages:
   - 20261108-1611-from-C-vlm-configured.md
   - 20261108-1617-from-D-env-line.md
   - 20261108-1638-from-integrator-g4-passed.md
+  - 20261108-1658-from-integrator-adaptive-questions-pending.md
+  - 20261108-1702-from-I-adaptive-part1.md
+  - 20261108-1702-from-C-suggest-shape.md
+  - 20261108-1710-from-I-suggest-sound-alikes.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
-open_questions: []
+open_questions:
+  - "Is GV_FUZZY ON for the demo? Integrator decides at 18:00, once C's part 4 renders it (to-integrator 1706)."
 notes: >
-  This cycle: PLAN still v1.3.4 and the newest decision is still D-039. No new inbox messages or proposals for A.
-  Read B-058, B-059 (PR #10 merged, B branch = main) and D-016 (final figures after G4, gate 22/0/0, no A impact).
-  None of them asks anything of A. No FREEZE, no STOP. Rebased onto main c636de0, pushed agent/A-data-rules
-  (it was 59 commits behind on origin; it now equals main). No code change, so there is no new LOG entry.
+  This cycle: I's to-A 1710 asked for sound-alike matching. A added _sound() (ph->f, cks/ks/cs->x, ck->k, z->s, y->i, doubles->single).
+  An exact sound match counts as 1 edit, with the look-alike always-ask list and the first-letter rule still on top.
+  plavicks now asks plavix/paxil/taxol, and ibuprophen is assumed to be ibuprofen. Commit 6088d6b, A-033.
+  make test exit 0, 1229 passed (+10). Return shape unchanged: {token, term, span, mode, assumed, choices, not_covered}.
+  Messages sent: to-integrator 1716 (done), to-D 1716 (typo set +5). C has nothing to do.
+  PLAN still v1.3.5, last decision D-040. No FREEZE, no STOP.
 next: >
-  Hold new code until G5 freeze (18:30). Answer demo-critical requests from B, C, D or the integrator in A's area
-  (data/, ingest, graph, capture, normalize, rules).
+  Answer C and D if they need a field or change, before 17:45. Rebase PR #17 if main moves.
+  If PR #17 isn't merged by 18:00, the flag stays off. After that, hold for the G5 freeze (18:30).

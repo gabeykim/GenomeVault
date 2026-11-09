@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: PR #11 merged (G4); Codespaces link accepted (D-039), PR #13 waits for Gabe to merge + boot-check
+current_task: C-030 D-040 part 4 on PR #16 (with C-029 fix); waiting on A suggest + B single send for end-to-end
 branch: agent/C-app-ui
-last_commit: 82a7205
+last_commit: 13374a9
 last_seen:
   plan_version: "1.3.4"
   decisions: D-039
-  logs: {A: 30, B: 58, C: 28, D: 16}
+  logs: {A: 30, B: 58, C: 30, D: 16}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -61,5 +61,7 @@ handled_messages:
   - 20261108-1638-from-integrator-g4-passed.md
   - 20261108-1644-from-integrator-codespaces-accepted.md
   - 20261108-1700-from-B-uncovered-pair-no-data.md
+  - 20261108-1702-from-I-adaptive-part4.md
+  - 20261108-1715-from-B-live-fallback-api.md
 blocked_on: none
 next: keep S1-S7 and UI stable (bug fixes only after the 18:30 freeze); confirm the Codespaces link once #13 merges; live run with the key (human)

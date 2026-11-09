@@ -29,3 +29,12 @@ def from_image(data: bytes, mime: str) -> list[Drug]:            # A (capture), 
 
 def status() -> dict:                                            # B (cloud), real at G3; sends nothing (I2)
     return {"online": True, "demo": os.getenv("DEMO") == "1"}
+
+def suggest(text: str) -> list[dict]:                            # A (normalize), D-040/D-041; flag-off behavior
+    return []
+
+def single_candidates(question: str, flags: list[Flag]) -> list[str]:   # B (router), D-040/D-041; flag-off
+    return []
+
+def send_single(key: str) -> Answer:                             # B (router), D-040/D-041; flag-off, sends nothing
+    return Answer(state="no_data", text="[mock] single send off", facts=[], sent_to_cloud=False)
