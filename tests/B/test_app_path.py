@@ -112,3 +112,34 @@ def test_app_answers_never_break_i7():
     for q in QUESTIONS:
         text = client.post("/api/ask", json={"question": q}).json()["text"]
         assert not wording_problems(text), (q, wording_problems(text))
+
+
+# I4 (human report 2026-11-08 16:45): a named pair outside the partition, with no fact and no flag on
+# that exact pair, must read no_data, not "checked on your device" just because a flag shares a drug.
+UNCOVERED_PAIR = "Is pantoprazole okay with my lisinopril?"
+
+
+def test_uncovered_named_pair_is_no_data_not_checked():
+    from core.decoys import bucket_for, universe
+    from core.router import LOCAL_TEXT
+    key = "lisinopril|pantoprazole"
+    assert key not in universe() and bucket_for(key) is None     # precondition: truly uncovered
+    r = client.post("/api/ask", json={"question": UNCOVERED_PAIR}).json()
+    assert r["state"] == "no_data", r
+    assert LOCAL_TEXT not in r["text"] and "checked on your device" not in r["text"].lower()
+    assert r["facts"] == []
+    assert not wording_problems(r["text"])
+
+
+def test_uncovered_named_pair_offline_is_no_data():
+    from core.router import LOCAL_TEXT
+    assert client.post("/api/offline", json={"offline": True}).status_code == 200
+    r = client.post("/api/ask", json={"question": UNCOVERED_PAIR}).json()
+    assert r["state"] == "no_data" and r["sent_to_cloud"] is False, r
+    assert LOCAL_TEXT not in r["text"]
+
+
+def test_covered_pantoprazole_pair_still_known():
+    r = client.post("/api/ask", json={"question": "Is pantoprazole okay with my clopidogrel?"}).json()
+    assert r["state"] == "known", r
+    assert any(f["key"] == "clopidogrel|pantoprazole" for f in r["facts"])

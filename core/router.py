@@ -28,7 +28,9 @@ If a send fails mid-question (network down), the remaining buckets are not tried
 
 Answer state (I4, missing = no_data): `known` if at least one asked key has a fact, or if a local flag
 covers the question (it shares a drug the question names, or the question names none) and no key that
-the cloud or the partition could answer is left open. Anything else is `no_data`: a question no flag
+the cloud or the partition could answer is left open. A question that names drug pairs, none of which has
+a fact or a flag on that exact pair, is `no_data` even when a flag shares one drug ("pantoprazole with
+lisinopril" is not "checked" by a clopidogrel|pantoprazole flag). Anything else is `no_data`: a question no flag
 covers is never "checked, nothing found". The question's own subject is parsed locally
 (`_subject_keys`): named drug pairs, gene-drug keys when it mentions genes, drug-lab keys when it names a
 lab test. (`none_listed` needs a curated "no interaction" entry from A's tables via the KB.)
@@ -107,6 +109,7 @@ _LAB_WORDS = {
     "glucose": "glucose", "sugar": "glucose", "inr": "inr", "tsh": "tsh", "thyroid": "tsh",
 }
 _LAB_PART_RE = re.compile(r"^([a-z0-9]+)\s*[<>]")
+_SUBSTITUTE_RE = re.compile(r"\b(instead of|rather than|in place of|replace|replacing|switch|switching)\b")
 
 
 def _key_gene(key: str) -> Optional[str]:
@@ -261,6 +264,14 @@ def route(question: str, flags: list[Flag]) -> Answer:
     # Lead with the pair the user asked about ("pantoprazole with clopidogrel"), then the flags' context
     # and the other subject keys in their usual order. Order only: what was sent is unchanged.
     pairs = set(_question_keys(question))
+    # I4: when the question names drug pairs and none of them has a fact or a flag on that exact pair,
+    # the asked pair has nothing behind it. A flag that merely shares one drug must not turn it into
+    # "checked on your device" (or answer it with another pair's text). The flags stay in the caller's list.
+    # A substitution question ("naproxen instead of ibuprofen") names alternatives, not a pair taken together.
+    if (pairs and not _SUBSTITUTE_RE.search(question.lower())
+            and not any(k in found or k in flag_keys for k in pairs)):
+        text = OFFLINE_TEXT if is_offline else NO_DATA_TEXT
+        return Answer(state="no_data", text=text, facts=[], sent_to_cloud=sent)
     order = [k for k in wanted if k in pairs] + [k for k in wanted if k not in pairs]
     facts = [found[k] for k in order if k in found]
     if not facts:
