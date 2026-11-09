@@ -29,7 +29,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
-from core import actions, merge
+from core import actions, direct, intent, merge
 from core.capture import from_image          # A, D-020: label photo -> drugs
 from core.cloud import status as cloud_status  # contract since D-020; sends nothing (I2)
 from core.contracts import Answer, Drug, Fact, Flag, Profile
@@ -341,10 +341,19 @@ def ask(body: AskIn) -> dict:
         return {"state": "held", "text": "", "sections": [], "facts": [], "sent_to_cloud": False,
                 "choices": held}
     p = load_profile()
+    extra: dict = {}
+    if intent.enabled():  # GV_INTENT=1 (D-040): on-device canonical rewrite, then the normal route()
+        u = intent.canonicalize(question, _flags_for(p.meds + _named_drugs(question, p), p))
+        question = u.question
+        extra = {"understood_as": u.understood_as, "clarify": u.clarify}
     current = _flags_for(p.meds + _named_drugs(question, p), p)
     answer: Answer = route(question, current)
     _asked.append(question)
-    out = _answer_payload(answer, current, p)
+    out = {**_answer_payload(answer, current, p), **extra}
+    if direct.enabled():  # GV_DIRECT=1: answer-first lead line, composed on device from flags/facts only
+        line = direct.direct_line(question, answer, current, p, original=body.question)
+        if line:
+            out["sections"], out["text"] = direct.apply(out["sections"], out["text"], line)
     if assumed:
         out["assumed"] = assumed
     if answer.state == "no_data":
