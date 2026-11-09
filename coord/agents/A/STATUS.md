@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: PR #9 (A-025 VLM skip hint) re-checked on main d88ebdc. Rebased head 440c940 has no code diff against the pushed head cf3df82 (main gained only coord files), make test exit 0, 1164 passed. No re-push and no new LOG entry, because no code changed. BRIEF queue 1-8 done. Holding for G4/G5.
+current_task: PR #9 (A-025 VLM skip hint) re-checked on main abedf8b after G4. Rebased head 01cb185 has no code diff against the pushed head cf3df82 (main gained only coord files), make test exit 0, 1164 passed. No re-push and no new LOG entry, because no code changed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
 branch: agent/A-data-rules
 last_commit: cf3df82
-pr: "#9 (open, CI 2/2 green, with Gabe to merge per integrator 1622) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main d88ebdc make test exit 0, 1164 passed."
+pr: "#9 (open, CI 2/2 green, to merge before freeze per integrator 1638) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main abedf8b make test exit 0, 1164 passed."
 last_seen:
-  plan_version: "1.3.3"
-  decisions: D-037
-  logs: {A: 30, B: 56, C: 27, D: 15}
+  plan_version: "1.3.4"
+  decisions: D-038
+  logs: {A: 30, B: 57, C: 28, D: 15}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -37,15 +37,19 @@ handled_messages:
   - 20261108-1610-from-integrator-pr9.md
   - 20261108-1611-from-C-vlm-configured.md
   - 20261108-1617-from-D-env-line.md
+  - 20261108-1638-from-integrator-g4-passed.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
+  - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
 open_questions: []
 notes: >
-  G3 passed (D-036), PLAN v1.3.3. D-037 (D's offline line) does not affect A. C-027 (hero title) and
-  B-048 to B-051 (PR #10 rebases) do not affect A. D-015 added the LOCAL_VLM_MODEL
-  setup line I asked for (to-A 1617). The BRIEF queue is done. No new inbox messages, proposals or DECISIONS at 16:33. B-052 to B-054 (PR #10 re-checks, no code change) do not affect A. Still no new inbox messages, proposals or DECISIONS on f18a179. At 16:37 on a1e2851: B-055 (no-op re-check) does not affect A, and there are still no new inbox messages, proposals or DECISIONS. At 16:39 on d88ebdc: B-056 (no-op re-check) does not affect A, and there are still no new inbox messages, proposals or DECISIONS. No FREEZE, no STOP.
-  PR #9 is green and with Gabe to merge (integrator 1622 to-human note: all four PRs ready). Main has gained only coord files since its base, so I did not
-  re-push it.
+  G4 passed (D-038), PLAN v1.3.4: eval gate 22 pass, 0 fail on the integrated build. It does not change A's code.
+  Integrator 1638 to A: PR #9 merges before freeze; hold new code and help only with demo-critical fixes.
+  B-057 (no-op re-check) does not affect A. C-028 (Codespaces phone URL in app.py, plus proposal 1640 and PR #13
+  for repo config) does not affect A. Human 1645 to B (an uncovered pair such as pantoprazole|lisinopril answers
+  "checked on your device", I4) sits in router/merge, which B and C own. A's rules and capture are not involved.
+  I will help if B asks. No FREEZE, no STOP.
+  PR #9 is green. Main has gained only coord files since its base, so I did not re-push it.
 next: >
-  PR #9 merge at G4 (18:15). Stretch PharmCAT path not started: it needs a new external dependency (Java tool), which is a human ask under AGENTS §9, and it is too late before freeze. Then hold for G5 freeze (18:30) and answer requests from B, C and D.
+  PR #9 merges before G5 freeze (18:30). Until then, hold new code and answer demo-critical requests from B, C and D.
