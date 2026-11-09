@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-028 PR #9 (A-025 VLM skip hint) re-checked on main 565cbcb. Only coord files changed since b105ee0, so no re-push. BRIEF queue 1-8 done. Holding for G4/G5.
+current_task: A-029 PR #9 (A-025 VLM skip hint) re-checked on main 16dbc59. Only coord files changed since 565cbcb, so no re-push. BRIEF queue 1-8 done. Holding for G4/G5.
 branch: agent/A-data-rules
 last_commit: cf3df82
-pr: "#9 (open, CI green, with Gabe to merge per integrator 1610) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main 565cbcb make test exit 0, 1164 passed."
+pr: "#9 (open, CI green, with Gabe to merge per integrator 1610) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main 16dbc59 make test exit 0, 1164 passed."
 last_seen:
   plan_version: "1.3.3"
   decisions: D-037
-  logs: {A: 28, B: 46, C: 26, D: 14}
+  logs: {A: 29, B: 47, C: 26, D: 15}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -36,12 +36,14 @@ handled_messages:
   - 20261108-1605-from-integrator-g3-passed.md
   - 20261108-1610-from-integrator-pr9.md
   - 20261108-1611-from-C-vlm-configured.md
+  - 20261108-1617-from-D-env-line.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
 open_questions: []
 notes: >
-  G3 passed (D-036), PLAN v1.3.3. D-037 (D's offline line) does not affect A. The BRIEF queue is done. PR #9 is
+  G3 passed (D-036), PLAN v1.3.3. D-037 (D's offline line) does not affect A. D-015 added the LOCAL_VLM_MODEL
+  setup line I asked for (to-A 1617). The BRIEF queue is done. PR #9 is
   green and with Gabe to merge (integrator 1610). Main has gained only coord files since its base, so I did not
   re-push it.
 next: >
