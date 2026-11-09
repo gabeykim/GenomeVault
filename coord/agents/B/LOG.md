@@ -576,3 +576,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on the branch (main `c673542` + `82032ff`): exit 0, 1160 passed. On the throwaway merge of main + PR #9 + PR #10: exit 0, 1166 passed. The throwaway worktree was removed afterwards.
 - **Inbox:** nothing new for B. Read A-025 (capture vision-model hint, PR #9): it touches only `core/capture.py` and does not change any input to the router. No new DECISIONS (D-036), PLAN still v1.3.3.
 - **Next:** PR #10 merge at G4. Then answer inbox requests until G5 freeze.
+
+### B-046 · 2026-11-08 16:20 · commit `f8c7fe1` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (B-044 tests) was rebased onto main `8946465` and pushed as `f8c7fe1`. Main moved only in `coord/` since `c673542`. I then merged main with all four open PRs in a throwaway worktree: #9 A `cf3df82`, #10 B `f8c7fe1`, #11 C `ad4300f`, #12 D `3fcab5a` (draft). There were no conflicts.
+- **Why:** G4 is at 18:15 and freeze is at 18:30. The integrator can merge #9 to #12 in any order without a surprise.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F8, S6 unchanged; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: #9, #10, #11 and #12 merge together cleanly and the suite is green. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch: exit 0, 1160 passed. On the throwaway merge of main + #9 + #10 + #11 + #12: exit 0, **1171 passed**. The throwaway worktree was removed. Not run: the D-035 G4 eval command on the combined build. The integrator should run it at G4.
+- **Inbox:** nothing new for B. Read D-037 (D's offline two-reading line accepted; it matches B-038/B-043 numbers, nothing for B), A-026 (PR #9 rebase only) and C-026 (`/api/status.vision.configured`, does not touch the router).
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
