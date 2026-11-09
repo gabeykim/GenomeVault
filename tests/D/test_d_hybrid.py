@@ -70,6 +70,7 @@ def test_gate_and_slide_numbers_from_one_run():          # G4
     assert not [r for r in rows if r["status"] == "FAIL"], [r for r in rows if r["status"] == "FAIL"]
     md = run_all.write_numbers(rt, lc, lat, off, wd)
     assert "| Fixed buckets: repeat-ask attacker |" in md and "(E1c)" in md
+    assert "## Measured by hand" in md and "7/7 correct" in md and "demo set" in md   # D-029: scoped, not a general claim
 
 
 def test_unbacked_known_answer_fails_the_gate():          # I4: a missing key is no_data, never 'checked, nothing found'

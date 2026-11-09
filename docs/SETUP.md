@@ -16,6 +16,16 @@ make test        # includes tests/D/
 | `python -m eval.latency_cost` | E3: local-only vs cloud-only vs hybrid | `latency_cost.json`, `latency_cost.svg` |
 | `python -m eval.offline` | E4: cold vs warm knowledge base with no network | `offline.json`, `offline.svg` |
 
+## Running the demo app
+
+`.env.example` lists every setting. **An existing `.env` copied before the line was added may be missing it; add it by hand:**
+
+```bash
+LOCAL_VLM_MODEL=qwen2.5vl:7b
+```
+
+Without it, `GV_OCR=vlm` reads nothing in 0.0 s (capture logs a WARNING since A-025). With it, and Ollama running with `qwen2.5vl:7b` pulled, start the phone server with `GV_OCR=vlm bash phone/serve_https.sh`; a label reads in about 4 s after a 10 s first call (D-029). Stage order and timings are in `slides/demo_script.md`.
+
 ## Inputs
 
 - `eval/queries.json`: the 20 scripted questions (5 gene–drug, 5 drug–drug, 4 drug–lab, 3 OTC, 3 open-ended), each with exact keys, expected flags and states, and a reference answer.

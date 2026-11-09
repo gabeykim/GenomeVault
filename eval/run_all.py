@@ -15,6 +15,12 @@ from eval.backends import BYTES_PER_BUCKET, MS, TOKENS, LiveBackend
 from eval.universe import ROOT
 
 DOCS = ROOT / "docs"
+# Figures measured by hand, not by `make eval`. Each says who measured it, on what, and the set it covers.
+MEASURED = [
+    ("Label photos read on the laptop by a 7B vision model (demo set: 7 synthetic printed labels)",
+     "7/7 correct, ~4 s each (10.6 s first call), no network",
+     "Dhiaa, 2026-11-08 16:02: M4 Pro, Ollama qwen2.5vl:7b, GV_OCR=vlm, C's sample labels; D-029"),
+]
 
 
 def pct(x: float) -> str:
@@ -198,6 +204,10 @@ def write_numbers(rt: dict, lc: dict, lat: dict, off: dict, wd: dict | None) -> 
          f"backend **{lc['backend']}**. Quote only rows marked PASS; re-run `make eval` before rehearsal.", "",
          "| Figure | Value | Gate |", "| --- | --- | --- |"]
     L += [f"| {a} | {b} | {g.get(c, '—')} ({c}) |" for a, b, c in rows]
+    L += ["", "## Measured by hand (not from `make eval`)", "",
+          "Quote these with their scope; they are not a general accuracy claim.", "",
+          "| Figure | Value | Source |", "| --- | --- | --- |"]
+    L += [f"| {a} | {b} | {c} |" for a, b, c in MEASURED]
     return "\n".join(L) + "\n"
 
 

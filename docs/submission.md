@@ -14,7 +14,7 @@ Whether a drug works for you, or hurts you, depends on your genes, your kidneys 
 
 ### How it works
 
-**On the device (the AI PC).** The genome, records and lab results stay on the laptop. A rules engine checks every new prescription against them using curated, guideline-style tables, not an AI guessing. For our synthetic patient Alex (58, just had a heart stent, five new prescriptions), it finds four problems instantly, with 0 bytes sent. General answers are personalized on the device by fixed rules that combine them with Alex's own results, so the result is predictable and auditable. A local vision model (Qwen2.5-VL via Ollama) reads label photos taken on the phone.
+**On the device (the AI PC).** The genome, records and lab results stay on the laptop. A rules engine checks every new prescription against them using curated, guideline-style tables, not an AI guessing. For our synthetic patient Alex (58, just had a heart stent, five new prescriptions), it finds four problems instantly, with 0 bytes sent. General answers are personalized on the device by fixed rules that combine them with Alex's own results, so the result is predictable and auditable. Label photos taken on the phone are read by a 7B vision model on the laptop (Qwen2.5-VL via Ollama): 7 of 7 correct on our demo labels, about 4 s each, with no network.
 
 **In the cloud, only when needed.** For open questions ("What should I bring up with my cardiologist?"), the device turns the question into general ones, about every genotype and every lab range rather than Alex's, and sends each inside a fixed group of 8 look-alike questions. Separate sessions, random delays and decoy traffic hide when Alex is asking and which groups belong together. A leakage check blocks any personal field, a wording check blocks "safe" and start/stop advice, and a live ledger shows every byte that leaves.
 
@@ -37,8 +37,8 @@ An attacker that sees everything leaving the device tries to recover the real qu
 
 ### What's real, and what's demo
 
-- **Real:** the rules engine and its curated tables, the privacy router and fixed groups, the leakage and wording checks, the ledger, the knowledge pack (recorded from a Claude model), on-device personalization, the local vision model for label photos, the phone capture and offline mode, and every measurement above.
-- **Demo:** the patient is synthetic, the rule tables cover a demo set of drugs, the attacker's drug frequencies are illustrative, and the stage demo replays the recorded pack so it doesn't depend on venue Wi-Fi. Network metadata (IP, timing) isn't hidden yet; a relay layer is on the roadmap. Some genes (CYP2D6) can't be called from consumer DNA tests, so we mark them "not assessed".
+- **Real:** the rules engine and its curated tables, the privacy router and fixed groups, the leakage and wording checks, the ledger, the knowledge pack (recorded from a Claude model), on-device personalization, the local vision model for label photos (7 of 7 on the demo labels, measured on the demo laptop), the phone capture and offline mode, and every measurement above.
+- **Demo:** the patient is synthetic, the rule tables cover a demo set of drugs, the label-reading result is on 7 synthetic printed labels rather than a general accuracy test, the attacker's drug frequencies are illustrative, and the stage demo replays the recorded pack so it doesn't depend on venue Wi-Fi. Network metadata (IP, timing) isn't hidden yet; a relay layer is on the roadmap. Some genes (CYP2D6) can't be called from consumer DNA tests, so we mark them "not assessed".
 - **Not medical advice.** It prepares you for a conversation with your pharmacist or doctor and never tells you to start or stop a medication.
 
 ### Team
