@@ -562,3 +562,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on main `b1ca51c` + this commit: exit 0, 1160 passed.
 - **Inbox:** to-B/20261108-1605-from-integrator-g3-passed.md (G3, PLAN v1.3.3, D-036): nothing changes for B. Read C-025, D-014.
 - **Next:** PR #10 for the integrator before G4 (18:15). Then answer inbox requests until G5 freeze.
+
+### B-045 · 2026-11-08 16:10 · commit `82032ff` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (the B-044 tests) was rebased onto main `c673542` and pushed as `82032ff`. Before that I checked it together with A's PR #9: merging main + #9 + #10 in a throwaway worktree gave no conflicts.
+- **Why:** to keep PR #10 ready to merge before G4, and to show that the two open non-draft PRs (#9 and #10) can merge in either order.
+- **Class:** Advances
+- **Plan:** advances F8, S6 (same as B-044); no change to any invariant
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 (CI green) and PR #9 can merge together, so both can go in at G4. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch (main `c673542` + `82032ff`): exit 0, 1160 passed. On the throwaway merge of main + PR #9 + PR #10: exit 0, 1166 passed. The throwaway worktree was removed afterwards.
+- **Inbox:** nothing new for B. Read A-025 (capture vision-model hint, PR #9): it touches only `core/capture.py` and does not change any input to the router. No new DECISIONS (D-036), PLAN still v1.3.3.
+- **Next:** PR #10 merge at G4. Then answer inbox requests until G5 freeze.

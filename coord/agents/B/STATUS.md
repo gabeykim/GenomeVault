@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-044 PR #10 (tests only) Wi-Fi off mid-sync keeps sent groups and resumes; explains C-025 partial Sync. make test exit 0, 1160 passed
+current_task: B-045 PR #10 rebased onto c673542 (82032ff), CI green; main + PR #9 + PR #10 merge clean, 1166 passed
 branch: agent/B-privacy-router
-last_commit: d74c0b5
+last_commit: 82032ff
 last_seen:
   plan_version: "1.3.3"
   decisions: D-036
-  logs: {A: 24, B: 44, C: 25, D: 14}
+  logs: {A: 25, B: 45, C: 25, D: 14}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -62,4 +62,6 @@ notes: >
   B-044: G3 passed (D-036, PLAN v1.3.3), nothing changes for B. PR #10 (tests only, d74c0b5) explains C-025's one-group Sync:
   in DEMO=1, offline=true comes only from a forced offline switch (S6 Wi-Fi off pressed during a ~2 min stage-delay Sync).
   Sent groups are kept, and the next sync resumes. C and D told. make test exit 0, 1160 passed.
+  B-045: PR #10 rebased onto main c673542 (head 82032ff), make test exit 0, 1160 passed. Throwaway merge of main + PR #9 (A-025) + PR #10:
+  no conflicts, exit 0, 1166 passed. Integrator told.
 next: PR #10 for the integrator before G4 (18:15). Then answer inbox requests until G5 freeze
