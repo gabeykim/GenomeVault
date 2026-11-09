@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: PR #11 ready (CI green on ad4300f); waiting for merge before G4
+current_task: C-027 full-screen title on scroll (PR #11); PR #11 ready, waiting for merge before G4
 branch: agent/C-app-ui
-last_commit: ad4300f
+last_commit: 4fe7735
 last_seen:
   plan_version: "1.3.3"
   decisions: D-036
-  logs: {A: 25, B: 44, C: 26, D: 14}
+  logs: {A: 25, B: 44, C: 27, D: 14}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
