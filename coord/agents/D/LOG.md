@@ -176,3 +176,15 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** none
 - **Tests:** `DEMO=1 make test` → exit 0 (836 passed); `DEMO=1 make eval` → exit 0; `python -m eval.gate` → **22 pass, 0 warn, 0 fail**. Offline on the integrated build: user-visible cold 11/20, strict cold 4/20 (Q01, Q06, Q08, Q12, Q18, Q19, Q20 differ); both 18/20 after a pack sync.
 - **Next:** G4 at 18:15; final number pass after G4
+
+### D-014 · 2026-11-08 16:07 · commit `3fcab5a` · PLAN v1.3.2
+
+- **Change:** the on-device label-reading result Dhiaa measured (7/7 correct, ~4 s per label, no network; demo set of 7 synthetic printed labels) is now quoted in `slides/numbers.md` under a new "Measured by hand (not from `make eval`)" section, generated from `eval/run_all.MEASURED` so `make eval` keeps it. It is also in `docs/submission.md` (How it works; What's real, and what's demo), `slides/judge_qa.md` (Ollama answer, plus a new label-accuracy question), the S2 line of `slides/demo_script.md`, and the deck's speaker notes for How it works.
+- **Why:** to-D/20261108-1602-from-human-vlm-results.md; D's human owner approved.
+- **Class:** Advances
+- **Plan:** advances P8; D-029
+- **Contract impact:** none
+- **Affects:** none. The figure is scoped to the demo label set everywhere it appears, as Dhiaa asked.
+- **Demo impact:** S2 narration now mentions "about 4 seconds"; no click changes
+- **Tests:** `DEMO=1 make test` → exit 0 (836 passed, 2 skipped); `python -m eval.gate` → 22 pass, 0 warn, 0 fail
+- **Next:** G4 at 18:15; final number pass after G4
