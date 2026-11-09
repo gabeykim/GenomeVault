@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: Holding for the G5 freeze. PR #18 (tests only) updated to e34e618, where the hyphen banner xfail is conditional on C's span swap (#22). Rehearsal #18+#22 green (1301 passed). BRIEF queue 1-8 and D-040 part 1 done.
+current_task: Holding for the G5 freeze. PR #18 (tests only) at e34e618 (CI 2/2 green), where the hyphen banner xfail is conditional on C's span swap (#22). Rehearsal #18+#22 green (1301 passed). BRIEF queue 1-8 and D-040 part 1 done.
 branch: agent/A-data-rules
-last_commit: e34e618 (on main 0698110)
+last_commit: e34e618 (PR head; local rebase d1c8386 on main 1c51c94, no code diff, not re-pushed)
 pr: "#18 open (tests only). #17, #9 merged."
 last_seen:
   plan_version: "1.3.6"
   decisions: D-042
-  logs: {A: 36, B: 71, C: 31, D: 18}
+  logs: {A: 36, B: 72, C: 31, D: 19}
   proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
@@ -54,9 +54,9 @@ dropped:
 open_questions:
   - "Is GV_FUZZY ON for the demo? The integrator decides at 18:00. Fact sent (to-integrator 1733): the hyphen gap closes once C's #22 merges; #18+#22 rehearsal is green."
 notes: >
-  17:33 cycle: to-A 1731 from C (hyphen swap fixed in PR #22, C-031) handled. #22 is not on main yet, so
-  the banner xfail is now strict and conditional on `app._apply_swaps`. Added an `_apply_swaps` span test,
-  skipped until #22 lands. main: exit 0, 1297 passed, 1 skipped, 1 xfailed. With #22 merged on top: exit 0, 1301 passed.
-  Read B-071, D-018: nothing for A. No PLAN/DECISIONS change, no new proposals, no FREEZE, no STOP.
+  17:35 cycle: no new to-A messages, PLAN v1.3.6, DECISIONS D-042, no new proposals, no FREEZE, no STOP.
+  Read B-072 (re-test, PR #20 held) and D-019 (tail E1 follows TAIL_VERSION; typos 20/20, 0 silent wrong): nothing for A.
+  Rebased onto main 1c51c94 (coord-only moves): `make test` exit 0, 1297 passed, 1 skipped, 1 xfailed (same as A-036).
+  The xfail and skip are the #22-conditional hyphen tests; both go green when C's #22 merges.
 next: >
   Hold PR #18 (no further edit needed in any merge order). 18:00 GV_FUZZY ruling, then hold for the G5 freeze (18:30).
