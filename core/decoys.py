@@ -89,11 +89,12 @@ def universe(version: str = CURRENT_VERSION) -> list[str]:
 
 
 # Long-tail partition (D-040 part 2, flag GV_TAIL) ------------------------------------------------
-# A second fixed, versioned partition (data/buckets/tail-v1.json, built by build_tail_v1.py) of every
+# A second fixed, versioned partition (data/buckets/tail-v2.json, built by build_tail_v2.py) of every
 # drug-drug pair over A's ingredient vocabulary and one drug-lab key per ingredient and lab. It is
 # consulted only for keys the core partition does not hold (core first). Same file for every user (I5).
+# tail-v2 has tail-v1's keys grouped by frequency tier (D's E1 finding, D-017); tail-v1 stays loadable.
 
-TAIL_VERSION = "tail-v1"
+TAIL_VERSION = "tail-v2"
 
 
 def tail_enabled() -> bool:
