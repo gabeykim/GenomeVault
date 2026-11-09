@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: PR #11 ready (CI green on ad4300f); waiting for merge before G4
+current_task: C-028 Codespaces demo link: C part on PR #11 (82a7205), repo-config part prepared as PR #13 for Gabe
 branch: agent/C-app-ui
-last_commit: ad4300f
+last_commit: 82a7205
 last_seen:
   plan_version: "1.3.3"
-  decisions: D-036
-  logs: {A: 25, B: 44, C: 26, D: 14}
+  decisions: D-037
+  logs: {A: 30, B: 51, C: 28, D: 15}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -57,5 +57,6 @@ handled_messages:
   - 20261108-1606-from-A-vlm-skip-hint.md
   - 20261108-1705-from-B-partial-sync-explained.md
   - 20261108-1610-from-integrator-pr11-draft.md
+  - 20261108-1617-from-D-rehearsal-notes-applied.md
 blocked_on: none
-next: PR #11 review; live run with ANTHROPIC_API_KEY on the demo laptop (human); keep S1-S7 solid for G4 18:15 / G5 freeze 18:30
+next: PR #11 + #13 review (Gabe); confirm a real codespace boots after merge; live run with the key (human)

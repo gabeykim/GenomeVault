@@ -1,4 +1,4 @@
-# GenomeVault PLAN — v1.3.3
+# GenomeVault PLAN — v1.3.4
 
 Source of truth for the idea. Edited only by the integrator, through accepted proposals (see AGENTS.md §5, §12). Cite these IDs in every commit, report and proposal.
 
@@ -122,3 +122,4 @@ S1 Hook · S2 Capture on phone · S3 Local flags X1–X4, "0 bytes sent" · S4 H
 - v1.3.1 — G2 passed: B (PR #2, merge 9d04dcc) and C (PR #3, merge be95c0e) merged; real `router.route` + `ledger` + cloud cache replay + FastAPI UI on main (D-032).
 - v1.3.2 — P9 G4: gate command fixed as `DEMO=1 make eval && python -m eval.gate`; without DEMO=1 and no key, E2/E4 understate the design and gate check P3 fails (D-035).
 - v1.3.3 — G3 passed: A (#5, 61f94d4), B (#7, 1ceb00a), C (#8, e15cbcc), D (#4, 87d6e0a) merged; KB + knowledge pack, full UI, phone page, offline/sync, and E1–E4 evals on main (D-036).
+- v1.3.4 — G4 passed: `DEMO=1 make eval && python -m eval.gate` green on the integrated build (22 pass, 0 fail) (D-038).

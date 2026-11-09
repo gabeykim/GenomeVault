@@ -339,3 +339,28 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Tests:** C's branch (main merged in) → `make test` exit 0, 1163 passed; `check_network.sh` ok.
 - **Inbox:** G3 passed (D-036) → synced. B-044: the one-group Sync in C-025 was offline being switched on mid-sync; the UI wording is correct, so nothing changes.
 - **Next:** PR #11 review; live run with the key on the demo laptop (human); keep S1–S7 solid for G4 (18:15) and the G5 freeze (18:30).
+
+### C-027 · 2026-11-08 16:19 · commit `4fe7735` (PR #11) · PLAN v1.3.3
+
+- **Change:** The homepage opens on a full-screen title: GENOME / VAULT stacked, centered and full width. Under it are one line ("Medication checks that keep your genome on this device."), the disclaimer and a scroll cue. Scrolling one screen docks the title into the masthead: the words shrink and slide apart (GENOME anchored by its left edge, VAULT by its right), then rise onto one line as the bar grows between them. The bar, strand and disclaimer fade in, and below is the regular homepage. Transforms only, one paint per animation frame. Tab deep links (`#ask`, `#actions` …) land past it. `prefers-reduced-motion` skips it. The intro loading animation still plays first.
+- **Why:** User request (Cristian): a big centered title that animates into the current homepage on scroll.
+- **Class:** Refines
+- **Plan:** refines F7 (presentation); S1–S7 unchanged
+- **Contract impact:** none
+- **Affects:** D: the first screen is now the hero, so screenshots and the stage run need one scroll (or open `/#meds`… note only tab names skip it: `#ask`, `#actions`, `#data`; plain `/` shows the hero) → retake screenshots. I: PR #11 gained this commit.
+- **Demo impact:** S1 can open on the hero title; S3 starts after one scroll.
+- **Tests:** `make test` exit 0 (1164 passed, main merged in); `check_network.sh` ok. Checked in the browser at 1440×900 and 375×812 at 0–100% scroll: the words never overlap or leave the screen, there is no sideways scroll, deep links land past the hero, and there are no console errors.
+- **Next:** PR #11 merge before G4 (18:15); live run with the key (human).
+
+### C-028 · 2026-11-08 16:40 · commit `82a7205` (PR #11); PR #13 prepared for I · PLAN v1.3.3
+
+- **Change:** (1) `app.py`: `_phone_url()`. Inside a GitHub Codespace (`CODESPACE_NAME` + `GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN`), Actions → Use your phone shows the forwarded HTTPS address. `GV_PHONE_URL` still wins. Environment only, no network. (2) For the integrator, I prepared PR #13 (`.devcontainer/devcontainer.json` + README "Try the demo" with the Codespaces link) and proposal `20261108-1640-C-codespaces-demo.md`. Those files are repo config, so they are Gabe's to merge.
+- **Why:** User request (Cristian): a GitHub link that runs like the local demo.
+- **Class:** Refines (app.py); repo config goes through the proposal
+- **Plan:** refines S2 (where the phone page is served)
+- **Refinements:** in a codespace, the phone URL comes from Codespaces' environment.
+- **Contract impact:** none
+- **Affects:** I: review PR #13 and the proposal. D: the link can go in the submission and slides once it merges.
+- **Demo impact:** none on stage. Adds a way to try it online.
+- **Tests:** `make test` exit 0 (1166 passed, main merged in); `check_network.sh` ok. Clean-install run of the container's command: /, /phone 200; modules real; X1–X4; Q18 known; Sync 122 facts; 0 personal fields.
+- **Next:** after PR #13 merges, open the link once to confirm a real codespace boots.

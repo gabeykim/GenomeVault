@@ -188,3 +188,15 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** S2 narration now mentions "about 4 seconds"; no click changes
 - **Tests:** `DEMO=1 make test` → exit 0 (836 passed, 2 skipped); `python -m eval.gate` → 22 pass, 0 warn, 0 fail
 - **Next:** G4 at 18:15; final number pass after G4
+
+### D-015 · 2026-11-08 16:17 · commit `ec1d49b` · PLAN v1.3.3
+
+- **Change:** `slides/demo_script.md` and `slides/video_script.md` follow C's G3 rehearsal (C-025) and B's note (B-044). S2 starts with `GV_OCR=vlm` and shows the ~4 s "Reading the label on this laptop" step. S4 points at the "Background decoys · N groups · X KB" line (C-023) and says "groups of 8", since Q18 sends 1 or 2; b03's two "yours" rows are noted as correct. S6 shows Sync as one "Knowledge pack · N groups · X KB" line, waits for it to finish before Offline, and syncs off stage when stage delays are on (~2 min). The "Before rehearsing" table is refreshed: the old blockers are done, and the live run with `ANTHROPIC_API_KEY` is still open (Cristian). `docs/SETUP.md` gains the `LOCAL_VLM_MODEL=qwen2.5vl:7b` line for existing `.env` files (A-025). D's branch also merged `main` (v1.3.3, after G3).
+- **Why:** to-D 1605 from C, 1606 from A, 1705 from B; D's human owner approved.
+- **Class:** Advances
+- **Plan:** advances P8 (S2, S4, S6); D-029
+- **Contract impact:** none
+- **Affects:** none (script and setup wording only)
+- **Demo impact:** S2, S4 and S6 wording; no clicks added or removed
+- **Tests:** `DEMO=1 make test` → exit 0 (1158 passed) on main merged; `python -m eval.gate` → 22 pass, 0 warn, 0 fail
+- **Next:** PR #12 (3fcab5a + ec1d49b) ready once CI is green; G4 at 18:15

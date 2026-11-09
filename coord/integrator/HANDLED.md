@@ -50,3 +50,9 @@ coord/inbox/to-integrator/20261108-1620-from-B-g3-rehearsal-2.md
 coord/inbox/to-integrator/20261108-1625-from-A-g4-gate-standalone.md
 coord/inbox/to-integrator/20261108-1655-from-B-main-green-g4.md
 coord/inbox/to-human/20261108-1610-from-integrator-needs-gabe-post-g3-merges-g4.md
+coord/inbox/to-integrator/20261108-1610-from-B-pr10-with-pr9.md
+coord/inbox/to-integrator/20261108-1612-from-C-pr11-ready.md
+coord/inbox/to-integrator/20261108-1617-from-D-pr12.md
+coord/inbox/to-integrator/20261108-1619-from-C-pr11-hero.md
+coord/inbox/to-integrator/20261108-1620-from-B-all-open-prs-merge-clean.md
+coord/inbox/to-human/20261108-1622-from-integrator-needs-gabe-g4-prs-all-ready.md

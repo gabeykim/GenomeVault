@@ -384,3 +384,45 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` on main `b105ee0` + PR #9: exit 0, **1164 passed**.
 - **Inbox:** integrator 1610 (PR #9 green, passed to Gabe to merge with #10 to #12): handled. C 1611 (`/api/status.vision.configured` uses A's configured test, C-026, PR #11): handled, nothing for A. D-037 (D's offline line) does not affect A.
 - **Next:** PR #9 merge at G4. Then I hold for freeze and answer requests from B, C and D.
+
+### A-028 · 2026-11-08 16:16 · commit `cf3df82` (PR #9, no new code, no re-push) · PLAN v1.3.3
+
+- **Change:** No code changed and nothing re-pushed. I rebased locally onto main `565cbcb`. Since `b105ee0`, main has gained only coordination files (A-027, B-046). `git diff origin/agent/A-data-rules HEAD -- core data tests` is empty, so PR #9's head `cf3df82` stays as it is.
+- **Why:** G4 prep. PR #9 should still be green on current main. My BRIEF queue (1 to 8) is done, and I am adding no code on the demo path before the G5 freeze.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F2, M3, S2 unchanged; no invariant touched
+- **Refinements:** none new. The F2/M3 line from A-025 is still waiting for PR #9 to merge.
+- **Contract impact:** none
+- **Affects:** I: PR #9 still passes on current main. B-046 also found that #9 to #12 merge together cleanly (1171 passed). B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on main `565cbcb` + PR #9: exit 0, **1164 passed**.
+- **Inbox:** no new messages for A. Read B-046 (PR #10 rebase only, combined merge clean): nothing for A. PLAN is still v1.3.3 and the last decision is still D-037.
+- **Next:** PR #9 merge at G4 (18:15). Then I hold for freeze and answer requests from B, C and D.
+
+### A-029 · 2026-11-08 16:40 · commit `cf3df82` (PR #9, no new code, no re-push) · PLAN v1.3.3
+
+- **Change:** No code changed and nothing re-pushed. I rebased locally onto main `16dbc59`. Since `565cbcb`, main has gained only coordination files (A-028, B-047, D-015). `git diff origin/agent/A-data-rules HEAD -- . ':!coord'` is empty, so PR #9's head `cf3df82` stays as it is. CI on #9 is green (2/2).
+- **Why:** G4 prep. PR #9 should still pass on current main. My BRIEF queue (1 to 8) is done, and I am adding no code on the demo path before the G5 freeze.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F2, M3, S2 unchanged; no invariant touched
+- **Refinements:** none new. The F2/M3 line from A-025 is still waiting for PR #9 to merge.
+- **Contract impact:** none
+- **Affects:** I: PR #9 still passes on current main. B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on main `16dbc59` + PR #9: exit 0, **1164 passed**.
+- **Inbox:** to-A 1617 from D: `docs/SETUP.md` now carries the `LOCAL_VLM_MODEL=qwen2.5vl:7b` line and the video script has the "label reads nothing in 0 s" troubleshooting entry. That closes my 1606 request; nothing for A to do. Read B-047 (PR #10 rebase only) and D-015 (S2/S4/S6 script wording): neither touches A's code. PLAN is still v1.3.3 and the last decision is still D-037.
+- **Next:** PR #9 merge at G4 (18:15). Then I hold for freeze and answer requests from B, C and D.
+
+### A-030 · 2026-11-08 16:21 · commit `cf3df82` (PR #9, no new code, no re-push) · PLAN v1.3.3
+
+- **Change:** No code changed and nothing re-pushed. I rebased locally onto main (`5e311fb`, now `24a0373`). Since `16dbc59`, main has gained only coordination files (A-029, C-027, B-048). The diff from `origin/agent/A-data-rules` to my rebased head touches only `coord/`, so PR #9's head `cf3df82` stays as it is. PR #9 is still open.
+- **Why:** G4 prep. PR #9 should still pass on current main. My BRIEF queue (1 to 8) is done, and I am adding no code on the demo path before the G5 freeze.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F2, M3, S2 unchanged; no invariant touched
+- **Refinements:** none new. The F2/M3 line from A-025 is still waiting for PR #9 to merge.
+- **Contract impact:** none
+- **Affects:** I: PR #9 still passes on current main. B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on main `5e311fb` + PR #9: exit 0, **1164 passed**.
+- **Inbox:** no new messages for A. Read C-027 (hero title on scroll, PR #11): UI only, nothing for A. Read B-048 (PR #10 rebase only): nothing for A. PLAN is still v1.3.3 and the last decision is still D-037.
+- **Next:** PR #9 merge at G4 (18:15). Then I hold for freeze and answer requests from B, C and D.

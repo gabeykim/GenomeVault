@@ -590,3 +590,153 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on the branch: exit 0, 1160 passed. On the throwaway merge of main + #9 + #10 + #11 + #12: exit 0, **1171 passed**. The throwaway worktree was removed. Not run: the D-035 G4 eval command on the combined build. The integrator should run it at G4.
 - **Inbox:** nothing new for B. Read D-037 (D's offline two-reading line accepted; it matches B-038/B-043 numbers, nothing for B), A-026 (PR #9 rebase only) and C-026 (`/api/status.vision.configured`, does not touch the router).
 - **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
+
+### B-047 · 2026-11-08 16:35 · commit `b1a94ad` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (B-044 tests) was rebased onto main `565cbcb` and pushed as `b1a94ad`. Main moved only in `coord/` since `8946465` (A-027, B-046, C-026 reports and C's PR #11 ready note). Heads of #9 (`cf3df82`), #11 (`ad4300f`) and #12 (`3fcab5a`) are unchanged since B-046, so the B-046 merge-clean result still holds. I did not repeat the throwaway merge.
+- **Why:** keep PR #10 current for G4 (18:15).
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F8, S6 unchanged; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head is now `b1a94ad`. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch: exit 0, 1160 passed. PR #10 CI re-runs on the new head.
+- **Inbox:** nothing new for B. Read A-027 (PR #9 re-check, no re-push) and C-026 (PR #11 ready). Neither touches the router.
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
+
+## B-048 PR #10 rebased onto 16dbc59, 1160 green
+
+- **What changed:** PR #10 (tests only) rebased onto main `16dbc59`. Main moved by coord-only commits (A-028, D-015, B-047), so no code under core/, tests/, data/ or app.py changed. New head `6dc7f25`.
+- **Class:** Advances (rebase only). **Plan:** keeps S6 / P6 offline pins (B-044) current for G4. **Contract:** none.
+- **Affects:** I: PR #10 head is now `6dc7f25`. A, C, D: nothing to do.
+- **Demo impact:** none. D-015 (D's reply to-B/20261108-1617) moved the S6 "let Sync finish before Wi-Fi off" step into the script. That matches B-044. Nothing for B to change.
+- **Tests:** `make test` on the branch: exit 0, 1160 passed.
+- **Inbox:** handled 20261108-1617-from-D-sync-line.md. Read A-028 (PR #9 re-check) and D-015. Neither touches B's code.
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
+
+### B-049 · 2026-11-08 16:45 · commit `abc231a` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (B-044 tests) rebased onto main `42a520b` and pushed as `abc231a`. Main moved only in `coord/` since `16dbc59` (A-029, A-030, B-048, C-027). `git diff` from the old head to the new one, outside `coord/`, is empty.
+- **Why:** keep PR #10 current for G4 (18:15).
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F8, S6 unchanged; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head is now `abc231a`. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037. Read C-027 (hero title on scroll, PR #11, UI only) and A-029/A-030 (PR #9 re-checks). None touch the router.
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
+
+### B-050 · 2026-11-08 16:55 · commit `86cb882` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (B-044 tests) rebased onto main `7d8e02a` and pushed as `86cb882`. Main moved only in `coord/` since `42a520b` (B-049, integrator pass `3973735`, A-030 status).
+- **Why:** keep PR #10 current for G4 (18:15).
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F8, S6 unchanged; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head is now `86cb882` (the 16:22 to-human note lists `6dc7f25`; content is the same, tests only). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037. Read integrator pass `3973735` (G4 merges escalated to Gabe). Nothing for B to do.
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
+
+### B-051 · 2026-11-08 16:26 (system clock; B-050's 16:55 stamp was wrong) · commit `a68211a` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (B-044 tests) rebased onto main `4960c3b` and pushed as `a68211a`. Main moved only in `coord/` since `7d8e02a` (B-050 report, A-030 status).
+- **Why:** keep PR #10 current for G4 (18:15).
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F8, S6 unchanged; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head is now `a68211a` (same content, tests only). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037, no new proposals. No FREEZE, no STOP.
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
+
+### B-052 · 2026-11-08 16:28 · no push (PR #10 stays at `a68211a`) · PLAN v1.3.3
+
+- **Change:** none. Main moved only by B's own B-051 report (`3a59953`, coord-only). Branch rebased locally (`b4709df`) and re-tested; PR #10 not re-pushed because its head `a68211a` is green (2/2 checks) and mergeable, and a re-push would only restart CI.
+- **Why:** keep PR #10 verified for G4 (18:15) without churn.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head still `a68211a`, ready to merge. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on rebased branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037. No FREEZE, no STOP.
+- **Next:** PR #10 merge at G4; re-push only if main changes code. Then hold for freeze and answer inbox requests.
+
+### B-053 · 2026-11-08 16:40 · no push (PR #10 stays at `a68211a`) · PLAN v1.3.3
+
+- **Change:** none. Main moved only by coord-only reports (`ba0b144` C STATUS, `20606ab` B-052, `8d3c339` A STATUS). Branch rebased locally (`447b972`) and re-tested; PR #10 not re-pushed because its head `a68211a` is green (2/2 checks) and a re-push would only restart CI.
+- **Why:** keep PR #10 verified for G4 (18:15) without churn.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head still `a68211a`, ready to merge. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on rebased branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037, no new proposals. No FREEZE, no STOP.
+- **Next:** PR #10 merge at G4; re-push only if main changes code. Then hold for freeze and answer inbox requests.
+
+### B-054 · 2026-11-08 · no push (PR #10 stays at `a68211a`) · PLAN v1.3.3
+
+- **Change:** none. Main moved only by coord-only reports (`ae8b2fd` B-053, `7766f85` A STATUS). Branch rebased locally (`3d79e02`) and re-tested; PR #10 not re-pushed because its head `a68211a` is green (2/2 checks) and a re-push would only restart CI.
+- **Why:** keep PR #10 verified for G4 (18:15) without churn.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head still `a68211a`, ready to merge. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on rebased branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037, no new proposals. No FREEZE, no STOP.
+- **Next:** PR #10 merge at G4; re-push only if main changes code. Then hold for freeze and answer inbox requests.
+
+### B-055 · 2026-11-08 · no push (PR #10 stays at `a68211a`) · PLAN v1.3.3
+
+- **Change:** none. Main moved only by coord-only reports (`61e7c0a` B-054, `f18a179` A STATUS). Branch rebased locally (`ab6ebae`) and re-tested; PR #10 not re-pushed because its head `a68211a` is green (2/2 checks) and a re-push would only restart CI.
+- **Why:** keep PR #10 verified for G4 (18:15) without churn.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head still `a68211a`, ready to merge. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on rebased branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037, no new proposals. No FREEZE, no STOP.
+- **Next:** PR #10 merge at G4; re-push only if main changes code. Then hold for freeze and answer inbox requests.
+
+### B-056 · 2026-11-08 · no push (PR #10 stays at `a68211a`) · PLAN v1.3.3
+
+- **Change:** none. Main moved only by coord-only reports (`c095b5a` B-055, `a1e2851` A STATUS). Branch rebased locally (`8f5d5e5`) and re-tested; PR #10 not re-pushed because its head `a68211a` is green (2/2 checks) and a re-push would only restart CI.
+- **Why:** keep PR #10 verified for G4 (18:15) without churn.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head still `a68211a`, ready to merge. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on rebased branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037, no new proposals. No FREEZE, no STOP.
+- **Next:** PR #10 merge at G4; re-push only if main changes code. Then hold for freeze and answer inbox requests.
+
+### B-057 · 2026-11-08 · no push (PR #10 stays at `a68211a`) · PLAN v1.3.3
+
+- **Change:** none. Main moved only by coord-only reports (`eca9e08` B-056, `d88ebdc` A STATUS). Branch rebased locally (`c44ef6b`) and re-tested. PR #10 not re-pushed: its head `a68211a` is green (2/2 checks), and a re-push would only restart CI.
+- **Why:** keep PR #10 verified for G4 (18:15) without churn.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head still `a68211a`, ready to merge. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on rebased branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037, no new proposals. No FREEZE, no STOP.
+- **Next:** PR #10 merge at G4; re-push only if main changes code. Then hold for freeze and answer inbox requests.
