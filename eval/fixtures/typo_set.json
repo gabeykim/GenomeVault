@@ -1,0 +1,26 @@
+{
+ "version": "typos-v1",
+ "note": "D's red-team typo set for D-040 part 5. Written by D, independent of A's own cases in tests/A/test_suggest.py (no misspelling is shared). Every intended name is in A's name lexicon or look-alike list. `lookalike: true` means the name has a confusable neighbour, so the app must ask, never assume. Synthetic project data (I1).",
+ "cases": [
+  {"typed": "clopidogral", "meant": "clopidogrel", "group": "alex", "lookalike": true},
+  {"typed": "omeprozole", "meant": "omeprazole", "group": "alex", "lookalike": false},
+  {"typed": "simvastatine", "meant": "simvastatin", "group": "alex", "lookalike": false},
+  {"typed": "lisinipril", "meant": "lisinopril", "group": "alex", "lookalike": false},
+  {"typed": "asprin", "meant": "aspirin", "group": "alex", "lookalike": false},
+  {"typed": "warfrain", "meant": "warfarin", "group": "pack", "lookalike": false},
+  {"typed": "amoxicilin", "meant": "amoxicillin", "group": "pack", "lookalike": false},
+  {"typed": "atorvastatine", "meant": "atorvastatin", "group": "pack", "lookalike": false},
+  {"typed": "metoprolo", "meant": "metoprolol", "group": "pack", "lookalike": false},
+  {"typed": "coumadn", "meant": "coumadin", "group": "brand", "lookalike": false},
+  {"typed": "advill", "meant": "advil", "group": "brand", "lookalike": false},
+  {"typed": "motrinn", "meant": "motrin", "group": "brand", "lookalike": false},
+  {"typed": "hydralazin", "meant": "hydralazine", "group": "lookalike", "lookalike": true},
+  {"typed": "hydroxizine", "meant": "hydroxyzine", "group": "lookalike", "lookalike": true},
+  {"typed": "lamictl", "meant": "lamictal", "group": "lookalike", "lookalike": true},
+  {"typed": "zantak", "meant": "zantac", "group": "lookalike", "lookalike": true},
+  {"typed": "plavics", "meant": "plavix", "group": "lookalike", "lookalike": true},
+  {"typed": "nexum", "meant": "nexium", "group": "lookalike", "lookalike": true},
+  {"typed": "glipizde", "meant": "glipizide", "group": "lookalike", "lookalike": true},
+  {"typed": "tegretl", "meant": "tegretol", "group": "lookalike", "lookalike": true}
+ ]
+}

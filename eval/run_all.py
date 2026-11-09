@@ -10,7 +10,7 @@ import datetime as dt
 import json
 import os
 
-from eval import gate, latency_cost, learning_curve, offline, redteam, wording
+from eval import adaptive, gate, latency_cost, learning_curve, offline, redteam, wording
 from eval.backends import BYTES_PER_BUCKET, MS, TOKENS, LiveBackend
 from eval.universe import ROOT
 
@@ -211,6 +211,38 @@ def write_numbers(rt: dict, lc: dict, lat: dict, off: dict, wd: dict | None) -> 
     return "\n".join(L) + "\n"
 
 
+def write_adaptive(ad: dict, core: dict | None = None) -> str:
+    """docs/results.md section for D-040 part 5. Reported apart from the core: no gate check, no slide figure."""
+    L = ["", "## D-040 · Adaptive questions (flags off by default; reported separately from the core)", "",
+         "Behind `GV_FUZZY` (A's typo suggestions) and `GV_TAIL` (B's long-tail partition). Nothing here changes a gate "
+         "check or a figure in `slides/numbers.md`.", ""]
+    t = ad["typos"]
+    L.append("### Typo suggestions (D's 20-item set, `eval/fixtures/typo_set.json`)\n")
+    if t["status"] == "ran":
+        L += [f"- Intended name among the choices: **{t['correct']}/{t['n']}** ({t['assumed']} assumed with an undo, {t['asked']} asked, {t['no_suggestion']} with no suggestion).",
+              f"- Silent wrong substitutions: **{t['silent_wrong']}**. Look-alike names assumed instead of asked: **{t['lookalike_assumed']}**. Both must be 0 (I4).",
+              "- D wrote the set independently of A's own cases; every intended name is in A's lexicon or look-alike list. Multi-word names are a known gap (A).", ""]
+    else:
+        L += [f"Not run: {t['reason']}.", ""]
+    tl = ad["tail"]
+    L.append("### Long-tail partition (E1 on `data/buckets/tail-v1.json`)\n")
+    if tl["status"] == "ran":
+        sm = tl["sensitivity_unseen_median"]
+        L += [f"{tl['buckets']} fixed buckets of 8 ({tl['keys']} keys), {tl['n']} synthetic patients, {tl['asks']} asks each. Real pair guessed:\n",
+              "| Attacker | Long tail | Core (v5, for comparison) |", "| --- | --- | --- |",
+              f"| Repeat-ask | {pct(tl['repeat_ask'])} | {pct(core['intersection']) if core else 'see E1'} |",
+              f"| Statistical (bets on the most common pair in the group) | **{pct(tl['statistical'])}** (ceiling {pct(tl['stat_attacker_ceiling'])}) | {pct(core['statistical']) if core else 'see E1'} |", "",
+              f"**Weaker than the core, as expected.** Tail buckets are a seeded shuffle with no frequency balancing, so a bucket often holds "
+              f"one pair with a common drug among rare ones, and the statistical attacker bets on it. Tail pairs have no priors of their own, "
+              f"so these use synthetic ones: each drug's summed priors from D's universe file, multiplied for a pair, with drugs and labs "
+              f"the file doesn't list set to the smallest known value. With them set to the median instead, the statistical attacker gets {pct(sm['statistical'])}. "
+              "The repeat-ask attacker stays near 1 in 8 either way, because the bucket is fixed. Say plainly: common questions get the "
+              "strongest protection; rare ones are still hidden in a fixed group of 8, measured separately.", ""]
+    else:
+        L += [f"Not run: {tl['reason']}.", ""]
+    return "\n".join(L) + "\n"
+
+
 def main():
     be = LiveBackend() if LiveBackend.available() else None
     rt = redteam.run(llm=os.environ.get("EVAL_LLM") == "1")
@@ -219,7 +251,8 @@ def main():
     off = offline.run()
     wd = wording.run()
     DOCS.mkdir(exist_ok=True)
-    (DOCS / "results.md").write_text(write_results(rt, lc, lat, off, wd))
+    ad = adaptive.run()
+    (DOCS / "results.md").write_text(write_results(rt, lc, lat, off, wd) + write_adaptive(ad, rt["single_topic"]["fixed_buckets"]))
     (ROOT / "slides" / "numbers.md").write_text(write_numbers(rt, lc, lat, off, wd))
     print(f"wrote docs/results.md and docs/charts/*.svg (partition {rt['partition']}, backend {lc['backend']})")
 
