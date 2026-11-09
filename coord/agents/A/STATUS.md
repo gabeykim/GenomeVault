@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-024 standalone `python -m eval.gate` on integrated heads (#4 4bd66e2, #5 f483847, #7 91a39b7, #8 ff5a93c) over main f51ae85. Clean octopus merge; make test 1158 passed, 0 skipped; eval.gate 22 pass, 0 warn, 0 fail (on #4's committed results; sandbox refused DEMO=1 make eval).
+current_task: A-025 capture logs a one-time hint when the local vision model is skipped (LOCAL_VLM_MODEL unset, model down, bad JSON). WARNING under GV_OCR=vlm, DEBUG under auto, never label text. Return values unchanged.
 branch: agent/A-data-rules
-last_commit: f483847
-pr: "#5 (open) agent/A-data-rules -> main: queue 8 key_state/no_data_keys + A-008 universe names + A-009 PharmCAT path + A-010 genotype sweep + A-011 allergy engine + A-012 VLM capture + A-013 label warnings + A-014 combo strengths + A-015 G3 label test + A-016 eval-query/handoff tests + A-017 shared label set tests + A-018 app real-path tests. Rebased on origin/main 48c182d, make test green (1078 passed, 2 skipped). Merges cleanly with #4 4bd66e2, #7 91a39b7, #8 ff5a93c over main f51ae85 (1158 passed, 0 skipped integrated; python -m eval.gate 22/0/0)."
+last_commit: 1b17750
+pr: "#9 (open) agent/A-data-rules -> main: A-025 VLM skip hint. Rebased on main 52c9634, make test exit 0, 1164 passed. (#5 merged at G3 as f483847.)"
 last_seen:
   plan_version: "1.3.2"
   decisions: D-035
-  logs: {A: 24, B: 40, C: 24, D: 13}
+  logs: {A: 25, B: 43, C: 25, D: 14}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -32,16 +32,15 @@ handled_messages:
   - 20261108-1543-from-C-app-real-path-ack.md
   - 20261108-1551-from-D-offline-reading.md
   - 20261108-1600-from-D-a016-settled.md
+  - 20261108-1602-from-human-vlm-results.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
-open_questions:
-  - "To human: a live VLM check on real photos needs Ollama + qwen2.5vl:7b running on this machine (to-human 1523). Optional."
+open_questions: []
 notes: >
-  A-024: no code change, PR #5 not re-pushed (main gained only coord commits). On a local temp branch in A's code
-  worktree (deleted, nothing pushed) merged main f51ae85 + #4/#5/#7 91a39b7/#8: make test 1158/0 skipped;
-  python -m eval.gate run standalone: 22/0/0. DEMO=1 make eval was refused by the sandbox, so the gate read #4's
-  committed eval/results.
+  A-025: the human's real VLM run (to-A 1602) measured 7/7 labels correct at ~4.2 s each, which closes the
+  untested path from to-human 1523. The only issue found was a silent skip when LOCAL_VLM_MODEL was missing from
+  .env; A-025 now logs a hint for it. PRs #4, #5, #7 and #8 are merged on main; A's suite on main + A-025:
+  1164 passed.
 next: >
-  PR #5 review/merge at G3 (17:30); then re-run A's suite on main. Live VLM run on C's PNGs if the human starts Ollama.
-  After that, requests from B, C and D.
+  PR #9 merge. Then the next PLAN version after the G3 ruling, and requests from B, C and D.

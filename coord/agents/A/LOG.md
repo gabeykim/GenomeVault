@@ -342,3 +342,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` on A's branch (rebased locally on `f51ae85`): exit 0, 1078 passed, 2 skipped. Integrated: as above.
 - **Inbox:** no new to-A messages. New log B-040 (rehearsal with `1e265c1`, G4 command not run): this entry covers the gate half on B's newer `91a39b7`. No new DECISIONS since D-035; PLAN still v1.3.2.
 - **Next:** PR #5 review and merge at G3. After the merge, re-run A's suite on main. Live VLM check if the human starts Ollama. Then requests from B, C and D.
+
+### A-025 · 2026-11-08 16:06 · commit `1b17750` (PR #9) · PLAN v1.3.2
+
+- **Change:** `core/capture.py` now explains why it skipped the local vision model. It logs one line per process per reason on the `genomevault.capture` logger. Model not set: the line says to add `LOCAL_VLM_MODEL=qwen2.5vl:7b` to `.env` (see `.env.example`). Model did not answer: the model name and the exception type only. Reply was not the expected JSON. The level is WARNING under `GV_OCR=vlm`, where the user asked for the model, and DEBUG under `auto`, where running without a model is the normal I8 path. Return values are unchanged (`None` on every skip, as before). The log line never contains label text, image content or exception messages (I2; a test checks this with a synthetic name and Rx number).
+- **Why:** to-A 1602 (human, demo laptop): a `.env` without `LOCAL_VLM_MODEL` made `GV_OCR=vlm` return `[]` in 0.0 s with no hint.
+- **Class:** Refines
+- **Plan:** refines F2, M3, S2 (D-029 setup); I2 and I4 unchanged
+- **Refinements:** capture logs a one-time setup hint when the vision model is skipped: WARNING with `GV_OCR=vlm`, DEBUG with `auto`, never label content.
+- **Contract impact:** none (`from_image` / `from_text` signatures and return values unchanged)
+- **Affects:** C: nothing required. With `GV_OCR=vlm`, C's startup warm-up (C-025) now prints the hint once if the model is unset, so a fast "warm" no longer passes silently. D: nothing required. If the env docs mention `GV_OCR=vlm`, they could add "existing `.env` files need `LOCAL_VLM_MODEL=qwen2.5vl:7b` added by hand". I: please review and merge PR #9.
+- **Demo impact:** S2: none on the happy path. With a misconfigured `.env`, the console now says what to fix.
+- **Tests:** new `tests/A/test_capture_vlm_hint.py` (6 tests: unset/`set-me` warns once under vlm, quiet under auto, model-down gives type and model only with no label text, bad JSON gives DEBUG and still falls through to tesseract, a good read logs nothing). `make test` on main `52c9634` + this commit: exit 0, **1164 passed**.
+- **Inbox:** human 1602 (7/7 real VLM labels, ~4.2 s warm): handled by this change; the untested path from to-human 1523 is closed. Main now has PRs #4, #5, #7 and #8 merged (#5 at `f483847`); my old PR is done, so this change is on new PR #9. New logs B-041 to B-043, C-025, D-014: nothing else for A. No new DECISIONS (D-035), PLAN still v1.3.2.
+- **Next:** PR #9 merge. Then the next PLAN version after the G3 ruling, and requests from B, C and D.
