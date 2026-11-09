@@ -13,6 +13,7 @@ genotype (I3; D's finding on v3).
 """
 import json
 import pathlib
+import re
 from functools import lru_cache
 
 from .contracts import Bucket
@@ -85,3 +86,66 @@ def bucket_for(key: str, version: str = CURRENT_VERSION) -> Bucket | None:
 def universe(version: str = CURRENT_VERSION) -> list[str]:
     """Member keys (the keys whose texts are sent). Aliases are not members; see `load_aliases`."""
     return [k for b in load_buckets(version) for k in b.keys]
+
+
+# Long-tail partition (D-040 part 2, flag GV_TAIL) ------------------------------------------------
+# A second fixed, versioned partition (data/buckets/tail-v1.json, built by build_tail_v1.py) of every
+# drug-drug pair over A's ingredient vocabulary and one drug-lab key per ingredient and lab. It is
+# consulted only for keys the core partition does not hold (core first). Same file for every user (I5).
+
+TAIL_VERSION = "tail-v1"
+
+
+def tail_enabled() -> bool:
+    import os
+    return os.environ.get("GV_TAIL", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _lab_of(key: str) -> tuple[str, str] | None:
+    """(drug, lab) of a drug-lab key, any band; None for other families."""
+    if kind_of(key) != "drug_lab":
+        return None
+    drug = lab = None
+    for part in key.lower().split("|"):
+        part = part.strip()
+        if part.startswith("dose"):
+            continue
+        m = re.match(r"^([a-z0-9]+)\s*[<>]", part)
+        if m:
+            lab = m.group(1)
+        elif part:
+            drug = part
+    return (drug, lab) if drug and lab else None
+
+
+@lru_cache(maxsize=None)
+def _tail_index() -> tuple[dict[str, Bucket], dict[tuple[str, str], str]]:
+    by_key = {k: b for b in load_buckets(TAIL_VERSION) for k in b.keys}
+    core = set(_index(CURRENT_VERSION)) | set(load_aliases(CURRENT_VERSION))
+    overlap = core & set(by_key)
+    if overlap:
+        raise ValueError(f"tail keys also in the core partition (I5): {sorted(overlap)[:3]}")
+    by_lab = {dl: k for k in by_key if (dl := _lab_of(k))}
+    return by_key, by_lab
+
+
+def tail_member(key: str) -> str | None:
+    """The tail member key whose text answers `key`: itself, or for a drug-lab key with another band,
+    the one tail key of that drug + lab (the text covers every range, I3). None outside the tail, or when
+    the core partition holds the key (core first)."""
+    if bucket_for(key) is not None:
+        return None
+    by_key, by_lab = _tail_index()
+    if key in by_key:
+        return key
+    dl = _lab_of(key)
+    return by_lab.get(dl) if dl else None
+
+
+def tail_bucket_for(key: str) -> Bucket | None:
+    m = tail_member(key)
+    return _tail_index()[0][m] if m else None
+
+
+def tail_universe() -> list[str]:
+    return list(_tail_index()[0])

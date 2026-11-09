@@ -101,7 +101,8 @@ def test_two_bucket_question_is_spread_out(monkeypatch):
 
 # --- P6.6 cover buckets ---------------------------------------------------------------------------
 
-def test_send_cover_sends_one_whole_fixed_bucket():
+def test_send_cover_sends_one_whole_fixed_bucket(monkeypatch):
+    monkeypatch.delenv("GV_TAIL", raising=False)   # core partition only; the tail cover is in test_tail.py
     e = router.send_cover()
     assert e is not None and e.kind == "cover" and e.bytes_out > 0 and e.personal_fields_sent == 0
     b = next(b for b in load_buckets() if b.id == e.bucket_id)
@@ -114,7 +115,8 @@ def test_send_cover_sends_one_whole_fixed_bucket():
     assert all(kb.get(k) is not None for k in b.keys)          # all 8 answers stored
 
 
-def test_cover_choice_ignores_questions_and_covers_partition():
+def test_cover_choice_ignores_questions_and_covers_partition(monkeypatch):
+    monkeypatch.delenv("GV_TAIL", raising=False)   # core partition only; the tail cover is in test_tail.py
     router.route("Does my genetics change how clopidogrel works for me?", [X1])
     real = bucket_for(X1.key).id
     seen = [router.send_cover().bucket_id for _ in range(400)]
@@ -193,3 +195,23 @@ def test_interval_env(monkeypatch):
         router.cover_interval()
     with pytest.raises(ValueError):
         router.start_cover(0)
+
+
+def test_codespaces_interval_20s(monkeypatch):
+    """D-039: the Codespaces demo runs with GV_COVER_INTERVAL_S=20. The loop reads it and waits
+    20 * uniform(0.5, 1.5), so every wait falls in 10-30 s, and each tick sends one whole bucket."""
+    monkeypatch.setenv("GV_COVER_INTERVAL_S", "20")
+    assert router.cover_interval() == 20.0
+    waits = []
+
+    class Stop:
+        def wait(self, t):
+            waits.append(t)
+            return len(waits) > 200
+
+    sent = []
+    monkeypatch.setattr(router, "send_cover", lambda: sent.append(1))
+    router._cover_loop(router.cover_interval(), Stop())
+    assert len(waits) == 201 and len(sent) == 200
+    assert all(10.0 <= w <= 30.0 for w in waits)
+    assert max(waits) - min(waits) > 5     # jittered, not a fixed beat

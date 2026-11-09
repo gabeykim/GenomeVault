@@ -52,13 +52,15 @@ def _outbound() -> list[str]:
     return [t for e in ledger.feed(0) for t in ledger.outbound(e.seq)]
 
 
-def test_combo_names_only_its_universe_ingredient():
+def test_combo_names_only_its_universe_ingredient(monkeypatch):
+    monkeypatch.delenv("GV_TAIL", raising=False)   # core vocabulary; GV_TAIL names every ingredient (test_tail.py)
     q = "Is ezetimibe-simvastatin 10-40 mg OK with my clopidogrel?"
     assert router._named_drugs(q) == ["clopidogrel", "simvastatin"]
     assert router._question_keys(q) == ["clopidogrel|simvastatin"]
 
 
-def test_combo_question_online_sends_no_outside_name_or_strength():
+def test_combo_question_online_sends_no_outside_name_or_strength(monkeypatch):
+    monkeypatch.delenv("GV_TAIL", raising=False)   # core vocabulary; GV_TAIL names every ingredient (test_tail.py)
     q = "Is ezetimibe-simvastatin 10-40 mg OK with my clopidogrel?"
     a = router.route(q, [])
     assert a.sent_to_cloud
@@ -82,7 +84,8 @@ def test_amox_clav_with_allergy_flag_stays_local():
     assert all(e.bytes_out == 0 for e in ledger.feed(0))
 
 
-def test_amox_clav_never_sends_clavulanate():
+def test_amox_clav_never_sends_clavulanate(monkeypatch):
+    monkeypatch.delenv("GV_TAIL", raising=False)   # core vocabulary; GV_TAIL names every ingredient (test_tail.py)
     router.route("Can I take amox-clav with Plavix?", [])
     for t in _outbound():
         assert "clavulanate" not in t.lower() and "amox-clav" not in t.lower()
