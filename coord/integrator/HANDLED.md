@@ -59,3 +59,11 @@ coord/inbox/to-human/20261108-1622-from-integrator-needs-gabe-g4-prs-all-ready.m
 coord/proposals/20261108-1640-C-codespaces-demo.md
 coord/inbox/to-integrator/20261108-1640-from-C-codespaces-pr13.md
 coord/inbox/to-human/20261108-1644-from-integrator-needs-gabe-merge-pr13.md
+coord/inbox/to-integrator/20261108-1647-from-D-figures-final.md
+coord/inbox/to-integrator/20261108-1651-from-D-pr14.md
+coord/inbox/to-integrator/20261108-1655-from-human-adaptive-questions-ruling.md
+coord/inbox/to-integrator/20261108-1700-from-B-cover-20s-ok.md
+coord/inbox/to-integrator/20261108-1700-from-B-pr10-i4-fix.md
+coord/proposals/20261108-1655-human-adaptive-questions.md
+coord/inbox/to-human/20261108-1658-from-integrator-needs-gabe-adaptive-questions.md
+coord/inbox/to-human/20261108-1658-from-integrator-needs-gabe-merge-pr14-pr15.md
