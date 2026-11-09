@@ -910,3 +910,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on B branch exit 0, 1293 passed. Merge results as above. Eval not re-run (PR #20 not merged yet).
 - **Inbox:** no new messages. New LOG: A-035 (nothing for B). No new DECISIONS (still D-042).
 - **Next:** after PR #20 merges, run the flags-on suite and eval on main. Hold for 18:00 ON/OFF and G5 freeze.
+
+### B-070 · 2026-11-08 17:40 · commit `cdb8ee2` (PR #20) · PLAN v1.3.6
+
+- **Change:** No new B code. Main moved only by coord commits since B-069 (ccc6c51, 0f06609, 916c62a, b547728, 6ed0e77). Branch rebased locally (head 206fc04, same code as cdb8ee2) and re-tested. PR #20 left at `cdb8ee2` (2/2 checks green), no re-push.
+- **Why:** BRIEF queue is done. PR #20 is with Gabe (integrator escalation 1722: hold unless GV_TAIL goes ON). The 18:00 ON/OFF call is still open.
+- **Class:** Advances
+- **Plan:** G5 readiness; no invariant touched
+- **Contract impact:** none
+- **Affects:** nobody. No messages sent.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 1293 passed.
+- **Inbox:** no new messages for B. New LOG: A-035 status, D-018 (presentation script, PR #21): nothing for B. No new DECISIONS (still D-042). Integrator pass 0f06609 escalated B's flag rec (all OFF) and PR #20 to Gabe.
+- **Next:** if Gabe turns GV_TAIL ON, #20 merges first, then B re-runs the flags-on suite + eval on main. Otherwise hold for G5 freeze.
