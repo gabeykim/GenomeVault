@@ -76,13 +76,49 @@ def test_examples_lead_first(client, gv_intent):
 
         r = _ask(client, "Could pantoprazole work instead of omeprazole with my clopidogrel?")
         line = _lead(r)["paragraphs"][0]
-        assert line.startswith("For clopidogrel, an entry is listed for clopidogrel with omeprazole")
-        assert "for pantoprazole, an entry is listed for clopidogrel with pantoprazole" in line
+        # asked pair first, then the current one; each is the first sentence of that exact-key fact's own text
+        assert line.startswith("Short answer (clopidogrel with pantoprazole): ")
+        assert " For omeprazole: " in line and line.count("(AI-summarized; verify)") == 2
+        new_fact = next(f for f in r["facts"] if f["key"] == "clopidogrel|pantoprazole")
+        assert new_fact["text"].split(". ")[0].rstrip(".") in line
+
+        r = _ask(client, "Does simvastatin interact with lisinopril?")
+        line = _lead(r)["paragraphs"][0]
+        assert line.startswith("Short answer (simvastatin with lisinopril): ")
+        fact = next(f for f in r["facts"] if f["key"] == "lisinopril|simvastatin")
+        assert fact["text"].split(". ")[0].rstrip(".") in line
 
         r = _ask(client, "Can I take St. John's wort with my medications?")
         line = _lead(r)["paragraphs"][0]
         assert "Nothing in your records is flagged with st johns wort" in line
         assert "GenomeVault has no entry for it with your medications" in line
+
+
+def test_direct_reads_the_rewritten_question(client):
+    """"is asprin ok with my plavix" is understood as "Does aspirin interact with clopidogrel?" (GV_INTENT +
+    GV_FUZZY); the direct line must answer that pair, naming aspirin, not the typo'd original."""
+    with mock.patch.dict(os.environ, {"GV_DIRECT": "1", "GV_INTENT": "1", "GV_FUZZY": "1"}):
+        r = _ask(client, "is asprin ok with my plavix")
+    assert r.get("understood_as") == "Does aspirin interact with clopidogrel?"
+    line = _lead(r)["paragraphs"][0]
+    assert line.startswith("Short answer (aspirin with clopidogrel): ") and "whether to take" not in line
+
+
+def test_efficacy_cue_survives_rewrite(client):
+    with mock.patch.dict(os.environ, {"GV_DIRECT": "1", "GV_INTENT": "1"}):
+        r = _ask(client, "does ibuprofen help a headache")
+    assert _lead(r)["paragraphs"][0].startswith("GenomeVault does not answer whether a medicine works for a symptom")
+
+
+def test_fact_sentence_falls_back_when_wording_fails():
+    from datetime import date
+    from core.contracts import Answer, Fact
+    p = appmod.load_profile()
+    bad = Fact(key="lisinopril|simvastatin", text="You should stop simvastatin. It is safe together.", tier="cloud",
+               source="x", fetched=date.today(), expires=date.today())
+    a = Answer(state="known", text=bad.text, facts=[bad], sent_to_cloud=True)
+    line = direct.direct_line("does simvastatin interact with lisinopril", a, [], p)
+    assert line == "Short answer: an entry is listed for simvastatin with lisinopril (AI-summarized; verify)."
 
 
 def test_unknown_pair_no_data_line():

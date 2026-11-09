@@ -90,6 +90,34 @@ def _flagged_against(drug: str, flags: list[Flag], profile: Profile) -> list[str
     return items
 
 
+_SENT_RE = re.compile(r"(?<=[.!?])\s+")
+
+
+def _tier(fact) -> str:
+    return "curated" if fact.tier == "curated" else "AI-summarized; verify"
+
+
+def _fact_sentence(a: str, b: str, answer: Answer) -> Optional[str]:
+    """First sentence of the exact-key fact's own text for the pair (I4: restated, not composed), after
+    merge.guard and only if the wording check passes; None otherwise."""
+    from .contracts import pair_key
+    fact = next((f for f in answer.facts if f.key == pair_key(a, b)), None)
+    if fact is None:
+        return None
+    text = merge.guard(fact.text.strip())
+    first = _SENT_RE.split(text, maxsplit=1)[0].strip() if text else ""
+    if not first or wording_problems(first):
+        return None
+    return f"{first.rstrip('.')} ({_tier(fact)})"
+
+
+def _pair_answer(a: str, b: str, answer: Answer, flags: list[Flag]) -> str:
+    sent = _fact_sentence(a, b, answer)
+    if sent:
+        return f"Short answer ({a.replace('_', ' ')} with {b.replace('_', ' ')}): {sent}."
+    return f"Short answer: {_pair_state(a, b, answer, flags)}."
+
+
 def _pair_state(a: str, b: str, answer: Answer, flags: list[Flag]) -> str:
     """Listed / none listed / no data for the exact pair, from the answer's facts and the user's flags only."""
     from .contracts import pair_key
@@ -105,12 +133,14 @@ def _pair_state(a: str, b: str, answer: Answer, flags: list[Flag]) -> str:
     return f"GenomeVault has no data on {a} with {b}"
 
 
-def _compose(question: str, answer: Answer, flags: list[Flag], profile: Profile) -> Optional[str]:
+def _compose(question: str, answer: Answer, flags: list[Flag], profile: Profile,
+             original: Optional[str] = None) -> Optional[str]:
     words = _words(question)
     ws = set(words)
     drugs = _drugs(question, words)
     kind, _ = intent._rule_intent(words, drugs)
     low = " ".join(words)
+    efficacy = bool(_EFFICACY_RE.search(low) or (original and _EFFICACY_RE.search(" ".join(_words(original)))))
 
     # 1. what to raise with a clinician
     if not drugs and _CLINICIAN_RE.search(low) and (_ASK_RE.search(low) or kind in {"cardio", "pharm", "followup"}):
@@ -135,18 +165,25 @@ def _compose(question: str, answer: Answer, flags: list[Flag], profile: Profile)
         partners = intent._context_drugs(old, new, flags) or [d for d in drugs if d not in (new, old)]
         if partners:
             p = partners[0]
+            s_new, s_old = _fact_sentence(p, new, answer), _fact_sentence(p, old, answer)
+            if s_new or s_old:   # asked pair first, one sentence each, from the facts' own text
+                parts = []
+                parts.append(f"Short answer ({p.replace('_', ' ')} with {new.replace('_', ' ')}): "
+                             + (f"{s_new}." if s_new else f"{_pair_state(p, new, answer, flags)}."))
+                parts.append(f"For {old.replace('_', ' ')}: " + (f"{s_old}." if s_old else f"{_pair_state(p, old, answer, flags)}."))
+                return " ".join(parts)
             return (f"For {p.replace('_', ' ')}, {_pair_state(p, old, answer, flags)}; "
-                    f"for {new.replace('_', ' ')}, {_pair_state(p, new, answer, flags)}.").replace("; for", "; for")
-        return f"Short answer: {_pair_state(new, old, answer, flags)}."
+                    f"for {new.replace('_', ' ')}, {_pair_state(p, new, answer, flags)}.")
+        return _pair_answer(new, old, answer, flags)
     if kind == "pair" and len(drugs) >= 2:
-        return f"Short answer: {_pair_state(drugs[0], drugs[1], answer, flags)}."
+        return _pair_answer(drugs[0], drugs[1], answer, flags)
 
     # 3 / 4. a single named drug: "can I take X", "is X ok", "does X help a headache"
-    if len(drugs) == 1 and kind in {"otc", "rx", None} or (len(drugs) == 1 and _EFFICACY_RE.search(low)):
+    if len(drugs) == 1 and (kind in {"otc", "rx", None} or efficacy):
         d = drugs[0]
         name = d.replace("_", " ")
         found = _flagged_against(d, flags, profile)
-        if _EFFICACY_RE.search(low):
+        if efficacy:
             head = ("GenomeVault does not answer whether a medicine works for a symptom; that is a question "
                     "for your pharmacist or doctor.")
         else:
@@ -181,9 +218,12 @@ def _which_first(flags: list[Flag], who: str) -> str:
             f"({', '.join(sorted(ids))}).")
 
 
-def direct_line(question: str, answer: Answer, flags: list[Flag], profile: Profile) -> Optional[str]:
+def direct_line(question: str, answer: Answer, flags: list[Flag], profile: Profile,
+                original: Optional[str] = None) -> Optional[str]:
+    """`question` is what was routed (the intent rewrite when GV_INTENT is on); `original` is what the user
+    typed, read only for the efficacy cue ("does X help a headache") that a rewrite may drop."""
     try:
-        line = _compose(question, answer, flags, profile)
+        line = _compose(question, answer, flags, profile, original)
     except Exception:          # a lead line is a nicety; the normal answer must never break
         return None
     if not line:

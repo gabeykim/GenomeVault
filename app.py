@@ -351,7 +351,7 @@ def ask(body: AskIn) -> dict:
     _asked.append(question)
     out = {**_answer_payload(answer, current, p), **extra}
     if direct.enabled():  # GV_DIRECT=1: answer-first lead line, composed on device from flags/facts only
-        line = direct.direct_line(body.question, answer, current, p)
+        line = direct.direct_line(question, answer, current, p, original=body.question)
         if line:
             out["sections"], out["text"] = direct.apply(out["sections"], out["text"], line)
     if assumed:
