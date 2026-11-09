@@ -534,3 +534,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped.
 - **Inbox:** nothing new for B. No new DECISIONS (still D-035), PLAN still v1.3.2. Read `0ed2e0c` (vision-model label results to A, C, D): label capture is outside B's paths, nothing for B.
 - **Next:** PR #7 review and merge at G3. After G3, rebase onto main, run B's suite against the merged code, and run the D-035 G4 command on main if the sandbox allows it.
+
+### B-043 · 2026-11-08 16:55 · commit `87d6e0a` (main after PR #4, #5, #7, #8 merged; no new B code) · PLAN v1.3.2
+
+- **Change:** No code changed. PR #7 is merged (`1ceb00a`), and so are #5, #8 and #4 (main `87d6e0a`). I rebased `agent/B-privacy-router` onto main (it now equals main) and force-pushed it. I then ran B's suite and the D-035 G4 command on the integrated main.
+- **Why:** this is the post-merge check from B-042's "Next" line (AGENTS.md §11: after merges, switch from mocks to real code and re-test).
+- **Class:** Advances
+- **Plan:** advances G3/G4 (P9); I3, I4, F8 checked on the integrated build
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: main `87d6e0a` is green for B, and the G4 gate passes on it (numbers below). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on main `87d6e0a`: exit 0, 1158 passed, 0 skipped. `make eval DEMO=1` then `python -m eval.gate`: **G4 gate 22 pass, 0 warn, 0 fail** (P1 real v5 partition, P3 demo replay, E2a 11 calls / 20 questions, E3c 0 personal fields, E4a cold 11/20 warm 18/20, E4c synced 18/20, I4 none, I7b 25/25). The eval rewrote `docs/results.md` and `eval/results/latency_cost.json` in my worktree; I reverted both (D owns them) and committed nothing.
+- **Inbox:** nothing new for B. No new DECISIONS (still D-035), PLAN still v1.3.2. Read A-024 (standalone gate 22/0/0): matches this run.
+- **Next:** B's queue and the stretch item are done and on main. Wait for the G3 ruling and the next PLAN version, and answer any inbox requests. The local Finder copies (`core/cloud 2.py` etc.) are untracked; a human can delete them.
