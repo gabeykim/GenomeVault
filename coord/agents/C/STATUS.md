@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: PR #11 merged (G4); Codespaces link accepted (D-039), PR #13 waits for Gabe to merge + boot-check
+current_task: C-029 Ask-input click fix on PR #16 (bug fix); Codespaces link merged (#13)
 branch: agent/C-app-ui
-last_commit: 82a7205
+last_commit: 40cfc17
 last_seen:
   plan_version: "1.3.4"
   decisions: D-039
-  logs: {A: 30, B: 58, C: 28, D: 16}
+  logs: {A: 30, B: 58, C: 29, D: 16}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
