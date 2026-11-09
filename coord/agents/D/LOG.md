@@ -251,3 +251,18 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** none
 - **Tests:** `DEMO=1 make test` → exit 0 (1292 passed); gate 22 pass, 0 warn, 0 fail; `slides/numbers.md` unchanged
 - **Next:** PR #21 (script + this) merge before G5; re-run after PR #20 merges
+
+### D-020 · 2026-11-08 17:44 · commit `bfa1adc` · PLAN v1.3.7
+
+- **Change:** the stage materials follow the D-043 demo build. I ran every scripted step through main plus PRs #18, #19, #20, #22 and #23 with `GV_FUZZY GV_TAIL GV_DEMO_LIVE_FALLBACK GV_INTENT GV_DIRECT` on: `scripts/demo_proof.py` gave 28 pass, 0 fail, 1 skip (the live long-tail answer needs the demo machine's key).
+  - `slides/presentation_script.md` is now the live-demo version only, with the team intro. S4 reads the new lead line, "Four things to raise with your cardiologist". There is a new 20 s "Ask it your own way" step: "is asprin ok with my plavix" is assumed and shown; "is clopidogral ok with my omeprazole" asks first. It adds a table for judge-typed questions.
+  - **Fixed a false line** in the script, demo script, video script and slide 10. With the pack synced, Q07 (pantoprazole instead of omeprazole) answers from its own entry; it is no longer "no data". "Never guesses" now uses "Does pantoprazole interact with my lisinopril?", which reads "GenomeVault has no data on pantoprazole with lisinopril."
+  - Deck v18: slide 10's last line, plus notes on slides 4, 6 and 10.
+- **Why:** D-043; D's human owner asked for a live-demo-only script, consistent with the team's current work.
+- **Class:** Advances
+- **Plan:** advances P8 (S4, S6); D-043
+- **Contract impact:** none
+- **Affects:** C (the script uses C's UI strings: "I'm assuming you mean", "Did you mean", "I took this as", "Background decoys", "Tail group of 8 sent"); Dhiaa (the script assumes D-043 ON and notes what to skip if the proof turns it off)
+- **Demo impact:** S4 reads the lead line; new typed-question step; S6 pantoprazole wording
+- **Tests:** `DEMO=1 make test` → exit 0 (1292 passed)
+- **Next:** PR #21 merge (in D-043's merge order); re-check figures if #20 lands

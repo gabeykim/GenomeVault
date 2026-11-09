@@ -1,8 +1,8 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: PR #21 (script 8d215d1 + tail-version eval 606ffca) awaiting merge before G5
+current_task: PR #21 (script synced with D-043, bfa1adc) in D-043 merge order; deck v18
 branch: agent/D-eval
-last_commit: 606ffca
+last_commit: bfa1adc
 last_seen:
   plan_version: "1.3.1"
   decisions: D-034
