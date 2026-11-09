@@ -1,6 +1,6 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-061 sync + re-test; PR #15 (c4c4998, tests only) awaiting merge, 1178 passed
+current_task: B-062 sync + re-test; PR #15 (c4c4998, tests only) awaiting merge, 1178 passed; adaptive-questions proposal awaiting ruling
 branch: agent/B-privacy-router
 last_commit: c4c4998
 last_seen:
@@ -90,4 +90,6 @@ notes: >
   B-060: PR #15 (tests only, c4c4998) pins D-039 GV_COVER_INTERVAL_S=20: waits 10-30 s jittered, one bucket per tick.
   make test exit 0, 1178 passed. Integrator told (no objection to 20 s).
   B-061: main moved only by coord reports (b05ad09, 6895a77, c7f159f). Re-tested locally (exit 0, 1178 passed); PR #15 left at c4c4998 (2/2 checks green), no re-push.
-next: hold for G5 freeze (18:30); PR #15 awaiting merge; answer inbox requests.
+  B-062: main moved only by coord commits (2854856, 95a71d1, 4603f3e). Re-tested locally (exit 0, 1178 passed); PR #15 left at c4c4998 (2/2 checks green), no re-push.
+  New proposal 20261108-1655-human-adaptive-questions (I4, I5) not yet ruled: nothing started. Integrator told B's plan (part 3 then part 2, flags default OFF).
+next: if the proposal is accepted, build GV_DEMO_LIVE_FALLBACK then GV_TAIL behind flags by 18:00; else hold for G5 freeze (18:30). PR #15 awaiting merge.
