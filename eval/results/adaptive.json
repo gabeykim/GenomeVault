@@ -1,0 +1,10 @@
+{
+ "typos": {
+  "status": "skipped",
+  "reason": "core.normalize.suggest is not on this build (A's PR #17, D-040 part 1)"
+ },
+ "tail": {
+  "status": "skipped",
+  "reason": "data/buckets/tail-v1.json is not on this build (B's PR #15, D-040 part 2)"
+ }
+}

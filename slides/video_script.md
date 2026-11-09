@@ -1,6 +1,6 @@
 # Backup video script (about 3:00, record before the G5 freeze at 18:30)
 
-The video is the fallback if the live demo fails on stage. It's the same story as `slides/demo_script.md`, tightened to 3 minutes. Timings are D's beat estimates; adjust them after C's rehearsal. Every figure is from the G4 dry run (20 pass, 0 warn, 0 fail); re-check against `slides/numbers.md` before recording.
+The video is the fallback if the live demo fails on stage. It's the same story as `slides/demo_script.md`, tightened to 3 minutes. Timings are D's beat estimates; C's G3 rehearsal (C-025) confirmed every step fits in demo mode. Every figure is from G4 on main (D-038: 22 pass, 0 warn, 0 fail) and matches `slides/numbers.md`.
 
 ## Before you hit record
 

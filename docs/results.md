@@ -88,7 +88,7 @@ Not run: not requested; pass --llm or set EVAL_LLM=1. `EVAL_LLM=1 make eval` run
 
 Latency and tokens are **modelled** (constants: {"rules": 5, "kb": 20, "local_llm": 900, "cloud_bucket": 2500, "cloud_full": 3000}, tokens {"bucket_in": 630, "bucket_out": 2000, "full_in": 450, "full_out": 400}, 1440 bytes per bucket). Coverage is the share of questions reaching their expected answer state, not graded quality: pending live judge (coverage reported instead). Note the honest trade-off: hybrid makes far fewer calls, but each bucket carries 8 questions, so token savings are smaller than call savings.
 
-**Live hybrid (live).** No delays: median 4 ms per question, 8 ms when buckets are sent; 11 cloud calls, 11,111 bytes, 0 personal fields.
+**Live hybrid (live).** No delays: median 3 ms per question, 7 ms when buckets are sent; 11 cloud calls, 11,111 bytes, 0 personal fields.
  With delays: not run (EVAL_DELAYS=1 runs it; it waits through real P6.4 delays).
  Demo mode replays the cache, so these times exclude real cloud round trips.
 
@@ -124,4 +124,17 @@ These are hand-written adversarial texts, not measured cloud output: they show w
 - Attackers see only outbound traffic plus public knowledge (partition, priors, clusters, cover rate).
 - Network metadata (IP, timing, account) is out of scope today; the linkable rows show what it costs.
 - Demo, not medical advice.
+
+
+## D-040 · Adaptive questions (flags off by default; reported separately from the core)
+
+Behind `GV_FUZZY` (A's typo suggestions) and `GV_TAIL` (B's long-tail partition). Nothing here changes a gate check or a figure in `slides/numbers.md`.
+
+### Typo suggestions (D's 20-item set, `eval/fixtures/typo_set.json`)
+
+Not run: core.normalize.suggest is not on this build (A's PR #17, D-040 part 1).
+
+### Long-tail partition (E1 on `data/buckets/tail-v1.json`)
+
+Not run: data/buckets/tail-v1.json is not on this build (B's PR #15, D-040 part 2).
 
