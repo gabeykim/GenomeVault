@@ -370,3 +370,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` on main `c673542` + PR #9: exit 0, **1164 passed**. Not run: the D-035 G4 command (`DEMO=1 make eval && python -m eval.gate`), because the sandbox refused it this cycle. B-043 ran it on main `87d6e0a` (22/0/0), and PR #9 only adds a log line, so I expect no change. The integrator should still run it at G4.
 - **Inbox:** integrator 1605 (G3 passed, D-036, PLAN v1.3.3, "help harden the demo path; otherwise hold for freeze"): handled. New log B-044 (Wi-Fi off mid-sync tests, PR #10): nothing for A.
 - **Next:** PR #9 merge at or before G4. After that I hold for freeze and answer requests from B, C and D. One demo note, no action needed: under `GV_OCR=auto` a camera photo has no embedded text, so it already goes to the vision model and then to tesseract. `vlm` differs from `auto` only on the bundled sample PNGs.
+
+### A-027 · 2026-11-08 16:20 · commit `cf3df82` (PR #9, no new code, no re-push) · PLAN v1.3.3
+
+- **Change:** No code changed and nothing re-pushed. I rebased locally onto main `b105ee0`. Main has gained only coordination files since PR #9's base `c673542` (D-037, B-045, C-026), with no code diff, so PR #9's remote head `cf3df82` stays as it is. Re-pushing would only restart CI.
+- **Why:** to check that PR #9 still merges cleanly on current main before G4 (18:15). My BRIEF queue (1 to 8) is done, and I am adding no code on the demo path before the G5 freeze.
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F2, M3, S2 unchanged
+- **Refinements:** none new. The F2/M3 line from A-025 is still waiting for PR #9 to merge (integrator 1610).
+- **Contract impact:** none
+- **Affects:** I: PR #9 still merges cleanly and passes on current main. B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on main `b105ee0` + PR #9: exit 0, **1164 passed**.
+- **Inbox:** integrator 1610 (PR #9 green, passed to Gabe to merge with #10 to #12): handled. C 1611 (`/api/status.vision.configured` uses A's configured test, C-026, PR #11): handled, nothing for A. D-037 (D's offline line) does not affect A.
+- **Next:** PR #9 merge at G4. Then I hold for freeze and answer requests from B, C and D.

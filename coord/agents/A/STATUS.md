@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-026 PR #9 (A-025 VLM skip hint) rebased on main c673542 after G3. BRIEF queue 1-8 done. Holding for G4/G5.
+current_task: A-027 PR #9 (A-025 VLM skip hint) re-checked on main b105ee0. Only coord files changed since c673542, so no re-push. BRIEF queue 1-8 done. Holding for G4/G5.
 branch: agent/A-data-rules
 last_commit: cf3df82
-pr: "#9 (open) agent/A-data-rules -> main: A-025 VLM skip hint. Rebased on main c673542, make test exit 0, 1164 passed. (#5 merged at G3, D-036.)"
+pr: "#9 (open, CI green, with Gabe to merge per integrator 1610) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main b105ee0 make test exit 0, 1164 passed."
 last_seen:
   plan_version: "1.3.3"
-  decisions: D-036
-  logs: {A: 26, B: 44, C: 25, D: 14}
+  decisions: D-037
+  logs: {A: 27, B: 45, C: 26, D: 14}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -34,13 +34,15 @@ handled_messages:
   - 20261108-1600-from-D-a016-settled.md
   - 20261108-1602-from-human-vlm-results.md
   - 20261108-1605-from-integrator-g3-passed.md
+  - 20261108-1610-from-integrator-pr9.md
+  - 20261108-1611-from-C-vlm-configured.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
 open_questions: []
 notes: >
-  G3 passed (D-036), PLAN v1.3.3. The BRIEF queue is done, and the human's 7/7 real VLM run needs no capture
-  change. PR #9 is the only open A work. The D-035 G4 command was not run this cycle because the sandbox
-  refused it; B-043 had it at 22/0/0 on 87d6e0a.
+  G3 passed (D-036), PLAN v1.3.3. D-037 (D's offline line) does not affect A. The BRIEF queue is done. PR #9 is
+  green and with Gabe to merge (integrator 1610). Main has gained only coord files since its base, so I did not
+  re-push it.
 next: >
-  PR #9 merge before G4 (18:15). Then hold for G5 freeze (18:30) and answer requests from B, C and D.
+  PR #9 merge at G4 (18:15). Then hold for G5 freeze (18:30) and answer requests from B, C and D.
