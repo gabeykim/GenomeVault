@@ -88,7 +88,7 @@ Not run: not requested; pass --llm or set EVAL_LLM=1. `EVAL_LLM=1 make eval` run
 
 Latency and tokens are **modelled** (constants: {"rules": 5, "kb": 20, "local_llm": 900, "cloud_bucket": 2500, "cloud_full": 3000}, tokens {"bucket_in": 630, "bucket_out": 2000, "full_in": 450, "full_out": 400}, 1440 bytes per bucket). Coverage is the share of questions reaching their expected answer state, not graded quality: pending live judge (coverage reported instead). Note the honest trade-off: hybrid makes far fewer calls, but each bucket carries 8 questions, so token savings are smaller than call savings.
 
-**Live hybrid (live).** No delays: median 4 ms per question, 8 ms when buckets are sent; 11 cloud calls, 11,111 bytes, 0 personal fields.
+**Live hybrid (live).** No delays: median 3 ms per question, 6 ms when buckets are sent; 11 cloud calls, 11,111 bytes, 0 personal fields.
  With delays: not run (EVAL_DELAYS=1 runs it; it waits through real P6.4 delays).
  Demo mode replays the cache, so these times exclude real cloud round trips.
 
@@ -136,14 +136,14 @@ Behind `GV_FUZZY` (A's typo suggestions) and `GV_TAIL` (B's long-tail partition)
 - Silent wrong substitutions: **0**. Look-alike names assumed instead of asked: **0**. Both must be 0 (I4).
 - D wrote the set independently of A's own cases; every intended name is in A's lexicon or look-alike list. Multi-word names are a known gap (A).
 
-### Long-tail partition (E1 on `data/buckets/tail-v1.json`, the version `core.decoys.TAIL_VERSION` ships)
+### Long-tail partition (E1 on `data/buckets/tail-v2.json`, the version `core.decoys.TAIL_VERSION` ships)
 
 1047 fixed buckets of 8 (8376 keys), 500 synthetic patients, 3 asks each. Real pair guessed:
 
 | Attacker | Long tail | Core (v5, for comparison) |
 | --- | --- | --- |
-| Repeat-ask | 14% | 11% |
-| Statistical (bets on the most common pair in the group) | **59%** (ceiling 58%) | 22% |
+| Repeat-ask | 11% | 11% |
+| Statistical (bets on the most common pair in the group) | **15%** (ceiling 13%) | 22% |
 
-**Weaker than the core.** tail-v1 buckets are a seeded shuffle with no frequency balancing, so a bucket often holds one pair with a common drug among rare ones, and the statistical attacker bets on it. Tail pairs have no priors of their own, so these use synthetic ones: each drug's summed priors from D's universe file, multiplied for a pair, with drugs and labs the file doesn't list set to the smallest known value. With them set to the median instead, the statistical attacker gets 51%. The repeat-ask attacker stays near 1 in 8 either way, because the bucket is fixed. Say plainly: common questions get the strongest protection; rare ones are still hidden in a fixed group of 8, measured separately.
+**Frequency-tiered** (tail-v2, B-068): keys are grouped by how common their drugs are, so no pair stands out in its group of 8. Tail pairs have no priors of their own, so these use synthetic ones: each drug's summed priors from D's universe file, multiplied for a pair, with drugs and labs the file doesn't list set to the smallest known value. With them set to the median instead, the statistical attacker gets 13%. The repeat-ask attacker stays near 1 in 8 either way, because the bucket is fixed. On this measure rare questions are protected about as well as common ones; they are still reported separately.
 

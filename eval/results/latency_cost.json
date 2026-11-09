@@ -40,12 +40,12 @@
   "no_delay": {
    "backend": "live",
    "GV_DELAY_S": "0,0",
-   "median_latency_ms": 3.7,
-   "median_latency_ms_when_sent": 8.1,
+   "median_latency_ms": 3.0,
+   "median_latency_ms_when_sent": 6.2,
    "cloud_calls": 11,
    "bytes_out": 11111,
    "personal_fields_sent": 0,
-   "wall_s": 0.1,
+   "wall_s": 0.08,
    "unbacked_known": []
   },
   "default_delay": "not run (EVAL_DELAYS=1 runs it; it waits through real P6.4 delays)"

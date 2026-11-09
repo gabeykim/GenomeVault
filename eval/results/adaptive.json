@@ -290,20 +290,20 @@
  },
  "tail": {
   "status": "ran",
-  "partition": "tail-v1",
+  "partition": "tail-v2",
   "buckets": 1047,
   "keys": 8376,
   "priors": "synthetic: product of each drug's summed universe priors; unseen drugs and labs get the smallest",
   "n": 500,
   "asks": 3,
-  "repeat_ask": 0.138,
-  "statistical": 0.592,
-  "stat_attacker_ceiling": 0.5796,
+  "repeat_ask": 0.108,
+  "statistical": 0.146,
+  "stat_attacker_ceiling": 0.129,
   "uniform_floor": 0.125,
   "sensitivity_unseen_median": {
-   "repeat_ask": 0.138,
-   "statistical": 0.514,
-   "stat_attacker_ceiling": 0.5283
+   "repeat_ask": 0.11,
+   "statistical": 0.132,
+   "stat_attacker_ceiling": 0.129
   }
  }
 }
