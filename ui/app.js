@@ -282,6 +282,7 @@ function paintHero() {
   root.setProperty("--hp", p.toFixed(4));
   root.setProperty("--he", e.toFixed(4));
   document.body.classList.toggle("hero-done", p >= 1);
+  document.body.classList.toggle("hero-top", p < 0.3);   // the caption (and its cue) only near the top
 }
 
 function queueHero() { if (!hero.frame) hero.frame = requestAnimationFrame(paintHero); }

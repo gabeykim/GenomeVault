@@ -473,6 +473,20 @@ async def phone_gate(request: Request, call_next):
                         status_code=401)
 
 
+_UI_PATHS = ("/ui/", "/phone-assets/")
+
+
+@app.middleware("http")
+async def no_stale_ui(request: Request, call_next):
+    """The page and its files are revalidated on every load (their ETag keeps that cheap), so a UI fix
+    shows up on the next reload instead of hiding behind a browser's cached copy."""
+    response = await call_next(request)
+    path = request.url.path
+    if path in ("/", "/phone", "/summary") or path.startswith(_UI_PATHS):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 class PairIn(BaseModel):
     code: str = Field(min_length=4, max_length=16)
 

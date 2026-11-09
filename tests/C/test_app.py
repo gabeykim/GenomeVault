@@ -128,3 +128,17 @@ def test_hero_keeps_the_disclaimer_and_degrades_without_motion():
     assert ".hero-runway { height: 0 !important; }" in css      # prefers-reduced-motion
     js = (app_module.UI_DIR / "app.js").read_text()
     assert "if (REDUCED) return;" in js and "function initHero" in js
+
+
+def test_ui_files_are_revalidated_not_served_stale():
+    """A cached old stylesheet kept the hero caption over the Ask input after the fix: no-cache."""
+    for path in ("/", "/ui/style.css", "/ui/app.js", "/phone", "/phone-assets/phone.css"):
+        assert client.get(path).headers.get("cache-control") == "no-cache", path
+    assert client.get("/api/status").headers.get("cache-control") != "no-cache"
+
+
+def test_hero_caption_never_catches_clicks_once_scrolled():
+    css = (app_module.UI_DIR / "style.css").read_text()
+    assert ".hero-on .hero-cap { visibility: hidden; }" in css
+    assert ".hero-on.hero-top .hero-cap { visibility: visible; }" in css
+    assert ".hero-on:not(.hero-done) .hero-cap { pointer-events: auto; }" not in css
