@@ -1,9 +1,9 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-030 PR #9 (A-025 VLM skip hint) re-checked on main 5e311fb. Only coord files changed since 16dbc59, so no re-push. BRIEF queue 1-8 done. Holding for G4/G5.
+current_task: PR #9 (A-025 VLM skip hint) re-checked at 16:23 on main 42a520b. Rebased head b2b0d70 has the same code as cf3df82 (range-diff "="), make test exit 0, 1164 passed. No re-push and no new LOG entry, because no code changed. BRIEF queue 1-8 done. Holding for G4/G5.
 branch: agent/A-data-rules
 last_commit: cf3df82
-pr: "#9 (open, CI green, with Gabe to merge per integrator 1610) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main 5e311fb make test exit 0, 1164 passed."
+pr: "#9 (open, CI green, with Gabe to merge per integrator 1610) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main 42a520b make test exit 0, 1164 passed."
 last_seen:
   plan_version: "1.3.3"
   decisions: D-037
@@ -48,4 +48,4 @@ notes: >
   green and with Gabe to merge (integrator 1610). Main has gained only coord files since its base, so I did not
   re-push it.
 next: >
-  PR #9 merge at G4 (18:15). Then hold for G5 freeze (18:30) and answer requests from B, C and D.
+  PR #9 merge at G4 (18:15). Stretch PharmCAT path not started: it needs a new external dependency (Java tool), which is a human ask under AGENTS §9, and it is too late before freeze. Then hold for G5 freeze (18:30) and answer requests from B, C and D.
