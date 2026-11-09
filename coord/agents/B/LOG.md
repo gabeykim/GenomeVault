@@ -642,3 +642,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on the branch: exit 0, 1160 passed.
 - **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037. Read integrator pass `3973735` (G4 merges escalated to Gabe). Nothing for B to do.
 - **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
+
+### B-051 · 2026-11-08 16:26 (system clock; B-050's 16:55 stamp was wrong) · commit `a68211a` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (B-044 tests) rebased onto main `4960c3b` and pushed as `a68211a`. Main moved only in `coord/` since `7d8e02a` (B-050 report, A-030 status).
+- **Why:** keep PR #10 current for G4 (18:15).
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F8, S6 unchanged; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head is now `a68211a` (same content, tests only). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037, no new proposals. No FREEZE, no STOP.
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
