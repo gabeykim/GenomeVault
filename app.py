@@ -134,17 +134,33 @@ async def lifespan(_app: FastAPI):
             stop_cover()
 
 
-VISION = {"warm": False, "seconds": None}
+VISION = {"configured": False, "warm": False, "seconds": None}
+
+
+def _vision_configured() -> bool:
+    """A's test for a usable vision model (A-025): LOCAL_VLM_MODEL set to a real model name."""
+    try:
+        from core import local_llm
+    except ImportError:
+        return False
+    return (getattr(local_llm, "VLM_MODEL", "") or "") not in ("", "set-me")
 
 
 def _warm_vision_model() -> None:
     """With GV_OCR=vlm the first label read loads the local vision model (~10 s). Read one synthetic
-    sample label at startup so the S2 photo on stage takes ~4 s instead. Local only (I2)."""
+    sample label at startup so the S2 photo on stage takes ~4 s instead. Local only (I2).
+    Without a configured model there is nothing to warm: say so instead of reporting "warm"."""
+    VISION["configured"] = _vision_configured()
+    if not VISION["configured"]:
+        print("GenomeVault: GV_OCR=vlm but LOCAL_VLM_MODEL is not set; label photos won't be read "
+              "(set it, e.g. qwen2.5vl:7b, or use GV_OCR=auto)", flush=True)
+        return
     t0 = time.perf_counter()
     try:
-        from_image((PHONE_DIR / "samples" / "aspirin.png").read_bytes(), "image/png")
-        VISION.update(warm=True, seconds=round(time.perf_counter() - t0, 1))
-        print(f"GenomeVault: vision model warm ({VISION['seconds']} s)", flush=True)
+        drugs = from_image((PHONE_DIR / "samples" / "aspirin.png").read_bytes(), "image/png")
+        VISION.update(warm=bool(drugs), seconds=round(time.perf_counter() - t0, 1))
+        print(f"GenomeVault: vision model {'warm' if drugs else 'did not read the warm-up label'} "
+              f"({VISION['seconds']} s)", flush=True)
     except Exception as e:  # noqa: BLE001 - a cold model is slower, not broken
         print(f"GenomeVault: vision model warm-up failed ({type(e).__name__}); first read will be slow", flush=True)
 
