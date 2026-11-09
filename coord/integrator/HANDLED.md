@@ -76,3 +76,10 @@ coord/inbox/to-integrator/20261108-1708-from-C-d040-part4.md
 coord/inbox/to-human/20261108-1709-from-integrator-needs-gabe-merge-pr14-17.md
 coord/inbox/to-integrator/20261108-1716-from-A-sound-alikes-done.md
 coord/inbox/to-human/20261108-1712-from-integrator-needs-gabe-pr17-update.md
+coord/inbox/to-integrator/20261108-1712-from-B-pr15-flags-on-green.md
+coord/inbox/to-human/20261108-1717-from-integrator-to-dhiaa-demo-restart.md
+coord/inbox/to-integrator/20261108-1712-from-D-d040-confirm.md
+coord/inbox/to-integrator/20261108-1724-from-B-flag-on-off.md
+coord/inbox/to-integrator/20261108-1730-from-A-fuzzy-hyphen-fact.md
+coord/inbox/to-integrator/20261108-1721-from-B-tail-v2-pr20.md
+coord/inbox/to-human/20261108-1722-from-integrator-needs-gabe-d040-confirm-flags-pr20.md
