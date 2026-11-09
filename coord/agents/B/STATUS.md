@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-040 rebased PR #7 (head 1e265c1); G3 rehearsal main c2518bc + #7 + #5 f483847 + #8 ff5a93c + #4 4bd66e2 is 1158 passed, 0 skipped, exit 0. Waiting for review
+current_task: B-041 rebased PR #7 onto main f51ae85 (head 91a39b7, code same as 1e265c1); make test exit 0, 801 passed, 3 skipped. Waiting for G3 review
 branch: agent/B-privacy-router
-last_commit: 1e265c1
+last_commit: 91a39b7
 last_seen:
   plan_version: "1.3.2"
   decisions: D-035
-  logs: {A: 22, B: 40, C: 24, D: 13}
+  logs: {A: 23, B: 41, C: 24, D: 13}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -53,5 +53,6 @@ notes: >
   B-038: offline + covering flag + cold KB = no_data (I4), pinned by test_offline_cold_kb_is_no_data_zero_bytes_no_ledger; D told for E4 two-reading report.
   B-040: rehearsal re-run on the moved heads (#5 f483847, #4 4bd66e2): 1158 passed, 0 skipped, exit 0. The D-035 G4 command
   was not run because the sandbox refused make eval. Integrator asked to run it on main.
+  B-041: rebase only onto f51ae85 (coord-only changes on main since B-040), head 91a39b7, PR CI green. A-023 confirms the same code set green (1158, gate 22/0/0).
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
 next: PR #7 review at G3 (17:30). After G3, rebase and run B's suite on main; run the D-035 G4 command on main if the sandbox allows

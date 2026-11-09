@@ -506,3 +506,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. Integrated: exit 0, 1158 passed, 0 skipped. `python -m core.cloud check`: 136/136 keys usable, 0 missing, 0 rejected (I7), 0 outside the partition.
 - **Inbox:** D 1600 (E4 strict reading equals `route()` state, cold 4/20, synced 18/20): handled, nothing for B. D-035 (G4 command) and PLAN v1.3.2: read, no change to B's code. Read D-013 and A-022: nothing for B.
 - **Next:** PR #7 review and merge at G3 (17:30). After G3, rebase onto main and run B's suite against the merged code. Run the D-035 G4 command on main if the sandbox allows it.
+
+### B-041 · 2026-11-08 16:35 · commit `91a39b7` (PR #7, rebase only, no new code) · PLAN v1.3.2
+
+- **Change:** No code changed. I rebased PR #7 onto main `f51ae85` and force-pushed it (new head `91a39b7`, same code as `1e265c1`). Main only gained coordination commits since B-040, so the G3 rehearsal from B-040 and A-023 still holds for this code.
+- **Why:** keep PR #7 current on main before the G3 merge (17:30). Every BRIEF queue item and the stretch item are done, so nothing else is unblocked for B before G3.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I3, I4, F8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #7 head is now `91a39b7` (code identical to `1e265c1`, which A-023 and B-040 tested together with #4, #5 and #8). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. CI checks on the PR: green.
+- **Inbox:** nothing new for B. No new DECISIONS (still D-035), PLAN still v1.3.2. Read A-023 (G3 rehearsal 1158 passed, gate 22/0/0) and D's STATUS update: nothing for B.
+- **Next:** PR #7 review and merge at G3. After G3, rebase onto main, run B's suite against the merged code, and run the D-035 G4 command on main if the sandbox allows it.
