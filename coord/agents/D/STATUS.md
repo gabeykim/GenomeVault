@@ -1,8 +1,8 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: PR #14 (03fe851, G4 headers) awaiting merge before G5; Codespaces link waits on D-039 boot check
+current_task: D-040 part 5 prepared (D-017, PR #14 at 87d818a); waiting on Gabe's D-040 confirmation and PRs #15/#17
 branch: agent/D-eval
-last_commit: 8dd869c
+last_commit: 87d818a
 last_seen:
   plan_version: "1.3.1"
   decisions: D-034
@@ -71,5 +71,12 @@ handled_messages:
   - 20261108-1638-from-integrator-g4-passed.md
   - 20261108-1644-from-integrator-codespaces-link.md
   - 20261108-1700-from-B-uncovered-pair-no-data.md
-blocked_on: none
+  - 20261108-1658-from-integrator-adaptive-questions-pending.md
+  - 20261108-1702-from-I-adaptive-part5.md
+  - 20261108-1706-from-A-typo-set.md
+  - 20261108-1708-from-B-tail-partition.md
+  - 20261108-1708-from-C-d040-strings.md
+  - 20261108-1715-from-B-live-fallback-api.md
+  - 20261108-1716-from-A-typo-set-plus5.md
+blocked_on: integrator confirmation of D-040 (to-integrator 1712) before any slide change
 next: G4 at 18:15 (DEMO=1 make eval && python -m eval.gate on main); final number pass on deck and submission

@@ -212,3 +212,17 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** none
 - **Tests:** `DEMO=1 make test` → exit 0 (1158 passed); gate 22/0/0
 - **Next:** PR #12 merge before G5 (18:30); C's Codespaces link once PR #13 merges and C confirms
+
+### D-017 · 2026-11-08 17:17 · commit `87d818a` · PLAN v1.3.5
+
+- **Change:** D-040 part 5. `eval/fixtures/typo_set.json` is D's own 20-item typo set (Alex's five meds, pack drugs, brands, 8 look-alikes), written independently of A's cases. `eval/adaptive.py` scores A's `suggest()` (correct, silent wrong substitutions, look-alikes assumed) and runs E1's repeat-ask and statistical attackers on B's `tail-v1`. `make eval` appends a separate section to `docs/results.md`. **No gate check and no `slides/numbers.md` figure changes.** Each part reads "Not run" until A's PR #17 and B's PR #15 are on main.
+- **Measured** against PR #17 + PR #15: typos **20/20** correct (11 assumed, 9 asked), **0** silent wrong substitutions, **0** look-alikes assumed. Tail: repeat-ask **14%** (near 1 in 8), statistical **59%** (ceiling 58%; 51% with unseen drugs at the median prior), against 22% on the core.
+- **Finding (to B):** tail buckets are a seeded shuffle with no frequency balancing, so a bucket often holds one pair with a common drug among rare ones.
+- **Why:** to-D 1702 (D-040) and A's, B's and C's 1706–1716 notes; D's human owner approved preparing the parts that are safe whether or not Gabe confirms D-040.
+- **Class:** Advances
+- **Plan:** advances D-040 part 5 (E1, I4, I5)
+- **Contract impact:** none
+- **Affects:** B (tail balance finding), A (typo results), I (D-040 confirmation pending; slides unchanged until then)
+- **Demo impact:** none
+- **Tests:** `DEMO=1 make test` → exit 0 (1181 passed, 2 skipped until #15/#17); gate 22 pass, 0 warn, 0 fail; the 2 skipped tests pass on A's + B's branches
+- **Next:** on Gabe's confirmation, the Q&A line and separate slide rows; re-run once #15 and #17 merge
