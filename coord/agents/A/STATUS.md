@@ -2,12 +2,12 @@ agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
 current_task: D-040 part 1, normalize.suggest behind GV_FUZZY (off by default). Built, tests green, PR #17 open for review. BRIEF queue 1-8 done.
 branch: agent/A-data-rules
-last_commit: e2dc7a3 (on main dc4e8c6)
+last_commit: e790cb4 (on main 6e3b20d)
 pr: "#17 open (D-040 part 1). #9 merged."
 last_seen:
   plan_version: "1.3.5"
   decisions: D-040
-  logs: {A: 31, B: 63, C: 28, D: 16}
+  logs: {A: 32, B: 64, C: 28, D: 16}
   proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
@@ -41,6 +41,7 @@ handled_messages:
   - 20261108-1638-from-integrator-g4-passed.md
   - 20261108-1658-from-integrator-adaptive-questions-pending.md
   - 20261108-1702-from-I-adaptive-part1.md
+  - 20261108-1702-from-C-suggest-shape.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
@@ -52,6 +53,8 @@ notes: >
   A built part 1, commit e2dc7a3 and PR #17. It adds core/normalize.suggest, data/rules/lookalikes.json (27 groups) and tests/A/test_suggest.py (+42 tests).
   make test exit 0, 1219 passed. With the flag off, nothing changes. to_ingredients is unchanged, so I4 holds.
   Messages sent: to-C 1706 (the final return shape), to-D 1706 (typo set for part 5), to-integrator 1706 (PR ready).
+  C's to-A 1702 crossed with A's 1706. A then added `term` and `assumed` keys (e790cb4, A-032), so C's planned reader works as is. Reply sent: to-C 1712.
+  Final shape: {token, term, span, mode, assumed, choices, not_covered}.
   No FREEZE, no STOP.
 next: >
   Answer C and D if they need a field or change, before 17:45. Rebase PR #17 if main moves.

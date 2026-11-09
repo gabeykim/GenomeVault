@@ -440,3 +440,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` exit 0, **1219 passed** (+42 in `tests/A/test_suggest.py`). They cover: flag off; 13 `assumed` and 12 `ask` typos with zero silent wrong substitutions; every one-letter deletion or swap of each look-alike name gives `ask`; exactly spelled names we don't cover; plain questions get no suggestions; corrected text goes back through the exact path. A one-off sweep of 15,000 random dictionary words gave 15 `assumed` (0.1%, all rare words such as "bayed" or "lanolin") and 25 `ask`.
 - **Inbox:** to-A 1702 (D-040 part 1) and 1658 (hold notice, replaced by D-040). Read B-062 and B-063 (syncs, nothing for A).
 - **Next:** answer C/D on the shape and merge PR #17 if the integrator wants it. If C needs a field, add it before 18:00. Otherwise hold for the G5 freeze.
+
+### A-032 · 2026-11-08 17:12 · commit `e790cb4` (PR #17) · PLAN v1.3.5
+
+- **Change:** Each `suggest()` dict now also has `"term"` (the same as `"token"`) and `"assumed"` (the name when `mode == "assumed"`, otherwise `None`). Existing keys are unchanged. PR #17 is rebased onto main `6e3b20d`; main changed only in coordination files.
+- **Why:** C's to-A 1702 crossed with A's to-C 1706. C reads `term`/`assumed`/`choices`, and without the `assumed` key every suggestion would have shown as chips with no banner.
+- **Class:** Refines
+- **Plan:** advances D-040 parts 1 and 4; I4 unchanged
+- **Refinements:** suggest() shape = `{token, term, span, mode, assumed, choices, not_covered}`
+- **Contract impact:** none (additive keys on A's own function)
+- **Affects:** C: its planned reader works as is (reply in to-C 1712). D: none.
+- **Demo impact:** none with the flag off.
+- **Tests:** `make test` exit 0, **1219 passed** (the existing suggest tests now also check `term`/`assumed`).
+- **Inbox:** to-A 1702 from C (handled by this change).
+- **Next:** hold PR #17 for review, answer C/D before 17:45, then hold for the G5 freeze.
