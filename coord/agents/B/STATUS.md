@@ -1,12 +1,12 @@
 agent: B
-state: working     # working | blocked | waiting-review | done | not-started
-current_task: B-067 D-041 stub-parity test (414aa1c on PR #15); flags-on suite + eval green; ON/OFF recommendation sent
+state: waiting-review     # working | blocked | waiting-review | done | not-started
+current_task: B-068 tail-v2 frequency-tiered long-tail partition (e47dbdd, PR #20); stat attacker 0.59 -> 0.15
 branch: agent/B-privacy-router
-last_commit: 414aa1c
+last_commit: e47dbdd
 last_seen:
   plan_version: "1.3.6"
   decisions: D-042
-  logs: {A: 33, B: 67, C: 30, D: 16}
+  logs: {A: 34, B: 68, C: 30, D: 17}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -49,6 +49,7 @@ handled_messages:
   - 20261108-1702-from-C-single-and-tail-shape.md
   - 20261108-1708-from-C-d040-ui-ready.md
   - 20261108-1709-from-integrator-d041-single-tail-contract.md
+  - 20261108-1717-from-D-tail-finding.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -115,4 +116,8 @@ notes: >
   (same params and type hints; flag off = stub output, no ledger row). make test exit 0, 1216 passed. Merge main + #15 + #16 + #17:
   flags off 1282, flags on 1282, eval with flags on G4 22/0/0 (no tail pair in eval, live fallback not run without a key).
   Recommendation to integrator: GV_TAIL + GV_DEMO_LIVE_FALLBACK ON only with a working key on the demo machine, else OFF.
-next: after PR #15 merges, re-run the flags-on eval on main; hold for G5 freeze.
+  B-068: PR #15 merged. D's E1 finding (tail-v1 statistical attacker 59%): new data/buckets/tail-v2.json (build_tail_v2.py,
+  same 8376 keys, tiered by unseen count then product of synthetic priors), TAIL_VERSION = tail-v2. Stat attacker 0.15
+  (ceiling 0.129), 0.13 with unseen at median; repeat-ask ~0.11. make test exit 0, 1293 passed. PR #20. D asked to point
+  eval/adaptive.py TAIL_FILE at tail-v2.json.
+next: after PR #20 merges, re-run the flags-on suite + eval on main; hold for 18:00 ON/OFF and G5 freeze.
