@@ -1,0 +1,20 @@
+{
+  "doc": "Local synonym table for core/intent.py (GV_INTENT). Multi-word keys are matched longest first after lowercasing. Never maps one drug to another.",
+  "phrases": {
+    "heart doctor": "cardiologist", "heart specialist": "cardiologist", "heart dr": "cardiologist", "cardiology doctor": "cardiologist",
+    "chemist": "pharmacist", "drugstore pharmacist": "pharmacist", "drugstore": "pharmacist", "pharmacy": "pharmacist", "pharmasist": "pharmacist",
+    "kidney function": "kidney", "renal function": "kidney", "my kidneys": "my kidney", "kidneys": "kidney",
+    "liver function": "liver", "liver tests": "liver", "liver results": "liver", "liver enzymes": "liver", "liver test": "liver",
+    "creatine kinase": "ck", "ck level": "ck", "ck result": "ck", "potassium level": "potassium", "potassium result": "potassium", "potassium reading": "potassium",
+    "blood pressure medicine": "blood pressure medicine", "bp medicine": "blood pressure medicine", "bp meds": "blood pressure medicine", "blood pressure meds": "blood pressure medicine", "blood pressure medication": "blood pressure medicine", "blood pressure pill": "blood pressure medicine",
+    "follow up": "follow-up", "followup": "follow-up", "next visit": "follow-up", "next appointment": "follow-up",
+    "in place of": "instead of", "rather than": "instead of", "better than": "instead of", "versus": "vs",
+    "genetically": "genes", "genetic": "genes", "genetics": "genes", "genotype": "genes", "dna": "genes", "gens": "genes",
+    "doc": "doctor", "dr": "doctor", "meds": "medications", "medication": "medications", "medicines": "medications", "pills": "medications",
+    "prescriptons": "prescriptions", "rx": "prescriptions",
+    "ok": "okay", "fine": "okay", "alright": "okay", "all right": "okay", "safe": "okay",
+    "bring up": "ask", "raise": "ask", "discuss": "ask", "mention": "ask", "talk about": "ask", "tell": "ask", "talk to": "ask",
+    "interactions": "interact", "interaction": "interact",
+    "swap": "switch", "swapped": "switch", "swapping": "switch", "trade": "switch", "trading": "switch", "change from": "switch from", "changing from": "switch from", "go from": "switch from", "exchange": "switch"
+  }
+}
