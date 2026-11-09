@@ -60,5 +60,7 @@ handled_messages:
   - 20261108-1546-from-integrator-submission-draft.md
   - 20261108-1555-from-B-sync-same-for-all.md
   - 20261108-1550-from-A-eval-on-integrated.md
+  - 20261108-1556-from-integrator-g4-command.md
+  - 20261108-1600-from-B-offline-no-data.md
 blocked_on: none
 next: G4 at 18:15 (DEMO=1 make eval && python -m eval.gate on main); final number pass on deck and submission
