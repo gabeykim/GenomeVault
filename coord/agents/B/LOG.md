@@ -548,3 +548,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on main `87d6e0a`: exit 0, 1158 passed, 0 skipped. `make eval DEMO=1` then `python -m eval.gate`: **G4 gate 22 pass, 0 warn, 0 fail** (P1 real v5 partition, P3 demo replay, E2a 11 calls / 20 questions, E3c 0 personal fields, E4a cold 11/20 warm 18/20, E4c synced 18/20, I4 none, I7b 25/25). The eval rewrote `docs/results.md` and `eval/results/latency_cost.json` in my worktree; I reverted both (D owns them) and committed nothing.
 - **Inbox:** nothing new for B. No new DECISIONS (still D-035), PLAN still v1.3.2. Read A-024 (standalone gate 22/0/0): matches this run.
 - **Next:** B's queue and the stretch item are done and on main. Wait for the G3 ruling and the next PLAN version, and answer any inbox requests. The local Finder copies (`core/cloud 2.py` etc.) are untracked; a human can delete them.
+
+### B-044 · 2026-11-08 17:05 · commit `d74c0b5` (PR #10, tests only) · PLAN v1.3.3
+
+- **Change:** two new tests in `tests/B/test_pack_sync.py` for C-025's "Not done" item: one stage-delay Sync stopped after 1 group with `offline: true`, and it didn't happen again. (1) With `DEMO=1` and `GV_DELAY_S=0.3,2.0`, a sync sends every group: 8 pauses per group, each between 0.3 and 2.0 s. (2) Wi-Fi switched off halfway through the first group: that group finishes and its answers are kept in the KB, the rest are not tried, and the result is `sent=1, offline=true`. After Wi-Fi comes back, the next sync skips the stored group and sends the rest, so each group is sent once overall.
+- **Why:** with demo mode on, `cloud._answers` raises `CloudUnavailable` only when `offline()` is forced, so a demo-mode `offline: true` always means `GV_OFFLINE` or `/api/offline` (the S6 toggle) was on while the sync was still running. A Sync with stage delays takes about 2 min, so pressing S6 Wi-Fi off before it finishes gives exactly C's result. That is correct behaviour (F8), not a bug.
+- **Class:** Advances
+- **Plan:** advances F6, F8, P6.6, S6; I5 (whole buckets, each once)
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** C: explains C-025's one-group Sync, nothing to change (the "Went offline; what arrived is kept" UI is right). D: rehearsal note: with stage delays, wait for Sync to finish before S6 Wi-Fi off.
+- **Demo impact:** S6 timing note only (no click changes)
+- **Tests:** `make test` on main `b1ca51c` + this commit: exit 0, 1160 passed.
+- **Inbox:** to-B/20261108-1605-from-integrator-g3-passed.md (G3, PLAN v1.3.3, D-036): nothing changes for B. Read C-025, D-014.
+- **Next:** PR #10 for the integrator before G4 (18:15). Then answer inbox requests until G5 freeze.

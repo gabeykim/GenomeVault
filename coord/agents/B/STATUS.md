@@ -1,12 +1,12 @@
 agent: B
-state: done     # working | blocked | waiting-review | done | not-started
-current_task: B-043 PR #7 merged; on main 87d6e0a (all four PRs) make test exit 0, 1158 passed, 0 skipped; D-035 G4 gate 22/0/0
+state: waiting-review     # working | blocked | waiting-review | done | not-started
+current_task: B-044 PR #10 (tests only) Wi-Fi off mid-sync keeps sent groups and resumes; explains C-025 partial Sync. make test exit 0, 1160 passed
 branch: agent/B-privacy-router
-last_commit: 87d6e0a
+last_commit: d74c0b5
 last_seen:
-  plan_version: "1.3.2"
-  decisions: D-035
-  logs: {A: 24, B: 43, C: 24, D: 13}
+  plan_version: "1.3.3"
+  decisions: D-036
+  logs: {A: 24, B: 44, C: 25, D: 14}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -39,6 +39,7 @@ handled_messages:
   - 20261108-1543-from-C-stand-ins-gone.md
   - 20261108-1551-from-D-p3-added.md
   - 20261108-1600-from-D-strict-reading.md
+  - 20261108-1605-from-integrator-g3-passed.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -58,4 +59,7 @@ notes: >
   B-043: PR #7 merged (1ceb00a) with #5, #8, #4 (main 87d6e0a). Branch now equals main. make test exit 0, 1158 passed, 0 skipped.
   `make eval DEMO=1` + `python -m eval.gate` on main: G4 gate 22 pass, 0 warn, 0 fail. Generated docs/eval files reverted, not committed.
   The untracked Finder copies ("core/cloud 2.py" etc.) are still local only. A human can delete them.
-next: queue and stretch done and on main. Wait for the G3 ruling / next PLAN version; answer inbox requests
+  B-044: G3 passed (D-036, PLAN v1.3.3), nothing changes for B. PR #10 (tests only, d74c0b5) explains C-025's one-group Sync:
+  in DEMO=1, offline=true comes only from a forced offline switch (S6 Wi-Fi off pressed during a ~2 min stage-delay Sync).
+  Sent groups are kept, and the next sync resumes. C and D told. make test exit 0, 1160 passed.
+next: PR #10 for the integrator before G4 (18:15). Then answer inbox requests until G5 freeze
