@@ -2,17 +2,17 @@
 
 The stage run: opening, slides and the live demo, about 4:25, then questions. Words in quotes are spoken. *Italics* are actions. **[Slide N]** is on the projector; **[App]** means the laptop screen.
 
-It matches the build as of PLAN v1.3.7 (D-043): typo-tolerant and paraphrased questions, answer-first lead lines and long-tail lookups are **on** for the demo. Every app line below was run through the merged build with those switches on (`scripts/demo_proof.py`: 28 pass, 0 fail, 1 skip for the live long-tail answer, which needs the demo machine's key). Every figure comes from G4 (`slides/numbers.md`).
+It matches the frozen demo build (`coord/FREEZE`, 17:49, tag `demo-v1`): typo suggestions, look-alike checks and long-tail lookups are **on** (D-043); paraphrase understanding and answer-first lead lines (PR #19) are **held until after the demo**, so neither appears below. Every app line was run on main at the freeze with `GV_FUZZY GV_TAIL GV_DEMO_LIVE_FALLBACK` on. Every figure comes from G4 (`slides/numbers.md`).
 
 One person can speak the whole run. Names come once, at the close (they are also on the cover slide); who built what comes up in the hand-off to questions.
 
 ## Before you go on stage (5 minutes earlier)
 
-- On the demo machine, start the app with the D-043 switches and label reading on: `GV_FUZZY=1 GV_TAIL=1 GV_DEMO_LIVE_FALLBACK=1 GV_INTENT=1 GV_DIRECT=1 DEMO=1 GV_OCR=vlm bash phone/serve_https.sh`. Pair the phone (Actions → **Use your phone**, type the 6-character code).
+- On the demo machine, start the app with the demo switches and label reading on: `GV_FUZZY=1 GV_TAIL=1 GV_DEMO_LIVE_FALLBACK=1 DEMO=1 GV_OCR=vlm bash phone/serve_https.sh`. Pair the phone (Actions → **Use your phone**, type the 6-character code).
 - `scripts/demo_proof.py` must have exited 0 on this machine. If its live long-tail check failed, `GV_TAIL` and `GV_DEMO_LIVE_FALLBACK` are off (D-043). Nothing in the main run below needs them.
 - **Sync the knowledge pack now**, off stage, and wait until it finishes. On stage you only mention it.
 - Scroll once past the full-screen GenomeVault title so the app sits on the **Medications** tab.
-- Deck open on slide 1. Have the backup video ready to play.
+- Deck open on slide 1. You present slides 1–4, 7, 9 and 13; 5 and 6 are skipped because the demo shows them live, and 8, 10, 11 and 12 are held for questions. Have the backup video ready to play.
 - Decide who speaks, who holds the phone and who clicks the laptop.
 - Never say "safe", "no interaction", or "you should stop/start". Say "no interaction listed", "worth asking your pharmacist".
 
@@ -22,7 +22,7 @@ One person can speak the whole run. Names come once, at the close (they are also
 
 *Walk up together. The speaker stands at the laptop, holding the phone; the others stand beside the screen. Pause, look at the room, then start.*
 
-"This is Alex. He's 58, he just had a heart stent, and he went home with five new prescriptions. One of them may barely work for his genes. Two others could hurt him. The data that would tell him which is the most private data he has, and he would never paste it into a chatbot."
+"Let me tell you about Alex. He's 58, he just had a heart stent, and he went home with five new prescriptions. One of them may barely work for his genes. Two others could hurt him. The data that would tell him which is the most private data he has, and he would never paste it into a chatbot."
 
 *Hold up the phone.*
 
@@ -86,9 +86,11 @@ One person can speak the whole run. Names come once, at the close (they are also
 
 "And this line is decoy traffic. It goes out even when Alex isn't asking."
 
-*Point at the answer's first line, "Four things to raise with your cardiologist:".*
+*Scroll to the **For you** paragraph.*
 
-"The answer comes back general and is personalized here on the laptop: four things to raise with his cardiologist, each tied to his own results."
+"The answer comes back general, and it's personalized here on the laptop, using his own results."
+
+*Read the first sentence of the "For you" paragraph aloud.*
 
 ## 2:35 · [App · Ask tab] · Ask it your own way · 20 s
 
@@ -96,7 +98,7 @@ One person can speak the whole run. Names come once, at the close (they are also
 
 "Real people don't type like our script. Misspelled, brand name, casual."
 
-*Point at "I'm assuming you mean aspirin." and "I took this as: Does aspirin interact with clopidogrel?"*
+*Point at "I'm assuming you mean aspirin." and the answer below it.*
 
 "It works out what he meant, on the device, and shows its assumption. He can undo it."
 
@@ -104,7 +106,7 @@ One person can speak the whole run. Names come once, at the close (they are also
 
 "But a name that looks like another drug, it won't assume. It stops and asks: clopidogrel, clonidine or clozapine? Nothing is checked or sent until he picks."
 
-*Switch to the deck, slide 7.*
+*Switch to the deck and press → three times, from slide 4 to slide 7 (5 and 6 are what the demo just showed).*
 
 ## 2:55 · [Slide 7 · We don't claim privacy. We measure it.] · 25 s
 
@@ -134,13 +136,13 @@ One person can speak the whole run. Names come once, at the close (they are also
 
 *Type **Does pantoprazole interact with my lisinopril?**, press Enter.*
 
-"And a pair it has nothing on? 'GenomeVault has no data on pantoprazole with lisinopril.' It never guesses."
+"And a pair it has nothing on? It says so: no data, and a missing entry doesn't mean there's no interaction. It never guesses."
 
 *Click the **Actions** tab.*
 
 "And it acts: a message drafted for his pharmacist, and a one-page visit summary."
 
-*Click **Offline** back to **Online**. Switch to the deck, slide 13.*
+*Click **Offline** back to **Online**. Switch to the deck and press → four times, from slide 9 to slide 13 (10 to 12 are held for questions).*
 
 ## 4:05 · [Slide 13 · Where it goes] · Close · 20 s
 
@@ -156,7 +158,7 @@ One person can speak the whole run. Names come once, at the close (they are also
 
 **Running long?** Cut in this order: slide 9 (fold "420 versus zero" into slide 7's last line); the decoy-traffic sentence at 1:55; the look-alike half of "Ask it your own way"; the Actions tab. Each saves 5–15 seconds.
 
-**If D-043's switches are all off** on the day (the proof failed outright): skip "Ask it your own way", and at 1:55 read the first sentence of the "For you" paragraph instead of "Four things to raise". Everything else is unchanged.
+**If the typo switch (`GV_FUZZY`) is off** on the day: skip "Ask it your own way". Everything else is unchanged.
 
 ---
 
@@ -164,10 +166,11 @@ One person can speak the whole run. Names come once, at the close (they are also
 
 | They type | What happens | Say |
 | --- | --- | --- |
-| A paraphrase or typo of a scripted question | "I took this as: …", then the answer | "It maps what you typed to a question it already answers, on the device, and tells you what it took it as." |
+| A misspelled drug name | "I'm assuming you mean …", then the answer | "It fixes the spelling on the device and shows you what it assumed." |
+| A question phrased very differently from ours | It may read "no data" | "Rephrasing support is in our next build; the chips show the questions it answers today." |
 | A rare drug pair (e.g. amoxicillin with warfarin), online | Ledger: "Tail group of 8 sent". With the demo machine's key, a live answer | "Rare pairs are hidden too, in their own fixed groups of eight." |
-| The same rare pair, offline or with no key | "GenomeVault has no data on … with …" | "It doesn't have that pair stored, so it says so. No guess." |
-| "Can I take X for a headache?" / "Should I stop…?" | "GenomeVault does not answer whether to take X; that is a question for your pharmacist or doctor. What it found: …" | "It never tells you to start or stop anything. It shows what it found, and sends you to your pharmacist." |
+| The same rare pair, offline or with no key | "GenomeVault has no data on this…" | "It doesn't have that pair stored, so it says so. No guess." |
+| "Can I take X for a headache?" / "Should I stop…?" | Its flags for X, and "worth asking your pharmacist" | "It never tells you to start or stop anything. It shows what it found, and sends you to your pharmacist." |
 | A look-alike name (clopidogral, lamictl…) | "Did you mean: …?", nothing sent | "It asks instead of guessing when names look alike." |
 
 ## Held for questions
@@ -180,7 +183,7 @@ One person can speak the whole run. Names come once, at the close (they are also
 | "Are rare pairs as private as common ones?" | Kaitlyn | — | "We measure them separately. Our first rare-pair groups let a smart attacker win 59% of the time, because one common drug stood out. Dhiaa regrouped them by how common each drug is, and that dropped to 15%." *(Only if B's PR #20 is merged; otherwise: "We measure them separately, and we found and fixed a weakness in how they were grouped today.")* |
 | "What doesn't it do?" | Dhiaa | Slide 12 | "It doesn't hide IP address and timing yet; a relay layer is the fix. Privacy is 1 in 8, not zero. And it never tells you to start or stop a medication." |
 | "Where do the medication rules come from?" | Gabe | Slide 5 | "Fixed, guideline-style lookup tables for genes, drugs, labs and allergies, not an AI guessing. They cover Alex's drugs and their neighbors today. The data is synthetic." |
-| "What runs on the laptop, and what in the cloud?" | Dhiaa | Slide 4 | "On the laptop: his records, the rules, the knowledge base, the personalization, the typo and question understanding, and a vision model that reads labels. In the cloud: only general questions, eight at a time." |
+| "What runs on the laptop, and what in the cloud?" | Dhiaa | Slide 4 | "On the laptop: his records, the rules, the knowledge base, the personalization, the typo suggestions, and a vision model that reads labels. In the cloud: only general questions, eight at a time." |
 | "Does the phone keep anything?" | Cristian | — | "No. The photo goes to the laptop to be read and isn't kept. The phone shows the result and gets reminders that say only 'Call your pharmacist.'" |
 | "Is it slow?" | Dhiaa | — | "Most questions are answered instantly on the device. A question that does go out waits on purpose, with random pauses that hide when you're active. On stage we replay the recorded answers." |
 
