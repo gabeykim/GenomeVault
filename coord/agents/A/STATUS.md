@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: Holding for the G5 freeze. PR #18 (tests only) updated to e34e618, where the hyphen banner xfail is conditional on C's span swap (#22). Rehearsal #18+#22 green (1301 passed). BRIEF queue 1-8 and D-040 part 1 done.
+current_task: Holding for the G5 freeze. PR #18 (tests only) at e34e618. The D-043 merge order (#22, #20, #18, #21, #19, #23) was rehearsed with make test exit 0, 1335 passed, both with all five flags unset and with all five set. BRIEF queue 1-8 and D-040 part 1 done.
 branch: agent/A-data-rules
-last_commit: e34e618 (on main 0698110)
+last_commit: e34e618 (PR head; local rebase 8aaf3ab on main 27a14fb, no code diff, not re-pushed)
 pr: "#18 open (tests only). #17, #9 merged."
 last_seen:
-  plan_version: "1.3.6"
-  decisions: D-042
-  logs: {A: 36, B: 71, C: 31, D: 18}
+  plan_version: "1.3.7"
+  decisions: D-043
+  logs: {A: 38, B: 74, C: 31, D: 19}
   proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
@@ -47,16 +47,16 @@ handled_messages:
   - 20261108-1709-from-integrator-d041-suggest-contract.md
   - 20261108-1717-from-D-typo-results.md
   - 20261108-1731-from-C-swap-fixed.md
+  - 20261108-1734-from-B-new-keys-need-partition.md
+  - 20261108-1745-from-I-adaptive-on.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
-open_questions:
-  - "Is GV_FUZZY ON for the demo? The integrator decides at 18:00. Fact sent (to-integrator 1733): the hyphen gap closes once C's #22 merges; #18+#22 rehearsal is green."
+open_questions: []
 notes: >
-  17:33 cycle: to-A 1731 from C (hyphen swap fixed in PR #22, C-031) handled. #22 is not on main yet, so
-  the banner xfail is now strict and conditional on `app._apply_swaps`. Added an `_apply_swaps` span test,
-  skipped until #22 lands. main: exit 0, 1297 passed, 1 skipped, 1 xfailed. With #22 merged on top: exit 0, 1301 passed.
-  Read B-071, D-018: nothing for A. No PLAN/DECISIONS change, no new proposals, no FREEZE, no STOP.
+  17:41 cycle (A-038): coord-only moves on main (A-037, B-074). Rebased, make test exit 0 (1297 passed, 1 skipped, 1 xfailed). No new inbox, DECISIONS, proposals, FREEZE or STOP.
+  B-074's DEMO=0 finding is in integrator-owned tests/I/; nothing for A.
+  17:39 cycle: D-043 flags checked set and unset (A-037). A adds no rules before the freeze (to-A 1734).
 next: >
-  Hold PR #18 (no further edit needed in any merge order). 18:00 GV_FUZZY ruling, then hold for the G5 freeze (18:30).
+  Hold PR #18 for Gabe's merge in the D-043 order. Demo-critical fixes only. Then hold for the G5 freeze (18:30).

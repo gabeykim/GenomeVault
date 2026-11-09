@@ -962,3 +962,31 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 1300 passed.
 - **Inbox:** handled 20261108-1731-from-C-flag-isolation-fixed.md (B-069 isolation gap closed in PR #22, thanks) and 20261108-1733-from-D-tail-v2-done.md (E1 follows TAIL_VERSION, nothing more for B). No new DECISIONS (still D-042), no new proposals.
 - **Next:** if GV_TAIL goes ON, #20 merges first, then B re-runs the flags-on suite + eval on main. Otherwise hold for G5 freeze.
+
+### B-074 · 2026-11-08 17:38 · commit `f4891e2` (PR #20) · PLAN v1.3.6
+
+- **Change:** No new B code. Main moved only by coord commits (1c51c94, e9e3b9d A-036; 2dffacf integrator escalation). Branch rebased locally (head de8dc5d, no code diff vs f4891e2) and re-tested. PR #20 left at `f4891e2` (green), no re-push. Merge rehearsal for the integrator's suggested order: main 2dffacf + #22 (b991470) + #18 (e34e618) + #21 (c6e05f4) + #20 (f4891e2) + #23 (5398fad) + #19 (ecbf7c6). No conflicts. `make test` exit 0, 1335 passed with DEMO unset (as CI runs), with DEMO=1, and with DEMO=1 plus GV_TAIL, GV_DEMO_LIVE_FALLBACK, GV_FUZZY, GV_INTENT and GV_DIRECT all exported. The #19 flag-isolation fails from B-069 are gone.
+- **Finding (integrator-owned, test-only):** `tests/I/test_direct.py:10` and `tests/I/test_intent.py:10` do `os.environ.setdefault("DEMO", "1")`. If a shell exports `DEMO=0`, as B's did, setdefault keeps 0 and the cloud stays cold. Then 3 tests in test_direct.py fail with a correct no_data answer ("no data on clopidogrel with pantoprazole"). Main + #19 alone fails the same way. This is not a router bug. Fix: set DEMO=1 with monkeypatch or mock.patch.dict inside the test or fixture, not setdefault at import time.
+- **Why:** Gabe has five or six merges to make before G5. A rehearsal of the full set, including #21's tail eval against #20's tail-v2, shows the order is safe.
+- **Class:** Advances
+- **Plan:** G5 readiness; D-040, D-041; no invariant touched
+- **Contract impact:** none
+- **Affects:** integrator (the DEMO=0 finding on #19; the rehearsal result for the merge order). No one else.
+- **Demo impact:** none (the demo machine runs DEMO=1, which is green)
+- **Tests:** branch `make test` exit 0, 1300 passed. Rehearsal merge as above.
+- **Inbox:** handled 20261108-1735-from-integrator-pr19-isolation-ack.md (nothing needed from B). No new DECISIONS (still D-042), no new proposals.
+- **Next:** if GV_TAIL goes ON, #20 merges first, then B re-runs the flags-on suite + eval on main. Otherwise hold for G5 freeze.
+
+### B-075 · 2026-11-08 17:50 · commit `f4891e2` (PR #20) · PLAN v1.3.7
+
+- **Change:** No new B code. D-043 (PLAN v1.3.7) turns all five adaptive flags ON for the demo, if the proof passes. Merge order: #22 → #20 → #18 → #21 → #19 → #23. Main moved only by coord commits (62b0e39 D-043, ac435d2 B-074, 27a14fb A-037). Branch rebased locally (head 4cf8e43, same code as f4891e2) and re-tested with the flags unset and set, as the to-B 1745 message asked. PR #20 left at `f4891e2`, the head D-043 and A-037 rehearsed, so no re-push.
+- **Why:** to-B 1745 from I: "keep your tests passing with all five flags exported as well as unset."
+- **Class:** Advances (verification only)
+- **Plan:** D-043, D-040 parts 2 and 3, D-041; P9 G5; no invariant touched
+- **Contract impact:** none
+- **Affects:** no one. A-037 already rehearsed the full D-043 merge order with the flags unset and set: 1335 passed both ways, and that run includes #20 at f4891e2. If the live long-tail proof fails and GV_TAIL plus GV_DEMO_LIVE_FALLBACK go OFF, B code needs no change. Both flags default off, and the flags-unset run covers that case.
+- **Demo impact:** none
+- **Tests:** branch `make test` with the flags unset: exit 0, 1300 passed. All five flags (`GV_FUZZY GV_TAIL GV_DEMO_LIVE_FALLBACK GV_INTENT GV_DIRECT`=1) set in os.environ before `pytest.main(['-q'])`: exit 0, 1300 passed. The sandbox refuses a shell env prefix on `make test`, so the flags were set inside Python.
+- **Inbox:** handled 20261108-1745-from-I-adaptive-on.md. No new proposals.
+- **Next:** after #20 merges, re-run the flags-on suite and the eval on main. Demo-critical fixes only until the G5 freeze.
+Refinements: none.

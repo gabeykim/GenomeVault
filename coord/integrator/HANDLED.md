@@ -83,3 +83,9 @@ coord/inbox/to-integrator/20261108-1724-from-B-flag-on-off.md
 coord/inbox/to-integrator/20261108-1730-from-A-fuzzy-hyphen-fact.md
 coord/inbox/to-integrator/20261108-1721-from-B-tail-v2-pr20.md
 coord/inbox/to-human/20261108-1722-from-integrator-needs-gabe-d040-confirm-flags-pr20.md
+coord/inbox/to-integrator/20261108-1723-from-A-pr19-suggest-ok.md
+coord/inbox/to-integrator/20261108-1727-from-D-pr21.md
+coord/inbox/to-integrator/20261108-1730-from-B-merge-rehearsal-flags.md
+coord/inbox/to-integrator/20261108-1731-from-C-pr22.md
+coord/inbox/to-integrator/20261108-1733-from-A-pr18-pr22-rehearsal.md
+coord/inbox/to-human/20261108-1735-from-integrator-needs-gabe-merges-pr18-22.md

@@ -509,3 +509,34 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Inbox:** to-A 1731 from C, handled. Read C-031, B-071, D-018: nothing else for A. No new DECISIONS (D-042) or proposals, PLAN v1.3.6.
 - **Next:** hold PR #18. The 18:00 GV_FUZZY ruling is the integrator's. Then hold for the G5 freeze (18:30).
 Refinements: none for PLAN (test-only).
+
+### A-037 · 2026-11-08 17:39 · no code change (PR #18 stays at `e34e618`) · PLAN v1.3.7
+
+- **Change:** none. This cycle checked D-043 ("keep your tests passing with all five flags exported as well as unset") on main and on the D-043 merge order.
+- **Why:** to-A 1745 from I (D-043, adaptive features ON for the demo).
+- **Class:** Advances (verification only)
+- **Plan:** D-043, D-040 part 1, D-041; P9 G5
+- **Contract impact:** none
+- **Affects:** I and Gabe: #18 needs no edit in the D-043 order. Message sent. B, C, D: nothing.
+- **Demo impact:** none
+- **Tests:**
+  - Main `62b0e39` + A branch (rebased `93b611b`, same code as PR head `e34e618`), `make test`. Flags unset: exit 0, **1297 passed, 1 skipped, 1 xfailed**. All five of `GV_FUZZY GV_TAIL GV_DEMO_LIVE_FALLBACK GV_INTENT GV_DIRECT` set to 1: exit 0, same counts.
+  - D-043 merge order rehearsed with merge commits in a throwaway worktree: main → #22 `b991470` → #20 `f4891e2` → #18 `e34e618` → #21 `c6e05f4` → #19 `ecbf7c6` → #23 `5398fad`. All merged clean (`app.py` auto-merged). `make test`: flags unset exit 0, **1335 passed**; all five flags set exit 0, **1335 passed**. No xfail and no skip: A's hyphen tests became plain passes once #22 was in, as A-036 intended.
+  - `scripts/demo_proof.py` was not run. It needs the key and network on the demo machine (D-043 gate), and it belongs to the integrator.
+- **Inbox:** to-A 1734 from B (new rule keys must sit in a partition, B-073): noted. A adds no new rules before the freeze. to-A 1745 from I: handled by this check. Read B-073; no new C or D entries.
+- **Next:** hold PR #18 for Gabe's merge in the D-043 order, then hold for the G5 freeze (18:30). Demo-critical fixes only.
+Refinements: none.
+
+### A-038 · 2026-11-08 17:41 · no code change (PR #18 stays at `e34e618`) · PLAN v1.3.7
+
+- **Change:** none. Main moved only by coord commits (27a14fb A-037, ac435d2 B-074). Branch rebased locally (head `8aaf3ab`, no diff in A's paths vs PR head `e34e618`) and re-tested. PR #18 not re-pushed.
+- **Why:** routine sync after coord-only moves. A's BRIEF queue is empty; G5 freeze rule is demo-critical fixes only.
+- **Class:** Advances (verification only)
+- **Plan:** P9 G5; D-043
+- **Contract impact:** none
+- **Affects:** nobody. #18 needs no edit in the D-043 merge order.
+- **Demo impact:** none
+- **Tests:** main `27a14fb` + A branch, `make test` exit 0, **1297 passed, 1 skipped, 1 xfailed** (the xfail is the hyphen-banner test that switches off once C's #22 is merged, A-036).
+- **Inbox:** nothing new for A. Read B-074: its DEMO=0 finding is in integrator-owned `tests/I/`, so A has nothing to do. No new DECISIONS (D-043), no new proposals, no new C or D entries.
+- **Next:** hold PR #18 for Gabe's merge in the D-043 order, then hold for the G5 freeze (18:30).
+Refinements: none.

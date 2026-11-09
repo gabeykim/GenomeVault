@@ -1,4 +1,4 @@
-# GenomeVault PLAN — v1.3.6
+# GenomeVault PLAN — v1.3.7
 
 Source of truth for the idea. Edited only by the integrator, through accepted proposals (see AGENTS.md §5, §12). Cite these IDs in every commit, report and proposal.
 
@@ -127,3 +127,4 @@ S1 Hook · S2 Capture on phone · S3 Local flags X1–X4, "0 bytes sent" · S4 H
 - v1.3.4 — G4 passed: `DEMO=1 make eval && python -m eval.gate` green on the integrated build (22 pass, 0 fail) (D-038).
 - v1.3.5 — Adaptive questions accepted (D-040): typo suggestions, long-tail fixed partition, demo live fallback, consent path; all behind flags, ON only if green by 18:00.
 - v1.3.6 — D-040 interfaces recorded in CONTRACTS (D-041): `normalize.suggest`, `router.single_candidates`, `router.send_single` (additive, flag-off stubs); tail/single sends reuse `LedgerEntry` with `bucket_id` `tail-NNNN` / `single`, no type change.
+- v1.3.7 — Adaptive features ON for the demo (D-043), gated on `scripts/demo_proof.py` passing on the demo machine with the live long-tail check.
