@@ -29,7 +29,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
-from core import actions, intent, merge
+from core import actions, direct, intent, merge
 from core.capture import from_image          # A, D-020: label photo -> drugs
 from core.cloud import status as cloud_status  # contract since D-020; sends nothing (I2)
 from core.contracts import Answer, Drug, Fact, Flag, Profile
@@ -350,6 +350,10 @@ def ask(body: AskIn) -> dict:
     answer: Answer = route(question, current)
     _asked.append(question)
     out = {**_answer_payload(answer, current, p), **extra}
+    if direct.enabled():  # GV_DIRECT=1: answer-first lead line, composed on device from flags/facts only
+        line = direct.direct_line(body.question, answer, current, p)
+        if line:
+            out["sections"], out["text"] = direct.apply(out["sections"], out["text"], line)
     if assumed:
         out["assumed"] = assumed
     if answer.state == "no_data":
