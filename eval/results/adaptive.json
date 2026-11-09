@@ -1,10 +1,309 @@
 {
  "typos": {
-  "status": "skipped",
-  "reason": "core.normalize.suggest is not on this build (A's PR #17, D-040 part 1)"
+  "status": "ran",
+  "set": "typos-v1",
+  "n": 20,
+  "correct": 20,
+  "assumed": 11,
+  "asked": 9,
+  "no_suggestion": 0,
+  "silent_wrong": 0,
+  "lookalike_assumed": 0,
+  "rows": [
+   {
+    "typed": "clopidogral",
+    "meant": "clopidogrel",
+    "group": "alex",
+    "lookalike": true,
+    "mode": "ask",
+    "choices": [
+     "clopidogrel",
+     "clonidine",
+     "clozapine"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "omeprozole",
+    "meant": "omeprazole",
+    "group": "alex",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "omeprazole"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "simvastatine",
+    "meant": "simvastatin",
+    "group": "alex",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "simvastatin"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "lisinipril",
+    "meant": "lisinopril",
+    "group": "alex",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "lisinopril"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "asprin",
+    "meant": "aspirin",
+    "group": "alex",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "aspirin"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "warfrain",
+    "meant": "warfarin",
+    "group": "pack",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "warfarin"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "amoxicilin",
+    "meant": "amoxicillin",
+    "group": "pack",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "amoxicillin"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "atorvastatine",
+    "meant": "atorvastatin",
+    "group": "pack",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "atorvastatin"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "metoprolo",
+    "meant": "metoprolol",
+    "group": "pack",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "metoprolol"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "coumadn",
+    "meant": "coumadin",
+    "group": "brand",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "coumadin"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "advill",
+    "meant": "advil",
+    "group": "brand",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "advil"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "motrinn",
+    "meant": "motrin",
+    "group": "brand",
+    "lookalike": false,
+    "mode": "assumed",
+    "choices": [
+     "motrin"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "hydralazin",
+    "meant": "hydralazine",
+    "group": "lookalike",
+    "lookalike": true,
+    "mode": "ask",
+    "choices": [
+     "hydralazine",
+     "hydroxyzine",
+     "hydroxychloroquine"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "hydroxizine",
+    "meant": "hydroxyzine",
+    "group": "lookalike",
+    "lookalike": true,
+    "mode": "ask",
+    "choices": [
+     "hydroxyzine",
+     "hydralazine",
+     "hydroxychloroquine"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "lamictl",
+    "meant": "lamictal",
+    "group": "lookalike",
+    "lookalike": true,
+    "mode": "ask",
+    "choices": [
+     "lamictal",
+     "lamisil",
+     "lomotil"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "zantak",
+    "meant": "zantac",
+    "group": "lookalike",
+    "lookalike": true,
+    "mode": "ask",
+    "choices": [
+     "zantac",
+     "xanax",
+     "zyrtec"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "plavics",
+    "meant": "plavix",
+    "group": "lookalike",
+    "lookalike": true,
+    "mode": "ask",
+    "choices": [
+     "plavix",
+     "paxil",
+     "taxol"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "nexum",
+    "meant": "nexium",
+    "group": "lookalike",
+    "lookalike": true,
+    "mode": "ask",
+    "choices": [
+     "nexium",
+     "nexavar"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "glipizde",
+    "meant": "glipizide",
+    "group": "lookalike",
+    "lookalike": true,
+    "mode": "ask",
+    "choices": [
+     "glipizide",
+     "glyburide"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   },
+   {
+    "typed": "tegretl",
+    "meant": "tegretol",
+    "group": "lookalike",
+    "lookalike": true,
+    "mode": "ask",
+    "choices": [
+     "tegretol",
+     "toradol",
+     "trental"
+    ],
+    "correct": true,
+    "silent_wrong": false,
+    "lookalike_assumed": false
+   }
+  ]
  },
  "tail": {
-  "status": "skipped",
-  "reason": "data/buckets/tail-v1.json is not on this build (B's PR #15, D-040 part 2)"
+  "status": "ran",
+  "partition": "tail-v1",
+  "buckets": 1047,
+  "keys": 8376,
+  "priors": "synthetic: product of each drug's summed universe priors; unseen drugs and labs get the smallest",
+  "n": 500,
+  "asks": 3,
+  "repeat_ask": 0.138,
+  "statistical": 0.592,
+  "stat_attacker_ceiling": 0.5796,
+  "uniform_floor": 0.125,
+  "sensitivity_unseen_median": {
+   "repeat_ask": 0.138,
+   "statistical": 0.514,
+   "stat_attacker_ceiling": 0.5283
+  }
  }
 }

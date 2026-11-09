@@ -24,7 +24,20 @@ from eval.universe import ROOT, load_universe
 
 RESULTS = ROOT / "eval" / "results"
 TYPO_SET = ROOT / "eval" / "fixtures" / "typo_set.json"
-TAIL_FILE = ROOT / "data" / "buckets" / "tail-v1.json"
+BUCKETS_DIR = ROOT / "data" / "buckets"
+
+
+def tail_version() -> str:
+    """The tail partition that ships: B's `core.decoys.TAIL_VERSION` (B-068), else tail-v1."""
+    try:
+        from core import decoys
+        return getattr(decoys, "TAIL_VERSION", "tail-v1")
+    except ImportError:                                        # pragma: no cover - core is always present on main
+        return "tail-v1"
+
+
+def tail_file():
+    return BUCKETS_DIR / f"{tail_version()}.json"
 
 
 def _ingredients(normalize, name: str) -> set[str]:
@@ -110,9 +123,10 @@ def attack_partition(buckets: list[list[str]], priors: dict[str, float], n: int 
 
 
 def run_tail(n: int = 500, seed: int = 7) -> dict:
-    if not TAIL_FILE.exists():
-        return {"status": "skipped", "reason": "data/buckets/tail-v1.json is not on this build (B's PR #15, D-040 part 2)"}
-    raw = json.loads(TAIL_FILE.read_text())
+    path = tail_file()
+    if not path.exists():
+        return {"status": "skipped", "reason": f"data/buckets/{path.name} is not on this build (B's PR #15 / #20, D-040 part 2)"}
+    raw = json.loads(path.read_text())
     buckets = [list(b["keys"]) for b in raw["buckets"]]
     bad = [i for i, b in enumerate(buckets) if len(b) != 8]
     flat = [k for b in buckets for k in b]
@@ -121,7 +135,7 @@ def run_tail(n: int = 500, seed: int = 7) -> dict:
     u = load_universe()
     res = attack_partition(buckets, tail_priors(buckets, u), n=n, seed=seed)
     alt = attack_partition(buckets, tail_priors(buckets, u, unseen="median"), n=n, seed=seed)
-    return {"status": "ran", "partition": raw.get("version", "tail-v1"), "buckets": len(buckets), "keys": len(flat),
+    return {"status": "ran", "partition": raw.get("version", path.stem), "buckets": len(buckets), "keys": len(flat),
             "priors": "synthetic: product of each drug's summed universe priors; unseen drugs and labs get the smallest",
             **res, "sensitivity_unseen_median": {k: alt[k] for k in ("repeat_ask", "statistical", "stat_attacker_ceiling")}}
 
