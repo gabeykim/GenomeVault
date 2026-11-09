@@ -181,6 +181,26 @@ def _distance(a: str, b: str, cap: int) -> int:
     return prev[-1]
 
 
+_SOUNDS = (("ph", "f"), ("cks", "x"), ("ks", "x"), ("cs", "x"), ("ck", "k"), ("z", "s"), ("y", "i"))
+SOUND_D = 1              # a word that sounds like a name ("plavicks", "ibuprophen") counts as 1 edit
+
+
+def _sound(word: str) -> str:
+    """Sound-alike form: ph->f, cks/ks/cs->x, ck->k, z->s, y->i, then double letters -> single."""
+    for a, b in _SOUNDS:
+        word = word.replace(a, b)
+    return "".join(c for i, c in enumerate(word) if i == 0 or c != word[i - 1])
+
+
+@functools.lru_cache(maxsize=1)
+def _sound_index() -> dict[str, tuple[str, ...]]:
+    names, _, _ = _suggest_tables()
+    index: dict[str, list[str]] = {}
+    for name in names:
+        index.setdefault(_sound(name), []).append(name)
+    return {k: tuple(v) for k, v in index.items()}
+
+
 @functools.lru_cache(maxsize=1)
 def _suggest_tables():
     """(candidate name -> ingredients, or None for a look-alike we have no tables for;
@@ -209,7 +229,8 @@ def suggest(text: str) -> list[dict]:
          "not_covered": [name, ...]}    # choices that are real drugs with no GenomeVault tables
     "assumed": one name within 2 edits and nothing meaning another drug within 2 more; the UI
     shows "I'm assuming you mean X" with an undo. "ask": the UI shows "Did you mean ...?" and
-    waits. A word near any name in data/rules/lookalikes.json is always "ask". Choices are spelled
+    waits. A word that sounds like a name (_sound: "plavicks", "ibuprophen") counts as 1 edit.
+    A word near any name in data/rules/lookalikes.json is always "ask". Choices are spelled
     so that to_ingredients() recognizes them (not_covered ones give [], i.e. no_data)."""
     if not fuzzy_enabled() or not text or not text.strip():
         return []
@@ -224,7 +245,10 @@ def suggest(text: str) -> list[dict]:
         if token in names:            # spells a look-alike we have no tables for ("clozapine"): no guess
             continue
         cap = _limit(token)
-        ranked = sorted((d, name) for name in names if (d := _distance(token, name, cap)) <= cap)
+        dist = {name: d for name in names if (d := _distance(token, name, cap)) <= cap}
+        for name in _sound_index().get(_sound(token), ()):     # sound-alike match: 1 edit at most
+            dist[name] = min(dist.get(name, SOUND_D), SOUND_D)
+        ranked = sorted((d, name) for name, d in dist.items())
         if not ranked:
             continue
         best_d, best = ranked[0]

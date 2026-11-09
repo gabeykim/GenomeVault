@@ -7,7 +7,7 @@ import json
 
 import pytest
 
-from core.normalize import LOOKALIKES_PATH, _lexicon, suggest, to_ingredients
+from core.normalize import LOOKALIKES_PATH, _lexicon, _sound, suggest, to_ingredients
 
 
 @pytest.fixture
@@ -40,6 +40,9 @@ ASSUMED = [
     ("prilosc", "prilosec", "omeprazole"),
     ("citalopran", "citalopram", "citalopram"),
     ("rifampn", "rifampin", "rifampin"),
+    ("ibuprophen", "ibuprofen", "ibuprofen"),         # sound-alike: ph -> f
+    ("sinthroid", "synthroid", "levothyroxine"),      # sound-alike: y -> i
+    ("prozak", "prozac", "fluoxetine"),
 ]
 ASK = [   # look-alike names, or no single clear winner: the user must pick
     ("clopidogrl", "clopidogrel"),
@@ -54,7 +57,16 @@ ASK = [   # look-alike names, or no single clear winner: the user must pick
     ("fenytoin", "phenytoin"),          # first letter changed: never assumed
     ("lasixx", "lasix"),
     ("imdurr", "imdur"),
+    ("plavicks", "plavix"),             # sound-alike (3 plain edits); plavix is a look-alike -> ask
+    ("xanacks", "xanax"),               # sound-alike; xanax is a look-alike -> ask
 ]
+
+
+@pytest.mark.parametrize("a,b", [("plavicks", "plavix"), ("ibuprophen", "ibuprofen"),
+                                 ("sinthroid", "synthroid"), ("seroquell", "seroquel"),
+                                 ("fenytoin", "phenytoin")])
+def test_sound_alike_forms_match(a, b):
+    assert _sound(a) == _sound(b)
 
 
 def test_flag_off_returns_nothing(monkeypatch):
