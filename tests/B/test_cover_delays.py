@@ -193,3 +193,23 @@ def test_interval_env(monkeypatch):
         router.cover_interval()
     with pytest.raises(ValueError):
         router.start_cover(0)
+
+
+def test_codespaces_interval_20s(monkeypatch):
+    """D-039: the Codespaces demo runs with GV_COVER_INTERVAL_S=20. The loop reads it and waits
+    20 * uniform(0.5, 1.5), so every wait falls in 10-30 s, and each tick sends one whole bucket."""
+    monkeypatch.setenv("GV_COVER_INTERVAL_S", "20")
+    assert router.cover_interval() == 20.0
+    waits = []
+
+    class Stop:
+        def wait(self, t):
+            waits.append(t)
+            return len(waits) > 200
+
+    sent = []
+    monkeypatch.setattr(router, "send_cover", lambda: sent.append(1))
+    router._cover_loop(router.cover_interval(), Stop())
+    assert len(waits) == 201 and len(sent) == 200
+    assert all(10.0 <= w <= 30.0 for w in waits)
+    assert max(waits) - min(waits) > 5     # jittered, not a fixed beat
