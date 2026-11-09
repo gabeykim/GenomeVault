@@ -426,3 +426,31 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` on main `5e311fb` + PR #9: exit 0, **1164 passed**.
 - **Inbox:** no new messages for A. Read C-027 (hero title on scroll, PR #11): UI only, nothing for A. Read B-048 (PR #10 rebase only): nothing for A. PLAN is still v1.3.3 and the last decision is still D-037.
 - **Next:** PR #9 merge at G4 (18:15). Then I hold for freeze and answer requests from B, C and D.
+
+### A-031 · 2026-11-08 17:05 · commit `e2dc7a3` (PR #17) · PLAN v1.3.5
+
+- **Change:** New function `core/normalize.suggest(text)`, behind `GV_FUZZY=1` and off by default. For each word that matches no drug name it returns `{"token", "span": [start, end], "mode": "assumed" | "ask", "choices": [1 to 3 names, best first], "not_covered": [choices we have no tables for]}`. New file `data/rules/lookalikes.json` (27 ISMP-style groups, e.g. clonidine/clopidogrel/clozapine, celebrex/celexa, tramadol/trazodone, plavix/paxil): any word near one of these names is always `ask`. `to_ingredients()` behaves the same. Its match loop moved into a shared `_matches()` helper.
+- **Why:** D-040 part 1 (to-A 1702). Judges will type their own questions, and today a typo returns `no_data` with no hint.
+- **Class:** Advances
+- **Plan:** advances D-040 part 1, P6 "Adaptive questions", F2, M3. I4 holds: a suggestion never reaches a key. `assumed` is shown on screen with an undo, `ask` waits for a pick, and the corrected text goes back through the exact path.
+- **Refinements:** (1) Distance is edit distance with an adjacent swap counted as one edit. (2) A word is a candidate only within 1 edit (6 letters or fewer), 2 edits (7 to 9) or 3 edits (10 or more), and only if it is 4 or more letters and not a common question word. (3) `assumed` also needs the same first letter, and names that mean the same drug (rifampin/rifampicin) don't count as ambiguity. (4) Only single-word names are suggested, so "penicilin" and "toprl xl" get nothing. (5) A name we have no tables for (clozapine, hydroxyzine, prednisolone…) gets no suggestion when spelled exactly; a near miss lists it under `not_covered`, so the user is never steered to a covered look-alike.
+- **Contract impact:** none. This is a new additive function in A's module. The return shape is the one in to-integrator 1657, plus the new `not_covered` field.
+- **Affects:** C builds the "I'm assuming you mean X" banner and the "Did you mean" chips from this shape (message sent). D can reuse A's 25-word typo set in `tests/A/test_suggest.py` for the part 5 typo eval (message sent). I: PR #17 is ready to review; the flag stays off unless the integrator turns it on by 18:00.
+- **Demo impact:** none with the flag off. With `GV_FUZZY=1`, a typed typo in S5 gets a banner or chips (after C's part 4).
+- **Tests:** `make test` exit 0, **1219 passed** (+42 in `tests/A/test_suggest.py`). They cover: flag off; 13 `assumed` and 12 `ask` typos with zero silent wrong substitutions; every one-letter deletion or swap of each look-alike name gives `ask`; exactly spelled names we don't cover; plain questions get no suggestions; corrected text goes back through the exact path. A one-off sweep of 15,000 random dictionary words gave 15 `assumed` (0.1%, all rare words such as "bayed" or "lanolin") and 25 `ask`.
+- **Inbox:** to-A 1702 (D-040 part 1) and 1658 (hold notice, replaced by D-040). Read B-062 and B-063 (syncs, nothing for A).
+- **Next:** answer C/D on the shape and merge PR #17 if the integrator wants it. If C needs a field, add it before 18:00. Otherwise hold for the G5 freeze.
+
+### A-032 · 2026-11-08 17:12 · commit `e790cb4` (PR #17) · PLAN v1.3.5
+
+- **Change:** Each `suggest()` dict now also has `"term"` (the same as `"token"`) and `"assumed"` (the name when `mode == "assumed"`, otherwise `None`). Existing keys are unchanged. PR #17 is rebased onto main `6e3b20d`; main changed only in coordination files.
+- **Why:** C's to-A 1702 crossed with A's to-C 1706. C reads `term`/`assumed`/`choices`, and without the `assumed` key every suggestion would have shown as chips with no banner.
+- **Class:** Refines
+- **Plan:** advances D-040 parts 1 and 4; I4 unchanged
+- **Refinements:** suggest() shape = `{token, term, span, mode, assumed, choices, not_covered}`
+- **Contract impact:** none (additive keys on A's own function)
+- **Affects:** C: its planned reader works as is (reply in to-C 1712). D: none.
+- **Demo impact:** none with the flag off.
+- **Tests:** `make test` exit 0, **1219 passed** (the existing suggest tests now also check `term`/`assumed`).
+- **Inbox:** to-A 1702 from C (handled by this change).
+- **Next:** hold PR #17 for review, answer C/D before 17:45, then hold for the G5 freeze.

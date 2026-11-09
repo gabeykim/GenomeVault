@@ -1,12 +1,12 @@
 agent: B
-state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-063 sync + re-test; PR #15 (c4c4998, tests only) awaiting merge, 1178 passed; adaptive-questions proposal awaiting ruling
+state: working     # working | blocked | waiting-review | done | not-started
+current_task: B-064 D-040 part 3 GV_DEMO_LIVE_FALLBACK done (0705cbe on PR #15, 1186 passed); next part 2 GV_TAIL
 branch: agent/B-privacy-router
-last_commit: c4c4998
+last_commit: 0705cbe
 last_seen:
-  plan_version: "1.3.4"
-  decisions: D-039
-  logs: {A: 30, B: 63, C: 28, D: 16}
+  plan_version: "1.3.5"
+  decisions: D-040
+  logs: {A: 30, B: 64, C: 28, D: 16}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -44,6 +44,8 @@ handled_messages:
   - 20261108-1638-from-integrator-g4-passed.md
   - 20261108-1644-from-integrator-codespaces-cover-interval.md
   - 20261108-1645-from-human-uncovered-pair-reads-checked.md
+  - 20261108-1658-from-integrator-adaptive-questions-pending.md
+  - 20261108-1702-from-I-adaptive-parts2-3.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -93,4 +95,7 @@ notes: >
   B-062: main moved only by coord commits (2854856, 95a71d1, 4603f3e). Re-tested locally (exit 0, 1178 passed); PR #15 left at c4c4998 (2/2 checks green), no re-push.
   New proposal 20261108-1655-human-adaptive-questions (I4, I5) not yet ruled: nothing started. Integrator told B's plan (part 3 then part 2, flags default OFF).
   B-063: main moved only by coord commits (87d3ba8, 31ab9e3). Re-tested locally (exit 0, 1178 passed); PR #15 left at c4c4998 (open, mergeable), no re-push. Proposal still unruled.
-next: if the proposal is accepted, build GV_DEMO_LIVE_FALLBACK then GV_TAIL behind flags by 18:00; else hold for G5 freeze (18:30). PR #15 awaiting merge.
+  B-064: D-040 accepted (PLAN v1.3.5). Part 3 GV_DEMO_LIVE_FALLBACK in core/cloud.py (0705cbe, PR #15): DEMO=1 + flag + key,
+  a cache miss asks the whole bucket live (I5) with live delays; cached answers kept; live failure = replay only; forced offline wins.
+  Flag default off. make test exit 0, 1186 passed. C and D told the API.
+next: D-040 part 2 GV_TAIL (tail-v1.json generator, router tail path, consented single send); flag on only if green by 18:00. PR #15 awaiting merge.
