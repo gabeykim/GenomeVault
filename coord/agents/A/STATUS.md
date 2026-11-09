@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: Holding for the G5 freeze. Read PR #19 (I, intent) against A's normalize; its use of suggest() and to_ingredients() matches (to-integrator 1723). PR #18 (tests only) rebased and open. BRIEF queue 1-8 and D-040 part 1 done.
+current_task: Holding for the G5 freeze. PR #18 (tests only) updated to e34e618, where the hyphen banner xfail is conditional on C's span swap (#22). Rehearsal #18+#22 green (1301 passed). BRIEF queue 1-8 and D-040 part 1 done.
 branch: agent/A-data-rules
-last_commit: f109b76 (on main 9116895)
-pr: "#18 open (tests only), CI green. #17, #9 merged."
+last_commit: e34e618 (on main 0698110)
+pr: "#18 open (tests only). #17, #9 merged."
 last_seen:
   plan_version: "1.3.6"
   decisions: D-042
-  logs: {A: 35, B: 70, C: 30, D: 18}
+  logs: {A: 36, B: 71, C: 31, D: 18}
   proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
@@ -46,16 +46,17 @@ handled_messages:
   - 20261108-1708-from-C-d040-ui-ready.md
   - 20261108-1709-from-integrator-d041-suggest-contract.md
   - 20261108-1717-from-D-typo-results.md
+  - 20261108-1731-from-C-swap-fixed.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
 open_questions:
-  - "Is GV_FUZZY ON for the demo? Integrator decides at 18:00. Fact sent: the hyphen-combo swap gap in C's _swap hides X4 (to-integrator 1730)."
+  - "Is GV_FUZZY ON for the demo? The integrator decides at 18:00. Fact sent (to-integrator 1733): the hyphen gap closes once C's #22 merges; #18+#22 rehearsal is green."
 notes: >
-  17:30 cycle: no new inbox messages or proposals, no PLAN or DECISIONS change (still v1.3.6, D-042).
-  New on main: B-070 only (B re-tested PR #20 after coord-only moves, "Affects: nobody"). Nothing for A.
-  C is still at C-030, so the hyphen xfail in #18 stays.
-  No code change, so no LOG entry. Rebased on 9116895 and force-pushed (f109b76); make test exit 0, 1297 passed, 1 xfailed. No FREEZE, no STOP.
+  17:33 cycle: to-A 1731 from C (hyphen swap fixed in PR #22, C-031) handled. #22 is not on main yet, so
+  the banner xfail is now strict and conditional on `app._apply_swaps`. Added an `_apply_swaps` span test,
+  skipped until #22 lands. main: exit 0, 1297 passed, 1 skipped, 1 xfailed. With #22 merged on top: exit 0, 1301 passed.
+  Read B-071, D-018: nothing for A. No PLAN/DECISIONS change, no new proposals, no FREEZE, no STOP.
 next: >
-  Hold PR #18. When C fixes _swap, turn the xfail into a plain test. 18:00 GV_FUZZY ruling, then hold for the G5 freeze (18:30).
+  Hold PR #18 (no further edit needed in any merge order). 18:00 GV_FUZZY ruling, then hold for the G5 freeze (18:30).
