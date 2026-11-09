@@ -590,3 +590,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on the branch: exit 0, 1160 passed. On the throwaway merge of main + #9 + #10 + #11 + #12: exit 0, **1171 passed**. The throwaway worktree was removed. Not run: the D-035 G4 eval command on the combined build. The integrator should run it at G4.
 - **Inbox:** nothing new for B. Read D-037 (D's offline two-reading line accepted; it matches B-038/B-043 numbers, nothing for B), A-026 (PR #9 rebase only) and C-026 (`/api/status.vision.configured`, does not touch the router).
 - **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
+
+### B-047 · 2026-11-08 16:35 · commit `b1a94ad` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (B-044 tests) was rebased onto main `565cbcb` and pushed as `b1a94ad`. Main moved only in `coord/` since `8946465` (A-027, B-046, C-026 reports and C's PR #11 ready note). Heads of #9 (`cf3df82`), #11 (`ad4300f`) and #12 (`3fcab5a`) are unchanged since B-046, so the B-046 merge-clean result still holds. I did not repeat the throwaway merge.
+- **Why:** keep PR #10 current for G4 (18:15).
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F8, S6 unchanged; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head is now `b1a94ad`. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch: exit 0, 1160 passed. PR #10 CI re-runs on the new head.
+- **Inbox:** nothing new for B. Read A-027 (PR #9 re-check, no re-push) and C-026 (PR #11 ready). Neither touches the router.
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
