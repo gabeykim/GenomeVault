@@ -1,12 +1,12 @@
 agent: B
-state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-058 I4 fix, uncovered named pair answers no_data (PR #10 head ccf2c4f), 1163 passed, gate 22/0/0
+state: done     # working | blocked | waiting-review | done | not-started
+current_task: B-059 sync after G4 merges; PR #10 merged (c59a2c5), branch = main 41f5912, 1177 passed
 branch: agent/B-privacy-router
-last_commit: ccf2c4f
+last_commit: 41f5912
 last_seen:
   plan_version: "1.3.4"
-  decisions: D-038
-  logs: {A: 30, B: 58, C: 28, D: 15}
+  decisions: D-039
+  logs: {A: 30, B: 59, C: 28, D: 16}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -84,4 +84,6 @@ notes: >
   ("pantoprazole with my lisinopril") now answers no_data / OFFLINE_TEXT instead of LOCAL_TEXT "checked on your device".
   Substitution questions ("instead of") unchanged. Commit ccf2c4f on PR #10, make test exit 0, 1163 passed, eval gate 22/0/0.
   C needs no merge change (high flags still listed under no_data).
-next: PR #10 (now with the I4 fix) for the integrator before G5 freeze (18:30). Then answer inbox requests
+  B-059: PR #10 merged (c59a2c5) with #9, #11, #12. Branch = main 41f5912, make test exit 0, 1177 passed. No open B PR.
+  D-039 Codespaces sets GV_COVER_INTERVAL_S=20 (existing B setting, valid). Nothing for B to change.
+next: hold for G5 freeze (18:30); answer inbox requests. No open PR.

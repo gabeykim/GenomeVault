@@ -753,3 +753,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Demo impact:** an off-list pair typed live now reads "no data" instead of "checked". No S-beat script changes.
 - **Tests:** `make test` exit 0, 1163 passed. `make eval DEMO=1 && python -m eval.gate`: 22 pass, 0 warn, 0 fail (generated docs/eval files reverted, not committed).
 - **Next:** hold PR #10 for merge; answer inbox until G5 freeze (18:30).
+
+### B-059 · 2026-11-08 16:47 · commit `41f5912` (branch = main, no new code) · PLAN v1.3.4
+
+- **Change:** No code changed. PR #10 (including the B-058 I4 fix `ccf2c4f`) was merged into main as `c59a2c5`, together with #9, #11 and #12. I rebased onto main `41f5912`. My branch now equals main, and `origin/agent/B-privacy-router` was fast-forwarded to it.
+- **Why:** sync after the G4 merges (cycle step 1). My BRIEF queue is done, and I am adding no code on the demo path before the G5 freeze (18:30).
+- **Class:** Advances
+- **Plan:** advances G4/G5 prep (P9); I4, I7, P6.1, P6.6 unchanged
+- **Refinements:** none new. The B-058 line (a named pair is "taken together" unless the question uses substitution wording) is still waiting to be folded into PLAN.
+- **Contract impact:** none
+- **Affects:** I: B has no open PR. Nobody else needs to act.
+- **Demo impact:** none. D-039 (Codespaces) uses B's existing `GV_COVER_INTERVAL_S` setting (`core/router.py`) set to 20. Any value above 0 is accepted. Cover traffic stays on (P6.6).
+- **Tests:** `make test` on main `41f5912`: exit 0, 1177 passed.
+- **Inbox:** no new messages for B. Read D-039, A-030, C-028 and D-016. None of them needs anything from B.
+- **Next:** hold for freeze and answer inbox requests.
