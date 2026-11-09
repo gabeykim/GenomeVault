@@ -892,3 +892,21 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 1293 passed. New `tests/B/test_tail_v2.py`: tail-v2 is current, rebuilds byte-identically, holds exactly tail-v1's keys, all buckets have 8 keys, and the statistical attacker is <= 0.20 with ceiling < 0.15 under both unseen readings.
 - **Inbox:** handled 20261108-1717-from-D-tail-finding. New LOG: D-017 (the finding), A-034 (suggest swap tests): nothing else for B.
 - **Next:** after PR #20 merges, re-run the flags-on suite and eval on main. Hold for the 18:00 ON/OFF call and the G5 freeze.
+
+### B-069 · 2026-11-08 17:30 · commit `cdb8ee2` (PR #20) · PLAN v1.3.6
+
+- **Change:** No new B code. PR #20 rebased onto main 1e0d176 and re-pushed (head `cdb8ee2`, 2/2 checks green, mergeable). Pre-18:00 rehearsal: a throwaway merge of main + #20 (cdb8ee2) + #18 (A, 46f5304) + #19 (I intent, c8671c7), tested with flags off and with flags on (flags set inside Python, other GV_* cleared).
+- **Why:** BRIEF queue is done. The 18:00 ON/OFF call needs to know whether the open PRs work together under each flag set.
+- **Result:** merges with no conflicts. Flags off: 1311 passed, 1 xfailed (A-035 hyphen xfail). `tests/B` with GV_INTENT + GV_TAIL: 571 passed. GV_TAIL + GV_FUZZY + GV_DEMO_LIVE_FALLBACK: 1310 passed, 1 failed. All four flags: 1308 passed, 3 failed. None of the failures are in B code or tests:
+  1. `tests/I/test_intent.py::test_flag_off_by_default`: fails whenever GV_INTENT=1 is exported. This is expected from the test's own premise.
+  2. `tests/I/test_intent.py::test_drug_typos_are_never_repaired_here`: fails with GV_FUZZY=1. `core/intent.py:271` repairs `simvastain` -> `simvastatin` through A's `suggest()` on purpose, but the test does not pin GV_FUZZY off.
+  3. `tests/C/test_adaptive.py::test_ask_routes_the_corrected_question`: fails with GV_INTENT=1. The route gets the canonical "Does clopidogrel interact with aspirin?" instead of the fuzzy-swapped original, and the test does not pin GV_INTENT off.
+  All three are test-isolation gaps. None of them is a router or I4 behaviour bug.
+- **Class:** Advances
+- **Plan:** advances D-040 (parts 1-3 + intent), G5 readiness; no invariant touched
+- **Contract impact:** none
+- **Affects:** I: items 1-2 in #19 (monkeypatch the flags in those tests). C: item 3 (`monkeypatch.delenv("GV_INTENT")` in test_adaptive). Messages sent. A, D: nothing.
+- **Demo impact:** none. These are test-only failures, and they happen only when the flags are exported to the whole suite.
+- **Tests:** `make test` on B branch exit 0, 1293 passed. Merge results as above. Eval not re-run (PR #20 not merged yet).
+- **Inbox:** no new messages. New LOG: A-035 (nothing for B). No new DECISIONS (still D-042).
+- **Next:** after PR #20 merges, run the flags-on suite and eval on main. Hold for 18:00 ON/OFF and G5 freeze.
