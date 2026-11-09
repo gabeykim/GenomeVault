@@ -740,3 +740,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on rebased branch: exit 0, 1160 passed.
 - **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037, no new proposals. No FREEZE, no STOP.
 - **Next:** PR #10 merge at G4; re-push only if main changes code. Then hold for freeze and answer inbox requests.
+
+### B-058 · 2026-11-08 · commit `ccf2c4f` (PR #10) · PLAN v1.3.4
+
+- **Change:** `core/router.py` `route()`: when the question names drug pairs and none of them has a fact or a flag on that exact pair, the answer is `no_data` (NO_DATA_TEXT, or OFFLINE_TEXT when offline), with no facts. Before, a flag sharing one drug made "Is pantoprazole okay with my lisinopril?" answer `known` with LOCAL_TEXT ("checked on your device"). Substitution questions ("naproxen instead of ibuprofen", "rather than", "switch") keep the old rule, as pinned by `test_covering_class_rule_flag_is_known_even_with_out_of_partition_pair`. 3 new tests in `tests/B/test_app_path.py` (uncovered pair online, offline, and `clopidogrel|pantoprazole` still `known`).
+- **Why:** owner report `20261108-1645-from-human-uncovered-pair-reads-checked.md`: "checked" reads as "nothing found", the reassurance I4/I7 forbid. A judge can type exactly this kind of pair.
+- **Class:** Advances (bug fix, allowed under G5 rules)
+- **Plan:** advances I4, I7, P6.1; no invariant weakened (one is tightened)
+- **Refinements:** a named pair is "taken together" unless the question uses substitution wording (instead of / rather than / in place of / replace / switch).
+- **Contract impact:** none (same Answer fields and states)
+- **Affects:** C: nothing to change. merge already shows the no_data lead and still lists high flags ("Separately, your flagged items X1 and X2 ..."). D: I4 eval unchanged; gate re-run green. I: PR #10 now carries this fix (head `ccf2c4f`), please merge before freeze.
+- **Demo impact:** an off-list pair typed live now reads "no data" instead of "checked". No S-beat script changes.
+- **Tests:** `make test` exit 0, 1163 passed. `make eval DEMO=1 && python -m eval.gate`: 22 pass, 0 warn, 0 fail (generated docs/eval files reverted, not committed).
+- **Next:** hold PR #10 for merge; answer inbox until G5 freeze (18:30).

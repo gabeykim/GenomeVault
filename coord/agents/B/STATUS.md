@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-057 PR #10 re-checked on d88ebdc, 1160 passed, no re-push (head a68211a)
+current_task: B-058 I4 fix, uncovered named pair answers no_data (PR #10 head ccf2c4f), 1163 passed, gate 22/0/0
 branch: agent/B-privacy-router
-last_commit: a68211a
+last_commit: ccf2c4f
 last_seen:
-  plan_version: "1.3.3"
-  decisions: D-037
-  logs: {A: 30, B: 57, C: 27, D: 15}
+  plan_version: "1.3.4"
+  decisions: D-038
+  logs: {A: 30, B: 58, C: 28, D: 15}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -41,6 +41,8 @@ handled_messages:
   - 20261108-1600-from-D-strict-reading.md
   - 20261108-1605-from-integrator-g3-passed.md
   - 20261108-1617-from-D-sync-line.md
+  - 20261108-1638-from-integrator-g4-passed.md
+  - 20261108-1645-from-human-uncovered-pair-reads-checked.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -78,4 +80,8 @@ notes: >
   B-055: main moved only by coord reports (61e7c0a, f18a179). Re-tested locally (exit 0, 1160 passed); PR #10 left at a68211a (2/2 checks green), no re-push.
   B-056: main moved only by coord reports (c095b5a, a1e2851). Re-tested locally (exit 0, 1160 passed); PR #10 left at a68211a (2/2 checks green), no re-push.
   B-057: main moved only by coord reports (eca9e08, d88ebdc). Re-tested locally (exit 0, 1160 passed); PR #10 left at a68211a (2/2 checks green), no re-push.
-next: PR #10 for the integrator before G4 (18:15). Then answer inbox requests until G5 freeze
+  B-058: G4 passed (D-038, PLAN v1.3.4). Owner report fixed (I4): a named pair with no fact and no flag on that exact pair
+  ("pantoprazole with my lisinopril") now answers no_data / OFFLINE_TEXT instead of LOCAL_TEXT "checked on your device".
+  Substitution questions ("instead of") unchanged. Commit ccf2c4f on PR #10, make test exit 0, 1163 passed, eval gate 22/0/0.
+  C needs no merge change (high flags still listed under no_data).
+next: PR #10 (now with the I4 fix) for the integrator before G5 freeze (18:30). Then answer inbox requests
