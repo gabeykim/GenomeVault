@@ -1,0 +1,1 @@
+FREEZE for demo-v1 (2026-11-08 17:49). All agent loops stop here (AGENTS.md 4). Bug fixes only. The integrator loop continues for post-freeze fixes. The demo runs on the demo-v1 tag; #19 (GV_INTENT/GV_DIRECT) is held until after demo-v1.
