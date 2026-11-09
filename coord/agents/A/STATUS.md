@@ -1,13 +1,13 @@
 agent: A
 state: done     # working | blocked | waiting-review | done | not-started
-current_task: Holding for G5. Branch agent/A-data-rules rebased onto main 8960441 and pushed; it has no diff against main. make test exit 0, 1177 passed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
+current_task: Holding for G5. Branch agent/A-data-rules rebased onto main c7f159f and pushed; it has no diff against main. make test exit 0, 1177 passed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
 branch: agent/A-data-rules
-last_commit: 7b3ad75 (merged via 81aa06e); branch tip = main 8960441
+last_commit: 7b3ad75 (merged via 81aa06e); branch tip = main c7f159f
 pr: "#9 merged. No open A PR."
 last_seen:
   plan_version: "1.3.4"
   decisions: D-039
-  logs: {A: 30, B: 59, C: 28, D: 16}
+  logs: {A: 30, B: 60, C: 28, D: 16}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -44,9 +44,10 @@ dropped:
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
 open_questions: []
 notes: >
-  This cycle: PLAN still v1.3.4 and the newest decision is still D-039. No new inbox messages, LOG entries or proposals for A.
-  The only new commit on main is PR #13 (D-039: .devcontainer + README "Try the demo"). It is repo config with no A impact.
-  No FREEZE, no STOP. Rebased onto main 8960441, make test exit 0 (1177 passed), pushed agent/A-data-rules (it equals main).
+  This cycle: PLAN still v1.3.4 and the newest decision is still D-039. No new inbox messages or proposals for A.
+  New since last cycle: B-060 (PR #15, a B test pinning GV_COVER_INTERVAL_S=20 for D-039) and D's PR #14 note (docs/slides headers).
+  Both are outside A's area and need nothing from A. The only new commits on main are coordination files.
+  No FREEZE, no STOP. Rebased onto main c7f159f, make test exit 0 (1177 passed), pushed agent/A-data-rules (it equals main).
   No code change, so there is no new LOG entry.
 next: >
   Hold new code until G5 freeze (18:30). Answer demo-critical requests from B, C, D or the integrator in A's area
