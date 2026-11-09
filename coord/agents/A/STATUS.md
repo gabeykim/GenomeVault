@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: A-023 G3 rehearsal on current heads (#4 4bd66e2, #5 f483847, #7 079fe75, #8 ff5a93c) over main c2518bc (PLAN v1.3.2). Clean octopus merge; make test 1158 passed, 0 skipped; make eval DEMO=1 gate table 22 pass, 0 warn, 0 fail (E4d included).
+current_task: A-024 standalone `python -m eval.gate` on integrated heads (#4 4bd66e2, #5 f483847, #7 91a39b7, #8 ff5a93c) over main f51ae85. Clean octopus merge; make test 1158 passed, 0 skipped; eval.gate 22 pass, 0 warn, 0 fail (on #4's committed results; sandbox refused DEMO=1 make eval).
 branch: agent/A-data-rules
 last_commit: f483847
-pr: "#5 (open) agent/A-data-rules -> main: queue 8 key_state/no_data_keys + A-008 universe names + A-009 PharmCAT path + A-010 genotype sweep + A-011 allergy engine + A-012 VLM capture + A-013 label warnings + A-014 combo strengths + A-015 G3 label test + A-016 eval-query/handoff tests + A-017 shared label set tests + A-018 app real-path tests. Rebased on origin/main 48c182d, make test green (1078 passed, 2 skipped). Merges cleanly with #4, #7, #8 on their current heads over main c2518bc (1158 passed, 0 skipped integrated; eval gate 22/0/0)."
+pr: "#5 (open) agent/A-data-rules -> main: queue 8 key_state/no_data_keys + A-008 universe names + A-009 PharmCAT path + A-010 genotype sweep + A-011 allergy engine + A-012 VLM capture + A-013 label warnings + A-014 combo strengths + A-015 G3 label test + A-016 eval-query/handoff tests + A-017 shared label set tests + A-018 app real-path tests. Rebased on origin/main 48c182d, make test green (1078 passed, 2 skipped). Merges cleanly with #4 4bd66e2, #7 91a39b7, #8 ff5a93c over main f51ae85 (1158 passed, 0 skipped integrated; python -m eval.gate 22/0/0)."
 last_seen:
   plan_version: "1.3.2"
   decisions: D-035
-  logs: {A: 23, B: 39, C: 24, D: 13}
+  logs: {A: 24, B: 40, C: 24, D: 13}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -38,9 +38,10 @@ dropped:
 open_questions:
   - "To human: a live VLM check on real photos needs Ollama + qwen2.5vl:7b running on this machine (to-human 1523). Optional."
 notes: >
-  A-023: no code change. Rebased and force-pushed PR #5 (f483847, same code as 1349212). Re-ran the G3 rehearsal on a
-  throwaway worktree (removed, nothing pushed): make test 1158/0 skipped, make eval DEMO=1 gate table 22/0/0.
-  python -m eval.gate was not run as its own command (sandbox blocked the throwaway cwd).
+  A-024: no code change, PR #5 not re-pushed (main gained only coord commits). On a local temp branch in A's code
+  worktree (deleted, nothing pushed) merged main f51ae85 + #4/#5/#7 91a39b7/#8: make test 1158/0 skipped;
+  python -m eval.gate run standalone: 22/0/0. DEMO=1 make eval was refused by the sandbox, so the gate read #4's
+  committed eval/results.
 next: >
   PR #5 review/merge at G3 (17:30); then re-run A's suite on main. Live VLM run on C's PNGs if the human starts Ollama.
   After that, requests from B, C and D.

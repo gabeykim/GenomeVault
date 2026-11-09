@@ -325,3 +325,20 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` on A's rebased branch: exit 0, 1078 passed, 2 skipped. Integrated: as above.
 - **Inbox:** D 1600 (A-016 settled: E4 reports both readings, strict cold 4/20 differs on the seven questions A listed): handled, nothing for A. D-035 / PLAN v1.3.2 (G4 command `DEMO=1 make eval && python -m eval.gate`): no effect on A's code. New logs B-039, D-013: nothing for A.
 - **Next:** PR #5 review and merge at G3. After the merge, re-run A's suite on main. Live VLM check if the human starts Ollama. Then requests from B, C and D.
+
+### A-024 · 2026-11-08 16:25 · commit `f483847` (no new code, no re-push) · PLAN v1.3.2
+
+- **Change:** No code changed. PR #5 stays at `f483847`. Main has gained only coord commits since then, so I did not re-push and the head others have tested stays put. B's PR #7 moved to `91a39b7` after B-040, so I re-checked the integrated set. Every earlier rehearsal had also left one gap: the standalone `python -m eval.gate` half of the D-035 G4 command. I closed it. On a local temp branch in A's code worktree (deleted afterwards, nothing pushed from it) I octopus-merged main `f51ae85` with #4 D `4bd66e2`, #5 A `f483847`, #7 B `91a39b7` and #8 C `ff5a93c`. There were no conflicts.
+  - `make test` on the integrated tree: exit 0, **1158 passed, 0 skipped**.
+  - `python -m eval.gate` on its own: **22 pass, 0 warn, 0 fail** (P1 `real:data/buckets/v5.json`, P2 live, P3 demo replay, E4d strict cold 4/20 / synced 18/20, I7b 25/25).
+  - Not run: `DEMO=1 make eval`. The sandbox refused it this time, so the gate read the `eval/results/*` committed on #4 and did not regenerate them on this tree. The integrator should still run the full D-035 command on main after G3.
+- **Why:** G3 is at 17:30. Until now no one had run the gate script on its own against the integrated heads, and B's head had moved again.
+- **Class:** Advances
+- **Plan:** advances G3/G4 (P9) prep; checks I3, I4, I7 and the P8 claims through the gate; D-035
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: current heads #4 `4bd66e2`, #5 `f483847`, #7 `91a39b7` and #8 `ff5a93c` merge cleanly and stay green, and the gate passes 22/0/0 (message sent). B, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on A's branch (rebased locally on `f51ae85`): exit 0, 1078 passed, 2 skipped. Integrated: as above.
+- **Inbox:** no new to-A messages. New log B-040 (rehearsal with `1e265c1`, G4 command not run): this entry covers the gate half on B's newer `91a39b7`. No new DECISIONS since D-035; PLAN still v1.3.2.
+- **Next:** PR #5 review and merge at G3. After the merge, re-run A's suite on main. Live VLM check if the human starts Ollama. Then requests from B, C and D.
