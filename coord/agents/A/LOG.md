@@ -468,3 +468,16 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` exit 0, **1229 passed** (+10: 3 assumed, 2 ask, 5 `_sound` pair checks). Checked by hand: simvastatn, omeprazol and zolofft are still assumed, and clopidogral still asks clopidogrel/clonidine/clozapine.
 - **Inbox:** to-A 1710 from I, handled by this change. Read C-029 (Ask input click fix, UI only) and B-064 (already seen): nothing for A.
 - **Next:** hold PR #17 for review. Answer C/D before 17:45, then hold for the G5 freeze.
+
+### A-034 · 2026-11-08 17:20 · commit `7bde586` (PR #17) · PLAN v1.3.6
+
+- **Change:** New `tests/A/test_suggest_swap.py` (4 tests). It pins what `suggest()` gives C's swap: `span` indexes the original typed text, `term` is that substring lowercased, and swapping `assumed` in (by C's `_swap` regex or by span) makes `to_ingredients` find the meant drug. No change to `core/normalize.py`.
+- **Why:** to-A 1708 from C (term must be the typed substring; choices must resolve) and D-041 (shape now fixed). While checking, A found one gap. For a typo inside a hyphenated combo (`lisinoprl-hydrochlorothiazide`), `suggest()` returns the part `lisinoprl` with its span. C's `_swap` uses `(?<![\w-])term(?![\w-])`, which treats the hyphen as part of the word, so the text is left as is. The UI would then say "I'm assuming you mean lisinopril" while the check ran without it. Swapping by `span` recovers both ingredients. The test pins that behavior.
+- **Class:** Advances
+- **Plan:** advances D-040 part 1, D-041; I4 kept (`to_ingredients` untouched)
+- **Contract impact:** none (shape unchanged, as D-041 requires)
+- **Affects:** C: swap by `span` (the safest option), or use `(?<!\w)`/`(?!\w)` boundaries. Either fixes the hyphenated case. Message sent. D: nothing to do. I: PR #17 has one more test-only commit.
+- **Demo impact:** none with the flag off. With `GV_FUZZY=1`, only hyphenated combo typos are affected until C changes `_swap`.
+- **Tests:** `make test` exit 0, **1234 passed** (+4, and +1 from main).
+- **Inbox:** to-A 1708 from C: both notes were already met (answered in to-C 1712). The hyphen gap is now reported. to-A 1709 from I (D-041): noted, shape frozen.
+- **Next:** hold PR #17 for review. Answer C if they change `_swap`. Hold for the 18:00 flag ruling and the G5 freeze.

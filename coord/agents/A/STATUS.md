@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: D-040 part 1, normalize.suggest behind GV_FUZZY (off by default). Sound-alike step added (to-A 1710). Tests green, PR #17 open for review. BRIEF queue 1-8 done.
+current_task: D-040 part 1 done (suggest behind GV_FUZZY, shape frozen by D-041). This cycle added a test-only check of how C swaps a suggestion into the text, and found a hyphen gap in C's _swap. PR #17 open for review. BRIEF queue 1-8 done.
 branch: agent/A-data-rules
-last_commit: 6088d6b (on main 286b49c)
+last_commit: 7bde586 (on main 7853af4)
 pr: "#17 open (D-040 part 1). #9 merged."
 last_seen:
-  plan_version: "1.3.5"
-  decisions: D-040
-  logs: {A: 33, B: 64, C: 29, D: 16}
+  plan_version: "1.3.6"
+  decisions: D-041
+  logs: {A: 34, B: 65, C: 30, D: 16}
   proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
@@ -43,6 +43,8 @@ handled_messages:
   - 20261108-1702-from-I-adaptive-part1.md
   - 20261108-1702-from-C-suggest-shape.md
   - 20261108-1710-from-I-suggest-sound-alikes.md
+  - 20261108-1708-from-C-d040-ui-ready.md
+  - 20261108-1709-from-integrator-d041-suggest-contract.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
@@ -50,12 +52,12 @@ dropped:
 open_questions:
   - "Is GV_FUZZY ON for the demo? Integrator decides at 18:00, once C's part 4 renders it (to-integrator 1706)."
 notes: >
-  This cycle: I's to-A 1710 asked for sound-alike matching. A added _sound() (ph->f, cks/ks/cs->x, ck->k, z->s, y->i, doubles->single).
-  An exact sound match counts as 1 edit, with the look-alike always-ask list and the first-letter rule still on top.
-  plavicks now asks plavix/paxil/taxol, and ibuprophen is assumed to be ibuprofen. Commit 6088d6b, A-033.
-  make test exit 0, 1229 passed (+10). Return shape unchanged: {token, term, span, mode, assumed, choices, not_covered}.
-  Messages sent: to-integrator 1716 (done), to-D 1716 (typo set +5). C has nothing to do.
-  PLAN still v1.3.5, last decision D-040. No FREEZE, no STOP.
+  This cycle: read D-041 (PLAN v1.3.6), which makes the suggest() shape a contract (no key changes until freeze), and C's to-A 1708.
+  Added tests/A/test_suggest_swap.py (4 tests, test-only, normalize.py unchanged). It checks that span indexes the typed text,
+  that term is the typed word lowercased, and that swapping assumed in makes to_ingredients find the meant drug.
+  Found a gap: C's _swap regex (?<![\w-]) skips parts of hyphenated combos (lisinoprl-hydrochlorothiazide), so the banner
+  would claim lisinopril while the check ran without it. Told C to swap by span (to-C 1720). Commit 7bde586, A-034.
+  make test exit 0, 1234 passed. No FREEZE, no STOP.
 next: >
-  Answer C and D if they need a field or change, before 17:45. Rebase PR #17 if main moves.
-  If PR #17 isn't merged by 18:00, the flag stays off. After that, hold for the G5 freeze (18:30).
+  Hold PR #17 for review. If C changes _swap, update the copy in test_suggest_swap.py.
+  18:00: the integrator rules on GV_FUZZY. If PR #17 isn't merged by then, the flag stays off. Then hold for the G5 freeze (18:30).
