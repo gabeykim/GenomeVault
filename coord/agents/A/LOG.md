@@ -454,3 +454,17 @@ Entries use coord/templates/impact-report.md and are numbered A-001, A-002, ...
 - **Tests:** `make test` exit 0, **1219 passed** (the existing suggest tests now also check `term`/`assumed`).
 - **Inbox:** to-A 1702 from C (handled by this change).
 - **Next:** hold PR #17 for review, answer C/D before 17:45, then hold for the G5 freeze.
+
+### A-033 · 2026-11-08 17:16 · commit `6088d6b` (PR #17) · PLAN v1.3.5
+
+- **Change:** `suggest()` now also compares a sound-alike form of the word and of each name (`_sound`: ph→f, cks/ks/cs→x, ck→k, z→s, y→i, then double letters → single). An exact sound match counts as 1 edit. The look-alike always-ask list and the same-first-letter rule for `assumed` still apply on top, so `fenytoin` still asks.
+- **Why:** to-A 1710 from I. `plavicks` returned nothing (3 plain edits from plavix), and `ibuprophen` asked ibuprofen vs bupropion.
+- **Class:** Refines
+- **Plan:** advances D-040 part 1, F2, M3. I4 unchanged: `to_ingredients()` is untouched and a suggestion never reaches a key.
+- **Refinements:** suggest() matching: a sound-alike match (rules above) counts as distance 1.
+- **Contract impact:** none (same return shape).
+- **Affects:** D: the typo set in `tests/A/test_suggest.py` grows by 5 (assumed: ibuprophen, sinthroid, prozak; ask: plavicks, xanacks), which D can reuse for part 5 (message sent). C: nothing to do. I: PR #17 updated (reply sent).
+- **Demo impact:** none with the flag off. With `GV_FUZZY=1`, `plavicks` shows "Did you mean plavix / paxil / taxol" and `ibuprophen` shows the "assuming ibuprofen" banner.
+- **Tests:** `make test` exit 0, **1229 passed** (+10: 3 assumed, 2 ask, 5 `_sound` pair checks). Checked by hand: simvastatn, omeprazol and zolofft are still assumed, and clopidogral still asks clopidogrel/clonidine/clozapine.
+- **Inbox:** to-A 1710 from I, handled by this change. Read C-029 (Ask input click fix, UI only) and B-064 (already seen): nothing for A.
+- **Next:** hold PR #17 for review. Answer C/D before 17:45, then hold for the G5 freeze.
