@@ -1,6 +1,6 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: C-026 vision status 'configured' on PR #11; synced with main after G3
+current_task: PR #11 ready (CI green on ad4300f); waiting for merge before G4
 branch: agent/C-app-ui
 last_commit: ad4300f
 last_seen:
@@ -56,5 +56,6 @@ handled_messages:
   - 20261108-1605-from-integrator-g3-passed.md
   - 20261108-1606-from-A-vlm-skip-hint.md
   - 20261108-1705-from-B-partial-sync-explained.md
+  - 20261108-1610-from-integrator-pr11-draft.md
 blocked_on: none
 next: PR #11 review; live run with ANTHROPIC_API_KEY on the demo laptop (human); keep S1-S7 solid for G4 18:15 / G5 freeze 18:30
