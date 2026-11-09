@@ -22,6 +22,8 @@ Configuration (environment only, never in the repo, AGENTS.md §10):
 - `GV_OFFLINE=1`     force offline mode (F8, E4): nothing is sent, not even demo replay
 - `GV_DELAY_S=lo,hi` random pause before each request, in seconds (default `0.3,2.0` live, `0,0` in
                      demo mode, where nothing leaves the device and a slow demo helps nobody)
+- `GV_DEMO_LIVE_FALLBACK=1` (D-040 part 3, default off) with `DEMO=1`: a bucket with a key missing from
+                     the replay cache is asked live, whole (I5), when a key is set. Forced offline still wins.
 
 Offline mode (F8, queue 9): `offline()` is True when forced (`GV_OFFLINE=1` or `set_offline(True)`).
 Forced offline wins over `DEMO=1`, so the offline demo beat (S6, ibuprofen X5) runs with demo mode on
@@ -36,6 +38,14 @@ router turns into `no_data` (I4: never invent an answer). Record a cache with
 per bucket of the current partition and skips buckets already fully recorded (restartable).
 Vet it with `python -m core.cloud check [<cache_dir>]` (exit 0 = every partition key has an answer
 that passes the I7 wording check).
+
+Demo live fallback (D-040 part 3): with `DEMO=1` and `GV_DEMO_LIVE_FALLBACK=1`, if any requested key
+has no cached answer and `ANTHROPIC_API_KEY` is set, *every* requested topic of the bucket is asked live
+(the whole bucket, never just the missing key, so the request pattern does not single it out, I5),
+with the live delays (P6.4). Cached answers (the reviewed pack, D-027) are kept for keys that have
+one; live answers fill the rest and carry the live source. If the live call fails, the replayed
+answers are returned alone (missing keys read as `no_data`, I4) and `status()` stays demo-online.
+Without the flag, demo mode never touches the network (I8).
 
 I7 filter: every answer, live or replayed, goes through `validator.check_wording`. One that says
 "safe" or tells the reader to start/stop/change a medicine is dropped, so its key reads as `no_data`.
@@ -130,6 +140,11 @@ def demo_mode() -> bool:
     return _truthy(os.environ.get("DEMO", ""))
 
 
+def demo_live_fallback() -> bool:
+    """D-040 part 3: True when `DEMO=1` may fall back to a live call on a cache miss (flag set)."""
+    return demo_mode() and _truthy(os.environ.get("GV_DEMO_LIVE_FALLBACK", ""))
+
+
 def model() -> str:
     return os.environ.get("GV_CLOUD_MODEL", DEFAULT_MODEL)
 
@@ -138,20 +153,22 @@ def ttl_days() -> int:
     return int(os.environ.get("GV_CLOUD_TTL_DAYS", "30"))
 
 
-def delay_range() -> tuple[float, float]:
-    """(lo, hi) seconds of random pause before each request (P6.4). Bad values are an error."""
+def delay_range(live: Optional[bool] = None) -> tuple[float, float]:
+    """(lo, hi) seconds of random pause before each request (P6.4). Bad values are an error.
+    `live` None = follow the mode (demo replay 0,0); True = a real request (demo live fallback)."""
     raw = os.environ.get("GV_DELAY_S")
     if raw is None:
-        return (0.0, 0.0) if demo_mode() else LIVE_DELAY_S
+        live = (not demo_mode()) if live is None else live
+        return LIVE_DELAY_S if live else (0.0, 0.0)
     lo, hi = (float(x) for x in raw.split(","))
     if lo < 0 or hi < lo:
         raise ValueError(f"GV_DELAY_S must be 'lo,hi' with 0 <= lo <= hi, got {raw!r}")
     return lo, hi
 
 
-def pause() -> float:
-    """Sleep a random delay from `delay_range()`; returns the seconds slept (0 when disabled)."""
-    lo, hi = delay_range()
+def pause(live: Optional[bool] = None) -> float:
+    """Sleep a random delay from `delay_range(live)`; returns the seconds slept (0 when disabled)."""
+    lo, hi = delay_range(live)
     if hi <= 0:
         return 0.0
     d = _rng.uniform(lo, hi)
@@ -212,16 +229,39 @@ def ask_bucket(bucket: Bucket, topics: Iterable[Topic]) -> list[Fact]:
     if stray:
         raise ValueError(f"topics outside bucket {bucket.id}: {stray}")
 
-    source, answers = _answers(bucket, topics)
-    # I7: an answer that says "safe" or gives a start/stop instruction is dropped -> no_data (I4)
-    return [_fact(k, text, source) for k, text in answers if check_wording(text)]
-
-
-def _answers(bucket: Bucket, topics: list[Topic]) -> tuple[str, list[tuple[str, str]]]:
-    """(source, [(key, raw non-blank text)]) from demo replay or the live API. No I7 filter."""
     if offline():
         raise CloudUnavailable("offline mode")
     if demo_mode():
+        answers = _demo_answers(bucket, topics)
+    else:
+        source, live = _answers(bucket, topics)
+        answers = [(k, text, source) for k, text in live]
+    # I7: an answer that says "safe" or gives a start/stop instruction is dropped -> no_data (I4)
+    return [_fact(k, text, source) for k, text, source in answers if check_wording(text)]
+
+
+def _demo_answers(bucket: Bucket, topics: list[Topic]) -> list[tuple[str, str, str]]:
+    """[(key, raw text, source)] from replay, plus the live fallback when flagged (D-040 part 3)."""
+    source, replayed = _answers(bucket, topics)
+    out = [(k, text, source) for k, text in replayed]
+    missing = len(out) < len(topics)
+    if not (missing and demo_live_fallback() and os.environ.get("ANTHROPIC_API_KEY")):
+        return out
+    try:
+        live_source, live = _answers(bucket, topics, live=True)   # the whole bucket, never one key (I5)
+    except CloudUnavailable as e:
+        log.warning("cloud: demo live fallback for bucket %s failed (%s); replay only", bucket.id, e)
+        return out
+    have = {k for k, _, _ in out}
+    return out + [(k, text, live_source) for k, text in live if k not in have]
+
+
+def _answers(bucket: Bucket, topics: list[Topic], live: bool = False) -> tuple[str, list[tuple[str, str]]]:
+    """(source, [(key, raw non-blank text)]) from demo replay or the live API. No I7 filter.
+    `live=True` forces the live API even in demo mode (demo live fallback)."""
+    if offline():
+        raise CloudUnavailable("offline mode")
+    if demo_mode() and not live:
         cache = load_cache()
         out = []
         for t in topics:
@@ -238,7 +278,7 @@ def _answers(bucket: Bucket, topics: list[Topic]) -> tuple[str, list[tuple[str, 
     try:
         with httpx.Client(timeout=TIMEOUT_S, transport=_transport) as client:   # one session per bucket
             for t in topics:
-                pause()
+                pause(live=True)
                 text = _ask_live(client, t, api_key)
                 if text.strip():
                     out.append((t.key, text.strip()))
