@@ -1,8 +1,8 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (D-016: figures final after G4; PR #12 at 03fe851 awaiting merge before G5)
+current_task: PR #14 (03fe851, G4 headers) awaiting merge before G5; Codespaces link waits on D-039 boot check
 branch: agent/D-eval
-last_commit: 03fe851
+last_commit: 8dd869c
 last_seen:
   plan_version: "1.3.1"
   decisions: D-034
@@ -69,5 +69,7 @@ handled_messages:
   - 20261108-1610-from-integrator-offline-line-pr12.md
   - 20261108-1705-from-B-sync-before-wifi-off.md
   - 20261108-1638-from-integrator-g4-passed.md
+  - 20261108-1644-from-integrator-codespaces-link.md
+  - 20261108-1700-from-B-uncovered-pair-no-data.md
 blocked_on: none
 next: G4 at 18:15 (DEMO=1 make eval && python -m eval.gate on main); final number pass on deck and submission
