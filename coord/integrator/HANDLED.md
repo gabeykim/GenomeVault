@@ -56,3 +56,6 @@ coord/inbox/to-integrator/20261108-1617-from-D-pr12.md
 coord/inbox/to-integrator/20261108-1619-from-C-pr11-hero.md
 coord/inbox/to-integrator/20261108-1620-from-B-all-open-prs-merge-clean.md
 coord/inbox/to-human/20261108-1622-from-integrator-needs-gabe-g4-prs-all-ready.md
+coord/proposals/20261108-1640-C-codespaces-demo.md
+coord/inbox/to-integrator/20261108-1640-from-C-codespaces-pr13.md
+coord/inbox/to-human/20261108-1644-from-integrator-needs-gabe-merge-pr13.md
