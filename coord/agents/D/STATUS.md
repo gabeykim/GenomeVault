@@ -1,8 +1,8 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: none (D-014 pushed; PR #4 at 3fcab5a; gate 22 pass, 0 warn, 0 fail)
+current_task: PR #12 (3fcab5a, ec1d49b): mark ready when CI is green; then G4 at 18:15
 branch: agent/D-eval
-last_commit: 3fcab5a
+last_commit: ec1d49b
 last_seen:
   plan_version: "1.3.1"
   decisions: D-034
@@ -63,5 +63,10 @@ handled_messages:
   - 20261108-1556-from-integrator-g4-command.md
   - 20261108-1600-from-B-offline-no-data.md
   - 20261108-1602-from-human-vlm-results.md
+  - 20261108-1605-from-C-rehearsal-timings.md
+  - 20261108-1605-from-integrator-g3-passed.md
+  - 20261108-1606-from-A-vlm-skip-hint.md
+  - 20261108-1610-from-integrator-offline-line-pr12.md
+  - 20261108-1705-from-B-sync-before-wifi-off.md
 blocked_on: none
 next: G4 at 18:15 (DEMO=1 make eval && python -m eval.gate on main); final number pass on deck and submission
