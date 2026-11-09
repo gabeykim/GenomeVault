@@ -88,7 +88,7 @@ Not run: not requested; pass --llm or set EVAL_LLM=1. `EVAL_LLM=1 make eval` run
 
 Latency and tokens are **modelled** (constants: {"rules": 5, "kb": 20, "local_llm": 900, "cloud_bucket": 2500, "cloud_full": 3000}, tokens {"bucket_in": 630, "bucket_out": 2000, "full_in": 450, "full_out": 400}, 1440 bytes per bucket). Coverage is the share of questions reaching their expected answer state, not graded quality: pending live judge (coverage reported instead). Note the honest trade-off: hybrid makes far fewer calls, but each bucket carries 8 questions, so token savings are smaller than call savings.
 
-**Live hybrid (live).** No delays: median 4 ms per question, 8 ms when buckets are sent; 11 cloud calls, 11,111 bytes, 0 personal fields.
+**Live hybrid (live).** No delays: median 4 ms per question, 7 ms when buckets are sent; 11 cloud calls, 11,111 bytes, 0 personal fields.
  With delays: not run (EVAL_DELAYS=1 runs it; it waits through real P6.4 delays).
  Demo mode replays the cache, so these times exclude real cloud round trips.
 

@@ -1,6 +1,6 @@
 # GenomeVault: judging draft (AGI House project page)
 
-Paste-ready. Every number is from the G4 dry run on all branches merged with the knowledge pack (`python -m eval.gate`: 20 pass, 0 warn, 0 fail); re-check `slides/numbers.md` after G4 at 18:15.
+Paste-ready. Every number is from G4 on main (D-038: `DEMO=1 make eval && python -m eval.gate`, 22 pass, 0 warn, 0 fail), re-checked by D on main plus PR #12 at 16:45 with the same figures. The label-reading figure was measured by hand on the demo laptop (D-029).
 
 ---
 
