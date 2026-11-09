@@ -246,3 +246,20 @@ def test_warm_up_without_a_model_is_not_reported_warm(monkeypatch, capsys):
 def test_phone_shows_progress_and_downscales_photos():
     js = (app_module.PHONE_DIR / "phone.js").read_text()
     assert "Reading the label on this laptop" in js and "downscale(" in js
+
+
+# ---------- GitHub Codespaces demo link ----------
+
+def test_phone_url_in_a_codespace(monkeypatch):
+    monkeypatch.delenv("GV_PHONE_URL", raising=False)
+    monkeypatch.setenv("CODESPACE_NAME", "fluffy-space-1234")
+    monkeypatch.setenv("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN", "app.github.dev")
+    assert app_module._phone_url() == "https://fluffy-space-1234-8000.app.github.dev/phone"
+    monkeypatch.setenv("GV_PHONE_URL", "https://192.168.1.20:8443/phone")   # the laptop script wins
+    assert app_module._phone_url() == "https://192.168.1.20:8443/phone"
+
+
+def test_phone_url_empty_elsewhere(monkeypatch):
+    for k in ("GV_PHONE_URL", "CODESPACE_NAME", "GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN"):
+        monkeypatch.delenv(k, raising=False)
+    assert app_module._phone_url() == ""

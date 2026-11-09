@@ -433,7 +433,19 @@ def sync_status() -> dict:
 # The phone reaches the laptop over the local network, and this app holds the whole profile. So any
 # request that isn't from this machine needs the pairing code shown on the laptop (Actions tab).
 PHONE_CODE = (os.environ.get("GV_PHONE_CODE") or secrets.token_hex(3)).upper()
-PHONE_URL = os.environ.get("GV_PHONE_URL", "")          # set by phone/serve_https.sh
+def _phone_url() -> str:
+    """Where the phone opens /phone. phone/serve_https.sh sets GV_PHONE_URL on a laptop; in a GitHub
+    Codespace (the README's "Open in Codespaces" link) the forwarded HTTPS address is known from the
+    environment. Nothing is looked up over the network (I2)."""
+    if os.environ.get("GV_PHONE_URL"):
+        return os.environ["GV_PHONE_URL"]
+    name, domain = os.environ.get("CODESPACE_NAME"), os.environ.get("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN")
+    if name and domain:
+        return f"https://{name}-{os.environ.get('GV_PORT', '8000')}.{domain}/phone"
+    return ""
+
+
+PHONE_URL = _phone_url()
 PAIR_COOKIE = "gv_pair"
 _LOCAL = {"127.0.0.1", "::1", "localhost", "testclient"}
 _OPEN_PATHS = ("/phone", "/phone-assets/", "/api/phone/pair")
