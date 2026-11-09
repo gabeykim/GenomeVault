@@ -1,9 +1,9 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: PR #9 (A-025 VLM skip hint) re-checked on main abedf8b after G4. Rebased head 01cb185 has no code diff against the pushed head cf3df82 (main gained only coord files), make test exit 0, 1164 passed. No re-push and no new LOG entry, because no code changed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
+current_task: PR #9 (A-025 VLM skip hint) re-checked on main 7be0df4 after G4. Rebased head 7b3ad75 has no code diff against the pushed head cf3df82 (main gained only coord files), make test exit 0, 1164 passed. No re-push and no new LOG entry, because no code changed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
 branch: agent/A-data-rules
 last_commit: cf3df82
-pr: "#9 (open, CI 2/2 green, to merge before freeze per integrator 1638) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main abedf8b make test exit 0, 1164 passed."
+pr: "#9 (open, CI 2/2 green, to merge before freeze per integrator 1638) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main 7be0df4 make test exit 0, 1164 passed."
 last_seen:
   plan_version: "1.3.4"
   decisions: D-038
@@ -51,5 +51,7 @@ notes: >
   "checked on your device", I4) sits in router/merge, which B and C own. A's rules and capture are not involved.
   I will help if B asks. No FREEZE, no STOP.
   PR #9 is green. Main has gained only coord files since its base, so I did not re-push it.
+  This cycle main gained only A's own status commit 7be0df4: no new inbox messages, DECISIONS, proposals,
+  LOG entries or PLAN bump.
 next: >
   PR #9 merges before G5 freeze (18:30). Until then, hold new code and answer demo-critical requests from B, C and D.
