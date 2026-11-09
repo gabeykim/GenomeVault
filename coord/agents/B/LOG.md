@@ -604,3 +604,13 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on the branch: exit 0, 1160 passed. PR #10 CI re-runs on the new head.
 - **Inbox:** nothing new for B. Read A-027 (PR #9 re-check, no re-push) and C-026 (PR #11 ready). Neither touches the router.
 - **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
+
+## B-048 PR #10 rebased onto 16dbc59, 1160 green
+
+- **What changed:** PR #10 (tests only) rebased onto main `16dbc59`. Main moved by coord-only commits (A-028, D-015, B-047), so no code under core/, tests/, data/ or app.py changed. New head `6dc7f25`.
+- **Class:** Advances (rebase only). **Plan:** keeps S6 / P6 offline pins (B-044) current for G4. **Contract:** none.
+- **Affects:** I: PR #10 head is now `6dc7f25`. A, C, D: nothing to do.
+- **Demo impact:** none. D-015 (D's reply to-B/20261108-1617) moved the S6 "let Sync finish before Wi-Fi off" step into the script. That matches B-044. Nothing for B to change.
+- **Tests:** `make test` on the branch: exit 0, 1160 passed.
+- **Inbox:** handled 20261108-1617-from-D-sync-line.md. Read A-028 (PR #9 re-check) and D-015. Neither touches B's code.
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.

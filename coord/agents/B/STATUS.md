@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-047 PR #10 rebased onto 565cbcb (b1a94ad), 1160 passed; other PR heads unchanged since B-046 merge-clean check
+current_task: B-048 PR #10 rebased onto 16dbc59 (6dc7f25), 1160 passed
 branch: agent/B-privacy-router
-last_commit: b1a94ad
+last_commit: 6dc7f25
 last_seen:
   plan_version: "1.3.3"
   decisions: D-037
-  logs: {A: 27, B: 47, C: 26, D: 14}
+  logs: {A: 28, B: 48, C: 26, D: 15}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -40,6 +40,7 @@ handled_messages:
   - 20261108-1551-from-D-p3-added.md
   - 20261108-1600-from-D-strict-reading.md
   - 20261108-1605-from-integrator-g3-passed.md
+  - 20261108-1617-from-D-sync-line.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -67,4 +68,5 @@ notes: >
   B-046: PR #10 rebased onto main 8946465 (head f8c7fe1), make test exit 0, 1160 passed. Throwaway merge of main + #9 (cf3df82)
   + #10 (f8c7fe1) + #11 (ad4300f) + #12 (3fcab5a, draft): no conflicts, exit 0, 1171 passed. Integrator told.
   B-047: PR #10 rebased onto main 565cbcb (coord-only changes), head b1a94ad, make test exit 0, 1160 passed.
+  B-048: PR #10 rebased onto main 16dbc59 (coord-only changes), head 6dc7f25, make test exit 0, 1160 passed. D-015 put the S6 sync-before-Wi-Fi-off step in the script.
 next: PR #10 for the integrator before G4 (18:15). Then answer inbox requests until G5 freeze
