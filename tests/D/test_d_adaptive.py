@@ -46,3 +46,12 @@ def test_attack_math_on_a_toy_partition():
 def test_adaptive_section_never_touches_core_numbers():
     md = run_all.write_adaptive({"typos": {"status": "skipped", "reason": "x"}, "tail": {"status": "skipped", "reason": "y"}})
     assert "Not run: x." in md and "Not run: y." in md and "numbers.md" in md
+
+
+def test_tail_follows_the_shipping_partition():                 # B-068: E1 scores the tail that ships
+    from core import decoys
+    want = getattr(decoys, "TAIL_VERSION", "tail-v1")
+    assert adaptive.tail_file().name == f"{want}.json"
+    r = adaptive.run_tail()
+    if r["status"] == "ran":
+        assert r["partition"] == want
