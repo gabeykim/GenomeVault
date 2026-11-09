@@ -1,12 +1,12 @@
 agent: B
 state: working     # working | blocked | waiting-review | done | not-started
-current_task: B-064 D-040 part 3 GV_DEMO_LIVE_FALLBACK done (0705cbe on PR #15, 1186 passed); next part 2 GV_TAIL
+current_task: B-065 D-040 part 2 GV_TAIL done (3403f65 on PR #15, 1200 passed); flag ON/OFF decision by 18:00
 branch: agent/B-privacy-router
-last_commit: 0705cbe
+last_commit: 3403f65
 last_seen:
   plan_version: "1.3.5"
   decisions: D-040
-  logs: {A: 30, B: 64, C: 28, D: 16}
+  logs: {A: 30, B: 65, C: 29, D: 16}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -46,6 +46,7 @@ handled_messages:
   - 20261108-1645-from-human-uncovered-pair-reads-checked.md
   - 20261108-1658-from-integrator-adaptive-questions-pending.md
   - 20261108-1702-from-I-adaptive-parts2-3.md
+  - 20261108-1702-from-C-single-and-tail-shape.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -98,4 +99,10 @@ notes: >
   B-064: D-040 accepted (PLAN v1.3.5). Part 3 GV_DEMO_LIVE_FALLBACK in core/cloud.py (0705cbe, PR #15): DEMO=1 + flag + key,
   a cache miss asks the whole bucket live (I5) with live delays; cached answers kept; live failure = replay only; forced offline wins.
   Flag default off. make test exit 0, 1186 passed. C and D told the API.
-next: D-040 part 2 GV_TAIL (tail-v1.json generator, router tail path, consented single send); flag on only if green by 18:00. PR #15 awaiting merge.
+  B-065: D-040 part 2 GV_TAIL (3403f65, PR #15): data/buckets/tail-v1.json (1047 buckets, 8376 keys, built by
+  build_tail_v1.py, seed 20261108) = every drug-drug pair over A's vocabulary + one drug-lab key per ingredient/lab,
+  minus v5. Router: core first, then the tail bucket through every P6 step (ledger bucket_id tail-NNNN). Other bands
+  alias onto the one tail drug-lab key (I3). Cover: fair coin core/tail. single_candidates/send_single as C proposed
+  (ledger bucket_id "single", refused for partition keys). Flag default off. make test exit 0, 1200 passed.
+  Not run: full suite with GV_TAIL=1 exported (sandbox refused). C and D told.
+next: after PR #15 merges, run the full suite + eval with GV_TAIL=1 and GV_DEMO_LIVE_FALLBACK=1; agree flag ON/OFF with the integrator by 18:00.
