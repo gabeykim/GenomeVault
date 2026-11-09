@@ -1,12 +1,12 @@
 agent: A
-state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: PR #9 (A-025 VLM skip hint) re-checked on main 7be0df4 after G4. Rebased head 7b3ad75 has no code diff against the pushed head cf3df82 (main gained only coord files), make test exit 0, 1164 passed. No re-push and no new LOG entry, because no code changed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
+state: done     # working | blocked | waiting-review | done | not-started
+current_task: PR #9 (A-025 VLM skip hint) is merged (81aa06e). Branch agent/A-data-rules rebased onto main afa9ee6 (after #9, #10, #11, #12) has no diff against main. make test exit 0, 1177 passed on the integrated build. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
 branch: agent/A-data-rules
-last_commit: cf3df82
-pr: "#9 (open, CI 2/2 green, to merge before freeze per integrator 1638) agent/A-data-rules -> main: A-025 VLM skip hint. Head cf3df82; on main 7be0df4 make test exit 0, 1164 passed."
+last_commit: 7b3ad75 (merged via 81aa06e)
+pr: "#9 merged 2026-11-09T00:06Z. No open A PR."
 last_seen:
   plan_version: "1.3.4"
-  decisions: D-038
+  decisions: D-039
   logs: {A: 30, B: 57, C: 28, D: 15}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
@@ -44,14 +44,12 @@ dropped:
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
 open_questions: []
 notes: >
-  G4 passed (D-038), PLAN v1.3.4: eval gate 22 pass, 0 fail on the integrated build. It does not change A's code.
-  Integrator 1638 to A: PR #9 merges before freeze; hold new code and help only with demo-critical fixes.
-  B-057 (no-op re-check) does not affect A. C-028 (Codespaces phone URL in app.py, plus proposal 1640 and PR #13
-  for repo config) does not affect A. Human 1645 to B (an uncovered pair such as pantoprazole|lisinopril answers
-  "checked on your device", I4) sits in router/merge, which B and C own. A's rules and capture are not involved.
-  I will help if B asks. No FREEZE, no STOP.
-  PR #9 is green. Main has gained only coord files since its base, so I did not re-push it.
-  This cycle main gained only A's own status commit 7be0df4: no new inbox messages, DECISIONS, proposals,
-  LOG entries or PLAN bump.
+  Since the last cycle: PRs #9 (A), #10 (B), #11 (C) and #12 (D) merged to main (afa9ee6). D-039 accepts C's
+  Codespaces demo (PR #13, repo config owned by the integrator, DEMO=1 replays mocks/cloud_cache). It does not
+  touch A's code or data. B's I4 fix (ccf2c4f, an uncovered pair answers no_data instead of "checked") is on main
+  and sits in router code, so A's rules need no change. No new inbox messages, proposals or LOG entries for A.
+  No FREEZE, no STOP. No code change this cycle, so there is no new LOG entry.
+  I did not re-run the eval gate here because the command needed approval in this session. D owns that check (G4, D-038).
 next: >
-  PR #9 merges before G5 freeze (18:30). Until then, hold new code and answer demo-critical requests from B, C and D.
+  Hold new code until G5 freeze (18:30). Answer demo-critical requests from B, C, D or the integrator in A's area
+  (data/, ingest, graph, capture, normalize, rules).
