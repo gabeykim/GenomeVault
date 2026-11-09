@@ -14,6 +14,7 @@ import importlib
 import importlib.util
 from contextlib import asynccontextmanager
 import os
+import re
 import secrets
 import threading
 import time
@@ -77,6 +78,10 @@ start_cover = _optional("router", "start_cover")                 # B: P6.6 cover
 stop_cover = _optional("router", "stop_cover")
 cover_running = _optional("router", "cover_running")
 sync_pack = _optional("router", "sync_pack")                     # B, D-027: whole knowledge pack, same for everyone
+# D-040 adaptive questions, each behind its owner's flag; with them off (or missing) nothing changes.
+suggest_names = _optional("normalize", "suggest")                # A part 1 (GV_FUZZY): typo -> assumed / choices
+single_candidates = _optional("router", "single_candidates")     # B part 2: keys in neither partition
+send_single = _optional("router", "send_single")                 # B part 4: one topic, only after consent
 COVER = os.environ.get("GV_COVER", "1") != "0"                   # GV_COVER=0 turns it off for local dev
 
 
@@ -182,10 +187,17 @@ class OfflineIn(BaseModel):
 class CheckIn(BaseModel):
     text: str = Field(min_length=1, max_length=200)
     via: Optional[str] = Field(default=None, pattern="^phone$")   # typed on the phone: also shown on the laptop
+    no_assume: bool = False          # D-040 "Not what I meant"
 
 
 class AskIn(BaseModel):
     question: str = Field(min_length=1, max_length=500)
+    no_assume: bool = False          # D-040 "Not what I meant": use the text exactly as typed
+
+
+class SingleIn(BaseModel):
+    question: str = Field(min_length=1, max_length=500)
+    key: str = Field(min_length=3, max_length=120)
 
 
 @app.get("/", include_in_schema=False)
@@ -197,6 +209,7 @@ def index() -> FileResponse:
 def status() -> dict:
     return {"demo": DEMO, "disclaimer": DISCLAIMER, "modules": MODES, "extras": EXTRAS, "cloud": _cloud(),
             "cover": _cover_on(),
+            "adaptive": {"fuzzy": _fuzzy_on(), "single": _single_on()},
             "vision": {"mode": os.environ.get("GV_OCR", "auto").strip().lower(), **VISION}}
 
 
@@ -224,13 +237,72 @@ def _check(drugs: list[Drug]) -> dict:
             "notes": _notes(notes), "no_data": no_data}
 
 
+# ---------- D-040 adaptive questions (C part 4) ----------
+
+def _flag(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def _fuzzy_on() -> bool:
+    return bool(suggest_names) and _flag("GV_FUZZY")
+
+
+def _single_on() -> bool:
+    return bool(single_candidates and send_single)
+
+
+def _suggestions(text: str) -> list[dict]:
+    """A's normalize.suggest, read defensively: [{term, assumed, choices}] for each unmatched drug-like
+    token. Never used to look anything up until it is on screen (I4): assumed names are shown with the
+    answer, choices hold the answer until the user picks."""
+    if not _fuzzy_on():
+        return []
+    try:
+        raw = suggest_names(text) or []
+    except Exception:  # noqa: BLE001 - a suggestion failure must not break the check
+        return []
+    out = []
+    for item in raw:
+        get = item.get if isinstance(item, dict) else (lambda k, i=item: getattr(i, k, None))
+        term = get("term") or get("token")
+        if not term:
+            continue
+        choices = [str(c) for c in (get("choices") or get("options") or []) if c][:3]
+        assumed = get("assumed")
+        out.append({"term": str(term)[:60], "assumed": str(assumed) if assumed else None, "choices": choices})
+    return out
+
+
+def _swap(text: str, term: str, name: str) -> str:
+    return re.sub(rf"(?<![\w-]){re.escape(term)}(?![\w-])", lambda _m: name, text, count=1, flags=re.IGNORECASE)
+
+
+def _adapt(text: str, no_assume: bool) -> tuple[str, list[dict], list[dict]]:
+    """(text to use, assumed [{term, name}], held [{term, choices}]) for one typed check or question."""
+    assumed, held = [], []
+    for sug in _suggestions(text):
+        if sug["assumed"] and not no_assume:
+            text = _swap(text, sug["term"], sug["assumed"])
+            assumed.append({"term": sug["term"], "name": sug["assumed"]})
+        elif sug["choices"] and not sug["assumed"]:
+            held.append({"term": sug["term"], "choices": sug["choices"]})
+    return text, assumed, held
+
+
 @app.post("/api/check")
 def check_drug(body: CheckIn) -> dict:
     """Check one typed drug name against the profile (F2 typed input, F3)."""
-    result = _check(to_ingredients(body.text))
+    text, assumed, held = _adapt(body.text, body.no_assume)
+    if held:   # "Did you mean ...?": nothing is checked until the user picks (D-040)
+        return {"input": body.text, "drugs": [], "flags": [], "notes": [], "no_data": [],
+                "held": True, "choices": held}
+    result = _check(to_ingredients(text))
     if body.via == "phone" and result["drugs"]:
         _record_capture("typed", result)
-    return {"input": body.text, **result}
+    out = {"input": body.text, **result}
+    if assumed:
+        out["assumed"] = assumed
+    return out
 
 
 def _named_drugs(question: str, p: Profile) -> list[Drug]:
@@ -240,13 +312,7 @@ def _named_drugs(question: str, p: Profile) -> list[Drug]:
     return [d for d in to_ingredients(question) if d.ingredient not in on_list]
 
 
-@app.post("/api/ask")
-def ask(body: AskIn) -> dict:
-    """Open question: router decides what (if anything) leaves; merge personalizes locally."""
-    p = load_profile()
-    current = _flags_for(p.meds + _named_drugs(body.question, p), p)
-    answer: Answer = route(body.question, current)
-    _asked.append(body.question)
+def _answer_payload(answer: Answer, current: list[Flag], p: Profile) -> dict:
     return {
         "state": answer.state,
         "text": personalize(answer, current, p),
@@ -255,6 +321,54 @@ def ask(body: AskIn) -> dict:
         "facts": [{**f.model_dump(mode="json"), "label": tier_label(f)} for f in answer.facts],
         "sent_to_cloud": answer.sent_to_cloud,
     }
+
+
+def _single_keys(question: str, current: list[Flag]) -> list[str]:
+    """Keys the question needs that no fixed group covers (B, D-040). Only offered while online."""
+    if not _single_on() or not _cloud()["online"]:
+        return []
+    try:
+        return [str(k) for k in (single_candidates(question, current) or [])][:3]
+    except Exception:  # noqa: BLE001 - no offer is the safe default
+        return []
+
+
+@app.post("/api/ask")
+def ask(body: AskIn) -> dict:
+    """Open question: router decides what (if anything) leaves; merge personalizes locally."""
+    question, assumed, held = _adapt(body.question, body.no_assume)
+    if held:   # "Did you mean ...?": nothing is routed or sent until the user picks (D-040, I4)
+        return {"state": "held", "text": "", "sections": [], "facts": [], "sent_to_cloud": False,
+                "choices": held}
+    p = load_profile()
+    current = _flags_for(p.meds + _named_drugs(question, p), p)
+    answer: Answer = route(question, current)
+    _asked.append(question)
+    out = _answer_payload(answer, current, p)
+    if assumed:
+        out["assumed"] = assumed
+    if answer.state == "no_data":
+        keys = _single_keys(question, current)
+        if keys:   # can't be hidden in a group of 8: ask first, send nothing yet
+            out["consent"] = {"question": question, "keys": keys}
+    return out
+
+
+@app.post("/api/ask/single")
+def ask_single(body: SingleIn) -> dict:
+    """The user said yes to sending one question on its own, not hidden in a group (D-040). The key is
+    re-derived here, so the page can only consent to what the router itself offered."""
+    if not _single_on():
+        raise HTTPException(409, "single send arrives with B's router (D-040)")
+    if not _cloud()["online"]:
+        raise HTTPException(409, "offline: nothing can be sent")
+    p = load_profile()
+    current = _flags_for(p.meds + _named_drugs(body.question, p), p)
+    if body.key not in _single_keys(body.question, current):
+        raise HTTPException(400, "that question doesn't need a single send")
+    answer: Answer = send_single(body.key)
+    _asked.append(body.question)
+    return {**_answer_payload(answer, current, p), "single": True}
 
 
 @app.post("/api/offline")
@@ -471,6 +585,20 @@ async def phone_gate(request: Request, call_next):
         return await call_next(request)
     return JSONResponse({"detail": "pair this phone first: open /phone and enter the code on the laptop"},
                         status_code=401)
+
+
+_UI_PATHS = ("/ui/", "/phone-assets/")
+
+
+@app.middleware("http")
+async def no_stale_ui(request: Request, call_next):
+    """The page and its files are revalidated on every load (their ETag keeps that cheap), so a UI fix
+    shows up on the next reload instead of hiding behind a browser's cached copy."""
+    response = await call_next(request)
+    path = request.url.path
+    if path in ("/", "/phone", "/summary") or path.startswith(_UI_PATHS):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
 
 
 class PairIn(BaseModel):
