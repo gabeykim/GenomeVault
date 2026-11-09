@@ -202,7 +202,9 @@ def suggest(text: str) -> list[dict]:
     """Spelling suggestions for the words in `text` that matched no drug name (D-040 part 1).
 
     Returns [] unless GV_FUZZY=1. Otherwise one dict per suggest-able word, in text order:
-        {"token": str, "span": [start, end], "mode": "assumed" | "ask",
+        {"token": str, "term": str,     # the same word (C reads "term")
+         "span": [start, end], "mode": "assumed" | "ask",
+         "assumed": name | None,        # set only when mode == "assumed"
          "choices": [name, ...],        # 1 to 3, best first; "assumed" has exactly 1
          "not_covered": [name, ...]}    # choices that are real drugs with no GenomeVault tables
     "assumed": one name within 2 edits and nothing meaning another drug within 2 more; the UI
@@ -243,6 +245,7 @@ def suggest(text: str) -> list[dict]:
             for name in near_lookalike:
                 choices += [g for g in groups[name] if g not in choices]
             choices = choices[:MAX_CHOICES]
-        out.append({"token": token, "span": [start, end], "mode": mode, "choices": choices,
+        out.append({"token": token, "term": token, "span": [start, end], "mode": mode,
+                    "assumed": choices[0] if mode == "assumed" else None, "choices": choices,
                     "not_covered": [c for c in choices if names[c] is None]})
     return out

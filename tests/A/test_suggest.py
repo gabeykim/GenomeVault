@@ -68,13 +68,14 @@ def test_flag_off_returns_nothing(monkeypatch):
 def test_assumed_is_the_meant_drug(fuzzy, typed, meant, ingredient):
     s = _one(f"can I take {typed} with food?")
     assert s["mode"] == "assumed" and s["choices"] == [meant] and s["not_covered"] == []
+    assert s["assumed"] == meant and s["term"] == s["token"] == typed
     assert _ings(meant) == [ingredient]
 
 
 @pytest.mark.parametrize("typed,meant", ASK)
 def test_ask_offers_the_meant_name(fuzzy, typed, meant):
     s = _one(typed)
-    assert s["mode"] == "ask"
+    assert s["mode"] == "ask" and s["assumed"] is None
     assert meant in s["choices"] and 1 <= len(s["choices"]) <= 3
 
 
