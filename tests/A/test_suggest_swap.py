@@ -1,27 +1,25 @@
 """D-041 interop: C's UI swaps the suggested name into the typed text and re-runs the exact path.
 
-C-030 swaps `term` case-insensitively on word boundaries, where a hyphen counts as part of the
-word (`(?<![\\w-])term(?![\\w-])`). A swap by `span` must always work; a swap by `term` must work
-for every plain word. These tests pin what `suggest()` gives C so the two don't drift (to-A 1708).
+Since PR #16 and #17 are both on main, these tests run C's real `app._swap` / `/api/check` with
+`GV_FUZZY` on, instead of a copy of C's regex (A-034 kept a copy; it could drift). They pin what
+`suggest()` gives C (to-A 1708) and one property the banner relies on: every name the banner says
+was assumed is a drug the check actually ran on (I4: the user sees what was looked up).
+Local endpoint only: nothing here calls route() or the cloud (I2).
 """
 from __future__ import annotations
 
-import re
-
 import pytest
+from fastapi.testclient import TestClient
 
+import app as app_module
 from core.normalize import suggest, to_ingredients
+
+client = TestClient(app_module.app)    # no `with`: the lifespan (cover traffic) never starts
 
 
 @pytest.fixture
 def fuzzy(monkeypatch):
     monkeypatch.setenv("GV_FUZZY", "1")
-
-
-def _c_swap(text: str, term: str, name: str) -> str:
-    """C's `app._swap` as of C-030 (13374a9)."""
-    return re.sub(rf"(?<![\w-]){re.escape(term)}(?![\w-])", lambda _m: name, text, count=1,
-                  flags=re.IGNORECASE)
 
 
 def _span_swap(text: str, span: list[int], name: str) -> str:
@@ -31,6 +29,12 @@ def _span_swap(text: str, span: list[int], name: str) -> str:
 
 def _ings(text: str) -> list[str]:
     return [d.ingredient for d in to_ingredients(text)]
+
+
+def _check(text: str) -> dict:
+    r = client.post("/api/check", json={"text": text})
+    assert r.status_code == 200, r.text
+    return r.json()
 
 
 PLAIN = [
@@ -50,19 +54,55 @@ def test_term_and_span_name_the_typed_word(fuzzy, typed, meant):
     a, b = s["span"]
     assert typed[a:b].lower() == s["term"]          # span indexes the original text
     assert s["assumed"] == meant
-    assert meant in _ings(_c_swap(typed, s["term"], s["assumed"]))
+    assert meant in _ings(app_module._swap(typed, s["term"], s["assumed"]))
     assert meant in _ings(_span_swap(typed, s["span"], s["assumed"]))
+
+
+@pytest.mark.parametrize("typed,meant", PLAIN)
+def test_app_check_runs_on_the_assumed_name(fuzzy, typed, meant):
+    out = _check(typed)
+    assert [x["name"] for x in out["assumed"]] == [meant]
+    assert meant in [d["ingredient"] for d in out["drugs"]]
 
 
 @pytest.mark.parametrize("typed,meant", HYPHENATED)
 def test_hyphenated_typo_swaps_by_span(fuzzy, typed, meant):
     """A typo inside a hyphenated combo is one part of the word. Swapping by span recovers both
-    ingredients; C's term regex treats the hyphen as part of the word and leaves the text as is."""
+    ingredients, which is what C's swap should match (to-C 1720)."""
     out = suggest(typed)
     fixed = typed
     for s in reversed(out):
         assert s["mode"] == "assumed", s
         fixed = _span_swap(fixed, s["span"], s["assumed"])
     assert _ings(fixed) == meant
-    for s in out:
-        assert _c_swap(typed, s["term"], s["assumed"]) == typed   # documents the gap told to C
+
+
+# C's span swap (`app._apply_swaps`, PR #22, C-031) fixes the hyphen gap. Until it is on main the
+# banner test is an expected failure; once it lands the xfail switches off and the test is plain.
+SPAN_SWAP = hasattr(app_module, "_apply_swaps")
+
+
+@pytest.mark.xfail(not SPAN_SWAP, reason="C's _swap skips a term inside a hyphenated word "
+                   "(to-C 1720); fixed by C's span swap in PR #22", strict=True)
+@pytest.mark.parametrize("typed,meant", HYPHENATED)
+def test_app_banner_names_only_checked_drugs_hyphenated(fuzzy, typed, meant):
+    out = _check(typed)
+    checked = {d["ingredient"] for d in out["drugs"]}
+    for x in out.get("assumed", []):
+        assert x["name"] in checked, (x, sorted(checked))
+    assert set(meant) <= checked, sorted(checked)
+
+
+@pytest.mark.skipif(not SPAN_SWAP, reason="needs C's span swap (PR #22)")
+@pytest.mark.parametrize("typed,meant", HYPHENATED)
+def test_app_apply_swaps_uses_suggest_spans(fuzzy, typed, meant):
+    """C's own swap, fed A's real spans, gives the same ingredients as A's reference span swap."""
+    swaps = [(tuple(s["span"]), s["term"], s["assumed"]) for s in suggest(typed) if s["mode"] == "assumed"]
+    assert _ings(app_module._apply_swaps(typed, swaps)) == meant
+
+
+@pytest.mark.parametrize("typed,_meant", PLAIN)
+def test_flag_off_is_unchanged(monkeypatch, typed, _meant):
+    monkeypatch.delenv("GV_FUZZY", raising=False)
+    out = _check(typed)
+    assert "assumed" not in out and not out.get("held")
