@@ -1,8 +1,8 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: PR #21 (script synced with D-043, bfa1adc) in D-043 merge order; deck v18
+current_task: FREEZE; PR #24 (docs-only script fix for demo-v1, 73f48a1) awaiting merge; waiting for Gabe's main-is-final ping
 branch: agent/D-eval
-last_commit: bfa1adc
+last_commit: 73f48a1
 last_seen:
   plan_version: "1.3.1"
   decisions: D-034
@@ -82,5 +82,7 @@ handled_messages:
   - 20261108-1712-from-B-tail-fix.md
   - 20261108-1721-from-B-tail-v2.md
   - 20261108-1722-from-integrator-d040-confirm-escalated.md
-blocked_on: Gabe's D-040 confirmation before any slide, Q&A or submission change for it
+  - 20261108-1745-from-I-adaptive-on.md
+  - 20261108-1747-from-integrator-hold-demo-recheck.md
+blocked_on: none
 next: G4 at 18:15 (DEMO=1 make eval && python -m eval.gate on main); final number pass on deck and submission

@@ -266,3 +266,15 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** S4 reads the lead line; new typed-question step; S6 pantoprazole wording
 - **Tests:** `DEMO=1 make test` → exit 0 (1292 passed)
 - **Next:** PR #21 merge (in D-043's merge order); re-check figures if #20 lands
+
+### D-021 · 2026-11-08 18:00 · commit `73f48a1` · PR #24 · bug fix under FREEZE
+
+- **Change:** the stage script and the demo and video scripts match the frozen demo-v1 build and the deck. With PR #19 held, S4 reads the "For you" paragraph (no "Four things to raise" lead line), the typo step shows only "I'm assuming you mean aspirin", and "never guesses" quotes the real no-data wording. The opening no longer says "This is Alex" (there is no picture of him), and the script says how to jump slides (4 → 7, 9 → 13). Deck v20 notes match. (Also recorded here, never logged before: D-020's successor commit `0739300`, the opening rewrite, merged with PR #21.)
+- **Why:** FREEZE 17:49 holds #19. D's human owner caught the Alex line and approved the fix.
+- **Class:** Advances (docs-only bug fix)
+- **Plan:** P8
+- **Contract impact:** none
+- **Affects:** none
+- **Demo impact:** S1, S4, the typo step and S6 wording only
+- **Tests:** `DEMO=1 make test` → exit 0 (1311 passed)
+- **Next:** PR #24 merge; re-check the beats when Gabe says main is final
