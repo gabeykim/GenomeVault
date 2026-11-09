@@ -1,6 +1,6 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: C-029 Ask-input click fix on PR #16 (bug fix); Codespaces link merged (#13)
+current_task: D-040 part 4 (adaptive questions UI, behind flags, green by 18:00); shapes proposed to A and B
 branch: agent/C-app-ui
 last_commit: 40cfc17
 last_seen:
@@ -61,5 +61,6 @@ handled_messages:
   - 20261108-1638-from-integrator-g4-passed.md
   - 20261108-1644-from-integrator-codespaces-accepted.md
   - 20261108-1700-from-B-uncovered-pair-no-data.md
+  - 20261108-1702-from-I-adaptive-part4.md
 blocked_on: none
 next: keep S1-S7 and UI stable (bug fixes only after the 18:30 freeze); confirm the Codespaces link once #13 merges; live run with the key (human)
