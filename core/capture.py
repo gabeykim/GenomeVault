@@ -27,13 +27,14 @@ its warnings ("do not take aspirin or ibuprofen") are not added. Typed text (`fr
 name.
 
 The photo goes only to the localhost model (I2). The label text (which can include a name, Rx number
-or pharmacy) never leaves this module: only the `Drug` list is returned, and nothing is logged or
-stored.
+or pharmacy) never leaves this module: only the `Drug` list is returned, and no label text is logged
+or stored. The only log line is a one-time setup hint when the vision model is skipped (`_skip`).
 """
 from __future__ import annotations
 
 import base64
 import json
+import logging
 import os
 import re
 import shutil
@@ -161,23 +162,44 @@ def _mode() -> str:
 def vlm_drugs(data: bytes) -> list[Drug] | None:
     """Drugs read by the local vision model (D-029). `None` if the model is unavailable or its answer
     is not the expected JSON (so the next source runs); `[]` if it read the label but no name is in
-    the table, or the brand and ingredient disagree."""
+    the table, or the brand and ingredient disagree. Each skip reason is logged once (`_skip`)."""
+    model = ""
     try:
         from . import local_llm
         model = getattr(local_llm, "VLM_MODEL", "") or ""
         if not model or model == "set-me":
-            return None
+            return _skip("unset", "no vision model configured: add LOCAL_VLM_MODEL=qwen2.5vl:7b to .env "
+                                  "(see .env.example), so label photos skip the model")
         raw = local_llm.generate(_VLM_PROMPT, images=[base64.b64encode(bytes(data)).decode("ascii")],
                                  format="json", model=model)
+    except Exception as exc:           # not running, old client without images=
+        return _skip("down", f"vision model {model or '?'} did not answer ({type(exc).__name__}); "
+                             "is Ollama running with that model pulled?")
+    try:
         fields = json.loads(raw)
-    except Exception:                  # not configured, not running, old client, bad JSON
-        return None
+    except Exception:
+        fields = None
     if not isinstance(fields, dict):
-        return None
+        return _skip("json", f"vision model {model} did not reply with the expected JSON")
     brand, ingredient = _field(fields.get("brand_name")), _field(fields.get("ingredient"))
     if not brand and not ingredient:
-        return None
+        return None                    # read nothing: a normal outcome, not a setup problem
     return drugs_from_fields(brand, ingredient, fields.get("strength_mg"))
+
+
+_log = logging.getLogger("genomevault.capture")
+_skipped: set[str] = set()
+
+
+def _skip(reason: str, message: str) -> None:
+    """Log once per process why the vision model was skipped. With `GV_OCR=vlm` the user asked for the
+    model, so this is a WARNING (a missing `LOCAL_VLM_MODEL` used to return `[]` in 0.0 s with no
+    hint, to-A 1602); in `auto` it is DEBUG, because running without a model is the normal I8 path.
+    The message names only the setting and the model: never label text or any image content."""
+    if reason not in _skipped:
+        _skipped.add(reason)
+        _log.log(logging.WARNING if _mode() == "vlm" else logging.DEBUG, "capture: %s", message)
+    return None
 
 
 def drugs_from_fields(brand: str, ingredient: str, strength=None) -> list[Drug]:

@@ -159,8 +159,40 @@ function renderConfirm(drugs, source, preview) {
     el("div", { class: "confirm-actions" }, yes, edit));
 }
 
+// Shown while the laptop reads the label (~4 s with the on-device vision model, GV_OCR=vlm).
+function reading(preview) {
+  const secs = el("span", { class: "secs" }, "");
+  const t0 = Date.now();
+  const tick = setInterval(() => {
+    if (!secs.isConnected) { clearInterval(tick); return; }
+    const s = Math.floor((Date.now() - t0) / 1000);
+    secs.textContent = s >= 2 ? ` ${s} s` : "";
+  }, 500);
+  return el("div", { class: "reading", role: "status" },
+    preview ? el("img", { src: preview, alt: "" }) : el("span", {}),
+    el("div", {}, el("span", { class: "spinner", "aria-hidden": "true" }),
+      el("strong", {}, "Reading the label on this laptop…"), secs,
+      el("span", { class: "small mute" }, "Not in the cloud. The photo isn't kept.")));
+}
+
+// Camera photos are large (12 MP+); the model reads a ~1280 px JPEG faster and the upload is smaller.
+// Sample labels go as they are, so their embedded text still works offline (GV_OCR=auto).
+async function downscale(file, max = 1280) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    if (k === 1) return file;
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise((res) => c.toBlob((b) => res(b || file), "image/jpeg", 0.85));
+  } catch {
+    return file;   // older browsers: send the original
+  }
+}
+
 async function sendImage(blob, source, preview) {
-  $("result").replaceChildren(el("p", { class: "note mute" }, "Reading on the laptop…"));
+  $("result").replaceChildren(reading(preview));
   try {
     const data = await api("/api/capture", {
       body: blob, headers: { "Content-Type": blob.type || "application/octet-stream", "X-GV-Source": source },
@@ -175,11 +207,13 @@ async function sendImage(blob, source, preview) {
   }
 }
 
-function onPhoto(ev) {
+async function onPhoto(ev) {
   const file = ev.target.files?.[0];
   if (!file) return;
-  sendImage(file, "photo", URL.createObjectURL(file));   // preview stays on the phone
   ev.target.value = "";
+  const preview = URL.createObjectURL(file);   // preview stays on the phone
+  $("result").replaceChildren(reading(preview));
+  sendImage(await downscale(file), "photo", preview);
 }
 
 async function onSample(ev) {

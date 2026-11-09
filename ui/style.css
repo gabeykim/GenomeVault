@@ -559,3 +559,50 @@ body.offline .strand { opacity: .45; transition: opacity .6s var(--ease); }
 .sync { margin: 0 0 14px; }
 .sync #sync-msg:empty { display: none; }
 .chips .suggestion { font-size: 14px; padding: 10px 0; }
+
+/* ---------- hero: huge centered wordmark that docks into the masthead on scroll ---------- */
+/* --hp = scroll progress through the runway (0..1), --he = the same, eased. JS sets both. */
+:root { --hp: 1; --he: 1; }
+.hero-runway { height: 0; }
+.hero-cap { display: none; }
+.hero-on .hero-runway { height: 92vh; height: 92svh; }
+.hero-on .wordmark { position: relative; z-index: 11; }
+.hero-on .wm { position: relative; z-index: 1; will-change: transform; }
+.hero-on .wm-rule { transition: none; transform-origin: center; }   /* JS sets its transform */
+.hero-on:not(.hero-done) .bar { background: transparent; }
+.hero-on .bar > * { opacity: clamp(0, calc((var(--hp) - .55) * 3), 1); }
+.hero-on .strand, .hero-on .disclaimer { opacity: clamp(0, calc((var(--hp) - .6) * 2.5), 1); }
+
+.hero-on .hero-cap {
+  position: fixed; left: 0; right: 0; bottom: 8vh; bottom: 8svh; z-index: 12;
+  display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 0 var(--gutter);
+  text-align: center; pointer-events: none;
+  opacity: clamp(0, calc(1 - var(--hp) * 3.2), 1);
+  transform: translateY(calc(var(--hp) * -60px));
+}
+.hero-on:not(.hero-done) .hero-cap { pointer-events: auto; }
+.hero-done .hero-cap { visibility: hidden; }
+.hero-line { font-size: clamp(16px, 1.7vw, 24px); letter-spacing: -.025em; max-width: 30ch; }
+.hero-note { font-size: 12px; color: var(--mute); }
+.hero-note strong { color: var(--ink); font-weight: 500; }
+.hero-cue {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 10px;
+  border: 0; background: none; cursor: pointer; font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink);
+}
+.hero-cue i { position: relative; display: block; width: 1px; height: 44px; background: var(--line); overflow: hidden; }
+.hero-cue i::after {
+  content: ""; position: absolute; left: 0; top: 0; width: 1px; height: 40%; background: var(--ink);
+  animation: cue 1.6s var(--ease) infinite;
+}
+@keyframes cue { from { transform: translateY(-100%); } to { transform: translateY(260%); } }
+.hero-cue:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+/* the caption and the letters arrive with the intro, not before */
+.hero-on:not(.ready) .hero-cap > * { opacity: 0; }
+body.hero-on.ready .hero-cap > * { animation: cap-in 1s var(--ease-out) both; }
+body.hero-on.ready .hero-cap > :nth-child(1) { animation-delay: .55s; }
+body.hero-on.ready .hero-cap > :nth-child(2) { animation-delay: .7s; }
+body.hero-on.ready .hero-cap > :nth-child(3) { animation-delay: .9s; }
+@keyframes cap-in { from { opacity: 0; transform: translateY(14px); } }
+@media (prefers-reduced-motion: reduce) { .hero-cap { display: none !important; } .hero-runway { height: 0 !important; } }

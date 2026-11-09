@@ -200,3 +200,15 @@ Entries use coord/templates/impact-report.md and are numbered D-001, D-002, ...
 - **Demo impact:** S2, S4 and S6 wording; no clicks added or removed
 - **Tests:** `DEMO=1 make test` → exit 0 (1158 passed) on main merged; `python -m eval.gate` → 22 pass, 0 warn, 0 fail
 - **Next:** PR #12 (3fcab5a + ec1d49b) ready once CI is green; G4 at 18:15
+
+### D-016 · 2026-11-08 16:47 · commit `03fe851` · PLAN v1.3.3
+
+- **Change:** final figure pass after G4 (D-038). Re-ran `DEMO=1 make eval` and `python -m eval.gate` on main plus PR #12: **22 pass, 0 warn, 0 fail**, `slides/numbers.md` unchanged, latency moved by under 1 ms. Every figure in the deck, `slides/pitch.md`, `slides/judge_qa.md`, `docs/submission.md` and both scripts matches it. Headers now cite G4 instead of the dry run, and `docs/G4.md` records the result.
+- **Why:** to-D/20261108-1638-from-integrator-g4-passed.md asked D to finalize the slide figures; D's human owner approved.
+- **Class:** Advances
+- **Plan:** advances P7, P8; G4
+- **Contract impact:** none
+- **Affects:** none
+- **Demo impact:** none
+- **Tests:** `DEMO=1 make test` → exit 0 (1158 passed); gate 22/0/0
+- **Next:** PR #12 merge before G5 (18:30); C's Codespaces link once PR #13 merges and C confirms

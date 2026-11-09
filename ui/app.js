@@ -220,6 +220,89 @@ function watchScroll() {
   onScroll();
 }
 
+// ---------- hero: the wordmark starts huge and centered, then docks into the masthead ----------
+// The runway above the wordmark is one screen of scroll. At its top, GENOME and VAULT are stacked
+// and centered at full width; as it scrolls away they slide together, shrink and lock onto the
+// growing bar, and the page below is exactly the regular homepage. Pure transforms, no layout work.
+
+const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const clamp01 = (t) => Math.min(1, Math.max(0, t));
+const hero = { on: false, R: 0, words: [], frame: 0 };
+
+function measureHero() {
+  const runway = $("hero-runway");
+  hero.R = runway.offsetHeight;
+  const W = innerWidth, H = innerHeight;
+  const words = [...document.querySelectorAll(".wordmark .wm")];
+  for (const w of words) w.style.transform = "none";
+  const y0 = scrollY;
+  const rects = words.map((w) => w.getBoundingClientRect());
+  const h = rects[0].height;
+  // big: the wider word spans ~88% of the screen, and the two lines fit in ~50% of its height,
+  // leaving the lower third for the caption
+  const S = Math.max(1, Math.min((0.88 * W) / Math.max(...rects.map((r) => r.width)), (0.5 * H) / (2 * h)));
+  const gap = 0.02 * h * S;
+  const mid = H * 0.38;
+  hero.words = rects.map((r, i) => ({
+    el: words[i],
+    S,
+    w: r.width,
+    side: i === 0 ? -1 : 1,   // GENOME keeps its left edge on screen, VAULT its right edge
+    // where the word sits when the runway is fully scrolled (the regular homepage), in viewport px
+    fx: r.left + r.width / 2,
+    fy: r.top + y0 - hero.R + r.height / 2,
+    // where it starts: centered, stacked (GENOME above, VAULT below)
+    hx: W / 2,
+    hy: i === 0 ? mid - (h * S) / 2 - gap : mid + (h * S) / 2 + gap,
+  }));
+}
+
+function paintHero() {
+  hero.frame = 0;
+  const p = clamp01(scrollY / (hero.R || 1));
+  const e = ease(p);
+  const k = 1 - e;
+  const ky = 1 - ease(clamp01((p - 0.35) / 0.65));   // stay on two lines until they've shrunk apart
+  const hold = hero.R * (1 - p);      // cancels the scroll so things hold still on screen
+  for (const w of hero.words) {
+    const s = 1 + (w.S - 1) * k;
+    // move the outer edge (left for GENOME, right for VAULT) from its hero spot to its final spot,
+    // so the words slide apart as they shrink and never leave the screen
+    const heroEdge = w.hx + (w.side * w.w * w.S) / 2, finalEdge = w.fx + (w.side * w.w) / 2;
+    const edge = finalEdge + (heroEdge - finalEdge) * k;
+    const tx = edge - (w.side * w.w * s) / 2 - w.fx;
+    const ty = (w.hy - w.fy) * ky - hold;
+    w.el.style.transform = p >= 1 ? "none" : `translate3d(${tx}px, ${ty}px, 0) scale(${s})`;
+  }
+  // the bar waits at its final spot and grows from the middle; the words dock onto it
+  const rule = document.querySelector(".wordmark .wm-rule");
+  const grow = ease(clamp01((p - 0.5) / 0.5));   // only once the words are close
+  if (rule) rule.style.transform = p >= 1 ? "none" : `translate3d(0, ${-hold}px, 0) scaleX(${grow})`;
+  const root = document.documentElement.style;
+  root.setProperty("--hp", p.toFixed(4));
+  root.setProperty("--he", e.toFixed(4));
+  document.body.classList.toggle("hero-done", p >= 1);
+}
+
+function queueHero() { if (!hero.frame) hero.frame = requestAnimationFrame(paintHero); }
+
+function initHero() {
+  const skip = REDUCED || TABS.includes(location.hash.slice(1));
+  if (REDUCED) return;                      // reduced motion: the regular homepage, no runway
+  document.body.classList.add("hero-on");
+  measureHero();
+  if (skip) {                               // deep link (#ask, #actions...): straight to the app
+    try { history.scrollRestoration = "manual"; } catch { /* sandbox */ }
+    scrollTo(0, hero.R);
+    addEventListener("load", () => { if (scrollY < hero.R) scrollTo(0, hero.R); paintHero(); }, { once: true });
+  }
+  paintHero();
+  addEventListener("scroll", queueHero, { passive: true });
+  addEventListener("resize", () => { measureHero(); paintHero(); });
+  $("hero-cue").addEventListener("click", () => scrollTo({ top: hero.R, behavior: "smooth" }));
+  hero.on = true;
+}
+
 // ---------- profile ----------
 
 function plist(items) { return el("ul", { class: "plist" }, items); }
@@ -816,7 +899,10 @@ function initTabs() {
     ev.preventDefault();
     selectTab(TABS[next], { focus: true });
   });
-  addEventListener("hashchange", () => selectTab(location.hash.slice(1), { push: false }));
+  addEventListener("hashchange", () => {
+    selectTab(location.hash.slice(1), { push: false });
+    if (hero.on && scrollY < hero.R) scrollTo({ top: hero.R, behavior: "smooth" });
+  });
   selectTab(location.hash.slice(1), { push: false });
 }
 
@@ -851,6 +937,7 @@ function boot() {
   buildStrand();
   watchScroll();
   initTabs();
+  initHero();
   $("net").addEventListener("click", toggleOffline);
   $("sync-btn").addEventListener("click", startSync);
   renderActions();

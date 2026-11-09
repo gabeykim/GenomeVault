@@ -117,3 +117,14 @@ def test_ui_never_says_safe():  # I7
 def test_ui_loads_no_external_assets():  # I8: demo must work with no network
     assert not re.search(r"(src|href)\s*=\s*[\"']?(https?:)?//", _ui_text())
     assert "@import" not in _ui_text()
+
+
+def test_hero_keeps_the_disclaimer_and_degrades_without_motion():
+    """The full-screen title (hero) still shows the disclaimer up front, and reduced motion skips it."""
+    html = (app_module.UI_DIR / "index.html").read_text()
+    hero = html[html.index('id="hero-cap"'):html.index('<h1 class="wordmark"')]
+    assert "Demo, not medical advice" in hero
+    css = (app_module.UI_DIR / "style.css").read_text()
+    assert ".hero-runway { height: 0 !important; }" in css      # prefers-reduced-motion
+    js = (app_module.UI_DIR / "app.js").read_text()
+    assert "if (REDUCED) return;" in js and "function initHero" in js

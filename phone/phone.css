@@ -112,3 +112,13 @@ section, .screen { animation: rise .7s var(--ease-out) both; }
 
 ::selection { background: var(--ink); color: var(--paper); }
 .camera:focus-within, .sample:focus-visible, .line-btn:focus-visible, .line-form button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* reading a label (~4 s with the on-device vision model) */
+.reading { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--ink); }
+.reading img { width: 56px; height: 56px; object-fit: cover; background: var(--paper-2); border: 1px solid var(--line); }
+.reading strong { font-weight: 500; font-size: 16px; }
+.reading .secs { font-variant-numeric: tabular-nums; color: var(--mute); }
+.reading .small { display: block; margin-top: 2px; }
+.spinner { display: inline-block; width: 12px; height: 12px; margin-right: 8px; vertical-align: -1px;
+  border: 2px solid var(--line); border-top-color: var(--ink); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
