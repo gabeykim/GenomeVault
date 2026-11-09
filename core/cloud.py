@@ -240,6 +240,37 @@ def ask_bucket(bucket: Bucket, topics: Iterable[Topic]) -> list[Fact]:
     return [_fact(k, text, source) for k, text, source in answers if check_wording(text)]
 
 
+def ask_single(topic: Topic) -> Optional[Fact]:
+    """D-040 part 2, consented single send: ONE generalized topic on its own, NOT hidden in a bucket.
+    Only the router's `send_single` calls this, after the user said yes and the leakage check passed.
+    Demo mode replays the cache and goes live only with GV_DEMO_LIVE_FALLBACK and a key. Same I7 filter.
+    Returns None when there is no usable answer; raises CloudUnavailable if nothing could be sent."""
+    if offline():
+        raise CloudUnavailable("offline mode")
+    if demo_mode():
+        cached = load_cache().get(topic.key, "").strip()
+        if cached:
+            pause()
+            return _fact(topic.key, cached, "cloud-cache:single") if check_wording(cached) else None
+        if not (demo_live_fallback() and os.environ.get("ANTHROPIC_API_KEY")):
+            return None
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise CloudUnavailable("ANTHROPIC_API_KEY not set")
+    global _last_failure
+    try:
+        with httpx.Client(timeout=TIMEOUT_S, transport=_transport) as client:
+            pause(live=True)
+            text = _ask_live(client, topic, api_key).strip()
+    except httpx.HTTPError as e:
+        _last_failure = type(e).__name__
+        raise CloudUnavailable(f"cloud call failed: {type(e).__name__}") from e
+    _last_failure = None
+    if not text or not check_wording(text):
+        return None
+    return _fact(topic.key, text, f"cloud:{model()}")
+
+
 def _demo_answers(bucket: Bucket, topics: list[Topic]) -> list[tuple[str, str, str]]:
     """[(key, raw text, source)] from replay, plus the live fallback when flagged (D-040 part 3)."""
     source, replayed = _answers(bucket, topics)

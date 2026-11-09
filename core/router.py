@@ -22,6 +22,13 @@ The question text itself never leaves the device. It is read locally only, to fi
 user names directly (e.g. "clopidogrel and pantoprazole") so they can be answered by exact key.
 A key outside the bucket universe is never sent and gets no fact (I4/I5: `no_data`).
 
+Long tail (D-040 part 2, `GV_TAIL=1`, default off): a key the core partition does not hold but the
+long-tail partition (data/buckets/tail-v1.json: every drug-drug pair over A's ingredient vocabulary, one
+drug-lab key per ingredient and lab) does is sent in its tail bucket of 8 through the same steps 3-8
+(ledger bucket_id `tail-NNNN`). Core first. Cover ticks pick core or tail by a fair coin. A key in neither
+stays `no_data`; `single_candidates` / `send_single` offer a consented, NOT hidden single send for it
+(ledger bucket_id `single`).
+
 Offline (F8): when cloud.offline() is forced, steps 3-8 are skipped entirely: no generalizing, no
 ledger entry, 0 bytes. KB and local answers still work; anything else is `no_data` with OFFLINE_TEXT.
 If a send fails mid-question (network down), the remaining buckets are not tried.
@@ -42,11 +49,13 @@ import random
 import re
 import threading
 from datetime import date
+from functools import lru_cache
 from typing import Optional
 
 from . import cloud, kb, ledger
-from .contracts import Answer, Fact, Flag, LedgerEntry, Profile, Topic, pair_key
-from .decoys import aliases_of, bucket_for, load_aliases, load_buckets, universe
+from .contracts import Answer, Bucket, Fact, Flag, LedgerEntry, Profile, Topic, pair_key
+from .decoys import (aliases_of, bucket_for, load_aliases, load_buckets, tail_bucket_for, tail_enabled,
+                     tail_member, tail_universe, universe)
 from .generalize import generalize, topic_for_key
 from .validator import _key_drugs, leaks
 
@@ -72,7 +81,27 @@ def _vocab() -> set[str]:
     vocab: set[str] = set()
     for k in universe():
         vocab |= _key_drugs(k)
+    if tail_enabled():   # D-040 part 2: A's whole ingredient vocabulary is named, not only the core's
+        vocab |= _tail_vocab()
     return vocab
+
+
+@lru_cache(maxsize=1)
+def _tail_vocab() -> frozenset[str]:
+    out: set[str] = set()
+    for k in tail_universe():
+        out |= _key_drugs(k)
+    return frozenset(out)
+
+
+@lru_cache(maxsize=1)
+def _tail_lab_keys() -> tuple[str, ...]:
+    return tuple(k for k in tail_universe() if _key_lab(k) is not None)
+
+
+def _in_partition(key: str) -> bool:
+    """The core partition holds the key, or (GV_TAIL) the long-tail partition does."""
+    return bucket_for(key) is not None or (tail_enabled() and tail_member(key) is not None)
 
 
 def _normalized(question: str) -> set[str]:
@@ -144,6 +173,8 @@ def _subject_keys(question: str, flags: list[Flag], profile: Optional[Profile]) 
         flag_drugs |= _key_drugs(f.key)
     covered = {(_key_gene(f.key) or _key_lab(f.key), d) for f in flags for d in _key_drugs(f.key)}
     space = list(universe()) + list(load_aliases())
+    if tail_enabled():
+        space += list(_tail_lab_keys())   # gene keys stay core-only; the tail adds drug-lab keys
     if profile is not None and named:
         assessed = {g.upper() for g, v in profile.genotypes.items() if v and v != "not_assessed"}
         genes_named = bool(words & _GENE_WORDS) or bool({w.upper() for w in words} & assessed)
@@ -175,10 +206,13 @@ class _Offline(Exception):
     pass
 
 
-def _send_bucket(bucket_id: str, profile: Profile, kind: str = "bucket") -> tuple[list[Fact], LedgerEntry]:
+def _send_bucket(bucket_id: str, profile: Profile, kind: str = "bucket",
+                 bucket: Optional[Bucket] = None) -> tuple[list[Fact], LedgerEntry]:
     """Send one whole fixed bucket (`kind` "bucket" or "cover"). Returns (facts, ledger entry). Blocked
-    sends return no facts and a `blocked` entry; raises _Offline if the cloud is unreachable (nothing left, no ledger entry)."""
-    bucket = next(b for b in load_buckets() if b.id == bucket_id)
+    sends return no facts and a `blocked` entry; raises _Offline if the cloud is unreachable (nothing left, no ledger entry).
+    `bucket` passes a long-tail bucket (D-040 part 2); core buckets are looked up by id."""
+    if bucket is None:
+        bucket = next(b for b in load_buckets() if b.id == bucket_id)
     topics: list[Topic] = [topic_for_key(k) for k in bucket.keys]
     texts = [t.text for t in topics]
     allow: set[str] = set()
@@ -220,7 +254,7 @@ def route(question: str, flags: list[Flag]) -> Answer:
     flag_covers = any(covers(f) for f in flags)
     # A flag that asks the cloud, or an asked key the partition can answer, left unanswered keeps the
     # answer at no_data (I4). Asked keys outside the partition are never sent and do not hold it back.
-    open_keys = [k for k in wanted if k not in asked or bucket_for(k) is not None]
+    open_keys = [k for k in wanted if k not in asked or _in_partition(k)]
 
     if not wanted:  # P6.1: nothing to look up
         ledger.record("local_only")
@@ -232,6 +266,9 @@ def route(question: str, flags: list[Flag]) -> Answer:
     missing: list[str] = []
     for k in wanted:  # P6.2
         f = _kb_get(k, today)
+        if f is None and tail_enabled() and (m := tail_member(k)) not in (None, k):
+            f = _kb_get(m, today)   # another band of a tail drug-lab key: same topic, same answer (I3)
+            f = f.model_copy(update={"key": k}) if f is not None else None
         if f is not None:
             found[k] = f
         else:
@@ -247,15 +284,21 @@ def route(question: str, flags: list[Flag]) -> Answer:
     done: set[str] = set()
     for k in missing:  # P6.3-5, 7, 8
         b = bucket_for(k)
+        if b is None and tail_enabled():   # D-040 part 2: core first, then the long-tail partition
+            b = tail_bucket_for(k)
         if b is None or b.id in done:
             continue
         done.add(b.id)
         try:
-            facts, entry = _send_bucket(b.id, profile)
+            facts, entry = _send_bucket(b.id, profile, bucket=b)
         except _Offline:
             is_offline = True
             break
         sent = sent or entry.kind != "blocked"
+        if tail_enabled():   # a tail drug-lab key asked with another band gets its member's answer
+            by_key = {f.key: f for f in facts}
+            facts = facts + [by_key[m].model_copy(update={"key": q}) for q in missing
+                             if (m := tail_member(q)) not in (None, q) and m in by_key]
         _kb_put(facts)  # store all 8 answers
         for f in facts:
             if f.key in missing:
@@ -283,6 +326,59 @@ def route(question: str, flags: list[Flag]) -> Answer:
     return Answer(state="known", text=text, facts=facts, sent_to_cloud=sent)
 
 
+# D-040 part 2: consented single send (C's dialog) -------------------------------------------------
+
+SINGLE_BUCKET_ID = "single"   # ledger: a `bucket` entry with this id = "Single question sent, not hidden"
+
+
+def single_candidates(question: str, flags: list[Flag]) -> list[str]:
+    """Keys the question needs that neither the core nor the tail partition holds, that have no fact
+    yet and that generalize to a Topic. [] when GV_TAIL is off. Local parse only; nothing is sent."""
+    if not tail_enabled():
+        return []
+    asked, named = _subject_keys(question, flags, _profile())
+    keys = [f.key for f in flags if f.needs_cloud and generalize(f)
+            and (not named or _key_drugs(f.key) & set(named))] + asked
+    ings = sorted(_normalized(question) | set(named))
+    keys += [pair_key(a, b) for i, a in enumerate(ings) for b in ings[i + 1:]]
+    today = date.today()
+    out: list[str] = []
+    for k in dict.fromkeys(keys):
+        if _in_partition(k) or _kb_get(k, today) is not None:
+            continue
+        try:
+            topic_for_key(k)
+        except ValueError:
+            continue
+        out.append(k)
+    return out
+
+
+def send_single(key: str) -> Answer:
+    """Send ONE generalized topic on its own, only after the user consented (C's dialog). NOT hidden in
+    a group: the ledger entry is a `bucket` entry with bucket_id "single". Still goes through the leakage
+    check (I3, blocked = 0 bytes) and the wording check (I7, cloud.ask_single). A key that either
+    partition holds is refused (it must leave in its bucket of 8, I5). Offline or GV_TAIL off: no_data."""
+    if not tail_enabled():
+        return Answer(state="no_data", text=NO_DATA_TEXT, facts=[], sent_to_cloud=False)
+    if _in_partition(key):
+        raise ValueError(f"{key!r} is in a fixed partition; it is sent in its bucket of 8, never alone (I5)")
+    if cloud.offline():
+        return Answer(state="no_data", text=OFFLINE_TEXT, facts=[], sent_to_cloud=False)
+    topic = topic_for_key(key)
+    if leaks(topic.text, _profile(), _key_drugs(key)):
+        ledger.record("blocked", bucket_id=SINGLE_BUCKET_ID)
+        return Answer(state="no_data", text=NO_DATA_TEXT, facts=[], sent_to_cloud=False)
+    try:
+        fact = cloud.ask_single(topic)
+    except cloud.CloudUnavailable:
+        return Answer(state="no_data", text=OFFLINE_TEXT, facts=[], sent_to_cloud=False)
+    ledger.record("bucket", bucket_id=SINGLE_BUCKET_ID, texts=[topic.text])
+    if fact is None:
+        return Answer(state="no_data", text=NO_DATA_TEXT, facts=[], sent_to_cloud=True)
+    _kb_put([fact])
+    return Answer(state="known", text=fact.text, facts=[fact], sent_to_cloud=True)
+
 
 # P6.6 cover traffic ---------------------------------------------------------------------------
 
@@ -298,9 +394,14 @@ def send_cover() -> Optional[LedgerEntry]:
     nothing was attempted (offline, or the cloud is unreachable)."""
     if cloud.offline():
         return None
-    b = _cover_rng.choice(load_buckets())
+    # D-040 part 2: with GV_TAIL a tick picks the core or the tail partition by a fair coin, then a
+    # uniform bucket in it, so tail sends have cover too. Never chosen from a query (I5).
+    if tail_enabled() and _cover_rng.random() < 0.5:
+        b = _cover_rng.choice(load_buckets("tail-v1"))
+    else:
+        b = _cover_rng.choice(load_buckets())
     try:
-        facts, entry = _send_bucket(b.id, _profile(), kind="cover")
+        facts, entry = _send_bucket(b.id, _profile(), kind="cover", bucket=b)
     except _Offline:
         return None
     _kb_put(facts)
