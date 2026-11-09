@@ -1,13 +1,13 @@
 agent: A
 state: done     # working | blocked | waiting-review | done | not-started
-current_task: PR #9 (A-025 VLM skip hint) is merged (81aa06e). Branch agent/A-data-rules rebased onto main afa9ee6 (after #9, #10, #11, #12) has no diff against main. make test exit 0, 1177 passed on the integrated build. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
+current_task: Holding for G5. Branch agent/A-data-rules rebased onto main c636de0 and pushed; it has no diff against main. make test exit 0, 1177 passed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
 branch: agent/A-data-rules
-last_commit: 7b3ad75 (merged via 81aa06e)
-pr: "#9 merged 2026-11-09T00:06Z. No open A PR."
+last_commit: 7b3ad75 (merged via 81aa06e); branch tip = main c636de0
+pr: "#9 merged. No open A PR."
 last_seen:
   plan_version: "1.3.4"
   decisions: D-039
-  logs: {A: 30, B: 57, C: 28, D: 15}
+  logs: {A: 30, B: 59, C: 28, D: 16}
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
   - 20261108-1323-from-C-boundaries.md
@@ -44,12 +44,10 @@ dropped:
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
 open_questions: []
 notes: >
-  Since the last cycle: PRs #9 (A), #10 (B), #11 (C) and #12 (D) merged to main (afa9ee6). D-039 accepts C's
-  Codespaces demo (PR #13, repo config owned by the integrator, DEMO=1 replays mocks/cloud_cache). It does not
-  touch A's code or data. B's I4 fix (ccf2c4f, an uncovered pair answers no_data instead of "checked") is on main
-  and sits in router code, so A's rules need no change. No new inbox messages, proposals or LOG entries for A.
-  No FREEZE, no STOP. No code change this cycle, so there is no new LOG entry.
-  I did not re-run the eval gate here because the command needed approval in this session. D owns that check (G4, D-038).
+  This cycle: PLAN still v1.3.4 and the newest decision is still D-039. No new inbox messages or proposals for A.
+  Read B-058, B-059 (PR #10 merged, B branch = main) and D-016 (final figures after G4, gate 22/0/0, no A impact).
+  None of them asks anything of A. No FREEZE, no STOP. Rebased onto main c636de0, pushed agent/A-data-rules
+  (it was 59 commits behind on origin; it now equals main). No code change, so there is no new LOG entry.
 next: >
   Hold new code until G5 freeze (18:30). Answer demo-critical requests from B, C, D or the integrator in A's area
   (data/, ingest, graph, capture, normalize, rules).
