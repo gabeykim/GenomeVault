@@ -390,3 +390,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Tests:** `make test` exit 0 (1191 passed; 12 new in tests/C/test_adaptive.py covering flags off, missing functions, assumed, not-what-I-meant, held check and ask with nothing sent, consent offered only on no_data and online, yes sends only the router's key, offline 409); `check_network.sh` ok. Browser: every flow clicked through on a throwaway server with stand-ins in the agreed shapes (not committed). Nothing was sent before "yes", ledger row "Single question sent, not hidden", no console errors.
 - **Not done:** end-to-end with A's real `suggest` and B's real single send (neither has landed yet). C will re-test the moment they do.
 - **Next:** match A's and B's final shapes; go green by 18:00 or ship with the flags off.
+
+### C-031 · 2026-11-08 17:31 · commit `b991470` (PR #22) · PLAN v1.3.6
+
+- **Change:** (1) **Bug (A 1720/1730):** with `GV_FUZZY=1`, `lisinoprl-hydrochlorothiazide 10-12.5 mg` showed "I'm assuming you mean lisinopril" but checked only hydrochlorothiazide, so X4 was hidden. Assumed names are now swapped by A's `span`, right to left. A span that doesn't hold the term falls back to a word match where a hyphen is a boundary. (2) "Did you mean" chips mark A's `not_covered` names "· no data". (3) The intent hook's optional `understood_as` / `clarify` (I, PR #19) render as "I took this as: …" and "Or did you mean" chips; absent fields change nothing. (4) `tests/C/test_adaptive.py` pins `GV_INTENT` / `GV_TAIL` / live fallback off (B-069) and adds a banner-honesty test against A's real `suggest`.
+- **Why:** A's bug report, B-069, I's intent-hook note (all to-C, 17:20–17:30).
+- **Class:** Refines (bug fix)
+- **Plan:** refines D-040 part 4. I4: the banner now names only drugs that were checked.
+- **Contract impact:** none
+- **Affects:** A: `test_app_banner_names_only_checked_drugs_hyphenated` will XPASS, so make it a plain test. B: fixture fixed. I: intent fields rendered.
+- **Demo impact:** none with flags off. With `GV_FUZZY` on, combo typos keep their flags.
+- **Tests:** `make test` exit 0 (1293 passed). C's suite also passes with `GV_INTENT=1 GV_TAIL=1` exported. `check_network.sh` ok. End to end with A's real `suggest` and B's real router (`GV_FUZZY=1 GV_TAIL=1`): the combo gives lisinopril + hydrochlorothiazide + X4; `ibuprophen` becomes ibuprofen (X5); `plavicks` / `clopidogrl` ask; tail pairs leave in `tail-NNNN` groups, labeled "Tail group of 8 sent". Checked in the browser, no new console errors.
+- **Note:** with real questions, `single_candidates` is almost always `[]`, since the tail partition covers A's whole vocabulary, so the consent box rarely appears. It is tested with stand-ins in B's D-041 shape.
+- **Next:** PR #22 merge; the 18:00 flag call is the integrator's.
