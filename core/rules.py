@@ -6,6 +6,9 @@ Everything runs on the device and reads only `data/rules/*.json`. Four engines:
 - drug_drug   `a|b` (contracts.pair_key) against every other med in the profile.
 - drug_lab    `drug|<lab><op><value>`, fires on the most recent result for that lab.
 - class_rule  authored class pairs (I4), expanded to exact pair keys over listed members only.
+- allergy     `allergy:<group>|drug`, fires when a profile allergy names an authored group (or alias)
+              and the drug is a listed member; an allergy written as a member's own name matches
+              only that ingredient (`allergy:amoxicillin|amoxicillin`). No cross-group inference.
 
 A key that is not in a table produces no flag (I4: no extrapolation between drugs). Every flag comes
 from a `curated` entry, so high-severity flags always have a curated source (I6). Flag ids are the
@@ -22,12 +25,12 @@ import functools
 import json
 import operator
 import pathlib
-from typing import Optional
+from typing import Literal, Optional
 
 from .contracts import Drug, Flag, Lab, Profile, pair_key
 
 RULES_DIR = pathlib.Path(__file__).resolve().parent.parent / "data" / "rules"
-TABLES = ("gene_drug", "drug_drug", "drug_lab", "class_rules")
+TABLES = ("gene_drug", "drug_drug", "drug_lab", "class_rules", "allergy")
 NOT_ASSESSED = frozenset({"CYP2D6"})       # D-021: deletions/duplications not callable from SNPs
 OPS = {">": operator.gt, "<": operator.lt, ">=": operator.ge, "<=": operator.le}
 
@@ -75,12 +78,28 @@ def class_rule_keys(rule: dict, classes: dict) -> dict[str, tuple[str, str]]:
     return out
 
 
+def allergy_key(allergen: str, drug: str) -> str:
+    return f"allergy:{allergen}|{drug}"
+
+
+def allergy_rule_keys(rule: dict, groups: dict) -> dict[str, tuple[str, str]]:
+    """Exact keys an allergy rule covers -> (allergen as keyed, ingredient): the group against each
+    listed member, and each member against itself."""
+    out = {}
+    for m in groups[rule["group"]]["members"]:
+        out[allergy_key(rule["group"], m)] = (rule["group"], m)
+        out[allergy_key(m, m)] = (m, m)
+    return out
+
+
 def all_keys() -> set[str]:
     """Every exact key the local tables can produce (used by tests and the router's no_data path)."""
     t = tables()
     keys = {r["key"] for name in ("gene_drug", "drug_drug", "drug_lab") for r in t[name]["rules"]}
     for rule in t["class_rules"]["rules"]:
         keys |= set(class_rule_keys(rule, t["class_rules"]["classes"]))
+    for rule in t["allergy"]["rules"]:
+        keys |= set(allergy_rule_keys(rule, t["allergy"]["groups"]))
     return keys
 
 
@@ -211,7 +230,35 @@ def _class_rules(drug: Drug, profile: Profile) -> list[Flag]:
     return out
 
 
-ENGINES = (_gene_drug, _drug_drug, _drug_lab, _class_rules)
+def _allergen(text: str) -> str:
+    """An allergy as written on the record, in key form: 'Penicillin ' -> 'penicillin',
+    'Sulfa drugs' -> 'sulfa drugs', 'penicillin v' -> 'penicillin_v'."""
+    return " ".join(text.lower().replace("_", " ").split())
+
+
+def _allergy(drug: Drug, profile: Profile) -> list[Flag]:
+    groups = tables()["allergy"]["groups"]
+    written = {_allergen(a): a.strip() for a in profile.allergies}
+    out = []
+    for r in tables()["allergy"]["rules"]:
+        g = groups[r["group"]]
+        if drug.ingredient not in g["members"]:
+            continue
+        names = {_allergen(r["group"]), *(_allergen(a) for a in g["aliases"])}
+        hit = next((written[n] for n in written if n in names), None)
+        if hit is not None:
+            key = allergy_key(r["group"], drug.ingredient)
+            evidence = [f"allergy on record: {hit}", f"{drug.ingredient.replace('_', ' ')} is {g['label']}"]
+        elif _allergen(drug.ingredient) in written:
+            key = allergy_key(drug.ingredient, drug.ingredient)
+            evidence = [f"allergy on record: {written[_allergen(drug.ingredient)]}"]
+        else:
+            continue
+        out.append(_flag(r, key, "allergy", evidence))
+    return out
+
+
+ENGINES = (_gene_drug, _drug_drug, _drug_lab, _class_rules, _allergy)
 
 
 # --- API ---------------------------------------------------------------------------------------
@@ -249,6 +296,31 @@ def expected_notes_all(profile: Profile) -> list[dict]:
         for n in expected_notes(med, profile):
             seen.setdefault(n["key"], n)
     return sorted(seen.values(), key=lambda n: n["id"])
+
+
+def key_state(key: str) -> Literal["known", "none_listed", "no_data"]:
+    """PLAN P6 answer state of one exact key in the local curated tables (I4, queue 8).
+
+    `known`: the key has a curated entry (a rule, an expanded class rule, or an expected combination).
+    `none_listed` would need a curated "listed as no interaction" entry; no such table is authored
+    yet, so it is never returned today. Everything else is `no_data`: no rule, no flag, and no
+    inference from a similar drug (e.g. `clopidogrel|pantoprazole` stays `no_data` although
+    `clopidogrel|omeprazole` is known). Genes in NOT_ASSESSED are always `no_data`."""
+    key = key.strip()
+    if key.split(":", 1)[0] in NOT_ASSESSED:
+        return "no_data"
+    if key in all_keys() or key in expected_keys():
+        return "known"
+    return "no_data"
+
+
+def no_data_keys(drug: Drug, profile: Profile) -> list[str]:
+    """Drug-drug pair keys between `drug` and each other med in the profile that the local tables do
+    not cover (state `no_data`). `check()` returns no flag for these; this is the marker the router
+    and UI can use to say "no entry", never "no interaction" (I4, I7). Sorted, one per key."""
+    ing = drug.ingredient.strip().lower()
+    keys = {pair_key(ing, other) for other in _others(Drug(ingredient=ing), profile)}
+    return sorted(k for k in keys if key_state(k) == "no_data")
 
 
 def check_all(profile: Profile) -> list[Flag]:

@@ -17,7 +17,8 @@ from .contracts import Drug
 NAMES_PATH = pathlib.Path(__file__).resolve().parent.parent / "data" / "rules" / "drug_names.json"
 
 _WORD = re.compile(r"[a-z]+(?:-[a-z]+)*")
-_NUMS = r"\d+(?:\.\d+)?(?:\s*/\s*\d+(?:\.\d+)?)*"
+_NUMS = r"\d+(?:\.\d+)?(?:\s*[/-]\s*\d+(?:\.\d+)?)*"   # "20/12.5" and "10-40": one strength per ingredient
+_JOIN = re.compile(r"\s*[/-]\s*")                     # "ezetimibe-simvastatin", "lisinopril / hctz": one product
 _UNIT = r"mg|mcg|ug|µg|g"
 _DOSE_IMMEDIATE = re.compile(rf"^\s*({_NUMS})\s*({_UNIT})?(?![a-z0-9])")
 _DOSE_WITH_UNIT = re.compile(rf"({_NUMS})\s*({_UNIT})(?![a-z0-9])")
@@ -30,10 +31,16 @@ def _lexicon() -> tuple[dict[tuple[str, ...], tuple[str, ...]], int]:
     raw = json.loads(NAMES_PATH.read_text())["names"]
     lex: dict[tuple[str, ...], tuple[str, ...]] = {}
     for name, ingredients in raw.items():
-        lex[tuple(name.lower().split())] = tuple(i.lower() for i in ingredients)
+        lex[_name_key(name)] = tuple(i.lower() for i in ingredients)
         for ing in ingredients:                      # every ingredient is known under its own name
-            lex.setdefault(tuple(ing.lower().split()), (ing.lower(),))
+            lex.setdefault(_name_key(ing), (ing.lower(),))
     return lex, max(len(k) for k in lex)
+
+
+def _name_key(name: str) -> tuple[str, ...]:
+    """A table name as the word tokens the text would produce: "St. John's wort" and the
+    ingredient id "st_johns_wort" both become words, the same way `_tokens` splits input."""
+    return tuple(_WORD.findall(name.lower().replace("_", " ")))
 
 
 def _tokens(text: str) -> list[tuple[str, int, int]]:
@@ -63,9 +70,9 @@ def _dose(window: str, n_ingredients: int) -> list[float | None]:
     if not m:
         return [None] * n_ingredients
     factor = _TO_MG[m.group(2) or "mg"]
-    parts = [float(p) * factor for p in re.split(r"\s*/\s*", m.group(1))]
+    parts = [float(p) * factor for p in _JOIN.split(m.group(1))]
     if len(parts) != n_ingredients:
-        return [None] * n_ingredients                # strengths don't line up with ingredients
+        return [None] * n_ingredients                # strengths don't line up (or a range): unknown, never a guess
     return [round(p, 3) for p in parts]
 
 
@@ -90,9 +97,18 @@ def to_ingredients(text: str) -> list[Drug]:
         else:
             i += 1
 
+    # Names joined only by "-" or "/" are one combination product, and the strengths after the last
+    # name belong to all of them in order: "ezetimibe-simvastatin 10-40 mg" is simvastatin 40 mg.
+    groups: list[tuple[tuple[str, ...], int, int]] = []
+    for ingredients, start, end in matches:
+        if groups and _JOIN.fullmatch(text[groups[-1][2]:start]):
+            groups[-1] = (groups[-1][0] + ingredients, groups[-1][1], end)
+        else:
+            groups.append((ingredients, start, end))
+
     drugs: dict[str, Drug] = {}
-    for j, (ingredients, _, end) in enumerate(matches):
-        stop = matches[j + 1][1] if j + 1 < len(matches) else len(text)
+    for j, (ingredients, _, end) in enumerate(groups):
+        stop = groups[j + 1][1] if j + 1 < len(groups) else len(text)
         for ing, dose in zip(ingredients, _dose(text[end:stop], len(ingredients))):
             if ing not in drugs:
                 drugs[ing] = Drug(ingredient=ing, dose_mg=dose)
