@@ -1,8 +1,8 @@
 agent: A
 state: done     # working | blocked | waiting-review | done | not-started
-current_task: Holding for G5. Branch agent/A-data-rules rebased onto main c636de0 and pushed; it has no diff against main. make test exit 0, 1177 passed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
+current_task: Holding for G5. Branch agent/A-data-rules rebased onto main 8960441 and pushed; it has no diff against main. make test exit 0, 1177 passed. BRIEF queue 1-8 done. Holding new code per integrator 1638; demo-critical fixes only until G5.
 branch: agent/A-data-rules
-last_commit: 7b3ad75 (merged via 81aa06e); branch tip = main c636de0
+last_commit: 7b3ad75 (merged via 81aa06e); branch tip = main 8960441
 pr: "#9 merged. No open A PR."
 last_seen:
   plan_version: "1.3.4"
@@ -44,10 +44,10 @@ dropped:
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
 open_questions: []
 notes: >
-  This cycle: PLAN still v1.3.4 and the newest decision is still D-039. No new inbox messages or proposals for A.
-  Read B-058, B-059 (PR #10 merged, B branch = main) and D-016 (final figures after G4, gate 22/0/0, no A impact).
-  None of them asks anything of A. No FREEZE, no STOP. Rebased onto main c636de0, pushed agent/A-data-rules
-  (it was 59 commits behind on origin; it now equals main). No code change, so there is no new LOG entry.
+  This cycle: PLAN still v1.3.4 and the newest decision is still D-039. No new inbox messages, LOG entries or proposals for A.
+  The only new commit on main is PR #13 (D-039: .devcontainer + README "Try the demo"). It is repo config with no A impact.
+  No FREEZE, no STOP. Rebased onto main 8960441, make test exit 0 (1177 passed), pushed agent/A-data-rules (it equals main).
+  No code change, so there is no new LOG entry.
 next: >
   Hold new code until G5 freeze (18:30). Answer demo-critical requests from B, C, D or the integrator in A's area
   (data/, ingest, graph, capture, normalize, rules).
