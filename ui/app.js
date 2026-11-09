@@ -441,7 +441,8 @@ function choiceChips(held, onPick) {
   return el("div", { class: "did-you-mean" }, held.map((h) =>
     el("p", {}, el("span", { class: "mute" }, `Did you mean${held.length > 1 ? ` (for “${h.term}”)` : ""}: `),
       ...h.choices.map((c) => {
-        const b = el("button", { type: "button", class: "chip-btn" }, cap(humanize(c)));
+        const b = el("button", { type: "button", class: "chip-btn", title: (h.not_covered || []).includes(c) ? "No GenomeVault tables for this one: it will show no data" : null },
+          cap(humanize(c)), (h.not_covered || []).includes(c) ? el("span", { class: "mute" }, " · no data") : null);
         b.addEventListener("click", () => onPick(h.term, c));
         return b;
       }), "?")));
@@ -605,6 +606,12 @@ async function ask(question, { noAssume = false, echo = true } = {}) {
     }
     const msg = answerMessage(a);
     const body = msg.querySelector(".msg-body");
+    // I's intent hook (PR #19, GV_INTENT): optional; absent fields render nothing.
+    if (a.understood_as) body.prepend(el("p", { class: "understood small mute" }, "I took this as: ", el("em", {}, a.understood_as)));
+    if (a.clarify?.length) {
+      body.append(el("div", { class: "did-you-mean clarify" }, el("p", {}, el("span", { class: "mute" }, "Or did you mean: "),
+        ...a.clarify.map((q) => { const b = el("button", { type: "button", class: "chip-btn" }, q); b.addEventListener("click", () => ask(q)); return b; }))));
+    }
     if (a.assumed?.length) body.prepend(assumedBanner(a.assumed, () => ask(question, { noAssume: true, echo: false })));
     if (a.consent) body.append(consentBox(a.consent));
     pending.replaceWith(msg);

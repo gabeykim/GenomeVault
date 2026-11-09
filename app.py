@@ -269,24 +269,41 @@ def _suggestions(text: str) -> list[dict]:
             continue
         choices = [str(c) for c in (get("choices") or get("options") or []) if c][:3]
         assumed = get("assumed")
-        out.append({"term": str(term)[:60], "assumed": str(assumed) if assumed else None, "choices": choices})
+        span = get("span")
+        span = (int(span[0]), int(span[1])) if isinstance(span, (list, tuple)) and len(span) == 2 else None
+        out.append({"term": str(term)[:60], "assumed": str(assumed) if assumed else None, "choices": choices,
+                    "span": span, "not_covered": [str(c) for c in (get("not_covered") or [])]})
     return out
 
 
 def _swap(text: str, term: str, name: str) -> str:
-    return re.sub(rf"(?<![\w-]){re.escape(term)}(?![\w-])", lambda _m: name, text, count=1, flags=re.IGNORECASE)
+    """Replace the first whole-word `term`. A hyphen is a word boundary, so the typo in a combo like
+    "lisinoprl-hydrochlorothiazide" is swapped too (A, to-C 1720)."""
+    return re.sub(rf"(?<!\w){re.escape(term)}(?!\w)", lambda _m: name, text, count=1, flags=re.IGNORECASE)
+
+
+def _apply_swaps(text: str, swaps: list[tuple[Optional[tuple[int, int]], str, str]]) -> str:
+    """Apply (span, term, name) swaps. Spans from A's suggest index the typed text; apply them right to
+    left so earlier spans stay valid. A span that doesn't hold `term` falls back to a word match."""
+    by_span = [(sp, t, n) for sp, t, n in swaps if sp and text[sp[0]:sp[1]].lower() == t.lower()]
+    rest = [(sp, t, n) for sp, t, n in swaps if (sp, t, n) not in by_span]
+    for (a, b), _t, name in sorted(by_span, key=lambda x: x[0][0], reverse=True):
+        text = text[:a] + name + text[b:]
+    for _sp, term, name in rest:
+        text = _swap(text, term, name)
+    return text
 
 
 def _adapt(text: str, no_assume: bool) -> tuple[str, list[dict], list[dict]]:
     """(text to use, assumed [{term, name}], held [{term, choices}]) for one typed check or question."""
-    assumed, held = [], []
+    assumed, held, swaps = [], [], []
     for sug in _suggestions(text):
         if sug["assumed"] and not no_assume:
-            text = _swap(text, sug["term"], sug["assumed"])
+            swaps.append((sug["span"], sug["term"], sug["assumed"]))
             assumed.append({"term": sug["term"], "name": sug["assumed"]})
         elif sug["choices"] and not sug["assumed"]:
-            held.append({"term": sug["term"], "choices": sug["choices"]})
-    return text, assumed, held
+            held.append({"term": sug["term"], "choices": sug["choices"], "not_covered": sug["not_covered"]})
+    return _apply_swaps(text, swaps), assumed, held
 
 
 @app.post("/api/check")

@@ -632,3 +632,7 @@ body.hero-on.ready .hero-cap > :nth-child(3) { animation-delay: .9s; }
   vertical-align: 1px; background: var(--warn); }
 .entry.k-single .bytes { color: var(--warn); font-weight: 600; }
 .entry.k-tail .desc { font-style: normal; }
+.understood { margin: 0 0 8px; }
+.understood em { font-style: normal; color: var(--ink); }
+.clarify { margin-top: 10px; }
+.clarify .chip-btn { text-align: left; }
