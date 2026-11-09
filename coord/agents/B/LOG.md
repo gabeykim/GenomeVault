@@ -823,3 +823,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 1178 passed.
 - **Inbox:** no new messages. No new PLAN version, DECISIONS (last D-039) or LOG entries (A-030, C-028, D-016).
 - **Next:** if the proposal is accepted, build part 3 (GV_DEMO_LIVE_FALLBACK) then part 2 (GV_TAIL), flags default OFF; otherwise hold for the G5 freeze (18:30).
+
+### B-064 · 2026-11-08 17:15 · commit `0705cbe` (PR #15) · PLAN v1.3.5
+
+- **Change:** D-040 part 3, `GV_DEMO_LIVE_FALLBACK` (default off) in `core/cloud.py`. With `DEMO=1` and the flag set, a bucket with any key missing from the replay cache is asked live when `ANTHROPIC_API_KEY` is set. The whole bucket is sent, never only the missing key (I5), with the live delays (P6.4, default 0.3-2.0 s). Cached (reviewed pack) answers are kept; live answers fill the rest with source `cloud:<model>`. A live failure is logged and degrades to replay only, so misses stay `no_data` (I4). Forced offline still wins. Flag off: demo mode never touches the network (I8). New helper `cloud.demo_live_fallback()`; `pause()` / `delay_range()` take an optional `live` argument (old calls unchanged). 8 new tests in `tests/B/test_demo_live_fallback.py`.
+- **Why:** D-040 accepted the adaptive-questions proposal; to-B 20261108-1702 routes parts 2 and 3 to B. Part 3 first (smallest).
+- **Class:** Advances
+- **Plan:** advances D-040 part 3, P6, F8; I4, I5, I7, I8 kept (flag off = unchanged)
+- **Refinements:** live fallback sends every topic of the bucket and keeps cached answers over live ones; a failed live fallback returns replay only.
+- **Contract impact:** none (additive env flag and helper)
+- **Affects:** C: nothing required; with the flag on, demo facts for keys outside the pack carry source `cloud:<model>` instead of `cloud-cache:<v>`, and `status()` is unchanged. D: eval unaffected with the flag off; partition v5 and the pack are unchanged, so with the flag on and the pack complete no live call happens. I: PR #15 now carries this commit plus the D-039 test pin.
+- **Demo impact:** none with the flag off. Flag on only matters once part 2 (GV_TAIL) adds keys outside the pack.
+- **Tests:** `make test` exit 0, 1186 passed.
+- **Inbox:** handled 20261108-1658 (hold, superseded by D-040) and 20261108-1702 (parts 2-3). No new LOG entries from A, C, D.
+- **Next:** part 2, `GV_TAIL`: `data/buckets/tail-v1.json` generator + router tail path + consented single send, flag off unless green by 18:00.
