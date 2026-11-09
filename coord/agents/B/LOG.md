@@ -520,3 +520,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped. CI checks on the PR: green.
 - **Inbox:** nothing new for B. No new DECISIONS (still D-035), PLAN still v1.3.2. Read A-023 (G3 rehearsal 1158 passed, gate 22/0/0) and D's STATUS update: nothing for B.
 - **Next:** PR #7 review and merge at G3. After G3, rebase onto main, run B's suite against the merged code, and run the D-035 G4 command on main if the sandbox allows it.
+
+### B-042 · 2026-11-08 16:45 · commit `e269240` (PR #7, rebase only, no new code) · PLAN v1.3.2
+
+- **Change:** No code changed. I rebased PR #7 onto main `0ed2e0c` and force-pushed it (new head `e269240`, same code as `1e265c1` and `91a39b7`). Main only gained one coordination commit (integrator inbox to A, C, D on vision-model labels), so the B-040 and A-023 G3 rehearsal still holds for this code.
+- **Why:** keep PR #7 current on main before the G3 merge (17:30). Every BRIEF queue item and the stretch item are done.
+- **Class:** Advances
+- **Plan:** advances G3 (P9) prep; I3, I4, F8
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #7 head is now `e269240` (code identical to the tested `1e265c1`). A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on PR #7: exit 0, 801 passed, 3 skipped.
+- **Inbox:** nothing new for B. No new DECISIONS (still D-035), PLAN still v1.3.2. Read `0ed2e0c` (vision-model label results to A, C, D): label capture is outside B's paths, nothing for B.
+- **Next:** PR #7 review and merge at G3. After G3, rebase onto main, run B's suite against the merged code, and run the D-035 G4 command on main if the sandbox allows it.
