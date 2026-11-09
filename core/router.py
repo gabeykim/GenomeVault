@@ -23,7 +23,7 @@ user names directly (e.g. "clopidogrel and pantoprazole") so they can be answere
 A key outside the bucket universe is never sent and gets no fact (I4/I5: `no_data`).
 
 Long tail (D-040 part 2, `GV_TAIL=1`, default off): a key the core partition does not hold but the
-long-tail partition (data/buckets/tail-v1.json: every drug-drug pair over A's ingredient vocabulary, one
+long-tail partition (data/buckets/tail-v2.json, frequency-tiered: every drug-drug pair over A's ingredient vocabulary, one
 drug-lab key per ingredient and lab) does is sent in its tail bucket of 8 through the same steps 3-8
 (ledger bucket_id `tail-NNNN`). Core first. Cover ticks pick core or tail by a fair coin. A key in neither
 stays `no_data`; `single_candidates` / `send_single` offer a consented, NOT hidden single send for it
@@ -54,8 +54,8 @@ from typing import Optional
 
 from . import cloud, kb, ledger
 from .contracts import Answer, Bucket, Fact, Flag, LedgerEntry, Profile, Topic, pair_key
-from .decoys import (aliases_of, bucket_for, load_aliases, load_buckets, tail_bucket_for, tail_enabled,
-                     tail_member, tail_universe, universe)
+from .decoys import (TAIL_VERSION, aliases_of, bucket_for, load_aliases, load_buckets, tail_bucket_for,
+                     tail_enabled, tail_member, tail_universe, universe)
 from .generalize import generalize, topic_for_key
 from .validator import _key_drugs, leaks
 
@@ -425,7 +425,7 @@ def send_cover() -> Optional[LedgerEntry]:
     # D-040 part 2: with GV_TAIL a tick picks the core or the tail partition by a fair coin, then a
     # uniform bucket in it, so tail sends have cover too. Never chosen from a query (I5).
     if tail_enabled() and _cover_rng.random() < 0.5:
-        b = _cover_rng.choice(load_buckets("tail-v1"))
+        b = _cover_rng.choice(load_buckets(TAIL_VERSION))
     else:
         b = _cover_rng.choice(load_buckets())
     try:
