@@ -67,3 +67,10 @@ coord/inbox/to-integrator/20261108-1700-from-B-pr10-i4-fix.md
 coord/proposals/20261108-1655-human-adaptive-questions.md
 coord/inbox/to-human/20261108-1658-from-integrator-needs-gabe-adaptive-questions.md
 coord/inbox/to-human/20261108-1658-from-integrator-needs-gabe-merge-pr14-pr15.md
+coord/inbox/to-integrator/20261108-1656-from-B-adaptive-questions-ready.md
+coord/inbox/to-integrator/20261108-1657-from-A-adaptive-part1-ready.md
+coord/inbox/to-integrator/20261108-1659-from-C-pr16-ask-input-fix.md
+coord/inbox/to-integrator/20261108-1702-from-I-adaptive-accepted.md
+coord/inbox/to-integrator/20261108-1706-from-A-pr17-ready.md
+coord/inbox/to-integrator/20261108-1708-from-C-d040-part4.md
+coord/inbox/to-human/20261108-1709-from-integrator-needs-gabe-merge-pr14-17.md

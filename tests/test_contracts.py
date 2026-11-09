@@ -25,3 +25,10 @@ def test_new_contract_stubs():
     s = status()
     assert set(s) == {"online", "demo"}
     assert isinstance(s["online"], bool) and isinstance(s["demo"], bool)
+
+def test_d041_adaptive_stubs_are_flag_off():
+    from core.interfaces import suggest, single_candidates, send_single
+    assert suggest("clopidogrl") == []
+    assert single_candidates("can I take x with y?", []) == []
+    a = send_single("x|y")
+    assert a.state == "no_data" and a.sent_to_cloud is False
