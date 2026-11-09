@@ -8,6 +8,16 @@ GenomeVault checks any new medication against your genes, records and bloodwork,
 
 Built at the **Lenovo × AGI House hybrid AI build day** (November 2026).
 
+## Try the demo
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/gabeykim/GenomeVault?quickstart=1)
+
+**[Open the live demo in GitHub Codespaces](https://codespaces.new/gabeykim/GenomeVault?quickstart=1)**: it starts the same app as `make demo`, in demo mode, and opens it in a new browser tab after about 1–2 minutes. You need a GitHub login; it uses your free Codespaces hours. If the tab doesn't open, go to the **Ports** panel and open port 8000.
+
+- Demo mode replays recorded cloud answers, so no API key is needed and nothing is sent to a cloud AI.
+- The page is private to your codespace. To try the phone page, open **Actions → Use your phone** and visit the address it shows on your phone while signed in to GitHub.
+- To run it on your own machine instead: `pip install -r requirements.txt && make demo`, then open http://localhost:8000.
+
 ---
 
 ## Why

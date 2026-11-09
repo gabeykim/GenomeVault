@@ -1,0 +1,22 @@
+{
+  // GenomeVault demo in a GitHub Codespace: the same app as `make demo` on a laptop.
+  // Open: https://codespaces.new/gabeykim/GenomeVault?quickstart=1
+  // DEMO=1 replays the recorded cloud answers in mocks/cloud_cache, so nothing calls the cloud API
+  // and no key is needed (I2, I8). All patient data is synthetic (I1).
+  "name": "GenomeVault demo",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
+  "hostRequirements": { "cpus": 2 },
+  "containerEnv": { "DEMO": "1", "GV_COVER_INTERVAL_S": "20" },
+  "postCreateCommand": "pip install --no-cache-dir -r requirements.txt",
+  "postAttachCommand": {
+    "demo": "python -m uvicorn app:app --host 0.0.0.0 --port 8000"
+  },
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": { "label": "GenomeVault demo", "onAutoForward": "openBrowser" }
+  },
+  "customizations": {
+    "codespaces": { "openFiles": ["README.md"] },
+    "vscode": { "extensions": ["ms-python.python"] }
+  }
+}
