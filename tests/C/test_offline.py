@@ -6,7 +6,7 @@ import app as app_module
 
 client = TestClient(app_module.app)
 HAS_SWITCH = app_module.cloud_set_offline is not None
-REAL_ROUTER = app_module.MODES["router.route"] == "real"
+REAL_ROUTER = True   # since G2 (D-032)
 
 
 def test_status_and_ledger_carry_cloud_state():

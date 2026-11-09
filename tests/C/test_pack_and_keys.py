@@ -11,7 +11,7 @@ from core.interfaces import load_profile
 
 client = TestClient(app_module.app)
 PROFILE = load_profile()
-REAL_SYNC = app_module.sync_pack is not None and app_module.MODES["router.route"] == "real"
+REAL_SYNC = app_module.sync_pack is not None
 
 
 @pytest.fixture(autouse=True)

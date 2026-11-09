@@ -19,7 +19,7 @@ DEMO_QUESTIONS = {
     "Q07": "Could pantoprazole work instead of omeprazole with my clopidogrel?",
     "Q15": "Can I take ibuprofen for a headache?",
 }
-REAL_ROUTER = app_module.MODES["router.route"] == "real"
+REAL_ROUTER = True   # since G2 (D-032)
 HAS_KB = importlib.util.find_spec("core.kb") is not None
 
 
