@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-060 test pinning D-039 cover interval 20 s (PR #15, c4c4998), 1178 passed
+current_task: B-061 sync + re-test; PR #15 (c4c4998, tests only) awaiting merge, 1178 passed
 branch: agent/B-privacy-router
 last_commit: c4c4998
 last_seen:
   plan_version: "1.3.4"
   decisions: D-039
-  logs: {A: 30, B: 60, C: 28, D: 16}
+  logs: {A: 30, B: 61, C: 28, D: 16}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -89,4 +89,5 @@ notes: >
   D-039 Codespaces sets GV_COVER_INTERVAL_S=20 (existing B setting, valid). Nothing for B to change.
   B-060: PR #15 (tests only, c4c4998) pins D-039 GV_COVER_INTERVAL_S=20: waits 10-30 s jittered, one bucket per tick.
   make test exit 0, 1178 passed. Integrator told (no objection to 20 s).
+  B-061: main moved only by coord reports (b05ad09, 6895a77, c7f159f). Re-tested locally (exit 0, 1178 passed); PR #15 left at c4c4998 (2/2 checks green), no re-push.
 next: hold for G5 freeze (18:30); PR #15 awaiting merge; answer inbox requests.

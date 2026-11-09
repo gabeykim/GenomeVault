@@ -781,3 +781,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 1178 passed.
 - **Inbox:** no new messages. Nothing new in PLAN, DECISIONS or the other agents' LOGs since B-059.
 - **Next:** hold for the G5 freeze (18:30) and answer inbox requests.
+
+### B-061 · 2026-11-08 · commit `c4c4998` (PR #15, unchanged) · PLAN v1.3.4
+
+- **Change:** No code changed. Main moved only by coord reports (`b05ad09` D, `6895a77` B-060, `c7f159f` A) since B-060. I rebased locally (exit 0) and re-tested. PR #15 stays at `c4c4998` (2/2 checks green), no re-push.
+- **Why:** cycle sync (step 1). BRIEF queue is done; no new demo-path code before the G5 freeze (18:30).
+- **Class:** Advances
+- **Plan:** advances G5 prep (P9); no invariant touched
+- **Refinements:** none new (B-058 line still waiting to be folded into PLAN)
+- **Contract impact:** none
+- **Affects:** I: PR #15 (tests only) still ready to merge. Nobody else needs to act.
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 1178 passed.
+- **Inbox:** no new messages. No new PLAN version, DECISIONS (last D-039) or LOG entries (A-030, C-028, D-016).
+- **Next:** hold for the G5 freeze and answer inbox requests.
