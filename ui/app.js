@@ -423,15 +423,48 @@ function noDataPairs(data) {
   return `${drug} with ${others.map(humanize).join(", ")}`;
 }
 
+// ---------- D-040 adaptive questions: assumed names, "Did you mean", consent ----------
+// All three only appear when A's / B's flags are on; otherwise the responses never carry them.
+
+const swapTerm = (text, term, name) =>
+  text.replace(new RegExp(`(^|[^\\w-])${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`, "i"), (m, pre) => pre + name);
+
+function assumedBanner(assumed, onUndo) {
+  const names = assumed.map((a) => cap(humanize(a.name))).join(", ");
+  const undo = el("button", { type: "button", class: "link-btn" }, "Not what I meant");
+  undo.addEventListener("click", () => { undo.disabled = true; onUndo(); });
+  return el("p", { class: "assumed", role: "status" },
+    el("span", {}, "I'm assuming you mean ", el("strong", {}, names), "."), " ", undo);
+}
+
+function choiceChips(held, onPick) {
+  return el("div", { class: "did-you-mean" }, held.map((h) =>
+    el("p", {}, el("span", { class: "mute" }, `Did you mean${held.length > 1 ? ` (for “${h.term}”)` : ""}: `),
+      ...h.choices.map((c) => {
+        const b = el("button", { type: "button", class: "chip-btn" }, cap(humanize(c)));
+        b.addEventListener("click", () => onPick(h.term, c));
+        return b;
+      }), "?")));
+}
+
 async function onCheck(ev) {
   ev.preventDefault();
-  const input = $("check-input"), button = ev.target.querySelector("button");
+  const input = $("check-input");
   const text = input.value.trim();
   if (!text) return;
+  runCheck(text);
+}
+
+async function runCheck(text, { noAssume = false } = {}) {
+  const input = $("check-input"), button = $("check-form").querySelector("button");
   button.disabled = true;
   const out = $("check-result");
   try {
-    const data = await api("/api/check", { text });
+    const data = await api("/api/check", { text, no_assume: noAssume });
+    if (data.held) {   // nothing was checked yet: pick a name first
+      out.replaceChildren(choiceChips(data.choices, (term, name) => runCheck(swapTerm(text, term, name))));
+      return;
+    }
     if (!data.drugs.length) {
       out.replaceChildren(el("p", { class: "note" }, `Couldn't recognize "${text}" as a medication. Try the generic name.`));
     } else if (!data.flags.length) {
@@ -446,6 +479,7 @@ async function onCheck(ev) {
       out.querySelector(".index").style.transform = "none";
     }
     if (data.notes?.length) out.append(noteList(data.notes));
+    if (data.assumed?.length) out.prepend(assumedBanner(data.assumed, () => runCheck(text, { noAssume: true })));
     input.value = "";
   } catch (err) {
     out.replaceChildren(el("p", { class: "note" }, `Check failed: ${err.message}`));
@@ -502,9 +536,11 @@ function alsoBlock(secs) {
 function answerMessage(a) {
   const meta = el("div", { class: "msg-meta" },
     el("span", { class: a.state === "no_data" ? "chip warn" : "chip solid" }, STATES[a.state] || a.state),
-    a.sent_to_cloud
-      ? el("span", { class: "chip" }, "Asked privately · decoy group of 8")
-      : el("span", { class: "chip good" }, "Answered on device"));
+    a.single
+      ? el("span", { class: "chip warn" }, "Sent on its own · not hidden")
+      : a.sent_to_cloud
+        ? el("span", { class: "chip" }, "Asked privately · decoy group of 8")
+        : el("span", { class: "chip good" }, "Answered on device"));
   if (!a.sections) {   // mock merge: plain paragraphs, trust tiers are written into the text
     return message("Vault", a.text.split(/\n{2,}/).map(answerParagraph), [meta]);
   }
@@ -524,20 +560,54 @@ function answerMessage(a) {
   return message("Vault", nodes, [meta]);
 }
 
-async function ask(question) {
+function consentBox(consent) {
+  const yes = el("button", { type: "button", class: "line-btn" }, el("span", {}, "Send it on its own"));
+  const no = el("button", { type: "button", class: "link-btn" }, "No, keep it private");
+  const box = el("div", { class: "consent", role: "group", "aria-label": "Send without a group" },
+    el("p", {}, el("strong", {}, "This question can't be hidden in a group of 8."), " Send it on its own?"),
+    el("p", { class: "small mute" }, "Only a general version leaves, with no personal details. The ledger will show it as a single question, not hidden."),
+    el("div", { class: "consent-actions" }, yes, no));
+  no.addEventListener("click", () => box.replaceWith(el("p", { class: "small mute consent-done" }, "Kept private. Nothing was sent.")));
+  yes.addEventListener("click", async () => {
+    yes.disabled = no.disabled = true;
+    const pending = message("Vault", "Sending one general question");
+    pending.classList.add("pending");
+    box.replaceWith(el("p", { class: "small mute consent-done" }, "Sent on its own, as you chose."));
+    $("chat").append(pending);
+    try {
+      pending.replaceWith(answerMessage(await api("/api/ask/single", { question: consent.question, key: consent.keys[0] })));
+    } catch (err) {
+      pending.replaceWith(message("Vault", `Couldn't send: ${err.message}`));
+    } finally {
+      pollLedger();
+    }
+  });
+  return box;
+}
+
+async function ask(question, { noAssume = false, echo = true } = {}) {
   const chat = $("chat");
   // Demo chips stay put: asking the same one again shows the knowledge-base hit (S6).
   document.querySelectorAll(`#chips .suggestion`).forEach((b) => {
     if (b.dataset.q === question) b.classList.add("asked");
   });
-  chat.append(message("You", reveal(question)));
+  if (echo) chat.append(message("You", reveal(question)));
   const pending = message("Vault", "Checking locally first");
   pending.classList.add("pending");
   chat.append(pending);
   const button = $("ask-form").querySelector("button");
   button.disabled = true;
   try {
-    pending.replaceWith(answerMessage(await api("/api/ask", { question })));
+    const a = await api("/api/ask", { question, no_assume: noAssume });
+    if (a.state === "held") {   // "Did you mean ...?": nothing was routed or sent
+      pending.replaceWith(message("Vault", choiceChips(a.choices, (term, name) => ask(swapTerm(question, term, name)))));
+      return;
+    }
+    const msg = answerMessage(a);
+    const body = msg.querySelector(".msg-body");
+    if (a.assumed?.length) body.prepend(assumedBanner(a.assumed, () => ask(question, { noAssume: true, echo: false })));
+    if (a.consent) body.append(consentBox(a.consent));
+    pending.replaceWith(msg);
   } catch (err) {
     pending.replaceWith(message("Vault", `Couldn't answer: ${err.message}`));
   } finally {
@@ -711,7 +781,7 @@ const groupSum = (g) => `${g.n} group${g.n === 1 ? "" : "s"} · ${formatBytes(g.
 async function showOutbound(e, li, toggle) {
   const open = li.classList.toggle("open");
   toggle.setAttribute("aria-expanded", String(open));
-  toggle.querySelector(".cells-label").textContent = open ? "Hide" : "See the 8 questions";
+  toggle.querySelector(".cells-label").textContent = open ? "Hide" : entryKind(e) === "single" ? "See the question" : "See the 8 questions";
   let box = li.querySelector(".outq");
   if (!open) { box?.remove(); return; }
   box = el("div", { class: "outq" }, el("p", { class: "mute" }, "Loading…"));
@@ -737,17 +807,22 @@ async function showOutbound(e, li, toggle) {
   }
 }
 
+// D-040: B marks a consented single send with a bucket_id starting "single", long-tail groups with "tail".
+const entryKind = (e) => /^single/i.test(e.bucket_id || "") ? "single" : /^tail/i.test(e.bucket_id || "") ? "tail" : e.kind;
+const ENTRY_LABEL = { single: "Single question sent, not hidden", tail: "Tail group of 8 sent" };
+
 function ledgerEntry(e) {
   const time = new Date(e.ts).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const leaves = e.kind === "bucket" || e.kind === "cover";
+  const n = entryKind(e) === "single" ? 1 : 8;
   const toggle = leaves ? el("button", { class: "cells", type: "button", "aria-expanded": "false" },
     el("span", { class: "cells-row", "aria-hidden": "true" },
-      Array.from({ length: 8 }, (_, i) => el("i", { style: `--i:${i}` }))),
-    el("span", { class: "cells-label" }, "See the 8 questions")) : null;
-  const li = el("li", { class: `entry k-${e.kind}`,
+      Array.from({ length: n }, (_, i) => el("i", { style: `--i:${i}` }))),
+    el("span", { class: "cells-label" }, n === 1 ? "See the question" : "See the 8 questions")) : null;
+  const li = el("li", { class: `entry k-${e.kind} k-${entryKind(e)}`,
     title: [time, e.bucket_id, `personal fields ${e.personal_fields_sent}`].filter(Boolean).join(" · ") },
     el("span", { class: "seq" }, pad2(e.seq)),
-    el("span", { class: "desc" }, LEDGER_KINDS[e.kind] || e.kind, toggle),
+    el("span", { class: "desc" }, ENTRY_LABEL[entryKind(e)] || LEDGER_KINDS[e.kind] || e.kind, toggle),
     el("span", { class: "bytes" }, formatBytes(e.bytes_out)));
   toggle?.addEventListener("click", () => showOutbound(e, li, toggle));
   return li;

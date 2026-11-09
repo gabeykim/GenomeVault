@@ -611,3 +611,24 @@ body.hero-on.ready .hero-cap > :nth-child(2) { animation-delay: .7s; }
 body.hero-on.ready .hero-cap > :nth-child(3) { animation-delay: .9s; }
 @keyframes cap-in { from { opacity: 0; transform: translateY(14px); } }
 @media (prefers-reduced-motion: reduce) { .hero-cap { display: none !important; } .hero-runway { height: 0 !important; } }
+
+/* ---------- D-040 adaptive questions (shown only when A's / B's flags are on) ---------- */
+.assumed { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 0 10px; padding: 8px 0;
+  border-bottom: 1px solid var(--line); font-size: 14px; }
+.assumed strong { font-weight: 500; }
+.link-btn { border: 0; background: none; padding: 0; color: var(--ink); font-size: 13px; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px; }
+.link-btn:disabled { opacity: .5; cursor: default; }
+.did-you-mean p { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 4px 0; font-size: 15px; }
+.chip-btn { border: 1px solid var(--ink); background: none; padding: 5px 12px; font-size: 14px; cursor: pointer;
+  transition: background .3s var(--ease), color .3s var(--ease); }
+.chip-btn:hover, .chip-btn:focus-visible { background: var(--ink); color: var(--paper); outline: none; }
+.consent { margin-top: 14px; padding: 12px 14px; border: 1px solid var(--warn); }
+.consent p { margin: 0 0 6px; font-size: 14px; }
+.consent strong { font-weight: 500; }
+.consent-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 8px; }
+.consent-done { margin-top: 10px; }
+.entry.k-single .desc::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 7px;
+  vertical-align: 1px; background: var(--warn); }
+.entry.k-single .bytes { color: var(--warn); font-weight: 600; }
+.entry.k-tail .desc { font-style: normal; }
