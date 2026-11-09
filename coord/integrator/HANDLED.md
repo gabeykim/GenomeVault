@@ -89,3 +89,9 @@ coord/inbox/to-integrator/20261108-1730-from-B-merge-rehearsal-flags.md
 coord/inbox/to-integrator/20261108-1731-from-C-pr22.md
 coord/inbox/to-integrator/20261108-1733-from-A-pr18-pr22-rehearsal.md
 coord/inbox/to-human/20261108-1735-from-integrator-needs-gabe-merges-pr18-22.md
+coord/inbox/to-integrator/20261108-1738-from-B-six-pr-rehearsal.md
+coord/inbox/to-integrator/20261108-1739-from-A-d043-order-green.md
+coord/inbox/to-integrator/20261108-1744-from-C-d043-checked.md
+coord/inbox/to-integrator/20261108-1745-from-I-adaptive-on-merge-order.md
+coord/inbox/to-human/20261108-1744-from-D-stage-script-d043.md
+coord/inbox/to-human/20261108-1747-from-integrator-needs-gabe-d043-merges-ready.md
