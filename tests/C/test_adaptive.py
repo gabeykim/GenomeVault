@@ -26,6 +26,13 @@ def fake_suggest(kind):
     return suggest
 
 
+@pytest.fixture(autouse=True)
+def other_flags_off(monkeypatch):
+    """Pin the other D-040 flags off so a flag exported in the shell can't change these tests (B-069)."""
+    for k in ("GV_INTENT", "GV_TAIL", "GV_DEMO_LIVE_FALLBACK"):
+        monkeypatch.delenv(k, raising=False)
+
+
 @pytest.fixture
 def fuzzy(monkeypatch):
     def on(kind="assumed"):
@@ -149,3 +156,24 @@ def test_ui_has_the_d040_wording_and_ledger_labels():
               "This question can't be hidden in a group of 8.", "Send it on its own",
               "Single question sent, not hidden", "Tail group of 8 sent"):
         assert s in js, s
+
+
+# ---------- with A's real suggest (D-041 shape) ----------
+
+def test_hyphenated_combo_typo_is_swapped_so_the_banner_is_honest(monkeypatch):
+    """A, to-C 1720/1730: 'lisinoprl-hydrochlorothiazide' must check lisinopril too, or X4 vanishes."""
+    from core import normalize
+    monkeypatch.setenv("GV_FUZZY", "1")
+    monkeypatch.setattr(app_module, "suggest_names", normalize.suggest)
+    c = client.post("/api/check", json={"text": "lisinoprl-hydrochlorothiazide 10-12.5 mg"}).json()
+    named = {a["name"] for a in c["assumed"]}
+    checked = {d["ingredient"] for d in c["drugs"]}
+    assert named <= checked, f"banner names {named} but only {checked} were checked"
+    assert "lisinopril" in checked and "X4" in {f["id"] for f in c["flags"]}
+
+
+def test_swaps_by_span_right_to_left():
+    sw = [((0, 10), "clopidogrl", "clopidogrel"), ((15, 21), "asprin", "aspirin")]
+    assert app_module._apply_swaps("clopidogrl and asprin", sw) == "clopidogrel and aspirin"
+    assert app_module._apply_swaps("Is clopidogrl ok", [((40, 50), "clopidogrl", "clopidogrel")]) == "Is clopidogrel ok"
+    assert app_module._swap("lisinoprl-hctz", "lisinoprl", "lisinopril") == "lisinopril-hctz"
