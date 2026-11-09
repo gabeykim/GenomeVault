@@ -194,3 +194,41 @@ def test_phone_offers_every_label_and_a_print_sheet():
     html = (PHONE / "index.html").read_text() + (PHONE / "labels.html").read_text()
     for name in LABELS:
         assert f"/phone-assets/samples/{name}" in html
+
+
+# ---------- vision-model demo settings (Dhiaa 16:02, D-029) ----------
+
+def test_capture_reads_off_the_event_loop(monkeypatch):
+    """A ~4 s on-device read must not stall other requests: from_image runs in a worker thread."""
+    import asyncio
+    seen = {}
+
+    def fake(data, mime):
+        try:
+            asyncio.get_running_loop()
+            seen["on_loop"] = True
+        except RuntimeError:          # no running loop: a worker thread
+            seen["on_loop"] = False
+        return []
+    monkeypatch.setattr(app_module, "from_image", fake)
+    local.post("/api/capture", content=b"\x89PNG", headers={"Content-Type": "image/png"})
+    assert seen == {"on_loop": False}
+
+
+def test_status_reports_vision_mode(monkeypatch):
+    monkeypatch.setenv("GV_OCR", "vlm")
+    v = local.get("/api/status").json()["vision"]
+    assert v["mode"] == "vlm" and set(v) >= {"warm", "seconds"}
+
+
+def test_warm_up_reads_one_sample_label(monkeypatch):
+    calls = []
+    monkeypatch.setattr(app_module, "from_image", lambda data, mime: calls.append((len(data), mime)) or [])
+    monkeypatch.setitem(app_module.VISION, "warm", False)
+    app_module._warm_vision_model()
+    assert calls and calls[0][1] == "image/png" and app_module.VISION["warm"] is True
+
+
+def test_phone_shows_progress_and_downscales_photos():
+    js = (app_module.PHONE_DIR / "phone.js").read_text()
+    assert "Reading the label on this laptop" in js and "downscale(" in js

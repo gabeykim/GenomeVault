@@ -3,6 +3,7 @@
 #
 #   bash phone/serve_https.sh            # demo mode by default (DEMO=1), port 8443
 #   PORT=9443 DEMO=0 bash phone/serve_https.sh
+#   GV_OCR=vlm bash phone/serve_https.sh   # stage: labels read by the on-device vision model (D-029)
 #
 # - Makes a self-signed certificate for this laptop's LAN IP with the system `openssl` (no Python
 #   dependency), valid 7 days, kept outside the repo in ~/.genomevault/cert (never committed).
@@ -37,6 +38,10 @@ echo
 echo "  Laptop:  https://localhost:${PORT}/"
 echo "  Phone:   ${GV_PHONE_URL}   (same Wi-Fi; accept the certificate warning once)"
 echo "  Pairing code: shown on the laptop in Actions -> Use your phone"
+case "${GV_OCR:-auto}" in
+  vlm) echo "  Labels:  read by the on-device vision model (GV_OCR=vlm); warming it up now, ~10 s" ;;
+  *)   echo "  Labels:  GV_OCR=${GV_OCR:-auto} (sample labels use their embedded text; for the stage run use GV_OCR=vlm)" ;;
+esac
 echo
 exec "$UVICORN" app:app --host 0.0.0.0 --port "$PORT" \
   --ssl-keyfile "$CERT_DIR/key.pem" --ssl-certfile "$CERT_DIR/cert.pem"

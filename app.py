@@ -25,6 +25,7 @@ from typing import Callable, Literal, Optional
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
 from core import actions, merge
@@ -124,11 +125,28 @@ async def lifespan(_app: FastAPI):
     is actually asking. B's thread owns the schedule (GV_COVER_INTERVAL_S) and sends nothing while
     offline. Only stop what this app started."""
     started = bool(COVER and start_cover and start_cover())
+    if os.environ.get("GV_OCR", "").strip().lower() == "vlm":
+        threading.Thread(target=_warm_vision_model, name="gv-vlm-warm", daemon=True).start()
     try:
         yield
     finally:
         if started and stop_cover:
             stop_cover()
+
+
+VISION = {"warm": False, "seconds": None}
+
+
+def _warm_vision_model() -> None:
+    """With GV_OCR=vlm the first label read loads the local vision model (~10 s). Read one synthetic
+    sample label at startup so the S2 photo on stage takes ~4 s instead. Local only (I2)."""
+    t0 = time.perf_counter()
+    try:
+        from_image((PHONE_DIR / "samples" / "aspirin.png").read_bytes(), "image/png")
+        VISION.update(warm=True, seconds=round(time.perf_counter() - t0, 1))
+        print(f"GenomeVault: vision model warm ({VISION['seconds']} s)", flush=True)
+    except Exception as e:  # noqa: BLE001 - a cold model is slower, not broken
+        print(f"GenomeVault: vision model warm-up failed ({type(e).__name__}); first read will be slow", flush=True)
 
 
 def _cover_on() -> bool:
@@ -162,7 +180,8 @@ def index() -> FileResponse:
 @app.get("/api/status")
 def status() -> dict:
     return {"demo": DEMO, "disclaimer": DISCLAIMER, "modules": MODES, "extras": EXTRAS, "cloud": _cloud(),
-            "cover": _cover_on()}
+            "cover": _cover_on(),
+            "vision": {"mode": os.environ.get("GV_OCR", "auto").strip().lower(), **VISION}}
 
 
 @app.get("/api/profile", response_model=Profile)
@@ -471,7 +490,9 @@ async def capture(request: Request) -> dict:
     data = await request.body()
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, "photo too large")
-    drugs = from_image(data, mime) if mime.startswith("image/") and data else []
+    # The on-device vision model takes ~4 s a label (GV_OCR=vlm): read off the event loop so the
+    # laptop UI keeps polling meanwhile.
+    drugs = await run_in_threadpool(from_image, data, mime) if mime.startswith("image/") and data else []
     # D-029: only report what was read. The user confirms or edits it on the phone before rules run.
     return {"read": bool(drugs), "drugs": [d.model_dump() for d in drugs]}
 
