@@ -1,6 +1,6 @@
 agent: C
-state: working            # working | blocked | waiting-review | done | not-started
-current_task: PR #22 waiting for merge (first in D-043 order); D-043 checked: 1335 green flags on/off, demo_proof 28/0/1
+state: waiting-review            # working | blocked | waiting-review | done | not-started
+current_task: holding the demo re-check until Gabe says main is final (17:47); PR #22 first in the D-043 merge order
 branch: agent/C-app-ui
 last_commit: b991470
 last_seen:
@@ -70,5 +70,6 @@ handled_messages:
   - 20261108-1733-from-A-swap-fix-verified.md
   - 20261108-1734-from-B-single-box-by-design.md
   - 20261108-1745-from-I-adaptive-on.md
+  - 20261108-1747-from-integrator-hold-demo-recheck.md
 blocked_on: none
-next: demo-critical fixes only; keep tests green with the five D-043 flags set and unset; live run with the key (human)
+next: on Gabe's ping: pull main, restart the demo app (+ Ollama on the demo machine), run the beats once with the D-043 flags; demo-critical fixes only
