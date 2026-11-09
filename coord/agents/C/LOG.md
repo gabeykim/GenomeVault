@@ -312,3 +312,17 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** none. End to end on main + C, with the real router, ledger and cloud: cold Q18 → `known`, 2 bucket rows (1171 + 944 B), 0 personal fields; the same question again → `kb_hit`, 0 B. The UI with ?debug shows "All modules live", with no console errors.
 - **Tests:** `make test` exit 0 (790 passed, 3 skipped: the skips wait on PR #5 allergy engine and PR #4 queries.json); `check_network.sh` ok.
 - **Next:** rehearsal by G3 (17:30): 2× demo mode + 1× live, timings to D.
+
+### C-025 · 2026-11-08 16:05 · commits `35e6f35`, `c0c385b` (PR #8) · PLAN v1.3.2
+
+- **Change:** (1) **G3 rehearsal.** I ran D's demo script (S2–S6) 3 times on main + PRs #4, #5, #7, #8: twice in demo mode (once through the API, once by clicking the UI) and once in demo mode with B's stage delays (`GV_DELAY_S=0.3,2.0`). All 19 checks pass, with 0 personal fields throughout. Timings are in the message to D. (2) **Ticker fix.** A hidden tab never fires `animationend`, so every ledger update left its old number behind (5 stacked values seen). A 1 s timer now removes it. (3) **Dhiaa's vision-model items.** The phone shows "Reading the label on this laptop…" with a spinner and a seconds counter, and camera photos are downscaled to about 1280 px JPEG. `/api/capture` reads in a worker thread, so a 4 s read no longer stalls the laptop UI. With `GV_OCR=vlm`, startup warms the model on one sample label. `/api/status` adds `vision` {mode, warm, seconds}. `serve_https.sh` prints the mode.
+- **Why:** G3 rehearsal (Dhiaa's 15:20 list), and Dhiaa's 16:02 request (real vision model: 4.2 s a label warm, 10.6 s cold).
+- **Class:** Refines
+- **Plan:** refines F2, F5, S2 (D-029); S4/S6 unchanged
+- **Refinements:** a photo read never blocks the server. The stage run uses `GV_OCR=vlm`, with `auto` (embedded text) as the offline fallback.
+- **Contract impact:** none (`/api/status.vision` is additive)
+- **Affects:** D: script notes (Q18 may send 1 or 2 groups; Sync takes ~2 min with stage delays; S2 read ~4 s with vlm) → update lines. A, B: none.
+- **Demo impact:** S2 (progress while reading; warm model), S4/S6 (no change)
+- **Tests:** C branch → `make test` exit 0 (794 passed, 3 skipped); `check_network.sh` ok. Integrated → 1154 passed before these two commits. `python -m core.cloud check`: 136/136 usable. Checked the reading state and ledger in the browser; no console errors.
+- **Not done:** a live run (real cloud calls) needs `ANTHROPIC_API_KEY`, which this environment doesn't have. One stage-delay run's Sync stopped after 1 group with `offline: true`; I couldn't reproduce it (two later runs completed), and the UI handles it ("Went offline; what arrived is kept", Sync again).
+- **Next:** live run with the key on the demo laptop (human), then freeze prep for G5 (18:30).
