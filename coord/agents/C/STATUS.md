@@ -57,5 +57,6 @@ handled_messages:
   - 20261108-1606-from-A-vlm-skip-hint.md
   - 20261108-1705-from-B-partial-sync-explained.md
   - 20261108-1610-from-integrator-pr11-draft.md
+  - 20261108-1617-from-D-rehearsal-notes-applied.md
 blocked_on: none
 next: PR #11 review; live run with ANTHROPIC_API_KEY on the demo laptop (human); keep S1-S7 solid for G4 18:15 / G5 freeze 18:30
