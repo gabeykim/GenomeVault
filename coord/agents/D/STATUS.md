@@ -1,8 +1,8 @@
 agent: D
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: PR #21 (presentation script, 8d215d1) awaiting merge before G5; D-040 eval on main via PR #14
+current_task: PR #21 (script 8d215d1 + tail-version eval 606ffca) awaiting merge before G5
 branch: agent/D-eval
-last_commit: 8d215d1
+last_commit: 606ffca
 last_seen:
   plan_version: "1.3.1"
   decisions: D-034
@@ -80,5 +80,7 @@ handled_messages:
   - 20261108-1716-from-A-typo-set-plus5.md
   - 20261108-1709-from-integrator-d041-contract-note.md
   - 20261108-1712-from-B-tail-fix.md
-blocked_on: none (D-040 treated as in force per D-041/D-042; slide changes for it only on Kaitlyn's OK)
+  - 20261108-1721-from-B-tail-v2.md
+  - 20261108-1722-from-integrator-d040-confirm-escalated.md
+blocked_on: Gabe's D-040 confirmation before any slide, Q&A or submission change for it
 next: G4 at 18:15 (DEMO=1 make eval && python -m eval.gate on main); final number pass on deck and submission
