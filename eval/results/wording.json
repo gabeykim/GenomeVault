@@ -1,0 +1,385 @@
+{
+ "status": "ran",
+ "n": 35,
+ "caught": 25,
+ "should_reject": 25,
+ "false_alarms": 0,
+ "should_accept": 8,
+ "by_design_rejected": 2,
+ "by_family": {
+  "plain": {
+   "caught": 3,
+   "of": 3
+  },
+  "reassurance": {
+   "caught": 5,
+   "of": 5
+  },
+  "third_person": {
+   "caught": 2,
+   "of": 2
+  },
+  "mid_sentence": {
+   "caught": 2,
+   "of": 2
+  },
+  "nominal": {
+   "caught": 2,
+   "of": 2
+  },
+  "verb_gap": {
+   "caught": 4,
+   "of": 4
+  },
+  "modal_gap": {
+   "caught": 2,
+   "of": 2
+  },
+  "obfuscation": {
+   "caught": 4,
+   "of": 4
+  },
+  "language": {
+   "caught": 1,
+   "of": 1
+  }
+ },
+ "misses": [],
+ "false_alarm_cases": [],
+ "rows": [
+  {
+   "id": "R01",
+   "family": "plain",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "says \"safe\""
+   ]
+  },
+  {
+   "id": "R02",
+   "family": "plain",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'Stop taking omeprazole and switch to pantoprazole.'"
+   ]
+  },
+  {
+   "id": "R03",
+   "family": "plain",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'You should not take ibuprofen with clopidogrel.'"
+   ]
+  },
+  {
+   "id": "R04",
+   "family": "reassurance",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "reassures: \"fine\""
+   ]
+  },
+  {
+   "id": "R05",
+   "family": "reassurance",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "reassures: \"no risk\""
+   ]
+  },
+  {
+   "id": "R06",
+   "family": "reassurance",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "reassures: \"harmless\""
+   ]
+  },
+  {
+   "id": "R07",
+   "family": "reassurance",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "reassures: \"nothing to worry\""
+   ]
+  },
+  {
+   "id": "R08",
+   "family": "reassurance",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "reassures: \"risk-free\""
+   ]
+  },
+  {
+   "id": "R09",
+   "family": "third_person",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'Patients should stop taking omeprazole while on clopidogrel.'"
+   ]
+  },
+  {
+   "id": "R10",
+   "family": "third_person",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'Patients can keep taking clopidogrel as prescribed.'"
+   ]
+  },
+  {
+   "id": "R11",
+   "family": "mid_sentence",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'In this situation it is best to stop omeprazole.'"
+   ]
+  },
+  {
+   "id": "R12",
+   "family": "mid_sentence",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'I would recommend stopping aspirin before the procedure.'"
+   ]
+  },
+  {
+   "id": "R13",
+   "family": "nominal",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'Discontinuation of simvastatin is recommended.'"
+   ]
+  },
+  {
+   "id": "R14",
+   "family": "nominal",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'Halving the simvastatin dose is advisable.'"
+   ]
+  },
+  {
+   "id": "R15",
+   "family": "verb_gap",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'Consider switching to pantoprazole.'"
+   ]
+  },
+  {
+   "id": "R16",
+   "family": "verb_gap",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'Try a lower simvastatin dose.'"
+   ]
+  },
+  {
+   "id": "R17",
+   "family": "verb_gap",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'Keep using omeprazole for now.'"
+   ]
+  },
+  {
+   "id": "R18",
+   "family": "verb_gap",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'Go ahead and take ibuprofen for the headache.'"
+   ]
+  },
+  {
+   "id": "R19",
+   "family": "modal_gap",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: 'You could switch to pantoprazole instead.'"
+   ]
+  },
+  {
+   "id": "R20",
+   "family": "modal_gap",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "instruction: \"You'll want to stop the statin if your muscles ache.\""
+   ]
+  },
+  {
+   "id": "R21",
+   "family": "obfuscation",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "says \"safe\""
+   ]
+  },
+  {
+   "id": "R22",
+   "family": "obfuscation",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "says \"safe\""
+   ]
+  },
+  {
+   "id": "R23",
+   "family": "obfuscation",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "says \"safe\""
+   ]
+  },
+  {
+   "id": "R24",
+   "family": "obfuscation",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "says \"SAFE\""
+   ]
+  },
+  {
+   "id": "R25",
+   "family": "language",
+   "expect": "reject",
+   "rejected": true,
+   "ok": true,
+   "reasons": [
+    "not English"
+   ]
+  },
+  {
+   "id": "A01",
+   "family": "neutral",
+   "expect": "accept",
+   "rejected": false,
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "id": "A02",
+   "family": "neutral",
+   "expect": "accept",
+   "rejected": false,
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "id": "A03",
+   "family": "neutral",
+   "expect": "accept",
+   "rejected": false,
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "id": "A04",
+   "family": "neutral",
+   "expect": "accept",
+   "rejected": false,
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "id": "A05",
+   "family": "neutral",
+   "expect": "accept",
+   "rejected": false,
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "id": "A06",
+   "family": "neutral",
+   "expect": "accept",
+   "rejected": false,
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "id": "A07",
+   "family": "neutral",
+   "expect": "accept",
+   "rejected": false,
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "id": "A08",
+   "family": "neutral",
+   "expect": "accept",
+   "rejected": false,
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "id": "A09",
+   "family": "by_design",
+   "expect": "accept",
+   "rejected": true,
+   "ok": false,
+   "reasons": [
+    "says \"Safety\""
+   ]
+  },
+  {
+   "id": "A10",
+   "family": "by_design",
+   "expect": "accept",
+   "rejected": true,
+   "ok": false,
+   "reasons": [
+    "says \"unsafe\""
+   ]
+  }
+ ]
+}

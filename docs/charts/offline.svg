@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 400" width="760" height="400" role="img" aria-label="What still works with Wi-Fi off?">
+<title>What still works with Wi-Fi off?</title>
+<style>
+svg{--surface:#fcfcfb;--grid:#e6e5e1;--axis:#c3c2b7;--t1:#0b0b0b;--t2:#52514e;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--ref:#52514e}
+@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--grid:#2e2e2c;--axis:#52514e;--t1:#f0efec;--t2:#c3c2b7;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--ref:#c3c2b7}}
+text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;fill:var(--t2);font-size:12px}
+.title{fill:var(--t1);font-size:16px;font-weight:600}.sub{font-size:12px}.val{fill:var(--t1);font-size:10px;letter-spacing:-0.3px}
+</style>
+<rect width="760" height="400" fill="var(--surface)"/>
+<text class="title" x="64" y="28">What still works with Wi-Fi off?</text>
+<text class="sub" x="64" y="48">Share of questions answered with content: cold 11/20, warm 18/20 (rest get an honest &#x27;no data&#x27;)</text>
+<line x1="64" x2="736" y1="336.0" y2="336.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="56" y="340.0" text-anchor="end">0%</text>
+<line x1="64" x2="736" y1="274.0" y2="274.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="278.0" text-anchor="end">25%</text>
+<line x1="64" x2="736" y1="212.0" y2="212.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="216.0" text-anchor="end">50%</text>
+<line x1="64" x2="736" y1="150.0" y2="150.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="154.0" text-anchor="end">75%</text>
+<line x1="64" x2="736" y1="88.0" y2="88.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="56" y="92.0" text-anchor="end">100%</text>
+<path d="M106.2,336.0V240.8Q106.2,236.8 110.2,236.8H126.2Q130.2,236.8 130.2,240.8V336.0Z" fill="var(--s1)"><title>Gene–drug · Cold device (empty KB): 40%</title></path>
+<text class="val" x="118.2" y="230.8" text-anchor="middle">40%</text>
+<path d="M132.2,336.0V141.6Q132.2,137.6 136.2,137.6H152.2Q156.2,137.6 156.2,141.6V336.0Z" fill="var(--s2)"><title>Gene–drug · Warm device (after one session): 80%</title></path>
+<text class="val" x="144.2" y="131.6" text-anchor="middle">80%</text>
+<text x="131.2" y="354" text-anchor="middle">Gene–drug</text>
+<path d="M240.6,336.0V240.8Q240.6,236.8 244.6,236.8H260.6Q264.6,236.8 264.6,240.8V336.0Z" fill="var(--s1)"><title>Drug–drug · Cold device (empty KB): 40%</title></path>
+<text class="val" x="252.6" y="230.8" text-anchor="middle">40%</text>
+<path d="M266.6,336.0V92.0Q266.6,88.0 270.6,88.0H286.6Q290.6,88.0 290.6,92.0V336.0Z" fill="var(--s2)"><title>Drug–drug · Warm device (after one session): 100%</title></path>
+<text class="val" x="278.6" y="82.0" text-anchor="middle">100%</text>
+<text x="265.6" y="354" text-anchor="middle">Drug–drug</text>
+<path d="M375.0,336.0V216.0Q375.0,212.0 379.0,212.0H395.0Q399.0,212.0 399.0,216.0V336.0Z" fill="var(--s1)"><title>Drug–lab · Cold device (empty KB): 50%</title></path>
+<text class="val" x="387.0" y="206.0" text-anchor="middle">50%</text>
+<path d="M401.0,336.0V92.0Q401.0,88.0 405.0,88.0H421.0Q425.0,88.0 425.0,92.0V336.0Z" fill="var(--s2)"><title>Drug–lab · Warm device (after one session): 100%</title></path>
+<text class="val" x="413.0" y="82.0" text-anchor="middle">100%</text>
+<text x="400.0" y="354" text-anchor="middle">Drug–lab</text>
+<path d="M509.4,336.0V174.7Q509.4,170.7 513.4,170.7H529.4Q533.4,170.7 533.4,174.7V336.0Z" fill="var(--s1)"><title>OTC · Cold device (empty KB): 67%</title></path>
+<text class="val" x="521.4" y="164.7" text-anchor="middle">67%</text>
+<path d="M535.4,336.0V174.7Q535.4,170.7 539.4,170.7H555.4Q559.4,170.7 559.4,174.7V336.0Z" fill="var(--s2)"><title>OTC · Warm device (after one session): 67%</title></path>
+<text class="val" x="547.4" y="164.7" text-anchor="middle">67%</text>
+<text x="534.4" y="354" text-anchor="middle">OTC</text>
+<path d="M643.8,336.0V92.0Q643.8,88.0 647.8,88.0H663.8Q667.8,88.0 667.8,92.0V336.0Z" fill="var(--s1)"><title>Open-ended · Cold device (empty KB): 100%</title></path>
+<text class="val" x="655.8" y="82.0" text-anchor="middle">100%</text>
+<path d="M669.8,336.0V92.0Q669.8,88.0 673.8,88.0H689.8Q693.8,88.0 693.8,92.0V336.0Z" fill="var(--s2)"><title>Open-ended · Warm device (after one session): 100%</title></path>
+<text class="val" x="681.8" y="82.0" text-anchor="middle">100%</text>
+<text x="668.8" y="354" text-anchor="middle">Open-ended</text>
+<rect x="64" y="61" width="10" height="10" rx="2" fill="var(--s1)"/>
+<text x="80" y="70">Cold device (empty KB)</text>
+<rect x="246.4" y="61" width="10" height="10" rx="2" fill="var(--s2)"/>
+<text x="262.4" y="70">Warm device (after one session)</text>
+</svg>

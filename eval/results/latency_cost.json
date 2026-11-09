@@ -1,0 +1,53 @@
+{
+ "backend": "simulated",
+ "latency": "modelled",
+ "quality": "pending live judge (coverage reported instead)",
+ "modes": {
+  "local_only": {
+   "median_latency_ms": 925.0,
+   "cloud_calls": 0,
+   "cloud_tokens": 0,
+   "personal_fields_sent": 0,
+   "coverage": 0.65,
+   "not_fully_answered": [
+    "Q04",
+    "Q05",
+    "Q07",
+    "Q09",
+    "Q10",
+    "Q13",
+    "Q14"
+   ]
+  },
+  "cloud_only": {
+   "median_latency_ms": 3000.0,
+   "cloud_calls": 20,
+   "cloud_tokens": 17000,
+   "personal_fields_sent": 420,
+   "coverage": 1.0,
+   "not_fully_answered": []
+  },
+  "hybrid": {
+   "median_latency_ms": 2205.0,
+   "cloud_calls": 11,
+   "cloud_tokens": 28930,
+   "personal_fields_sent": 0,
+   "coverage": 1.0,
+   "not_fully_answered": []
+  }
+ },
+ "live": {
+  "no_delay": {
+   "backend": "live",
+   "GV_DELAY_S": "0,0",
+   "median_latency_ms": 3.6,
+   "median_latency_ms_when_sent": 7.5,
+   "cloud_calls": 11,
+   "bytes_out": 11111,
+   "personal_fields_sent": 0,
+   "wall_s": 0.09,
+   "unbacked_known": []
+  },
+  "default_delay": "not run (EVAL_DELAYS=1 runs it; it waits through real P6.4 delays)"
+ }
+}

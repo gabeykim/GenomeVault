@@ -1,0 +1,210 @@
+{
+ "partition": "real:data/buckets/v5.json",
+ "partition_version": "v5",
+ "partition_stats": {
+  "raw_keys": 136,
+  "raw_keys_with_phenotype": 32,
+  "raw_keys_with_threshold_or_dose": 25,
+  "topics_with_variants": 0,
+  "phenotype_split_topics": {},
+  "aliases": 4,
+  "universe_overlap": 0.907,
+  "partition_keys_without_prior": 0
+ },
+ "universe": "eval-fixture-v6",
+ "trials": 500,
+ "asks": 3,
+ "seed": 7,
+ "mode": "simulated transport (P6 model; real capture after G2)",
+ "single_topic": {
+  "naive": {
+   "intersection": 1.0,
+   "statistical": 1.0,
+   "domain": 1.0,
+   "med_inferred": 1.0,
+   "genotype_leaked": 1.0,
+   "phenotype_via_bucket": 0.0
+  },
+  "random_decoys": {
+   "intersection": 0.986,
+   "statistical": 0.99,
+   "domain": 0.992,
+   "med_inferred": 0.994,
+   "genotype_leaked": 0.0,
+   "phenotype_via_bucket": 0.0
+  },
+  "random_decoys_1ask": {
+   "intersection": 0.124,
+   "statistical": 0.236,
+   "domain": 0.402,
+   "med_inferred": 0.412,
+   "genotype_leaked": 0.0,
+   "phenotype_via_bucket": 0.0
+  },
+  "fixed_buckets": {
+   "intersection": 0.108,
+   "statistical": 0.218,
+   "domain": 0.406,
+   "med_inferred": 0.404,
+   "genotype_leaked": 0.0,
+   "phenotype_via_bucket": 0.0
+  },
+  "_baselines": {
+   "uniform_1_in_8": 0.125,
+   "domain_majority_guess": 0.322
+  }
+ },
+ "joint": {
+  "same_session": {
+   "scenario": 0.716,
+   "key_recall": 0.538
+  },
+  "separate_cover_linkable": {
+   "scenario": 0.338,
+   "key_recall": 0.065
+  },
+  "separate_cover_unlinkable": {
+   "scenario": 0.3,
+   "key_recall": 0.016
+  },
+  "_baselines": {
+   "scenario_majority_guess": 0.259,
+   "n_scenarios": 19
+  },
+  "alex_q18_scenario_recovered": {
+   "same_session": 1.0,
+   "separate_cover_linkable": 0.95,
+   "separate_cover_unlinkable": 1.0
+  },
+  "alex_note": "Do not quote Alex alone: cardiac_post_stent is the most common scenario in the synthetic priors, so a blind guess already says cardiac. The population numbers vs scenario_majority_guess are the honest measure."
+ },
+ "bucket_design": {
+  "stat_attacker_ceiling": 0.2049,
+  "uniform_floor": 0.125,
+  "buckets": [
+   {
+    "bucket": "b01",
+    "prior_mass": 0.0626,
+    "top_key_share": 0.212,
+    "dominant_domain": "pain",
+    "dominant_domain_share": 0.25
+   },
+   {
+    "bucket": "b02",
+    "prior_mass": 0.0683,
+    "top_key_share": 0.222,
+    "dominant_domain": "oncology",
+    "dominant_domain_share": 0.375
+   },
+   {
+    "bucket": "b03",
+    "prior_mass": 0.0797,
+    "top_key_share": 0.214,
+    "dominant_domain": "cardio",
+    "dominant_domain_share": 0.25
+   },
+   {
+    "bucket": "b04",
+    "prior_mass": 0.0323,
+    "top_key_share": 0.176,
+    "dominant_domain": "oncology",
+    "dominant_domain_share": 0.375
+   },
+   {
+    "bucket": "b05",
+    "prior_mass": 0.0949,
+    "top_key_share": 0.18,
+    "dominant_domain": "endocrine",
+    "dominant_domain_share": 0.375
+   },
+   {
+    "bucket": "b06",
+    "prior_mass": 0.0683,
+    "top_key_share": 0.167,
+    "dominant_domain": "cardio",
+    "dominant_domain_share": 0.25
+   },
+   {
+    "bucket": "b07",
+    "prior_mass": 0.0474,
+    "top_key_share": 0.16,
+    "dominant_domain": "cardio",
+    "dominant_domain_share": 0.375
+   },
+   {
+    "bucket": "b08",
+    "prior_mass": 0.0645,
+    "top_key_share": 0.206,
+    "dominant_domain": "cardio",
+    "dominant_domain_share": 0.5
+   },
+   {
+    "bucket": "b09",
+    "prior_mass": 0.0398,
+    "top_key_share": 0.238,
+    "dominant_domain": "respiratory",
+    "dominant_domain_share": 0.25
+   },
+   {
+    "bucket": "b10",
+    "prior_mass": 0.0304,
+    "top_key_share": 0.188,
+    "dominant_domain": "immuno",
+    "dominant_domain_share": 0.25
+   },
+   {
+    "bucket": "b11",
+    "prior_mass": 0.055,
+    "top_key_share": 0.207,
+    "dominant_domain": "cardio",
+    "dominant_domain_share": 0.25
+   },
+   {
+    "bucket": "b12",
+    "prior_mass": 0.055,
+    "top_key_share": 0.207,
+    "dominant_domain": "cardio",
+    "dominant_domain_share": 0.375
+   },
+   {
+    "bucket": "b13",
+    "prior_mass": 0.0778,
+    "top_key_share": 0.22,
+    "dominant_domain": "cardio",
+    "dominant_domain_share": 0.5
+   },
+   {
+    "bucket": "b14",
+    "prior_mass": 0.0664,
+    "top_key_share": 0.229,
+    "dominant_domain": "cardio",
+    "dominant_domain_share": 0.5
+   },
+   {
+    "bucket": "b15",
+    "prior_mass": 0.0436,
+    "top_key_share": 0.217,
+    "dominant_domain": "cardio",
+    "dominant_domain_share": 0.375
+   },
+   {
+    "bucket": "b16",
+    "prior_mass": 0.0455,
+    "top_key_share": 0.208,
+    "dominant_domain": "cardio",
+    "dominant_domain_share": 0.375
+   },
+   {
+    "bucket": "b17",
+    "prior_mass": 0.0683,
+    "top_key_share": 0.222,
+    "dominant_domain": "neuro",
+    "dominant_domain_share": 0.25
+   }
+  ],
+  "phenotype_split_topics": {}
+ },
+ "llm": {
+  "status": "not requested; pass --llm or set EVAL_LLM=1"
+ }
+}
