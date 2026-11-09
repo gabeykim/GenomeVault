@@ -1,13 +1,13 @@
 agent: A
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: Holding for the G5 freeze. PR #18 (tests only) at e34e618 (CI 2/2 green), where the hyphen banner xfail is conditional on C's span swap (#22). Rehearsal #18+#22 green (1301 passed). BRIEF queue 1-8 and D-040 part 1 done.
+current_task: Holding for the G5 freeze. PR #18 (tests only) at e34e618. The D-043 merge order (#22, #20, #18, #21, #19, #23) was rehearsed with make test exit 0, 1335 passed, both with all five flags unset and with all five set. BRIEF queue 1-8 and D-040 part 1 done.
 branch: agent/A-data-rules
-last_commit: e34e618 (PR head; local rebase d1c8386 on main 1c51c94, no code diff, not re-pushed)
+last_commit: e34e618 (PR head; local rebase 93b611b on main 62b0e39, no code diff, not re-pushed)
 pr: "#18 open (tests only). #17, #9 merged."
 last_seen:
-  plan_version: "1.3.6"
-  decisions: D-042
-  logs: {A: 36, B: 72, C: 31, D: 19}
+  plan_version: "1.3.7"
+  decisions: D-043
+  logs: {A: 37, B: 73, C: 31, D: 19}
   proposals_seen: [20261108-1655-human-adaptive-questions.md]
 handled_messages:
   - 20261108-1310-from-C-typed-input.md
@@ -47,16 +47,17 @@ handled_messages:
   - 20261108-1709-from-integrator-d041-suggest-contract.md
   - 20261108-1717-from-D-typo-results.md
   - 20261108-1731-from-C-swap-fixed.md
+  - 20261108-1734-from-B-new-keys-need-partition.md
+  - 20261108-1745-from-I-adaptive-on.md
 blocked_on: none
 dropped:
   - "Stretch: encryption at rest. Rejected (D-030, to-A 1516, 1522): no `cryptography` dependency, no graph.py change."
   - "Stretch: PharmCAT path. Needs a new external dependency (Java tool), a human ask under AGENTS §9, and G4 says hold new code."
-open_questions:
-  - "Is GV_FUZZY ON for the demo? The integrator decides at 18:00. Fact sent (to-integrator 1733): the hyphen gap closes once C's #22 merges; #18+#22 rehearsal is green."
+open_questions: []
 notes: >
-  17:35 cycle: no new to-A messages, PLAN v1.3.6, DECISIONS D-042, no new proposals, no FREEZE, no STOP.
-  Read B-072 (re-test, PR #20 held) and D-019 (tail E1 follows TAIL_VERSION; typos 20/20, 0 silent wrong): nothing for A.
-  Rebased onto main 1c51c94 (coord-only moves): `make test` exit 0, 1297 passed, 1 skipped, 1 xfailed (same as A-036).
-  The xfail and skip are the #22-conditional hyphen tests; both go green when C's #22 merges.
+  17:39 cycle: PLAN v1.3.7, D-043 (adaptive features ON for the demo, gated on demo_proof). No new proposals, no FREEZE, no STOP.
+  to-A 1745 (I): A's tests checked with the five flags set and unset. Results are in A-037; message to-integrator 1739.
+  to-A 1734 (B): new needs_cloud rule keys must sit in a partition. A adds no rules before the freeze.
+  The GV_FUZZY question is settled by D-043 (ON).
 next: >
-  Hold PR #18 (no further edit needed in any merge order). 18:00 GV_FUZZY ruling, then hold for the G5 freeze (18:30).
+  Hold PR #18 for Gabe's merge in the D-043 order. Demo-critical fixes only. Then hold for the G5 freeze (18:30).
