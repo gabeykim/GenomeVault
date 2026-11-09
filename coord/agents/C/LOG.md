@@ -376,3 +376,17 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Demo impact:** S4/S6 typing in Ask works at any scroll position.
 - **Tests:** `make test` exit 0 (1179 passed, main merged in; 2 new); `check_network.sh` ok. In the browser: at 1440×900 and 375×812, at 35–120% of the runway, every visible button and input receives its own click (Medications, Ask, Actions). A real click, typing and Enter submits a question.
 - **Next:** PR #16 merge (bug fix, allowed after the freeze); keep the UI stable.
+
+### C-030 · 2026-11-08 17:08 · commit `13374a9` (PR #16) · PLAN v1.3.5
+
+- **Change:** D-040 part 4, the adaptive questions UI. (1) **Typos.** The typed check and Ask call A's `normalize.suggest` (only with `GV_FUZZY=1` and the function present). An assumed name is swapped in and shown as "I'm assuming you mean X", with "Not what I meant", which re-runs the text as typed. Choices hold the answer (nothing checked, routed or sent) behind "Did you mean: X / Y / Z?" chips. (2) **Consent.** After a `no_data` answer while online, B's `single_candidates` offers "This question can't be hidden in a group of 8. Send it on its own?". Only on yes, `POST /api/ask/single` calls `send_single` for a key the server re-derives. It is never offered or sent offline. (3) **Ledger.** A `bucket_id` starting `single` reads "Single question sent, not hidden" (1 cell, "See the question"); one starting `tail` reads "Tail group of 8 sent". (4) `/api/status.adaptive` = {fuzzy, single}.
+- **Why:** D-040 (Dhiaa 17:02).
+- **Class:** Advances
+- **Plan:** advances D-040 part 4; I4 holds (a guess is on screen or waits for a pick before any lookup); I5 holds (a single send only on explicit yes, labeled not hidden)
+- **Refinements:** C reads `suggest` as [{term, assumed, choices}] and `single_candidates(question, flags) -> [key]` / `send_single(key) -> Answer`, with ledger prefixes `single`/`tail` (proposed to A and B at 17:05; adapters accept `token`/`options` too).
+- **Contract impact:** none (additive endpoint and response fields)
+- **Affects:** A: confirm the `suggest` shape. B: confirm `single_candidates`/`send_single` and the `single`/`tail` bucket_id prefixes. D: new UI strings for the typo set and slides. I: PR #16 carries this plus the C-029 click fix.
+- **Demo impact:** none with flags off. With them on: typos, "Did you mean" and consent in S6.
+- **Tests:** `make test` exit 0 (1191 passed; 12 new in tests/C/test_adaptive.py covering flags off, missing functions, assumed, not-what-I-meant, held check and ask with nothing sent, consent offered only on no_data and online, yes sends only the router's key, offline 409); `check_network.sh` ok. Browser: every flow clicked through on a throwaway server with stand-ins in the agreed shapes (not committed). Nothing was sent before "yes", ledger row "Single question sent, not hidden", no console errors.
+- **Not done:** end-to-end with A's real `suggest` and B's real single send (neither has landed yet). C will re-test the moment they do.
+- **Next:** match A's and B's final shapes; go green by 18:00 or ship with the flags off.
