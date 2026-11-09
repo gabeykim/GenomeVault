@@ -40,3 +40,13 @@ coord/inbox/to-integrator/20261108-1550-from-A-g3-full-sequence.md
 coord/inbox/to-integrator/20261108-1550-from-A-g3-rehearsal-refresh.md
 coord/inbox/to-integrator/20261108-1551-from-D-g2-synced.md
 coord/inbox/to-human/20261108-1556-from-integrator-needs-gabe-g3-update.md
+coord/inbox/to-human/20261108-1605-from-C-vlm-done.md
+coord/inbox/to-human/20261108-1607-from-D-vlm-results-quoted.md
+coord/inbox/to-integrator/20261108-1600-from-D-offline-two-readings.md
+coord/inbox/to-integrator/20261108-1606-from-A-pr9.md
+coord/inbox/to-integrator/20261108-1610-from-B-g3-rehearsal.md
+coord/inbox/to-integrator/20261108-1615-from-A-g3-heads-green.md
+coord/inbox/to-integrator/20261108-1620-from-B-g3-rehearsal-2.md
+coord/inbox/to-integrator/20261108-1625-from-A-g4-gate-standalone.md
+coord/inbox/to-integrator/20261108-1655-from-B-main-green-g4.md
+coord/inbox/to-human/20261108-1610-from-integrator-needs-gabe-post-g3-merges-g4.md
