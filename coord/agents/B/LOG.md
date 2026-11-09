@@ -614,3 +614,17 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` on the branch: exit 0, 1160 passed.
 - **Inbox:** handled 20261108-1617-from-D-sync-line.md. Read A-028 (PR #9 re-check) and D-015. Neither touches B's code.
 - **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
+
+### B-049 · 2026-11-08 16:45 · commit `abc231a` (PR #10, rebase only) · PLAN v1.3.3
+
+- **Change:** no code change. PR #10 (B-044 tests) rebased onto main `42a520b` and pushed as `abc231a`. Main moved only in `coord/` since `16dbc59` (A-029, A-030, B-048, C-027). `git diff` from the old head to the new one, outside `coord/`, is empty.
+- **Why:** keep PR #10 current for G4 (18:15).
+- **Class:** Advances
+- **Plan:** advances G4 prep (P9); F8, S6 unchanged; no invariant touched
+- **Refinements:** none
+- **Contract impact:** none
+- **Affects:** I: PR #10 head is now `abc231a`. A, C, D: nothing to do.
+- **Demo impact:** none
+- **Tests:** `make test` on the branch: exit 0, 1160 passed.
+- **Inbox:** nothing new for B. PLAN still v1.3.3, last decision still D-037. Read C-027 (hero title on scroll, PR #11, UI only) and A-029/A-030 (PR #9 re-checks). None touch the router.
+- **Next:** PR #10 merge at G4. Then hold for freeze and answer inbox requests.
