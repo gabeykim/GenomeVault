@@ -77,14 +77,28 @@ def test_hyphenated_typo_swaps_by_span(fuzzy, typed, meant):
     assert _ings(fixed) == meant
 
 
-@pytest.mark.xfail(reason="C's _swap skips a term inside a hyphenated word (to-C 1720); "
-                          "passes once C swaps by span", strict=False)
+# C's span swap (`app._apply_swaps`, PR #22, C-031) fixes the hyphen gap. Until it is on main the
+# banner test is an expected failure; once it lands the xfail switches off and the test is plain.
+SPAN_SWAP = hasattr(app_module, "_apply_swaps")
+
+
+@pytest.mark.xfail(not SPAN_SWAP, reason="C's _swap skips a term inside a hyphenated word "
+                   "(to-C 1720); fixed by C's span swap in PR #22", strict=True)
 @pytest.mark.parametrize("typed,meant", HYPHENATED)
 def test_app_banner_names_only_checked_drugs_hyphenated(fuzzy, typed, meant):
     out = _check(typed)
     checked = {d["ingredient"] for d in out["drugs"]}
     for x in out.get("assumed", []):
         assert x["name"] in checked, (x, sorted(checked))
+    assert set(meant) <= checked, sorted(checked)
+
+
+@pytest.mark.skipif(not SPAN_SWAP, reason="needs C's span swap (PR #22)")
+@pytest.mark.parametrize("typed,meant", HYPHENATED)
+def test_app_apply_swaps_uses_suggest_spans(fuzzy, typed, meant):
+    """C's own swap, fed A's real spans, gives the same ingredients as A's reference span swap."""
+    swaps = [(tuple(s["span"]), s["term"], s["assumed"]) for s in suggest(typed) if s["mode"] == "assumed"]
+    assert _ings(app_module._apply_swaps(typed, swaps)) == meant
 
 
 @pytest.mark.parametrize("typed,_meant", PLAIN)
