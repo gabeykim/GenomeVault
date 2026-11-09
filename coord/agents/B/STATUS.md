@@ -1,12 +1,12 @@
 agent: B
 state: waiting-review     # working | blocked | waiting-review | done | not-started
-current_task: B-073 test_single_reach (single-send box unreachable with today's keys) on PR #20 head f4891e2, pending Gabe's GV_TAIL call
+current_task: B-074 six-PR merge rehearsal (#22 #18 #21 #20 #23 #19) green; PR #20 held at f4891e2 pending Gabe's GV_TAIL call
 branch: agent/B-privacy-router
 last_commit: f4891e2
 last_seen:
   plan_version: "1.3.6"
   decisions: D-042
-  logs: {A: 35, B: 73, C: 31, D: 19}
+  logs: {A: 36, B: 74, C: 31, D: 19}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -52,6 +52,7 @@ handled_messages:
   - 20261108-1717-from-D-tail-finding.md
   - 20261108-1731-from-C-flag-isolation-fixed.md
   - 20261108-1733-from-D-tail-v2-done.md
+  - 20261108-1735-from-integrator-pr19-isolation-ack.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -134,4 +135,7 @@ notes: >
   B-073: tests/B/test_single_reach.py (f4891e2, PR #20 rebased onto 53f5377): with GV_TAIL on every rules.all_keys() key is in
   core/tail or is allergy (never cloud); real questions give single_candidates == []. Answers C's FYI (box rare by design).
   make test exit 0, 1300 passed. C and A told.
+  B-074: main moved only by coord commits. Re-tested (exit 0, 1300 passed). PR #20 left at f4891e2, no re-push. Throwaway merge of main
+  2dffacf + #22 + #18 + #21 + #20 + #23 + #19: no conflicts, 1335 passed with DEMO unset, with DEMO=1, and with DEMO=1 + all D-040 flags.
+  Gap in #19 tests only: setdefault("DEMO","1") does not override an exported DEMO=0, so 3 test_direct fails. Integrator told.
 next: if GV_TAIL goes ON, #20 merges first, then re-run flags-on suite + eval on main; else hold for G5 freeze.
