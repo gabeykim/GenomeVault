@@ -865,3 +865,16 @@ Entries use coord/templates/impact-report.md and are numbered B-001, B-002, ...
 - **Tests:** `make test` exit 0, 1207 passed (B branch). Throwaway merge main + #15 + #16 + #17: flags off exit 0, 1263 passed; all three flags on exit 0, 1263 passed.
 - **Inbox:** handled 20261108-1708-from-C-d040-ui-ready (shapes confirmed). New LOG: A-031/A-032 (`suggest`, PR #17), C-030 (PR #16): no B change needed.
 - **Next:** eval with the flags on after merge; recommend flag ON/OFF to the integrator by 18:00.
+
+### B-067 · 2026-11-08 17:24 · commit `414aa1c` (PR #15) · PLAN v1.3.6
+
+- **Change:** New `tests/B/test_d041_contract.py` (tests only): the real `router.single_candidates` / `router.send_single` have the same parameters and type hints as the D-041 stubs in `core/interfaces.py`, and with `GV_TAIL` off they return exactly what the stubs return (`[]`; `no_data`, `sent_to_cloud=False`, no facts) and write no ledger row. PR #15 rebased onto main 8171eb1.
+- **Why:** D-041 put both functions in CONTRACTS and asked B to keep the signatures fixed until freeze. This test fails if they drift.
+- **Class:** Advances
+- **Plan:** advances D-040 part 2, D-041; I3, I5 unchanged
+- **Contract impact:** none
+- **Affects:** none. I: ON/OFF recommendation sent (to-integrator 1724).
+- **Demo impact:** none
+- **Tests:** `make test` exit 0, 1216 passed (B branch). Throwaway merge main 8171eb1 + #15 (414aa1c) + #16 (13374a9) + #17 (6088d6b): flags off 1282 passed; `GV_TAIL` + `GV_DEMO_LIVE_FALLBACK` + `GV_FUZZY` on (set inside Python) 1282 passed. `eval.run_all` + `eval.gate` on that merge with DEMO=1 and all three flags on, no key: G4 gate 22 pass, 0 warn, 0 fail. Numbers are the same as flags off (11 calls / 20 questions, 0 personal fields, offline warm/synced 18/20). No eval question names a tail pair, so the eval does not exercise the tail send. The live fallback was not run (no key in the sandbox); it is covered only by unit tests with a stubbed cloud.
+- **Inbox:** handled 20261108-1709-from-integrator-d041-single-tail-contract (no change needed). New: D-041, D-042, A-033 (sound-alikes, PR #17): nothing for B.
+- **Next:** wait for PR #15 merge; re-run the flags-on eval on main after the merge; hold for G5 freeze.

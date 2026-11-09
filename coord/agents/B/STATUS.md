@@ -1,12 +1,12 @@
 agent: B
 state: working     # working | blocked | waiting-review | done | not-started
-current_task: B-066 GV_TAIL flag-on fix (97f83f3 on PR #15); flags-on suite green with #16 + #17; ON/OFF call by 18:00
+current_task: B-067 D-041 stub-parity test (414aa1c on PR #15); flags-on suite + eval green; ON/OFF recommendation sent
 branch: agent/B-privacy-router
-last_commit: 97f83f3
+last_commit: 414aa1c
 last_seen:
-  plan_version: "1.3.5"
-  decisions: D-040
-  logs: {A: 32, B: 66, C: 30, D: 16}
+  plan_version: "1.3.6"
+  decisions: D-042
+  logs: {A: 33, B: 67, C: 30, D: 16}
 handled_messages:
   - 20261108-1310-from-C-ledger-usage.md
   - 20261108-1323-from-C-boundaries.md
@@ -48,6 +48,7 @@ handled_messages:
   - 20261108-1702-from-I-adaptive-parts2-3.md
   - 20261108-1702-from-C-single-and-tail-shape.md
   - 20261108-1708-from-C-d040-ui-ready.md
+  - 20261108-1709-from-integrator-d041-single-tail-contract.md
 blocked_on: none
 notes: >
   G2 passed (D-032, PLAN v1.3.1). BRIEF queue items 1 to 9 are all on main since PR #2.
@@ -110,4 +111,8 @@ notes: >
   found 3 router bugs: a covering local flag was overridden by a tail send (wrong no_data). Fixed (97f83f3): same-product
   ingredients never a pair; tail drug-lab keys only when no flag covers; substitution asks no tail-only pair. make test exit 0,
   1207 passed; merge flags off 1263 passed, flags on 1263 passed. C's single shapes confirmed. C, D, integrator told.
-next: after PR #15 merges, run D's eval with the D-040 flags on; send the integrator the flag ON/OFF recommendation by 18:00.
+  B-067: tests/B/test_d041_contract.py pins router.single_candidates/send_single to the D-041 interfaces stubs
+  (same params and type hints; flag off = stub output, no ledger row). make test exit 0, 1216 passed. Merge main + #15 + #16 + #17:
+  flags off 1282, flags on 1282, eval with flags on G4 22/0/0 (no tail pair in eval, live fallback not run without a key).
+  Recommendation to integrator: GV_TAIL + GV_DEMO_LIVE_FALLBACK ON only with a working key on the demo machine, else OFF.
+next: after PR #15 merges, re-run the flags-on eval on main; hold for G5 freeze.
