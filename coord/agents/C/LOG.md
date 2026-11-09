@@ -326,3 +326,16 @@ Entries use coord/templates/impact-report.md and are numbered C-001, C-002, ...
 - **Tests:** C branch → `make test` exit 0 (794 passed, 3 skipped); `check_network.sh` ok. Integrated → 1154 passed before these two commits. `python -m core.cloud check`: 136/136 usable. Checked the reading state and ledger in the browser; no console errors.
 - **Not done:** a live run (real cloud calls) needs `ANTHROPIC_API_KEY`, which this environment doesn't have. One stage-delay run's Sync stopped after 1 group with `offline: true`; I couldn't reproduce it (two later runs completed), and the UI handles it ("Went offline; what arrived is kept", Sync again).
 - **Next:** live run with the key on the demo laptop (human), then freeze prep for G5 (18:30).
+
+### C-026 · 2026-11-08 16:11 · commit `ad4300f` (PR #11) · PLAN v1.3.3
+
+- **Change:** `/api/status.vision` now has `configured`, using A's test (`local_llm.VLM_MODEL` not `""`/`"set-me"`). With `GV_OCR=vlm` and no model configured, the startup warm-up prints a one-line hint and no longer claims "warm". "Warm" now means the warm-up label was actually read. C's branch is synced with main after G3 (D-036).
+- **Why:** A-025 (optional suggestion). A 0.0 s "warm" with no model would have misled the presenter before S2.
+- **Class:** Refines
+- **Plan:** refines S2 (D-029)
+- **Contract impact:** none (additive status field)
+- **Affects:** none
+- **Demo impact:** S2: the startup line tells the presenter if `LOCAL_VLM_MODEL` is missing.
+- **Tests:** C's branch (main merged in) → `make test` exit 0, 1163 passed; `check_network.sh` ok.
+- **Inbox:** G3 passed (D-036) → synced. B-044: the one-group Sync in C-025 was offline being switched on mid-sync; the UI wording is correct, so nothing changes.
+- **Next:** PR #11 review; live run with the key on the demo laptop (human); keep S1–S7 solid for G4 (18:15) and the G5 freeze (18:30).

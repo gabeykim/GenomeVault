@@ -1,12 +1,12 @@
 agent: C
 state: working            # working | blocked | waiting-review | done | not-started
-current_task: C-025 G3 rehearsal done (3 runs) + vision-model stage items on PR #8; live run needs the API key (human)
+current_task: C-026 vision status 'configured' on PR #11; synced with main after G3
 branch: agent/C-app-ui
-last_commit: c0c385b
+last_commit: ad4300f
 last_seen:
-  plan_version: "1.3.2"
-  decisions: D-035
-  logs: {A: 24, B: 41, C: 25, D: 13}
+  plan_version: "1.3.3"
+  decisions: D-036
+  logs: {A: 25, B: 44, C: 26, D: 14}
 handled_messages:
   - 20261108-1325-from-A-typed-input-ack.md
   - 20261108-1324-from-B-ledger-ack.md
@@ -53,5 +53,8 @@ handled_messages:
   - 20261108-1551-from-D-bone-again.md
   - 20261108-1555-from-B-ledger-flag-free.md
   - 20261108-1602-from-human-vlm-results.md
+  - 20261108-1605-from-integrator-g3-passed.md
+  - 20261108-1606-from-A-vlm-skip-hint.md
+  - 20261108-1705-from-B-partial-sync-explained.md
 blocked_on: none
-next: PR #8 review; live run with ANTHROPIC_API_KEY on the demo laptop (human); freeze prep for G5 18:30
+next: PR #11 review; live run with ANTHROPIC_API_KEY on the demo laptop (human); keep S1-S7 solid for G4 18:15 / G5 freeze 18:30
